@@ -3615,8 +3615,8 @@ List outerloop_estimation_pl(arma::vec coef,
     coefs.row(k) = join_cols(coef_nonpopularity, coef_popularity).t();
     if(k == max_iteration_outer){
       non_converged = false;
-    } else if ((arma::max(arma::vec {arma::norm(coefs.row(k)- coefs.row(k-1), 2), 
-                          abs((llh.at(k) -llh.at(k-1))/llh.at(k))})<tol) & !non_stop){
+    } else if ((arma::max(arma::vec{arma::norm(coefs.row(k)- coefs.row(k-1), 2), 
+                          std::abs((llh.at(k) -llh.at(k-1))/llh.at(k))})<tol) & !non_stop){
       non_converged = false;
     }
     k++;
