@@ -1,0 +1,225 @@
+#' @useDynLib iglm, .registration=TRUE
+
+# Rcpp::loadModule("double_cpp", TRUE)
+.onUnload <- function (libpath) {
+  library.dynam.unload("iglm", libpath)
+}
+
+#' @title Model specification for a `iglm' object 
+#'
+#' @description
+#' \code{R} package \code{iglm} implements generalized linear models (GLMs) 
+#' for studying relationships among attributes in connected populations, 
+#' where responses of connected units can be dependent.
+#' It extends GLMs for independent responses to dependent responses and can 
+#' be used for studying spillover in connected populations and other network-mediated phenomena.
+#' It is based on a joint probability model for dependent 
+#' responses (\eqn{Y}) and connections \eqn{(Z)} conditional on 
+#' predictors (X).
+#'
+#' The joint probability density is specified as
+#' \deqn{f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_y(y_i) \exp(\theta_g^T g_i(x_i, y_i^*)) \Big] \times  
+#' \Big[\prod_{i \ne j} a_z(z_{i,j}) \exp(\theta_h^T h_{i,j}(x, y_i^*, y_j^*, z)) \Big],}
+#' which is defined by two distinct sets of user-specified features:
+#' \itemize{
+#'   \item \strong{\eqn{g_i(x,y,z)}}: A vector of unit-level functions (or "g-terms")
+#'     that describe the relationship between an individual actor \eqn{i}'s
+#'     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
+#'   \item \strong{\eqn{h_{i,j}(x,y,z)}}: A vector of pair-level functions (or "h-terms")
+#'     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})
+#'     of a pair of units \eqn{\{i,j\}} depend on each other and the wider 
+#'     network structure.
+#' }
+#' This separation allows the model to simultaneously capture individual-level
+#' behavior (via \eqn{g_i}) and dyadic, network-based dependencies (via \eqn{h_{i,j}}), 
+#' including local dependence limited to overlapping neighborhoods.
+#' This help page documents the various statistics available in 'iglm',
+#' corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
+#' components of the joint model.
+#' In the formula interface, these terms can be specified by adding them in the 
+#' right-hand side of a model formula, e.g.,
+#' \code{netplus_object ~ attribute_x + edges(mode = "local") + popularity, ...}.
+#' See the documentation for \code{\link{iglm}} for details on model fitting
+#' and estimation.
+#'
+#' @details
+#' Each term defines a component for the model's features, which
+#' are a sum of unit-level components, \eqn{\sum_i g_i(x,y,z)}, and/or
+#' pair-level components, \eqn{\sum_{i \ne j} h_{i,j}(x,y,z)}.
+#' Here, \eqn{x_i} and \eqn{y_i} are the attributes for actor \eqn{i},
+#' and \eqn{z_{i,j}} indicates the presence (1) or absence (0) of a tie
+#' from actor \eqn{i} to actor \eqn{j}.
+#' The local neighborhood of actor \eqn{i} is denoted \eqn{\mathcal{N}_i},
+#' and the indicator for whether actors \eqn{i} and \eqn{j} share a local
+#' neighborhood is given by
+#' \eqn{c_{i,j} = \mathbb{I}(\mathcal{N}_i \cap \mathcal{N}_j \neq \emptyset)}.
+#' The functions below specify the forms of \eqn{g_i(x,y,z)} and \eqn{h_{i,j}(x,y,z)}
+#' for each term.
+#' Some terms also depend on other covariates, which are denoted by
+#' \eqn{v = (v_1, ..., v_N)} (unit-level) and \eqn{w = (w_{i,j}) \in \mathbb{R}^{N \times N}}(dyadic). 
+#' These covariates must be provided by the user via the \code{data} argument. 
+#' The implemented terms are grouped into three categories:
+#' \enumerate{
+#' \item  \eqn{g_i} terms for attribute dependence,
+#' \item \eqn{h_{i,j}} terms for network dependence,
+#' \item \eqn{h_{i,j}} Terms for joint attribute/network dependence.
+#' }
+#' 
+#' \describe{
+#'    \item{\strong{1. \eqn{g_i} Terms for Attribute Dependence}}{}
+#'   \item{\eqn{ }}{These statistics capture the dependence between attributes of actor i.}
+#'   \item{\code{attribute_x}}{
+#'     \strong{Attribute (X) [g-term]:} Intercept for attribute 'x'.
+#'     \eqn{g_i(x,y,z) = x_i}
+#'   }
+#'   \item{\code{attribute_y}}{
+#'     \strong{Attribute (Y) [g-term]:} Intercept for attribute 'y'.
+#'     \eqn{g_i(x,y,z) = y_i}
+#'   }
+#'   \item{\code{cov_x}}{
+#'     \strong{Nodal Covariate (X) [g-term]:} Effect of a unit-level covariate \eqn{v_i} on attribute \eqn{x_i}.
+#'     \eqn{g_i(x,y,z) = v_i x_i}
+#'   }
+#'   \item{\code{cov_y(data = v)}}{
+#'     \strong{Nodal Covariate (Y) [g-term]:} Effect of a unit-level covariate \eqn{v_i} on attribute \eqn{y_i}.
+#'     \eqn{g_i(x,y,z) = v_i y_i}
+#'   }
+#'    \item{\code{attribute_xy(mode = "global")}}{
+#'     \strong{Nodal Attribute Interaction (X-Y) [g-term]:} Interaction of attributes \eqn{x_i} and \eqn{y_i} on the same node. For mode different from "global", we count interactions of an actor's attributes with their local neighbors' attributes.
+#'     \itemize{
+#'       \item \code{global}: \eqn{g_i(x,y,z) = x_i y_i}
+#'       \item \code{local}: \eqn{g_i(x,y,z) = x_i \sum_{j \in \mathcal{N}_i} y_j + y_i \sum_{j \in \mathcal{N}_i} x_j}
+#'       \item \code{alocal}: \eqn{g_i(x,y,z) = x_i \sum_{j \notin \mathcal{N}_i} y_j + y_i \sum_{j \notin \mathcal{N}_i} x_j}
+#'     }
+#'   }
+#'   \item{\strong{2. \eqn{h_{i,j}} Terms for Network Dependence}}{}
+#'   \item{\eqn{ }}{These statistics capture network dependence.}
+#'   \item{\code{popularity}}{
+#'     \strong{Popularity [h-term]:} Adds fixed effects for all actors in the network. Estimation of popularity effects is carried out using a MM algorithm.
+#'      For directed networks, each actors has a sender and receiver effect (we assume that the out effect of actor N is 0 for identifiability).
+#'      For undirected networks, each actor has a single popularity effect.
+#'   } 
+#'   \item{\code{edges(mode = "global")}}{
+#'     \strong{Edges [h-term]:} Counts different types of edges.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = z_{i,j}}
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} z_{i,j}}
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j}}
+#'     }
+#'   }
+#'   \item{\code{mutual(mode = "global")}}{
+#'     \strong{Mutual Reciprocity [h-term]:} Counts whether the reciprocal tie between actors \eqn{i} and \eqn{j} is present. This term should only be used for directed networks.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = z_{i,j} z_{j,i}} (for \eqn{i < j})
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} z_{i,j} z_{j,i}} (for \eqn{i < j})
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j} z_{j,i}} (for \eqn{i < j})
+#'     }
+#'   }
+#'   \item{\code{cov_z(data, mode = "global")}}{
+#'     \strong{Dyadic Covariate [h-term]:} The effect of a dyadic covariate \eqn{w_{i,j}} for directed or undirected networks.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = w_{i,j} z_{i,j}}
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} w_{i,j} z_{i,j}}
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) w_{i,j} z_{i,j}}
+#'     }
+#'   }
+#'   \item{\code{cov_z_out(data, mode = "global")}}{
+#'     \strong{Covariate Sender [h-term]:} The effect of a monadic covariate \eqn{v_{i}} on being the sender in a directed network.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = v_i z_{i,j}}
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} v_i z_{i,j}}
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) v_i z_{i,j}}
+#'     }
+#'   }
+#'   \item{\code{cov_z_in(data, mode = "global")}}{
+#'     \strong{Covariate Receiver [h-term]:} The effect of a monadic covariate \eqn{v_{i}} on being the receiver in a directed network.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = v_j z_{i,j}}
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} v_j z_{i,j}}
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) v_j z_{i,j}}
+#'     }
+#'   }
+#'   \item{\code{transitive}}{
+#'     \strong{Transitivity (Local) [Joint]:} A statistic checking whether the dyad is a local transitive edge, meaning that there exists an actor \eqn{h \neq i,j} 
+#'     such that \eqn{h\in \mathcal{N}_i, h\in \mathcal{N}_j} with \eqn{z_{i,j} = z_{i,h} = z_{h,j}}: \eqn{h_{i,j} = c_{i,j} z_{i,j} \mathbb{I}(\sum_{k} c_{i,k} c_{j,k} z_{i,k} z_{k,j}>1)}
+#'   }
+#'    \item{\strong{3. \eqn{h_{i,j}} Terms for Joint Attribute/Network Dependence}}{}
+#'   \item{\eqn{ }}{These are \eqn{h_{i,j}} terms that capture dependence between the attributes and network.}
+#'   \item{\code{outedges_x_global()}}{
+#'     \strong{Attribute Out-Degree (X-Z Global) [h-term]:} Models \eqn{x_i}'s effect on its out-degree.
+#'     Corresponds to \eqn{h_{i,j}(x,y,z) = x_i z_{i,j}}.
+#'   }
+#'   \item{\code{outedges_x(mode = "global")}}{
+#'     \strong{Attribute Out-Degree (X-Z) [Joint h-term]:} Models \eqn{x_i}'s effect on its out-degree.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = x_i z_{i,j}}
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i z_{i,j}}
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) x_i z_{i,j}}
+#'     }
+#'   }
+#'   \item{\code{inedges_x(mode = "global")}}{
+#'     \strong{Attribute In-Degree (X-Z) [Joint h-term]:} Models \eqn{x_j}'s effect on its in-degree.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = x_j z_{i,j}}
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_j z_{i,j}}
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) x_j z_{i,j}}
+#'     }
+#'   }
+#'   \item{\code{outedges_y(mode = "global")}}{
+#'     \strong{Attribute Out-Degree (Y-Z) [Joint h-term]:} Models \eqn{y_i}'s effect on its out-degree.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = y_i z_{i,j}}
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i z_{i,j}}
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) y_i z_{i,j}}
+#'     }
+#'   }
+#'   \item{\code{inedges_y(mode = "global")}}{
+#'     \strong{Attribute In-Degree (Y-Z) [Joint h-term]:} Models \eqn{y_j}'s effect on its in-degree.
+#'     \itemize{
+#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = y_j z_{i,j}}
+#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_j z_{i,j}}
+#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) y_j z_{i,j}}
+#'     }
+#'   }
+#'   \item{\code{spillover_xx}}{
+#'     \strong{Symmetric X-X-Z Outcome Spillover [h-term]:} Models \eqn{x}-outcome spillover \strong{within} the local neighborhood.
+#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j}}.
+#'   }
+#'   \item{\code{spillover_yy}}{
+#'     \strong{Symmetric Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood. 
+#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j}}.
+#'   }
+#'   \item{\code{spillover_xy}}{
+#'     \strong{Directed X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood. 
+#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j}}.
+#'   }
+#'   \item{\code{spillover_xy_symm}}{
+#'     \strong{Symmetric X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \leftrightarrow y_j} treatment spillover \strong{within} the local neighborhood. 
+#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} (x_i y_j + x_j y_i) z_{i,j}}.
+#'   }
+#'   \item{\code{spillover_yx}}{
+#'     \strong{Directed Y-X-Z Treatment Spillover [h-term]:} Models the \eqn{y_i \to x_j} treatment spillover \strong{within} the local neighborhood.
+#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i x_j z_{i,j}}.
+#'   }
+#'   \item{\code{spillover_yc}}{
+#'     \strong{Directed Y-C-Z Treatment Spillover [h-term]:} Models \eqn{y}-treat spillover to a covariate \eqn{v}  \strong{within} the local neighborhood.
+#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i v_j z_{i,j}}.
+#'   }
+#'   \item{\code{spillover_yc_symm(data = v)}}{
+#'     \strong{Symmetric Treatment Spillover [h-term]:} Models the \eqn{v_i \leftrightarrow y_j } treatment spillover . 
+#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} (v_i y_j + v_j y_i) z_{i,j}}.
+#'   }
+#'   }
+#' @references 
+#' 
+#' Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+#' 
+#' Schweinberger, M. and M.S. Handcock (2015). Local Dependence in Random Graph Models: Characterization, Properties, and Statistical Inference. Journal of the Royal Statistical Society, Series B (Statistical Methodology), 7, 647-676.
+#' 
+#' Schweinberger, M. and J.R. Stewart (2020). Concentration and Consistency Results for Canonical and Curved Exponential-Family Models of Random Graphs. The Annals of Statistics, 48, 374-396.
+#' 
+#' Stewart, J.R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. The Annals of Statistics, to appear. 
+#' 
+#' @aliases terms
+#' @name model_terms
+NULL
