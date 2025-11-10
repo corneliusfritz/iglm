@@ -156,13 +156,13 @@ model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])
 model_tmp_new$estimate()
 #> Starting with the preprocessing
 #> Starting with the estimation
-#> Iteration = 1Iteration = 2Iteration = 3Iteration = 4Iteration = 5Iteration = 6Iteration = 7Iteration = 8Iteration = 9Iteration = 10Iteration = 11Iteration = 12Iteration = 13Iteration = 14Iteration = 15Iteration = 16Iteration = 17Iteration = 18Iteration = 19Iteration = 20Iteration = 21Iteration = 22Iteration = 23Iteration = 24Iteration = 25Iteration = 26Iteration = 27Iteration = 28Iteration = 29Iteration = 30Iteration = 31Iteration = 32Iteration = 33Iteration = 34Iteration = 35Iteration = 36Iteration = 37Iteration = 38Iteration = 39Iteration = 40Iteration = 41Iteration = 42Iteration = 43Iteration = 44Iteration = 45Iteration = 46Iteration = 47Iteration = 48Iteration = 49Iteration = 50Done with the estimation
+#> Iteration = 1Iteration = 2Iteration = 3Iteration = 4Iteration = 5Iteration = 6Iteration = 7Iteration = 8Iteration = 9Iteration = 10Iteration = 11Iteration = 12Iteration = 13Iteration = 14Iteration = 15Iteration = 16Iteration = 17Iteration = 18Iteration = 19Iteration = 20Iteration = 21Iteration = 22Done with the estimation
 #> Starting with samples to estimate uncertainty 
 #> Sample: 1Sample: 2Sample: 3Sample: 4Sample: 5Sample: 6Sample: 7Sample: 8Sample: 9Sample: 10Sample: 11Sample: 12Sample: 13Sample: 14Sample: 15Sample: 16Sample: 17Sample: 18Sample: 19Sample: 20Sample: 21Sample: 22Sample: 23Sample: 24Sample: 25Sample: 26Sample: 27Sample: 28Sample: 29Sample: 30Sample: 31Sample: 32Sample: 33Sample: 34Sample: 35Sample: 36Sample: 37Sample: 38Sample: 39Sample: 40Sample: 41Sample: 42Sample: 43Sample: 44Sample: 45Sample: 46Sample: 47Sample: 48Sample: 49Sample: 50Sample: 51Sample: 52Sample: 53Sample: 54Sample: 55Sample: 56Sample: 57Sample: 58Sample: 59Sample: 60Sample: 61Sample: 62Sample: 63Sample: 64Sample: 65Sample: 66Sample: 67Sample: 68Sample: 69Sample: 70Sample: 71Sample: 72Sample: 73Sample: 74Sample: 75Sample: 76Sample: 77Sample: 78Sample: 79Sample: 80Sample: 81Sample: 82Sample: 83Sample: 84Sample: 85Sample: 86Sample: 87Sample: 88Sample: 89Sample: 90Sample: 91Sample: 92Sample: 93Sample: 94Sample: 95Sample: 96Sample: 97Sample: 98Sample: 99Sample: 100Sample: 101Sample: 102Sample: 103Sample: 104Sample: 105Sample: 106Sample: 107Sample: 108Sample: 109Sample: 110
 #> Results: 
 #> 
 #>                       Estimate Std. Error
-#> edges(mode = 'local')    2.932      0.066
+#> edges(mode = 'local')    2.989      0.073
 #> attribute_y             -0.847      0.340
 #> attribute_x             -1.386      0.324
 

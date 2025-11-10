@@ -146,9 +146,6 @@ The implemented terms are grouped into three categories:</p><ol><li><p>\(g_i\) t
 </ol><dl><dt><strong>1. \(g_i\) Terms for Attribute Dependence</strong></dt>
 <dd></dd>
 
-  <dt>\( \)</dt>
-<dd><p>These statistics capture the dependence between attributes of actor i.</p></dd>
-
   <dt><code>attribute_x</code></dt>
 <dd><p><strong>Attribute (X) [g-term]:</strong> Intercept for attribute 'x'.
     \(g_i(x,y,z) = x_i\)</p></dd>
@@ -173,9 +170,6 @@ The implemented terms are grouped into three categories:</p><ol><li><p>\(g_i\) t
 
   <dt><strong>2. \(h_{i,j}\) Terms for Network Dependence</strong></dt>
 <dd></dd>
-
-  <dt>\( \)</dt>
-<dd><p>These statistics capture network dependence.</p></dd>
 
   <dt><code>popularity</code></dt>
 <dd><p><strong>Popularity [h-term]:</strong> Adds fixed effects for all actors in the network. Estimation of popularity effects is carried out using a MM algorithm.
@@ -218,9 +212,6 @@ The implemented terms are grouped into three categories:</p><ol><li><p>\(g_i\) t
 
    <dt><strong>3. \(h_{i,j}\) Terms for Joint Attribute/Network Dependence</strong></dt>
 <dd></dd>
-
-  <dt>\( \)</dt>
-<dd><p>These are \(h_{i,j}\) terms that capture dependence between the attributes and network.</p></dd>
 
   <dt><code>outedges_x_global()</code></dt>
 <dd><p><strong>Attribute Out-Degree (X-Z Global) [h-term]:</strong> Models \(x_i\)'s effect on its out-degree.

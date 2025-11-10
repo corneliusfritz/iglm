@@ -61,10 +61,6 @@ implemented terms are grouped into three categories:
 
 - **1. \\g_i\\ Terms for Attribute Dependence**:
 
-- \\ \\:
-
-  These statistics capture the dependence between attributes of actor i.
-
 - `attribute_x`:
 
   **Attribute (X) \[g-term\]:** Intercept for attribute 'x'.
@@ -101,10 +97,6 @@ implemented terms are grouped into three categories:
     y_i \sum\_{j \notin \mathcal{N}\_i} x_j\\
 
 - **2. \\h\_{i,j}\\ Terms for Network Dependence**:
-
-- \\ \\:
-
-  These statistics capture network dependence.
 
 - `popularity`:
 
@@ -182,11 +174,6 @@ implemented terms are grouped into three categories:
   z\_{k,j}\>1)\\
 
 - **3. \\h\_{i,j}\\ Terms for Joint Attribute/Network Dependence**:
-
-- \\ \\:
-
-  These are \\h\_{i,j}\\ terms that capture dependence between the
-  attributes and network.
 
 - `outedges_x_global()`:
 
