@@ -10,8 +10,9 @@ Description: R package iglm implements generalized linear models (GLMs) for stud
 License: GPL-3
 Imports: Rcpp (>= 1.0.8), Hmisc, R6, MASS, RcppArmadillo, stringr, Matrix, parallel, methods
 Suggests: rmarkdown, knitr, testthat
-Depends: RcppProgress
+Depends: RcppProgress, R (>= 3.5.0)
 LinkingTo: Rcpp, RcppProgress, RcppArmadillo, Matrix
 RoxygenNote: 7.3.3
 Encoding: UTF-8
 VignetteBuilder: knitr
+LazyData: true
