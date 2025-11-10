@@ -67,7 +67,6 @@
 #' 
 #' \describe{
 #'    \item{\strong{1. \eqn{g_i} Terms for Attribute Dependence}}{}
-#'   \item{\eqn{ }}{These statistics capture the dependence between attributes of actor i.}
 #'   \item{\code{attribute_x}}{
 #'     \strong{Attribute (X) [g-term]:} Intercept for attribute 'x'.
 #'     \eqn{g_i(x,y,z) = x_i}
@@ -93,7 +92,6 @@
 #'     }
 #'   }
 #'   \item{\strong{2. \eqn{h_{i,j}} Terms for Network Dependence}}{}
-#'   \item{\eqn{ }}{These statistics capture network dependence.}
 #'   \item{\code{popularity}}{
 #'     \strong{Popularity [h-term]:} Adds fixed effects for all actors in the network. Estimation of popularity effects is carried out using a MM algorithm.
 #'      For directed networks, each actors has a sender and receiver effect (we assume that the out effect of actor N is 0 for identifiability).
@@ -144,7 +142,6 @@
 #'     such that \eqn{h\in \mathcal{N}_i, h\in \mathcal{N}_j} with \eqn{z_{i,j} = z_{i,h} = z_{h,j}}: \eqn{h_{i,j} = c_{i,j} z_{i,j} \mathbb{I}(\sum_{k} c_{i,k} c_{j,k} z_{i,k} z_{k,j}>1)}
 #'   }
 #'    \item{\strong{3. \eqn{h_{i,j}} Terms for Joint Attribute/Network Dependence}}{}
-#'   \item{\eqn{ }}{These are \eqn{h_{i,j}} terms that capture dependence between the attributes and network.}
 #'   \item{\code{outedges_x_global()}}{
 #'     \strong{Attribute Out-Degree (X-Z Global) [h-term]:} Models \eqn{x_i}'s effect on its out-degree.
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = x_i z_{i,j}}.
