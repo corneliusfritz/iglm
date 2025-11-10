@@ -1,0 +1,40 @@
+# Compute Statistics
+
+Computes statistics.
+
+## Usage
+
+``` r
+count_statistics(formula)
+```
+
+## Arguments
+
+- formula:
+
+  A model \`formula\` object. The left-hand side should be the name of a
+  [`netplus`](netplus.md) object available in the calling environment.
+  See [`model_terms`](model_terms.md) for details on specifying the
+  right-hand side terms.
+
+## Value
+
+A named numeric vector. Each element corresponds to a term in the
+\`formula\`, and its value is the calculated observed feature for that
+term based on the data in the [`netplus`](netplus.md) object. The names
+of the vector match the coefficient names derived from the formula
+terms.
+
+## Examples
+
+``` r
+# Create a simple netplus object
+n_actors = 10
+neighborhood = matrix(1, nrow = n_actors, ncol = n_actors)
+type_x <- "binomial"
+type_y <- "binomial"
+object = netplus(neighborhood = neighborhood, directed = FALSE, type_x = type_y, type_y = type_y)
+count_statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
+#> edges(mode = 'local')           attribute_y           attribute_x 
+#>                     0                     0                     0 
+```
