@@ -1,6 +1,5 @@
 CXX_STD = CXX17
-PKG_CPPFLAGS = -I../inst/include -DARMA_64BIT_WORD
 
-## Explicitly add OpenMP flags for both compiler and linker
+PKG_CPPFLAGS = -I../inst/include -DARMA_64BIT_WORD -DIGLM_COMPILING_MYPACKAGE
 PKG_CXXFLAGS = -fopenmp
 PKG_LIBS = -fopenmp $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
