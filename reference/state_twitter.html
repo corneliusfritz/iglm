@@ -5,15 +5,15 @@ data analyzed in Fritz et al. (2025).'
 The data is filtered to include only legislators from 10 states (NY, CA, TX,
 FL, IL, PA, OH, GA, NC, MI) and is further subset to the largest
 connected component based on mention or retweet activity.
-This object contains the main netplus object and 5
+This object contains the main iglm_data object and 5
 pre-computed dyadic covariates."><meta property="og:description" content="This data object is data derived from the Twitter
 (X) interactions between U.S. state legislators, which is a subset of the
 data analyzed in Fritz et al. (2025).'
 The data is filtered to include only legislators from 10 states (NY, CA, TX,
 FL, IL, PA, OH, GA, NC, MI) and is further subset to the largest
 connected component based on mention or retweet activity.
-This object contains the main netplus object and 5
-pre-computed dyadic covariates."></head><body>
+This object contains the main iglm_data object and 5
+pre-computed dyadic covariates."><meta property="og:image" content="/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -40,8 +40,7 @@ pre-computed dyadic covariates."></head><body>
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Twitter (X) data list for U.S. state legislators (10-state subset)</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Twitter (X) data list for U.S. state legislators (10-state subset)</h1>
 
       <div class="d-none name"><code>state_twitter.Rd</code></div>
     </div>
@@ -53,7 +52,7 @@ data analyzed in Fritz et al. (2025).'
 The data is filtered to include only legislators from 10 states (NY, CA, TX,
 FL, IL, PA, OH, GA, NC, MI) and is further subset to the largest
 connected component based on mention or retweet activity.</p>
-<p>This object contains the main <code><a href="netplus.html">netplus</a></code> object and 5
+<p>This object contains the main <code><a href="iglm_data.html">iglm_data</a></code> object and 5
 pre-computed dyadic covariates.</p>
     </div>
 
@@ -66,8 +65,8 @@ pre-computed dyadic covariates.</p>
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
     <p>A <code>list</code> object containing 6 components. Let N be the number of
 legislators in the filtered 10-state subset.</p>
-<dl><dt>netplus</dt>
-<dd><p>A <code><a href="netplus.html">netplus</a></code> object (which is also a <code>list</code>)
+<dl><dt>iglm_data</dt>
+<dd><p>A <code><a href="iglm_data.html">iglm_data</a></code> object (which is also a <code>list</code>)
     parameterized as follows:</p><ul><li><p><code>x_attribute</code>: A binary numeric vector of length N.
         Value is <code>1</code> if the legislator's party is 'Republican',
         <code>0</code> otherwise.</p></li>

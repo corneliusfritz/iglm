@@ -6,13 +6,14 @@
   Estimation
 - [`count_statistics()`](count_statistics.md) : Compute Statistics
 - [`iglm()`](iglm.md) : Construct a iglm Model Specification Object
+- [`iglm_data()`](iglm_data.md) : Constructor for the iglm_data R6
+  object
+- [`iglm_data_generator`](iglm_data_generator.md) : A R6 class to
+  represent networks with unit-level attributes
 - [`iglm_object_generator`](iglm_object_generator.md) : An R6 class for
   Network GLM (Generalized Linear Model) Objects
 - [`model_terms`](model_terms.md) [`terms`](model_terms.md) : Model
   specification for a \`iglm' object
-- [`netplus()`](netplus.md) : Constructor for the netplus R6 object
-- [`netplus_generator`](netplus_generator.md) : A R6 class to represent
-  networks with unit-level attributes
 - [`results()`](results.md) : Constructor for the results R6 Object
 - [`results_generator`](results_generator.md) : R6 Class for Storing
   iglm Estimation and Simulation Results

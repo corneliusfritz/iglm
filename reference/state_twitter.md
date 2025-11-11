@@ -7,7 +7,7 @@ legislators from 10 states (NY, CA, TX, FL, IL, PA, OH, GA, NC, MI) and
 is further subset to the largest connected component based on mention or
 retweet activity.
 
-This object contains the main [`netplus`](netplus.md) object and 5
+This object contains the main [`iglm_data`](iglm_data.md) object and 5
 pre-computed dyadic covariates.
 
 ## Usage
@@ -21,9 +21,9 @@ data(state_twitter)
 A `list` object containing 6 components. Let N be the number of
 legislators in the filtered 10-state subset.
 
-- netplus:
+- iglm_data:
 
-  A [`netplus`](netplus.md) object (which is also a `list`)
+  A [`iglm_data`](iglm_data.md) object (which is also a `list`)
   parameterized as follows:
 
   - `x_attribute`: A binary numeric vector of length N. Value is `1` if

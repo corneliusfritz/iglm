@@ -23,7 +23,7 @@ simulate_iglm(
 - formula:
 
   A model \`formula\` object. The left-hand side should be the name of a
-  \`netplus\` object available in the calling environment. See
+  \`iglm_data\` object available in the calling environment. See
   [`model_terms`](model_terms.md) for details on specifying the
   right-hand side terms.
 
@@ -38,7 +38,7 @@ simulate_iglm(
   (expansiveness/attractiveness). This is required **only if** the
   \`formula\` includes popularity terms. Its length must be \`n_actor\`
   (for undirected networks) or \`2 \* n_actor\` (for directed networks),
-  where \`n_actor\` is determined from the \`netplus\` object in the
+  where \`n_actor\` is determined from the \`iglm_data\` object in the
   formula.
 
 - sampler:
@@ -54,8 +54,8 @@ simulate_iglm(
 
   (logical). If `TRUE` (default, consistent with the usage signature),
   the function returns only the matrix of features calculated for each
-  simulation. The full simulated `netplus` objects are discarded to
-  minimize memory usage. If `FALSE`, the complete simulated `netplus`
+  simulation. The full simulated `iglm_data` objects are discarded to
+  minimize memory usage. If `FALSE`, the complete simulated `iglm_data`
   objects are created and returned within the `samples` component of the
   output list.
 
@@ -69,7 +69,7 @@ simulate_iglm(
 
   Numeric scalar value passed to the C++ simulator. This value is
   typically added to the linear predictor for dyads that are **not**
-  part of the 'overlap' set defined in the \`netplus\` object,
+  part of the 'overlap' set defined in the \`iglm_data\` object,
   potentially modifying tie probabilities outside the primary
   neighborhood. Default is \`0\`.
 
@@ -86,7 +86,7 @@ simulate_iglm(
 - fix_x:
 
   Logical. If \`TRUE\`, the simulation holds the \`x_attribute\` fixed
-  at its initial state (from the [`netplus`](netplus.md) object) and
+  at its initial state (from the [`iglm_data`](iglm_data.md) object) and
   only simulates the \`y_attribute\` and \`z_network\`. If \`FALSE\`
   (default), all components (x, y, z) are simulated according to the
   model and sampler settings.
@@ -98,10 +98,10 @@ A list containing two components:
 - \`samples\`:
 
   If \`only_stats = FALSE\`, this is a list of length
-  \`sampler\$n_simulation\` where each element is a \`netplus\` object
+  \`sampler\$n_simulation\` where each element is a \`iglm_data\` object
   representing one simulated draw from the model. The list has the S3
-  class \`"netplus.list"\`. If \`only_stats = TRUE\`, this is typically
-  an empty list.
+  class \`"iglm_data.list"\`. If \`only_stats = TRUE\`, this is
+  typically an empty list.
 
 - \`stats\`:
 
@@ -156,4 +156,4 @@ Warnings may be issued if default sampler settings are used.
 ## See also
 
 `iglm` for creating the model object, `sampler.iglm` for creating the
-sampler object, `netplus` for the data object structure.
+sampler object, `iglm_data` for the data object structure.

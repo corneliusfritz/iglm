@@ -3,7 +3,7 @@
 The \`iglm_object\` class encapsulates all components required to
 define, estimate, and simulate from a network generalized linear model.
 This includes the model formula, coefficients, the underlying network
-and attribute data (via a \`netplus\` object), sampler controls,
+and attribute data (via a \`iglm_data\` object), sampler controls,
 estimation controls, and storage for results.
 
 ## References
@@ -45,10 +45,10 @@ Methodology), 7, 647-676.
   (\`results\`) Read-only. The [`results`](results.md) R6 object
   containing all estimation and simulation outputs.
 
-- `netplus`:
+- `iglm_data`:
 
-  (\`netplus\`) Read-only. The associated [`netplus`](netplus.md) R6
-  object containing the network and attribute data.
+  (\`iglm_data\`) Read-only. The associated [`iglm_data`](iglm_data.md)
+  R6 object containing the network and attribute data.
 
 - `control`:
 
@@ -65,7 +65,7 @@ Methodology), 7, 647-676.
 
   (\`numeric\`) Read-only. A named vector of the observed network
   statistics corresponding to the model terms, calculated on the current
-  \`netplus\` data.
+  \`iglm_data\` data.
 
 ## Methods
 
@@ -102,7 +102,7 @@ Methodology), 7, 647-676.
 ### Method `new()`
 
 Internal method to calculate the observed count statistics based on the
-model formula and the data in the \`netplus\` object. Populates the
+model formula and the data in the \`iglm_data\` object. Populates the
 \`private\$.count_statistics\` field.
 
 Internal validation method. Checks the consistency and validity of all
@@ -129,9 +129,9 @@ and control objects, calculating initial statistics, and validating.
 - `formula`:
 
   A model \`formula\` object. The left-hand side should be the name of a
-  [`netplus`](netplus.md) object available in the calling environment.
-  See [`model_terms`](model_terms.md) for details on specifying the
-  right-hand side terms.
+  [`iglm_data`](iglm_data.md) object available in the calling
+  environment. See [`model_terms`](model_terms.md) for details on
+  specifying the right-hand side terms.
 
 - `coef`:
 
@@ -184,7 +184,7 @@ parameters. Requires simulations to have been run first (via
   A formula specifying the network statistics to assess (e.g., \`~
   degree_distribution() + geodesic_distances_distribution()\`). The
   terms should correspond to methods available in the
-  [`netplus`](netplus.md) object that end with \`distributions\`.
+  [`iglm_data`](iglm_data.md) object that end with \`distributions\`.
 
 #### Returns
 
@@ -261,7 +261,7 @@ list for easy saving or inspection.
 A list containing all key components of the [`iglm_object`](iglm.md).
 This includes the formula, coefficients, sampler, control settings,
 preprocessing info, time taken for estimation, count statistics,
-results, and the underlying [`netplus`](netplus.md) data object.
+results, and the underlying [`iglm_data`](iglm_data.md) data object.
 
 ------------------------------------------------------------------------
 
@@ -370,7 +370,7 @@ carried out using the internal MCMC sampler described in
 #### Returns
 
 A list containing the simulated networks (\`samples\`, as a
-\`netplus.list\` if \`only_stats = FALSE\`) and/or their summary
+\`iglm_data.list\` if \`only_stats = FALSE\`) and/or their summary
 statistics (\`stats\`), invisibly.
 
 ------------------------------------------------------------------------
@@ -386,7 +386,7 @@ Retrieve the simulated networks stored in the object. Requires
 
 #### Returns
 
-A list of [`netplus`](netplus.md) objects representing the simulated
+A list of [`iglm_data`](iglm_data.md) objects representing the simulated
 networks, invisibly. Returns an error if no samples are available.
 
 ------------------------------------------------------------------------
@@ -411,7 +411,7 @@ changing the sampling scheme without redefining the entire model.
 
 ### Method `set_target()`
 
-Replace the internal \`netplus\` data object with a new one. This is
+Replace the internal \`iglm_data\` data object with a new one. This is
 useful for applying a fitted model to new observed data. Recalculates
 count statistics and re-validates the object.
 
@@ -423,7 +423,8 @@ count statistics and re-validates the object.
 
 - `x`:
 
-  A [`netplus`](netplus.md) “ object containing the new observed data.
+  A [`iglm_data`](iglm_data.md) “ object containing the new observed
+  data.
 
 #### Returns
 

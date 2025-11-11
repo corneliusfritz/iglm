@@ -37,7 +37,7 @@ documents the various statistics available in 'iglm', corresponding to
 the \\g_i\\ (attribute-level) and \\h\_{i,j}\\ (pair-level) components
 of the joint model. This is a user-facing constructor for creating a
 `iglm_object`. This `R6` object encompasses the complete model
-specification, linking the formula, data ([`netplus`](netplus.md)
+specification, linking the formula, data ([`iglm_data`](iglm_data.md)
 object), initial coefficients, MCMC sampler settings, and estimation
 controls. It serves as the primary input for subsequent methods like
 `$estimate()` and `$simulate()`.
@@ -60,7 +60,7 @@ iglm(
 - formula:
 
   A model \`formula\` object. The left-hand side should be the name of a
-  \`netplus\` object available in the calling environment. See
+  \`iglm_data\` object available in the calling environment. See
   [`model_terms`](model_terms.md) for details on specifying the
   right-hand side terms.
 
@@ -124,10 +124,10 @@ of Increasing Dimension. The Annals of Statistics, to appear.
 ``` r
 # Example usage:
 library(iglm)
-# Create a netplus data object (example)
+# Create a iglm_data data object (example)
 n_actors <- 50
 neighborhood <- matrix(1, nrow = n_actors, ncol = n_actors)
-xyz_obj <- netplus(neighborhood = neighborhood, directed = FALSE,
+xyz_obj <- iglm_data(neighborhood = neighborhood, directed = FALSE,
                    type_x = "binomial", type_y = "binomial")
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
@@ -146,25 +146,13 @@ model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
                           coef_popularity = gt_coef_pop,
                           sampler = sampler_new,
                           control = control.iglm(accelerated = FALSE,
-                          max_it = 200, display_progress = TRUE, var = TRUE))
+                          max_it = 200, display_progress = FALSE, var = TRUE))
 # Simulate from the model
 model_tmp_new$simulate()
 model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])
-#> Target netplus object has been set successfully.
 
 # Estimate model parameters
 model_tmp_new$estimate()
-#> Starting with the preprocessing
-#> Starting with the estimation
-#> Iteration = 1Iteration = 2Iteration = 3Iteration = 4Iteration = 5Iteration = 6Iteration = 7Iteration = 8Iteration = 9Iteration = 10Iteration = 11Iteration = 12Iteration = 13Iteration = 14Iteration = 15Iteration = 16Iteration = 17Iteration = 18Iteration = 19Iteration = 20Iteration = 21Iteration = 22Done with the estimation
-#> Starting with samples to estimate uncertainty 
-#> Sample: 1Sample: 2Sample: 3Sample: 4Sample: 5Sample: 6Sample: 7Sample: 8Sample: 9Sample: 10Sample: 11Sample: 12Sample: 13Sample: 14Sample: 15Sample: 16Sample: 17Sample: 18Sample: 19Sample: 20Sample: 21Sample: 22Sample: 23Sample: 24Sample: 25Sample: 26Sample: 27Sample: 28Sample: 29Sample: 30Sample: 31Sample: 32Sample: 33Sample: 34Sample: 35Sample: 36Sample: 37Sample: 38Sample: 39Sample: 40Sample: 41Sample: 42Sample: 43Sample: 44Sample: 45Sample: 46Sample: 47Sample: 48Sample: 49Sample: 50Sample: 51Sample: 52Sample: 53Sample: 54Sample: 55Sample: 56Sample: 57Sample: 58Sample: 59Sample: 60Sample: 61Sample: 62Sample: 63Sample: 64Sample: 65Sample: 66Sample: 67Sample: 68Sample: 69Sample: 70Sample: 71Sample: 72Sample: 73Sample: 74Sample: 75Sample: 76Sample: 77Sample: 78Sample: 79Sample: 80Sample: 81Sample: 82Sample: 83Sample: 84Sample: 85Sample: 86Sample: 87Sample: 88Sample: 89Sample: 90Sample: 91Sample: 92Sample: 93Sample: 94Sample: 95Sample: 96Sample: 97Sample: 98Sample: 99Sample: 100Sample: 101Sample: 102Sample: 103Sample: 104Sample: 105Sample: 106Sample: 107Sample: 108Sample: 109Sample: 110
-#> Results: 
-#> 
-#>                       Estimate Std. Error
-#> edges(mode = 'local')    2.989      0.073
-#> attribute_y             -0.847      0.340
-#> attribute_x             -1.386      0.324
 
 # Model Assessment
 model_tmp_new$model_assessment(formula = ~  degree_distribution )

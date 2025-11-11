@@ -5,7 +5,7 @@ framework but provides structured access to the results via the active
 bindings of the main `iglm_object`."><meta property="og:description" content="The `results` class stores estimation (`$estimate()`) and simulation (`$simulate()`) results.
 This class is primarily intended for internal use within the `iglm`
 framework but provides structured access to the results via the active
-bindings of the main `iglm_object`."></head><body>
+bindings of the main `iglm_object`."><meta property="og:image" content="/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -32,8 +32,7 @@ bindings of the main `iglm_object`."></head><body>
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>R6 Class for Storing iglm Estimation and Simulation Results</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>R6 Class for Storing iglm Estimation and Simulation Results</h1>
 
       <div class="d-none name"><code>results_generator.Rd</code></div>
     </div>
@@ -53,7 +52,7 @@ bindings of the main `iglm_object`.</p>
 
 
 <dt><code>samples</code></dt>
-<dd><p>(`list` or `NULL`) Read-only. A list of simulated `netplus` objects (class `netplus.list`).</p></dd>
+<dd><p>(`list` or `NULL`) Read-only. A list of simulated `iglm_data` objects (class `iglm_data.list`).</p></dd>
 
 
 <dt><code>stats</code></dt>
@@ -262,7 +261,7 @@ existing path.</p></dd>
 
 
 <dt><code>samples</code></dt>
-<dd><p>(list) A list of simulated `netplus` objects (class `netplus.list`).
+<dd><p>(list) A list of simulated `iglm_data` objects (class `iglm_data.list`).
 If provided, replaces any existing samples.</p></dd>
 
 

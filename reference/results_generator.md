@@ -16,8 +16,8 @@ bindings of the main \`iglm_object\`.
 
 - `samples`:
 
-  (\`list\` or \`NULL\`) Read-only. A list of simulated \`netplus\`
-  objects (class \`netplus.list\`).
+  (\`list\` or \`NULL\`) Read-only. A list of simulated \`iglm_data\`
+  objects (class \`iglm_data.list\`).
 
 - `stats`:
 
@@ -245,8 +245,8 @@ estimation. Replaces \`samples\` and \`stats\`.
 
 - `samples`:
 
-  (list) A list of simulated \`netplus\` objects (class
-  \`netplus.list\`). If provided, replaces any existing samples.
+  (list) A list of simulated \`iglm_data\` objects (class
+  \`iglm_data.list\`). If provided, replaces any existing samples.
 
 - `var`:
 

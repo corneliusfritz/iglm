@@ -30,7 +30,7 @@ This help page documents the various statistics available in 'iglm',
 corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
 components of the joint model.
 This is a user-facing constructor for creating a iglm_object. This R6 object
-encompasses the complete model specification, linking the formula, data (netplus object),
+encompasses the complete model specification, linking the formula, data (iglm_data object),
 initial coefficients, MCMC sampler settings, and estimation controls.
 It serves as the primary input for subsequent methods like $estimate() and $simulate()."><meta property="og:description" content="The iglm package implements a comprehensive regression framework  introduced in Fritz et al. (2025) for
 studying relationships among attributes \((X, Y)\) under network interference \((Z)\).
@@ -63,9 +63,9 @@ This help page documents the various statistics available in 'iglm',
 corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
 components of the joint model.
 This is a user-facing constructor for creating a iglm_object. This R6 object
-encompasses the complete model specification, linking the formula, data (netplus object),
+encompasses the complete model specification, linking the formula, data (iglm_data object),
 initial coefficients, MCMC sampler settings, and estimation controls.
-It serves as the primary input for subsequent methods like $estimate() and $simulate()."></head><body>
+It serves as the primary input for subsequent methods like $estimate() and $simulate()."><meta property="og:image" content="/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -92,8 +92,7 @@ It serves as the primary input for subsequent methods like $estimate() and $simu
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Construct a iglm Model Specification Object</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Construct a iglm Model Specification Object</h1>
 
       <div class="d-none name"><code>iglm.Rd</code></div>
     </div>
@@ -129,7 +128,7 @@ This help page documents the various statistics available in 'iglm',
 corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
 components of the joint model.
 This is a user-facing constructor for creating a <code>iglm_object</code>. This <code>R6</code> object
-encompasses the complete model specification, linking the formula, data (<code><a href="netplus.html">netplus</a></code> object),
+encompasses the complete model specification, linking the formula, data (<code><a href="iglm_data.html">iglm_data</a></code> object),
 initial coefficients, MCMC sampler settings, and estimation controls.
 It serves as the primary input for subsequent methods like <code>$estimate()</code> and <code>$simulate()</code>.</p>
     </div>
@@ -152,7 +151,7 @@ It serves as the primary input for subsequent methods like <code>$estimate()</co
 
 <dl><dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
 <dd><p>A model `formula` object. The left-hand side should be the
-name of a `netplus` object available in the calling environment.
+name of a `iglm_data` object available in the calling environment.
 See <code><a href="model_terms.html">model_terms</a></code> for details on specifying the right-hand side terms.</p></dd>
 
 
@@ -201,10 +200,10 @@ other arguments are ignored and the object is loaded from the file.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example usage:</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">iglm</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Create a netplus data object (example)</span></span></span>
+<span class="r-in"><span><span class="co"># Create a iglm_data data object (example)</span></span></span>
 <span class="r-in"><span><span class="va">n_actors</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></span>
 <span class="r-in"><span><span class="va">neighborhood</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">n_actors</span>, ncol <span class="op">=</span> <span class="va">n_actors</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">xyz_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="netplus.html">netplus</a></span><span class="op">(</span>neighborhood <span class="op">=</span> <span class="va">neighborhood</span>, directed <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span><span class="va">xyz_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="iglm_data.html">iglm_data</a></span><span class="op">(</span>neighborhood <span class="op">=</span> <span class="va">neighborhood</span>, directed <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>                   type_x <span class="op">=</span> <span class="st">"binomial"</span>, type_y <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Define ground truth coefficients</span></span></span>
 <span class="r-in"><span><span class="va">gt_coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges_local"</span> <span class="op">=</span> <span class="fl">3</span>, <span class="st">"attribute_y"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, <span class="st">"attribute_x"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></span>
@@ -223,25 +222,13 @@ other arguments are ignored and the object is loaded from the file.</p></dd>
 <span class="r-in"><span>                          coef_popularity <span class="op">=</span> <span class="va">gt_coef_pop</span>,</span></span>
 <span class="r-in"><span>                          sampler <span class="op">=</span> <span class="va">sampler_new</span>,</span></span>
 <span class="r-in"><span>                          control <span class="op">=</span> <span class="fu"><a href="control.iglm.html">control.iglm</a></span><span class="op">(</span>accelerated <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>                          max_it <span class="op">=</span> <span class="fl">200</span>, display_progress <span class="op">=</span> <span class="cn">TRUE</span>, var <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                          max_it <span class="op">=</span> <span class="fl">200</span>, display_progress <span class="op">=</span> <span class="cn">FALSE</span>, var <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Simulate from the model</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">simulate</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">set_target</span><span class="op">(</span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">get_samples</span><span class="op">(</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Target netplus object has been set successfully.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Estimate model parameters</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">estimate</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Starting with the preprocessing</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Starting with the estimation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration = 1Iteration = 2Iteration = 3Iteration = 4Iteration = 5Iteration = 6Iteration = 7Iteration = 8Iteration = 9Iteration = 10Iteration = 11Iteration = 12Iteration = 13Iteration = 14Iteration = 15Iteration = 16Iteration = 17Iteration = 18Iteration = 19Iteration = 20Iteration = 21Iteration = 22Done with the estimation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Starting with samples to estimate uncertainty </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sample: 1Sample: 2Sample: 3Sample: 4Sample: 5Sample: 6Sample: 7Sample: 8Sample: 9Sample: 10Sample: 11Sample: 12Sample: 13Sample: 14Sample: 15Sample: 16Sample: 17Sample: 18Sample: 19Sample: 20Sample: 21Sample: 22Sample: 23Sample: 24Sample: 25Sample: 26Sample: 27Sample: 28Sample: 29Sample: 30Sample: 31Sample: 32Sample: 33Sample: 34Sample: 35Sample: 36Sample: 37Sample: 38Sample: 39Sample: 40Sample: 41Sample: 42Sample: 43Sample: 44Sample: 45Sample: 46Sample: 47Sample: 48Sample: 49Sample: 50Sample: 51Sample: 52Sample: 53Sample: 54Sample: 55Sample: 56Sample: 57Sample: 58Sample: 59Sample: 60Sample: 61Sample: 62Sample: 63Sample: 64Sample: 65Sample: 66Sample: 67Sample: 68Sample: 69Sample: 70Sample: 71Sample: 72Sample: 73Sample: 74Sample: 75Sample: 76Sample: 77Sample: 78Sample: 79Sample: 80Sample: 81Sample: 82Sample: 83Sample: 84Sample: 85Sample: 86Sample: 87Sample: 88Sample: 89Sample: 90Sample: 91Sample: 92Sample: 93Sample: 94Sample: 95Sample: 96Sample: 97Sample: 98Sample: 99Sample: 100Sample: 101Sample: 102Sample: 103Sample: 104Sample: 105Sample: 106Sample: 107Sample: 108Sample: 109Sample: 110</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Results: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       Estimate Std. Error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> edges(mode = 'local')    2.989      0.073</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attribute_y             -0.847      0.340</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attribute_x             -1.386      0.324</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Model Assessment</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">model_assessment</span><span class="op">(</span>formula <span class="op">=</span> <span class="op">~</span>  <span class="va">degree_distribution</span> <span class="op">)</span></span></span>
