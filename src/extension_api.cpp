@@ -1,5 +1,4 @@
 
-#define IGLM_COMPILING_MYPACKAGE
 
 #include "iglm/extension_api.hpp"
 
