@@ -100,7 +100,16 @@ You can estimate the model parameters using the `estimate` method:
 # First set the first simulated network as the target for estimation
 model_tmp_new$set_target(tmp[[1]])
 model_tmp_new$estimate()
+model_tmp_new$iglm.data$degree_distribution(plot = TRUE)
 ```
+
+![](iglm_files/figure-html/unnamed-chunk-7-1.png)
+
+    #> info
+    #>    0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15 
+    #> 0.04 0.02 0.04 0.12 0.03 0.10 0.07 0.16 0.03 0.07 0.05 0.02 0.04 0.02 0.03 0.02 
+    #>   16   17   18   19   20   21   22   23   24   25   26   27   28   29 
+    #> 0.03 0.03 0.01 0.02 0.01 0.01 0.00 0.00 0.00 0.01 0.00 0.01 0.00 0.01
 
 ## Model Assessment
 

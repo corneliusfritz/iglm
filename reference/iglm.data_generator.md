@@ -365,7 +365,8 @@ Calculates the geodesic distance distribution of the symmetrized
 
     iglm.data_generator$geodesic_distances_distribution(
       value_range = NULL,
-      prob = TRUE
+      prob = TRUE,
+      plot = FALSE
     )
 
 #### Arguments
@@ -380,6 +381,10 @@ Calculates the geodesic distance distribution of the symmetrized
 
   (logical) If \`TRUE\` (default), returns a probability distribution
   (proportions). If \`FALSE\`, returns raw counts.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distribution.
 
 #### Returns
 
@@ -413,7 +418,8 @@ Calculates the distribution of edgewise shared partners.
     iglm.data_generator$edgewise_shared_partner_distribution(
       type = "ALL",
       value_range = NULL,
-      prob = TRUE
+      prob = TRUE,
+      plot = FALSE
     )
 
 #### Arguments
@@ -433,6 +439,10 @@ Calculates the distribution of edgewise shared partners.
 
   (logical) If \`TRUE\` (default), returns a probability distribution
   (proportions). If \`FALSE\`, returns raw counts.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distribution.
 
 #### Returns
 
@@ -450,7 +460,8 @@ Calculates the distribution of edgewise shared partners.
     iglm.data_generator$dyadwise_shared_partner_distribution(
       type = "ALL",
       value_range = NULL,
-      prob = TRUE
+      prob = TRUE,
+      plot = FALSE
     )
 
 #### Arguments
@@ -471,6 +482,10 @@ Calculates the distribution of edgewise shared partners.
   (logical) If \`TRUE\` (default), returns a probability distribution
   (proportions). If \`FALSE\`, returns raw counts.
 
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distribution.
+
 #### Returns
 
 A named vector (a \`table\` object) with the distribution of shared
@@ -484,7 +499,11 @@ Calculates the degree distribution of the \`z_network\`.
 
 #### Usage
 
-    iglm.data_generator$degree_distribution(value_range = NULL, prob = TRUE)
+    iglm.data_generator$degree_distribution(
+      value_range = NULL,
+      prob = TRUE,
+      plot = FALSE
+    )
 
 #### Arguments
 
@@ -498,6 +517,10 @@ Calculates the degree distribution of the \`z_network\`.
 
   (logical) If \`TRUE\` (default), returns a probability distribution
   (proportions). If \`FALSE\`, returns raw counts.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the degree distribution.
 
 #### Returns
 
@@ -532,7 +555,8 @@ Calculates the spillover degree distribution between actors with
 
     iglm.data_generator$spillover_degree_distribution(
       prob = TRUE,
-      value_range = NULL
+      value_range = NULL,
+      plot = FALSE
     )
 
 #### Arguments
@@ -547,6 +571,10 @@ Calculates the spillover degree distribution between actors with
   (numeric vector) A vector \`c(min, max)\` specifying the range of
   degrees to tabulate. If \`NULL\` (default), the range is inferred from
   the data.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distributions.
 
 #### Returns
 
