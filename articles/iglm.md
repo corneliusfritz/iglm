@@ -48,7 +48,7 @@ type_y <- "binomial"
 formula_beg = as.formula("xyz_obj ~ 1 ")
 formula_model = as.formula("xyz_object ~ 1 ")
 
-object = iglm_data(neighborhood = neighborhood, directed = F, type_x = type_x, type_y = type_y)
+object = iglm.data(neighborhood = neighborhood, directed = F, type_x = type_x, type_y = type_y)
 ```
 
 ## Model Specification

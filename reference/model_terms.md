@@ -31,7 +31,7 @@ statistics available in 'iglm', corresponding to the \\g_i\\
 (attribute-level) and \\h\_{i,j}\\ (pair-level) components of the joint
 model. In the formula interface, these terms can be specified by adding
 them in the right-hand side of a model formula, e.g.,
-`iglm_data ~ attribute_x + edges(mode = "local") + popularity, ...`. See
+`iglm.data ~ attribute_x + edges(mode = "local") + popularity, ...`. See
 the documentation for [`iglm`](iglm.md) for details on model fitting and
 estimation.
 

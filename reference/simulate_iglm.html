@@ -56,7 +56,7 @@
 
 <dl><dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
 <dd><p>A model `formula` object. The left-hand side should be the
-name of a `iglm_data` object available in the calling environment.
+name of a `iglm.data` object available in the calling environment.
 See <code><a href="model_terms.html">model_terms</a></code> for details on specifying the right-hand side terms.</p></dd>
 
 
@@ -70,7 +70,7 @@ See <code><a href="model_terms.html">model_terms</a></code> for details on speci
 values (expansiveness/attractiveness). This is required <strong>only if</strong> the
 `formula` includes popularity terms. Its length must be `n_actor` (for
 undirected networks) or `2 * n_actor` (for directed networks), where
-`n_actor` is determined from the `iglm_data` object in the formula.</p></dd>
+`n_actor` is determined from the `iglm.data` object in the formula.</p></dd>
 
 
 <dt id="arg-sampler">sampler<a class="anchor" aria-label="anchor" href="#arg-sampler"></a></dt>
@@ -85,8 +85,8 @@ If `NULL` (default), default settings from `sampler.iglm()` are used.</p></dd>
 <dt id="arg-only-stats">only_stats<a class="anchor" aria-label="anchor" href="#arg-only-stats"></a></dt>
 <dd><p>(logical). If <code>TRUE</code> (default, consistent with the usage signature), the
 function returns only the matrix of features calculated
-for each simulation. The full simulated <code>iglm_data</code> objects are discarded to minimize
-memory usage. If <code>FALSE</code>, the complete simulated <code>iglm_data</code> objects are created
+for each simulation. The full simulated <code>iglm.data</code> objects are discarded to minimize
+memory usage. If <code>FALSE</code>, the complete simulated <code>iglm.data</code> objects are created
 and returned within the <code>samples</code> component of the output list.</p></dd>
 
 
@@ -99,7 +99,7 @@ Default is `FALSE`.</p></dd>
 <dt id="arg-offset-nonoverlap">offset_nonoverlap<a class="anchor" aria-label="anchor" href="#arg-offset-nonoverlap"></a></dt>
 <dd><p>Numeric scalar value passed to the C++ simulator.
 This value is typically added to the linear predictor for dyads that are
-<strong>not</strong> part of the 'overlap' set defined in the `iglm_data` object, potentially
+<strong>not</strong> part of the 'overlap' set defined in the `iglm.data` object, potentially
 modifying tie probabilities outside the primary neighborhood. Default is `0`.</p></dd>
 
 
@@ -115,7 +115,7 @@ all simulations are run sequentially in the main R process.</p></dd>
 
 <dt id="arg-fix-x">fix_x<a class="anchor" aria-label="anchor" href="#arg-fix-x"></a></dt>
 <dd><p>Logical. If `TRUE`, the simulation holds the `x_attribute` fixed
-at its initial state (from the <code><a href="iglm_data.html">iglm_data</a></code> object) and only simulates the
+at its initial state (from the <code><a href="iglm.data.html">iglm.data</a></code> object) and only simulates the
 `y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
 are simulated according to the model and sampler settings.</p></dd>
 
@@ -124,9 +124,9 @@ are simulated according to the model and sampler settings.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list containing two components:</p><dl><dt>`samples`</dt>
 <dd><p>If `only_stats = FALSE`, this is a list of length
-    `sampler$n_simulation` where each element is a `iglm_data` object
+    `sampler$n_simulation` where each element is a `iglm.data` object
     representing one simulated draw from the model. The list has the S3 class
-    `"iglm_data.list"`. If `only_stats = TRUE`, this is typically an empty list.</p></dd>
+    `"iglm.data.list"`. If `only_stats = TRUE`, this is typically an empty list.</p></dd>
 
   <dt>`stats`</dt>
 <dd><p>A numeric matrix with `sampler$n_simulation` rows and
@@ -167,7 +167,7 @@ process is adapted:</p><ol><li><p>A single simulation run (including burn-in spe
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code>iglm</code> for creating the model object,
   <code>sampler.iglm</code> for creating the sampler object,
-  <code>iglm_data</code> for the data object structure.</p></div>
+  <code>iglm.data</code> for the data object structure.</p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

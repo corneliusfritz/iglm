@@ -30,7 +30,7 @@ This help page documents the various statistics available in 'iglm',
 corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
 components of the joint model.
 This is a user-facing constructor for creating a iglm_object. This R6 object
-encompasses the complete model specification, linking the formula, data (iglm_data object),
+encompasses the complete model specification, linking the formula, data (iglm.data object),
 initial coefficients, MCMC sampler settings, and estimation controls.
 It serves as the primary input for subsequent methods like $estimate() and $simulate()."><meta property="og:description" content="The iglm package implements a comprehensive regression framework  introduced in Fritz et al. (2025) for
 studying relationships among attributes \((X, Y)\) under network interference \((Z)\).
@@ -63,7 +63,7 @@ This help page documents the various statistics available in 'iglm',
 corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
 components of the joint model.
 This is a user-facing constructor for creating a iglm_object. This R6 object
-encompasses the complete model specification, linking the formula, data (iglm_data object),
+encompasses the complete model specification, linking the formula, data (iglm.data object),
 initial coefficients, MCMC sampler settings, and estimation controls.
 It serves as the primary input for subsequent methods like $estimate() and $simulate()."><meta property="og:image" content="/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -128,7 +128,7 @@ This help page documents the various statistics available in 'iglm',
 corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
 components of the joint model.
 This is a user-facing constructor for creating a <code>iglm_object</code>. This <code>R6</code> object
-encompasses the complete model specification, linking the formula, data (<code><a href="iglm_data.html">iglm_data</a></code> object),
+encompasses the complete model specification, linking the formula, data (<code><a href="iglm.data.html">iglm.data</a></code> object),
 initial coefficients, MCMC sampler settings, and estimation controls.
 It serves as the primary input for subsequent methods like <code>$estimate()</code> and <code>$simulate()</code>.</p>
     </div>
@@ -151,7 +151,7 @@ It serves as the primary input for subsequent methods like <code>$estimate()</co
 
 <dl><dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
 <dd><p>A model `formula` object. The left-hand side should be the
-name of a `iglm_data` object available in the calling environment.
+name of a `iglm.data` object available in the calling environment.
 See <code><a href="model_terms.html">model_terms</a></code> for details on specifying the right-hand side terms.</p></dd>
 
 
@@ -200,10 +200,10 @@ other arguments are ignored and the object is loaded from the file.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example usage:</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">iglm</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Create a iglm_data data object (example)</span></span></span>
+<span class="r-in"><span><span class="co"># Create a iglm.data data object (example)</span></span></span>
 <span class="r-in"><span><span class="va">n_actors</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></span>
 <span class="r-in"><span><span class="va">neighborhood</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">n_actors</span>, ncol <span class="op">=</span> <span class="va">n_actors</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">xyz_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="iglm_data.html">iglm_data</a></span><span class="op">(</span>neighborhood <span class="op">=</span> <span class="va">neighborhood</span>, directed <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span><span class="va">xyz_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="iglm.data.html">iglm.data</a></span><span class="op">(</span>neighborhood <span class="op">=</span> <span class="va">neighborhood</span>, directed <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>                   type_x <span class="op">=</span> <span class="st">"binomial"</span>, type_y <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Define ground truth coefficients</span></span></span>
 <span class="r-in"><span><span class="va">gt_coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges_local"</span> <span class="op">=</span> <span class="fl">3</span>, <span class="st">"attribute_y"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, <span class="st">"attribute_x"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></span>

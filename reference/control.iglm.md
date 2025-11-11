@@ -48,7 +48,7 @@ control.iglm(
 - return_samples:
 
   (logical). If `TRUE` (default), return simulated network/attribute
-  samples (i.e., `iglm_data` objects) generated during estimation (if
+  samples (i.e., `iglm.data` objects) generated during estimation (if
   applicable).
 
 - offset_nonoverlap:
