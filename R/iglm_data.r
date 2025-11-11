@@ -458,11 +458,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @param value_range (numeric vector) A vector `c(min, max)` specifying
                                    #'   the range of distances to tabulate. If `NULL` (default), the range
                                    #'   is inferred from the data.
+                                   #' @param plot (logical) If `TRUE`, plots the distribution.
                                    #' @param prob (logical) If `TRUE` (default), returns a probability
                                    #'   distribution (proportions). If `FALSE`, returns raw counts.
                                    #' @return A named vector (a `table` object) with the distribution of
                                    #'   geodesic distances. Includes `Inf` for unreachable pairs.
-                                   geodesic_distances_distribution = function(value_range = NULL, prob = TRUE){
+                                   geodesic_distances_distribution = function(value_range = NULL, prob = TRUE, plot= FALSE){
                                      if(is.null(private$.descriptives$geodesic_distances)){
                                        self$geodesic_distances()
                                      }
@@ -481,12 +482,15 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      info <- table(info_factor)
                                      info <- info/(sum(info)*prob + (!prob))
                                      private$.descriptives$geodesic_distances_distribution <- info
+                                     if(plot){
+                                       barplot(info, main = "Geodesic Distance Distribution",
+                                               xlab = "Distance", ylab = ifelse(prob,"Proportion","Count"))
+                                     }
                                      return(info)
                                    },
                                    #' @description
                                    #' Calculates the all-pairs geodesic distance matrix for the
                                    #' symmetrized `z_network` using a matrix-based BFS algorithm.
-                                   #'
                                    #' @return A sparse matrix (`dgCMatrix`) where `D[i, j]` is the
                                    #'   shortest path distance from i to j. `Inf` indicates no path.
                                    #' @importFrom Matrix sparseMatrix t Matrix diag nnzero Diagonal
@@ -523,9 +527,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #'   is inferred from the data.
                                    #' @param prob (logical) If `TRUE` (default), returns a probability
                                    #'   distribution (proportions). If `FALSE`, returns raw counts.
+                                   #' @param plot (logical) If `TRUE`, plots the distribution.
                                    #' @return A named vector (a `table` object) with the distribution of
                                    #'   shared partner counts.
-                                   edgewise_shared_partner_distribution = function(type  ="ALL", value_range = NULL, prob = TRUE){
+                                   edgewise_shared_partner_distribution = function(type  ="ALL",
+                                                                                   value_range = NULL, 
+                                                                                   prob = TRUE, 
+                                                                                   plot = FALSE){
                                      
                                      if(!type %in% c("OTP","ITP", "ISP", "OSP", "ALL")){
                                        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
@@ -586,6 +594,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      } else if(type  == "ALL"){
                                        private$.descriptives$edgewise_shared_partner_distribution$ALL<- info
                                      }
+                                     if(plot){
+                                       barplot(info, main = paste0(type, "- Edgewise Shared Partner Distribution"),
+                                               xlab = "Number of Shared Partners",
+                                               ylab = ifelse(prob, "Proportion", "Count"))
+                                     }
                                      return(info)
                                    },
                                    #' @description
@@ -596,11 +609,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @param value_range (numeric vector) A vector `c(min, max)` specifying
                                    #'   the range of counts to tabulate. If `NULL` (default), the range
                                    #'   is inferred from the data.
+                                   #' @param plot (logical) If `TRUE`, plots the distribution.
                                    #' @param prob (logical) If `TRUE` (default), returns a probability
                                    #'   distribution (proportions). If `FALSE`, returns raw counts.
                                    #' @return A named vector (a `table` object) with the distribution of
                                    #'   shared partner counts.
-                                   dyadwise_shared_partner_distribution = function(type  ="ALL", value_range = NULL, prob = TRUE){
+                                   dyadwise_shared_partner_distribution = function(type  ="ALL", 
+                                                                                   value_range = NULL,
+                                                                                   prob = TRUE, plot = FALSE){
                                      
                                      if(!type %in% c("OTP","ITP", "ISP", "OSP", "ALL")){
                                        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
@@ -661,6 +677,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      } else if(type  == "ALL"){
                                        private$.descriptives$dyadwise_shared_partner_distribution$ALL<- info
                                      }
+                                     if(plot){
+                                       barplot(info, main = paste0(type, "- Dyadwise Shared Partner Distribution"),
+                                               xlab = "Number of Shared Partners",
+                                               ylab = ifelse(prob, "Proportion", "Count"))
+                                     }
                                      return(info)
                                    },
                                    #' @description
@@ -671,10 +692,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #'   is inferred from the data.
                                    #' @param prob (logical) If `TRUE` (default), returns a probability
                                    #'   distribution (proportions). If `FALSE`, returns raw counts.
+                                   #' @param plot (logical) If `TRUE`, plots the degree distribution.
                                    #' @return If the network is directed, a list containing two `table`
                                    #'   objects: `in_degree` and `out_degree`. If undirected, a single
                                    #'   `table` object with the degree distribution.
-                                   degree_distribution = function(value_range = NULL, prob = TRUE){
+                                   degree_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE){
                                      if(is.null(private$.descriptives$degree)){
                                        self$degree()
                                      }
@@ -702,6 +724,16 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        info <-table(info)
                                        info <- info/(sum(info)*prob + (!prob))
                                        private$.descriptives$degree_distribution <- info
+                                     }
+                                     if(plot){
+                                       if(private$.directed){
+                                         par(mfrow=c(1,2))
+                                         barplot(info$in_degree, main = "In-Degree Distribution", xlab = "In-Degree", ylab = ifelse(prob, "Proportion", "Count"))
+                                         barplot(info$out_degree, main = "Out-Degree Distribution", xlab = "Out-Degree", ylab = ifelse(prob, "Proportion", "Count"))
+                                         par(mfrow=c(1,1))
+                                       } else {
+                                         barplot(info, main = "Degree Distribution", xlab = "Degree", ylab = ifelse(prob, "Proportion", "Count"))
+                                       }
                                      }
                                      return(info)
                                    },
@@ -758,10 +790,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @param value_range (numeric vector) A vector `c(min, max)` specifying
                                    #'   the range of degrees to tabulate. If `NULL` (default), the range
                                    #'   is inferred from the data.
+                                   #' @param plot (logical) If `TRUE`, plots the distributions.
                                    #' @return A list containing two `table` objects:
                                    #'   `out_spillover_degree` (from x_i=1 to y_j=1) and
                                    #'   `in_spillover_degree` (from y_i=1 to x_j=1).
-                                   spillover_degree_distribution = function( prob = TRUE, value_range = NULL){
+                                   spillover_degree_distribution = function( prob = TRUE, value_range = NULL, plot = FALSE){
                                      
                                      # actors_x = which(x$x_attribute == 1)
                                      # actors_y = which(x$y_attribute == 1)
@@ -818,6 +851,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      }
                                      
                                      private$.descriptives$spillover_degree_distribution <- res
+                                     if(plot){
+                                       par(mfrow=c(1,2))
+                                       barplot(out_degree_x_y, main = "Out-Spillover Degree Distribution", xlab = "Out-Spillover Degree", ylab = ifelse(prob, "Proportion", "Count"))
+                                       barplot(in_degree_x_y, main = "In-Spillover Degree Distribution", xlab = "In-Spillover Degree", ylab = ifelse(prob, "Proportion", "Count"))
+                                       par(mfrow=c(1,1))
+                                     }
                                      return(res)
                                     },
                                    #' @description
@@ -1221,6 +1260,13 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     type_x = "binomial", type_y = "binomial",
                     scale_x = 1, scale_y = 1, 
                     return_neighborhood = TRUE, file = NULL) {
+  
+  if(!directed){
+    wrong_tmp <- z_network[,1] > z_network[,2]
+    correct_tmp <- z_network[,1] < z_network[,2]
+    z_network <- rbind(z_network[correct_tmp, c(1,2)], z_network[wrong_tmp, c(2,1)])
+    z_network <- z_network[!duplicated(z_network), ]
+  }
   iglm.data_generator$new(x_attribute = x_attribute,
                         y_attribute = y_attribute,
                         z_network = z_network,

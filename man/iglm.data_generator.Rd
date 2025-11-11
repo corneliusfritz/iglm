@@ -297,7 +297,8 @@ Calculates the geodesic distance distribution of the symmetrized
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$geodesic_distances_distribution(
   value_range = NULL,
-  prob = TRUE
+  prob = TRUE,
+  plot = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -310,6 +311,8 @@ is inferred from the data.}
 
 \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
+
+\item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
 }
 \if{html}{\out{</div>}}
 }
@@ -342,7 +345,8 @@ Calculates the distribution of edgewise shared partners.
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$edgewise_shared_partner_distribution(
   type = "ALL",
   value_range = NULL,
-  prob = TRUE
+  prob = TRUE,
+  plot = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -358,6 +362,8 @@ is inferred from the data.}
 
 \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
+
+\item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
 }
 \if{html}{\out{</div>}}
 }
@@ -375,7 +381,8 @@ Calculates the distribution of edgewise shared partners.
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$dyadwise_shared_partner_distribution(
   type = "ALL",
   value_range = NULL,
-  prob = TRUE
+  prob = TRUE,
+  plot = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -391,6 +398,8 @@ is inferred from the data.}
 
 \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
+
+\item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
 }
 \if{html}{\out{</div>}}
 }
@@ -405,7 +414,11 @@ A named vector (a `table` object) with the distribution of
 \subsection{Method \code{degree_distribution()}}{
 Calculates the degree distribution of the `z_network`.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$degree_distribution(value_range = NULL, prob = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$degree_distribution(
+  value_range = NULL,
+  prob = TRUE,
+  plot = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -417,6 +430,8 @@ is inferred from the data.}
 
 \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
+
+\item{\code{plot}}{(logical) If `TRUE`, plots the degree distribution.}
 }
 \if{html}{\out{</div>}}
 }
@@ -450,7 +465,8 @@ Calculates the spillover degree distribution between actors with
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$spillover_degree_distribution(
   prob = TRUE,
-  value_range = NULL
+  value_range = NULL,
+  plot = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -463,6 +479,8 @@ distribution (proportions). If `FALSE`, returns raw counts.}
 \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of degrees to tabulate. If `NULL` (default), the range
 is inferred from the data.}
+
+\item{\code{plot}}{(logical) If `TRUE`, plots the distributions.}
 }
 \if{html}{\out{</div>}}
 }

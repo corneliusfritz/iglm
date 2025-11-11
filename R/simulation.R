@@ -238,10 +238,12 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                                     y_attribute = res$simulation_attributes_y[[x]],
                                     z_network = res$simulation_networks[[x]],
                                     n_actor = n_actor, return_adj_mat = FALSE)})
+  # debugonce(iglm.data            )
   tmp = lapply(1:length(res$simulation_networks),
                function(x){iglm.data(x_attribute = tmp[[x]]$x_attribute,
                                    y_attribute = tmp[[x]]$y_attribute,
                                    z_network = tmp[[x]]$z_network, 
+                                   directed = preprocessed$data_object$directed,
                                    n_actor = length(tmp[[x]]$x_attribute),
                                    type_x = preprocessed$data_object$type_x, 
                                    type_y = preprocessed$data_object$type_y, 
