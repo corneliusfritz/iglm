@@ -29,6 +29,8 @@ type_y <- "binomial"
 x_attr_data <- rbinom(n_actors, 1, 0.5)
 y_attr_data <- rbinom(n_actors, 1, 0.5)
 z_net_data  <- matrix(0, nrow = n_actors, ncol = n_actors) 
-object = netplus(z_network = z_net_data, x_attribute = x_attr_data, y_attribute = y_attr_data, neighborhood = neighborhood,directed = FALSE,type_x = type_x,type_y = type_y)
+object = netplus(z_network = z_net_data, x_attribute = x_attr_data,
+ y_attribute = y_attr_data, neighborhood = neighborhood,
+ directed = FALSE,type_x = type_x,type_y = type_y)
 count_statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
 }

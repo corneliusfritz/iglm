@@ -741,7 +741,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
 #'                           coef_popularity = gt_coef_pop,
 #'                           sampler = sampler_new,
 #'                           control = control.iglm(accelerated = FALSE,
-#'                           max_it = 200, display_progress = TRUE, var = TRUE))
+#'                           max_it = 200, display_progress = FALSE, var = TRUE))
 #' # Simulate from the model
 #' model_tmp_new$simulate()
 #' model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])
