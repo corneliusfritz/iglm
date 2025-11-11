@@ -4,7 +4,7 @@
 #' The `iglm_object` class encapsulates all components required to define,
 #' estimate, and simulate from a network generalized linear model. This includes
 #' the model formula, coefficients, the underlying network and attribute data
-#' (via a `iglm_data` object), sampler controls, estimation controls, and storage
+#' (via a `iglm.data` object), sampler controls, estimation controls, and storage
 #' for results.
 #' @references 
 #' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
@@ -21,7 +21,7 @@
 iglm_object_generator <- R6::R6Class("iglm_object",
                                        private = list(
                                          .formula = NULL,
-                                         .iglm_data = NULL,
+                                         .iglm.data = NULL,
                                          .coef = NULL,
                                          .coef_popularity = NULL,
                                          .coef_popularity_internal = NULL,
@@ -33,23 +33,23 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          .results = list(),
                                          #' @description
                                          #' Internal method to calculate the observed count statistics based on the
-                                         #' model formula and the data in the `iglm_data` object. Populates the
+                                         #' model formula and the data in the `iglm.data` object. Populates the
                                          #' `private$.count_statistics` field.
                                          .calc_count_statistics = function() {
-                                           counts <- as.vector(xyz_count_global(z_network =  private$.iglm_data$z_network,
-                                                                                x_attribute =private$.iglm_data$x_attribute,
-                                                                                y_attribute = private$.iglm_data$y_attribute,
-                                                                                type_x = private$.iglm_data$type_x,
-                                                                                type_y = private$.iglm_data$type_y,
-                                                                                attr_x_scale = private$.iglm_data$scale_x,
-                                                                                attr_y_scale = private$.iglm_data$scale_y,
-                                                                                neighborhood = private$.iglm_data$neighborhood,
-                                                                                overlap=private$.iglm_data$overlap,
-                                                                                directed = private$.iglm_data$directed,
+                                           counts <- as.vector(xyz_count_global(z_network =  private$.iglm.data$z_network,
+                                                                                x_attribute =private$.iglm.data$x_attribute,
+                                                                                y_attribute = private$.iglm.data$y_attribute,
+                                                                                type_x = private$.iglm.data$type_x,
+                                                                                type_y = private$.iglm.data$type_y,
+                                                                                attr_x_scale = private$.iglm.data$scale_x,
+                                                                                attr_y_scale = private$.iglm.data$scale_y,
+                                                                                neighborhood = private$.iglm.data$neighborhood,
+                                                                                overlap=private$.iglm.data$overlap,
+                                                                                directed = private$.iglm.data$directed,
                                                                                 terms = private$.preprocess$term_names,
                                                                                 data_list = private$.preprocess$data_list,
                                                                                 type_list = private$.preprocess$type_list,
-                                                                                n_actor = private$.iglm_data$n_actor))
+                                                                                n_actor = private$.iglm.data$n_actor))
                                            names(counts) <- private$.preprocess$coef_names
                                            private$.count_statistics <- counts
                                          },
@@ -76,8 +76,8 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                              if(!is.numeric(private$.coef_popularity)) {
                                                stop("Invalid coef_popularity in iglm_object.", call. = FALSE)
                                              }
-                                             expected_length <- private$.iglm_data$n_actor +
-                                               private$.iglm_data$directed*private$.iglm_data$n_actor
+                                             expected_length <- private$.iglm.data$n_actor +
+                                               private$.iglm.data$directed*private$.iglm.data$n_actor
                                              if(length(private$.coef_popularity) != expected_length) {
                                                stop("Length of coef_popularity does not match number of actors in data object.", call. = FALSE)
                                              }
@@ -90,8 +90,8 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                stop("Invalid results object in iglm_object.", call. = FALSE)
                                              }
                                            }
-                                           if(!inherits(private$.iglm_data, "iglm_data")) {
-                                             stop("Invalid iglm_data object in iglm_object.", call. = FALSE)
+                                           if(!inherits(private$.iglm.data, "iglm.data")) {
+                                             stop("Invalid iglm.data object in iglm_object.", call. = FALSE)
                                            }
                                            if(!inherits(private$.control, "control.iglm")) {
                                              stop("Invalid control object in iglm_object.", call. = FALSE)
@@ -108,7 +108,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          #' linking the data object, initializing coefficients, setting up sampler
                                          #' and control objects, calculating initial statistics, and validating.
                                          #' @param formula A model `formula` object. The left-hand side should be the
-                                         #'   name of a \code{\link{iglm_data}} object available in the calling environment. 
+                                         #'   name of a \code{\link{iglm.data}} object available in the calling environment. 
                                          #'   See \code{\link{model_terms}} for details on specifying the right-hand side terms.
                                          #' @param coef A numeric vector of initial coefficients for the terms in
                                          #'   the formula (excluding popularity). If `NULL`, coefficients are
@@ -132,7 +132,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                stop("A valid 'file' (character string) must be provided.", call. = FALSE)
                                              }
                                              data_loaded <- readRDS(file)
-                                             required_fields <- c("formula", "preprocess", "iglm_data", "coef", 
+                                             required_fields <- c("formula", "preprocess", "iglm.data", "coef", 
                                                                   "coef_popularity", "time_estimation", 
                                                                   "count_statistics", "results", 
                                                                   "control", "sampler")
@@ -141,16 +141,16 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                              }
                                              private$.formula <- data_loaded$formula
                                              private$.preprocess <- data_loaded$preprocess
-                                             private$.iglm_data <- iglm_data(x_attribute = data_loaded$iglm_data$x_attribute,
-                                                                        y_attribute = data_loaded$iglm_data$y_attribute,
-                                                                        z_network = data_loaded$iglm_data$z_network,
-                                                                        n_actor = data_loaded$iglm_data$n_actor,
-                                                                        type_x = data_loaded$iglm_data$type_x,
-                                                                        type_y = data_loaded$iglm_data$type_y,
-                                                                        scale_x = data_loaded$iglm_data$scale_x,
-                                                                        scale_y = data_loaded$iglm_data$scale_y,
-                                                                        neighborhood = data_loaded$iglm_data$neighborhood,
-                                                                        directed = data_loaded$iglm_data$directed)
+                                             private$.iglm.data <- iglm.data(x_attribute = data_loaded$iglm.data$x_attribute,
+                                                                        y_attribute = data_loaded$iglm.data$y_attribute,
+                                                                        z_network = data_loaded$iglm.data$z_network,
+                                                                        n_actor = data_loaded$iglm.data$n_actor,
+                                                                        type_x = data_loaded$iglm.data$type_x,
+                                                                        type_y = data_loaded$iglm.data$type_y,
+                                                                        scale_x = data_loaded$iglm.data$scale_x,
+                                                                        scale_y = data_loaded$iglm.data$scale_y,
+                                                                        neighborhood = data_loaded$iglm.data$neighborhood,
+                                                                        directed = data_loaded$iglm.data$directed)
                                              private$.coef <- data_loaded$coef
                                              private$.coef_popularity <- data_loaded$coef_popularity
                                              private$.coef_popularity_internal <- private$.coef_popularity
@@ -184,7 +184,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                              }
                                              private$.formula <- formula
                                              private$.preprocess <- formula_preprocess(formula)
-                                             private$.iglm_data <- private$.preprocess$data_object
+                                             private$.iglm.data <- private$.preprocess$data_object
                                              private$.preprocess$data_object <- NULL
                                              
                                              if(is.null(coef)){
@@ -194,8 +194,8 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                              }
                                              if(is.null(coef_popularity)){
                                                private$.coef_popularity <- rep(0, 
-                                                                               private$.iglm_data$n_actor +
-                                                                                 private$.iglm_data$directed*private$.iglm_data$n_actor)
+                                                                               private$.iglm.data$n_actor +
+                                                                                 private$.iglm.data$directed*private$.iglm.data$n_actor)
                                              } else {
                                                if(private$.preprocess$includes_popularity == FALSE){
                                                  stop("The formula does not include popularity terms, so `coef_popularity` should be NULL.")
@@ -235,7 +235,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          #'
                                          #' @param formula A formula specifying the network statistics to assess
                                          #'   (e.g., `~ degree_distribution() + geodesic_distances_distribution()`).
-                                         #'   The terms should correspond to methods available in the \code{\link{iglm_data}} 
+                                         #'   The terms should correspond to methods available in the \code{\link{iglm.data}} 
                                          #'   object that end with `distributions`. 
                                          #' @return An object of class `iglm_model_assessment` containing the
                                          #'   observed statistics and the distribution of simulated statistics.
@@ -250,7 +250,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                            names_tmp <- gsub("\\)", "", names_tmp)
                                            names_tmp <- gsub("=", "_", names_tmp)
                                            names_tmp <- gsub(" ", "", names_tmp)
-                                           observed <- eval_change(formula = formula,object = private$.iglm_data)
+                                           observed <- eval_change(formula = formula,object = private$.iglm.data)
                                            names(observed) = names_tmp
                                            base_name <- unlist(lapply(rhs_terms_as_list(update(formula, a ~ .)), function(x){
                                              x$base_name
@@ -340,7 +340,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          #' @return A list containing all key components of the \code{\link{iglm_object}}.
                                          #'   This includes the formula, coefficients, sampler, control settings,
                                          #'   preprocessing info, time taken for estimation, count statistics,
-                                         #'   results, and the underlying \code{\link{iglm_data}} data object.
+                                         #'   results, and the underlying \code{\link{iglm.data}} data object.
                                          gather = function(){
                                            list(formula = private$.formula,
                                                 coef = private$.coef,
@@ -351,7 +351,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                 time_estimation = private$.time_estimation,
                                                 count_statistics = private$.count_statistics,
                                                 results = private$.results$gather(),
-                                                iglm_data = private$.iglm_data$gather())
+                                                iglm.data = private$.iglm.data$gather())
                                          }, 
                                          #' @description
                                          #' Save the \code{\link{iglm_object}} to a file in RDS format.
@@ -384,16 +384,16 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                                  sampler = private$.sampler,
                                                                  beg_coef =  private$.coef,
                                                                  beg_coef_popularity = private$.coef_popularity_internal, 
-                                                                 data_object = private$.iglm_data, 
+                                                                 data_object = private$.iglm.data, 
                                                                  start = nrow(private$.results$coefficients_path))
                                            
                                            private$.time_estimation <- Sys.time() - now
                                            if(private$.control$estimate_model){
                                              if(private$.preprocess$includes_popularity){
                                                coefficients_popularity_internal <- info$coefficients_popularity
-                                               tmp <- private$.iglm_data$degree()
-                                               if(private$.iglm_data$directed){
-                                                 coefficients_popularity_internal[which(tmp$in_degree_seq ==0) + private$.iglm_data$n_actor] = NA
+                                               tmp <- private$.iglm.data$degree()
+                                               if(private$.iglm.data$directed){
+                                                 coefficients_popularity_internal[which(tmp$in_degree_seq ==0) + private$.iglm.data$n_actor] = NA
                                                  coefficients_popularity_internal[which(tmp$out_degree_seq ==0)] = NA
                                                } else {
                                                  coefficients_popularity_internal[which(tmp$degree_seq ==0)] = NA
@@ -411,13 +411,13 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                if(private$.preprocess$includes_popularity){
                                                  private$.results$resize(size_coef = length(info$coefficients_nonpopularity), 
                                                                          size_coef_popularity = 
-                                                                           (private$.iglm_data$n_actor + private$.iglm_data$n_actor* private$.iglm_data$directed)*
+                                                                           (private$.iglm.data$n_actor + private$.iglm.data$n_actor* private$.iglm.data$directed)*
                                                                            private$.preprocess$includes_popularity)
                                                  
                                                } else {
                                                  private$.results$resize(size_coef = length(info$coefficients), 
                                                                          size_coef_popularity = 
-                                                                           (private$.iglm_data$n_actor + private$.iglm_data$n_actor* private$.iglm_data$directed)*
+                                                                           (private$.iglm.data$n_actor + private$.iglm.data$n_actor* private$.iglm.data$directed)*
                                                                            private$.preprocess$includes_popularity)
                                                }
                                                private$.formula <- update_formula_remove_terms(private$.formula, 
@@ -428,17 +428,17 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                              }
                                              if(length(info$simulations) > 0){
                                                tmp = lapply(1:length(info$simulations),
-                                                            function(x){iglm_data(x_attribute = info$simulations[[x]]$x_attribute,
+                                                            function(x){iglm.data(x_attribute = info$simulations[[x]]$x_attribute,
                                                                                 y_attribute = info$simulations[[x]]$y_attribute,
                                                                                 z_network = info$simulations[[x]]$z_network, 
-                                                                                n_actor = private$.iglm_data$n_actor,
+                                                                                n_actor = private$.iglm.data$n_actor,
                                                                                 return_neighborhood = FALSE,
-                                                                                type_x = private$.iglm_data$type_x, 
-                                                                                type_y = private$.iglm_data$type_y, 
-                                                                                scale_x = private$.iglm_data$scale_x, 
-                                                                                scale_y = private$.iglm_data$scale_y)})
-                                               class(tmp) <- "iglm_data.list"
-                                               attr(tmp, "neighborhood") <- iglm_data.neighborhood(private$.iglm_data$neighborhood)
+                                                                                type_x = private$.iglm.data$type_x, 
+                                                                                type_y = private$.iglm.data$type_y, 
+                                                                                scale_x = private$.iglm.data$scale_x, 
+                                                                                scale_y = private$.iglm.data$scale_y)})
+                                               class(tmp) <- "iglm.data.list"
+                                               attr(tmp, "neighborhood") <- iglm.data.neighborhood(private$.iglm.data$neighborhood)
                                                info$simulations <- tmp
                                              }
                                              
@@ -564,7 +564,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          #'   is useful if the sparsity of edges of units with non-overlapping 
                                          #'   neighborhoods is known. Default is 0.
                                          #' @return A list containing the simulated networks (`samples`, as a
-                                         #'   `iglm_data.list` if `only_stats = FALSE`) and/or their summary
+                                         #'   `iglm.data.list` if `only_stats = FALSE`) and/or their summary
                                          #'   statistics (`stats`), invisibly.
                                          simulate = function (nsim = 1, only_stats = FALSE, display_progress=TRUE,
                                                               offset_nonoverlap= 0) {
@@ -582,7 +582,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          #' @description
                                          #' Retrieve the simulated networks stored in the object.
                                          #' Requires \code{simulate} or \code{estimate} to have been run first.
-                                         #' @return A list of \code{\link{iglm_data}} objects representing
+                                         #' @return A list of \code{\link{iglm.data}} objects representing
                                          #'   the simulated networks, invisibly. Returns an error if no samples
                                          #'   are available.
                                          get_samples = function() {
@@ -610,19 +610,19 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                            invisible(self)
                                          },
                                          #' @description
-                                         #' Replace the internal `iglm_data` data object with a new one. This is
+                                         #' Replace the internal `iglm.data` data object with a new one. This is
                                          #' useful for applying a fitted model to new observed data. Recalculates
                                          #' count statistics and re-validates the object.
-                                         #' @param x A \code{\link{iglm_data}} `` object containing the new observed data.
+                                         #' @param x A \code{\link{iglm.data}} `` object containing the new observed data.
                                          #' @return The \code{\link{iglm_object}} itself, invisibly.
                                          set_target = function(x) {
-                                           if(!"iglm_data" %in% class(x)) {
-                                             stop("The target object must be of class 'iglm_data'.", call. = FALSE)
+                                           if(!"iglm.data" %in% class(x)) {
+                                             stop("The target object must be of class 'iglm.data'.", call. = FALSE)
                                            } else {
-                                             private$.iglm_data <- x
+                                             private$.iglm.data <- x
                                            }
                                            if(private$.control$display_progress){
-                                             cat("Target iglm_data object has been set successfully.\n")
+                                             cat("Target iglm.data object has been set successfully.\n")
                                            }
                                            private$.calc_count_statistics()
                                            private$.validate()
@@ -642,8 +642,8 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          #' @field results (`results`) Read-only. The \code{\link{results}} R6 object containing all estimation and simulation outputs.
                                          results = function(value) { if(missing(value)) private$.results else stop("`results` is read-only.", call. = FALSE) },
                                          
-                                         #' @field iglm_data (`iglm_data`) Read-only. The associated \code{\link{iglm_data}} R6 object containing the network and attribute data.
-                                         iglm_data = function(value) { if(missing(value)) private$.iglm_data else stop("`iglm_data` is read-only.", call. = FALSE) },
+                                         #' @field iglm.data (`iglm.data`) Read-only. The associated \code{\link{iglm.data}} R6 object containing the network and attribute data.
+                                         iglm.data = function(value) { if(missing(value)) private$.iglm.data else stop("`iglm.data` is read-only.", call. = FALSE) },
                                          
                                          #' @field control (`control.iglm`) Read-only. The \code{\link{control.iglm}} object specifying estimation parameters.
                                          control = function(value) { if(missing(value)) private$.control else stop("`control` is read-only.", call. = FALSE) },
@@ -651,7 +651,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          #' @field sampler (`sampler_iglm`) Read-only. The  \code{\link{sampler_iglm}} object specifying MCMC sampling parameters.
                                          sampler = function(value) { if(missing(value)) private$.sampler else stop("`sampler` is read-only.", call. = FALSE) },
                                          
-                                         #' @field count_statistics (`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm_data` data.
+                                         #' @field count_statistics (`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.
                                          count_statistics = function(value) { if(missing(value)) private$.count_statistics else stop("`count_statistics` is read-only.", call. = FALSE) }
                                        )
 )
@@ -692,14 +692,14 @@ iglm_object_generator <- R6::R6Class("iglm_object",
 #' corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
 #' components of the joint model.
 #' This is a user-facing constructor for creating a \code{\link{iglm_object}}. This \code{R6} object 
-#' encompasses the complete model specification, linking the formula, data (\code{\link{iglm_data}} object), 
+#' encompasses the complete model specification, linking the formula, data (\code{\link{iglm.data}} object), 
 #' initial coefficients, MCMC sampler settings, and estimation controls.
 #' It serves as the primary input for subsequent methods like \code{$estimate()} and \code{$simulate()}.
 #' @return An object of class \code{\link{iglm_object}}.
 #' 
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
-#'   name of a `iglm_data` object available in the calling environment. 
+#'   name of a `iglm.data` object available in the calling environment. 
 #'   See \code{\link{model_terms}} for details on specifying the right-hand side terms.
 #' @param coef Optional numeric vector of initial coefficients for the structural
 #'   (non-popularity) terms in `formula`. If `NULL`, coefficients are
@@ -719,10 +719,10 @@ iglm_object_generator <- R6::R6Class("iglm_object",
 #' @examples
 #' # Example usage:
 #' library(iglm)
-#' # Create a iglm_data data object (example)
+#' # Create a iglm.data data object (example)
 #' n_actors <- 50
 #' neighborhood <- matrix(1, nrow = n_actors, ncol = n_actors)
-#' xyz_obj <- iglm_data(neighborhood = neighborhood, directed = FALSE,
+#' xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE,
 #'                    type_x = "binomial", type_y = "binomial")
 #' # Define ground truth coefficients
 #' gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)

@@ -8,7 +8,7 @@
 #' FL, IL, PA, OH, GA, NC, MI) and is further subset to the largest
 #' connected component based on mention or retweet activity.
 #'
-#' This object contains the main \code{\link{iglm_data}} object and 5
+#' This object contains the main \code{\link{iglm.data}} object and 5
 #' pre-computed dyadic covariates.
 #'
 #' @name state_twitter
@@ -19,8 +19,8 @@
 #' legislators in the filtered 10-state subset.
 #'
 #' \describe{
-#'   \item{iglm_data}{
-#'     A \code{\link{iglm_data}} object (which is also a \code{list})
+#'   \item{iglm.data}{
+#'     A \code{\link{iglm.data}} object (which is also a \code{list})
 #'     parameterized as follows:
 #'     \itemize{
 #'       \item \code{x_attribute}: A binary numeric vector of length N.
@@ -89,7 +89,7 @@ NULL
 #' @references 
 #' Traud, Mucha, Porter (2012). Social Structure of Facebook Network. 
 #' Physica A: Statistical Mechanics and its Applications, 391, 4165-4180
-#' @format This data object is a pre-computed `iglm_data` object. It models the
+#' @format This data object is a pre-computed `iglm.data` object. It models the
 #' `rice` friendship network (`z_network`) using two binary covariates:
 #' gender (`x_attribute`) and whether the graduation year is 2008 (`y_attribute`). The
 #' "neighborhood" structure (`neighborhood`) is defined as students

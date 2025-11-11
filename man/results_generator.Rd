@@ -16,7 +16,7 @@ bindings of the main `iglm_object`.
 \describe{
 \item{\code{coefficients_path}}{(`matrix` or `NULL`) Read-only. The path of all estimated coefficients across iterations.}
 
-\item{\code{samples}}{(`list` or `NULL`) Read-only. A list of simulated `iglm_data` objects (class `iglm_data.list`).}
+\item{\code{samples}}{(`list` or `NULL`) Read-only. A list of simulated `iglm.data` objects (class `iglm.data.list`).}
 
 \item{\code{stats}}{(`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples.}
 
@@ -201,7 +201,7 @@ and columns represent all coefficients (non-popularity then popularity),
 showing their values during estimation. If provided, appends to any
 existing path.}
 
-\item{\code{samples}}{(list) A list of simulated `iglm_data` objects (class `iglm_data.list`).
+\item{\code{samples}}{(list) A list of simulated `iglm.data` objects (class `iglm.data.list`).
 If provided, replaces any existing samples.}
 
 \item{\code{var}}{(matrix) The estimated variance-covariance matrix for the

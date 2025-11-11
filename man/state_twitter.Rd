@@ -9,8 +9,8 @@ A \code{list} object containing 6 components. Let N be the number of
 legislators in the filtered 10-state subset.
 
 \describe{
-  \item{iglm_data}{
-    A \code{\link{iglm_data}} object (which is also a \code{list})
+  \item{iglm.data}{
+    A \code{\link{iglm.data}} object (which is also a \code{list})
     parameterized as follows:
     \itemize{
       \item \code{x_attribute}: A binary numeric vector of length N.
@@ -61,7 +61,7 @@ The data is filtered to include only legislators from 10 states (NY, CA, TX,
 FL, IL, PA, OH, GA, NC, MI) and is further subset to the largest
 connected component based on mention or retweet activity.
 
-This object contains the main \code{\link{iglm_data}} object and 5
+This object contains the main \code{\link{iglm.data}} object and 5
 pre-computed dyadic covariates.
 }
 \references{

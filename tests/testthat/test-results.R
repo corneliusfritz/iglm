@@ -18,7 +18,7 @@ test_that('Define a iglm object and check all the results information', {
   type_x <- "binomial"
   type_y <- "binomial"
   
-  xyz_obj_new = iglm_data(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
+  xyz_obj_new = iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
   
   gt_coef = c(3, -1,-1)
   gt_coef_pop =  c(rnorm(n = n_actors, -2, 1))

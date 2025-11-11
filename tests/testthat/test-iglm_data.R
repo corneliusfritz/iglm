@@ -1,6 +1,6 @@
-test_that('Define a iglm_data object and check all functions', {
+test_that('Define a iglm.data object and check all functions', {
   
-  tmp <- iglm_data(neighborhood = matrix(c(0,1,1,0,
+  tmp <- iglm.data(neighborhood = matrix(c(0,1,1,0,
                                          1,0,0,1,
                                          1,0,0,1,
                                          0,1,1,0), nrow=4, byrow=TRUE),
@@ -8,7 +8,7 @@ test_that('Define a iglm_data object and check all functions', {
                  type_x = "binomial",
                  type_y = "binomial")
   
-  expect_equal(inherits(tmp,"iglm_data"),expected = TRUE)
+  expect_equal(inherits(tmp,"iglm.data"),expected = TRUE)
   expect_equal(tmp$degree()$degree_seq,expected = c(0,0,0,0))
   expect_equal(tmp$density_x(),expected = 0)
   expect_equal(tmp$density_y(),expected = 0)
@@ -17,15 +17,15 @@ test_that('Define a iglm_data object and check all functions', {
   tmp$save(file = tmp_name)
   rm(tmp)
   
-  loaded_tmp <- iglm_data(file = tmp_name)
-  expect_equal(inherits(loaded_tmp,"iglm_data"),expected = TRUE)
+  loaded_tmp <- iglm.data(file = tmp_name)
+  expect_equal(inherits(loaded_tmp,"iglm.data"),expected = TRUE)
   expect_equal(loaded_tmp$degree()$degree_seq,expected = c(0,0,0,0))
   expect_equal(loaded_tmp$density_x(),expected = 0)
   expect_equal(loaded_tmp$density_y(),expected = 0)
   expect_equal(loaded_tmp$density_z(),expected = 0)
   rm(loaded_tmp)
   
-  tmp <- iglm_data(z_network =  matrix(c(0,1,1,0,
+  tmp <- iglm.data(z_network =  matrix(c(0,1,1,0,
                                        1,0,0,1,
                                        1,0,0,1,
                                        0,1,1,0), nrow=4, byrow=TRUE),
@@ -43,7 +43,7 @@ test_that('Define a iglm_data object and check all functions', {
                expected =nrow(tmp$neighborhood) == 12)
   tmp$save(file = tmp_name)
   rm(tmp)
-  loaded_tmp <- iglm_data(file = tmp_name)
+  loaded_tmp <- iglm.data(file = tmp_name)
   
   expect_equal(loaded_tmp$degree()$degree_seq,expected = c(2,2,2,2))
   expect_equal(loaded_tmp$density_z(),expected =4/6)
@@ -56,9 +56,9 @@ test_that('Define a iglm_data object and check all functions', {
   
   })
 
-test_that('Define a directed iglm_data object and check all functions', {
+test_that('Define a directed iglm.data object and check all functions', {
   
-  tmp <- iglm_data(neighborhood =matrix(c(0,1,1,0,
+  tmp <- iglm.data(neighborhood =matrix(c(0,1,1,0,
                                         1,0,0,1,
                                         1,0,0,1,
                                         0,1,1,0), nrow=4, byrow=TRUE),
@@ -66,7 +66,7 @@ test_that('Define a directed iglm_data object and check all functions', {
           type_x = "binomial",
           type_y = "binomial")
   
-  expect_equal(inherits(tmp,"iglm_data"),expected = TRUE)
+  expect_equal(inherits(tmp,"iglm.data"),expected = TRUE)
   expect_equal(tmp$degree()$in_degree_seq,expected = c(0,0,0,0))
   expect_equal(tmp$degree()$out_degree_seq,expected = c(0,0,0,0))
   expect_equal(tmp$density_x(),expected = 0)
@@ -77,8 +77,8 @@ test_that('Define a directed iglm_data object and check all functions', {
   tmp$save(file = tmp_name)
   rm(tmp)
   
-  loaded_tmp <- iglm_data(file = tmp_name)
-  expect_equal(inherits(loaded_tmp,"iglm_data"),expected = TRUE)
+  loaded_tmp <- iglm.data(file = tmp_name)
+  expect_equal(inherits(loaded_tmp,"iglm.data"),expected = TRUE)
   expect_equal(loaded_tmp$degree()$in_degree_seq,expected = c(0,0,0,0))
   expect_equal(loaded_tmp$degree()$out_degree_seq,expected = c(0,0,0,0))
   expect_equal(loaded_tmp$density_x(),expected = 0)
@@ -86,7 +86,7 @@ test_that('Define a directed iglm_data object and check all functions', {
   expect_equal(loaded_tmp$density_z(),expected = 0)
   rm(loaded_tmp)
   
-  tmp <- iglm_data(z_network =  matrix(c(0,1,1,0,
+  tmp <- iglm.data(z_network =  matrix(c(0,1,1,0,
                                        0,0,0,1,
                                        0,0,0,1,
                                        0,1,0,0), nrow=4, byrow=TRUE),
@@ -109,7 +109,7 @@ test_that('Define a directed iglm_data object and check all functions', {
                          expected =nrow(tmp$neighborhood) == 12)
   tmp$save(file = tmp_name)
   rm(tmp)
-  loaded_tmp <- iglm_data(file = tmp_name)
+  loaded_tmp <- iglm.data(file = tmp_name)
   expect_equal(loaded_tmp$density_z(),expected =5/12)
   expect_equal(loaded_tmp$density_x(),expected =1/4)
   expect_equal(loaded_tmp$density_y(),expected =2/4)

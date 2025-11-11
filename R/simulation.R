@@ -4,7 +4,7 @@
 #' Simulate responses and connections.
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
-#'   name of a `iglm_data` object available in the calling environment. 
+#'   name of a `iglm.data` object available in the calling environment. 
 #'   See \code{\link{model_terms}} for details on specifying the right-hand side terms.
 #' @param coef Numeric vector containing the coefficient values for the structural
 #'   (non-popularity) terms defined in the `formula`.
@@ -12,7 +12,7 @@
 #'   values (expansiveness/attractiveness). This is required \strong{only if} the
 #'   `formula` includes popularity terms. Its length must be `n_actor` (for
 #'   undirected networks) or `2 * n_actor` (for directed networks), where
-#'   `n_actor` is determined from the `iglm_data` object in the formula. 
+#'   `n_actor` is determined from the `iglm.data` object in the formula. 
 #' @param sampler An object of class `sampler_iglm` (created by
 #'   `sampler.iglm()`) specifying the MCMC sampling parameters. This includes
 #'   the number of simulations (`n_simulation`), burn-in iterations (`n_burn_in`),
@@ -21,15 +21,15 @@
 #'   If `NULL` (default), default settings from `sampler.iglm()` are used.
 #' @param only_stats (logical). If \code{TRUE} (default, consistent with the usage signature), the
 #'   function returns only the matrix of features calculated
-#'   for each simulation. The full simulated \code{iglm_data} objects are discarded to minimize
-#'   memory usage. If \code{FALSE}, the complete simulated \code{iglm_data} objects are created
+#'   for each simulation. The full simulated \code{iglm.data} objects are discarded to minimize
+#'   memory usage. If \code{FALSE}, the complete simulated \code{iglm.data} objects are created
 #'   and returned within the \code{samples} component of the output list.
 #' @param display_progress Logical. If `TRUE`, progress messages or a progress
 #'   bar (depending on the backend implementation) are displayed during simulation.
 #'   Default is `FALSE`.
 #' @param offset_nonoverlap Numeric scalar value passed to the C++ simulator.
 #'   This value is typically added to the linear predictor for dyads that are
-#'   \strong{not} part of the 'overlap' set defined in the `iglm_data` object, potentially
+#'   \strong{not} part of the 'overlap' set defined in the `iglm.data` object, potentially
 #'   modifying tie probabilities outside the primary neighborhood. Default is `0`.
 #' @param cluster Optional parallel cluster object created, for example, by
 #'   ``parallel::makeCluster``. If provided and valid, the function performs a
@@ -39,7 +39,7 @@
 #'   for each worker to ensure different random streams. If `NULL` (default),
 #'   all simulations are run sequentially in the main R process.
 #' @param fix_x Logical. If `TRUE`, the simulation holds the `x_attribute` fixed
-#'   at its initial state (from the \code{\link{iglm_data}} object) and only simulates the
+#'   at its initial state (from the \code{\link{iglm.data}} object) and only simulates the
 #'   `y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
 #'   are simulated according to the model and sampler settings. 
 #'
@@ -65,9 +65,9 @@
 #' @return A list containing two components:
 #' \describe{
 #'   \item{`samples`}{If `only_stats = FALSE`, this is a list of length
-#'     `sampler$n_simulation` where each element is a `iglm_data` object
+#'     `sampler$n_simulation` where each element is a `iglm.data` object
 #'     representing one simulated draw from the model. The list has the S3 class
-#'     `"iglm_data.list"`. If `only_stats = TRUE`, this is typically an empty list.}
+#'     `"iglm.data.list"`. If `only_stats = TRUE`, this is typically an empty list.}
 #'   \item{`stats`}{A numeric matrix with `sampler$n_simulation` rows and
 #'     `length(coef)` columns. Each row contains the features
 #'     (corresponding to the model terms in `formula`) calculated for one
@@ -87,7 +87,7 @@
 #'
 #' @seealso \code{iglm} for creating the model object,
 #'   \code{sampler.iglm} for creating the sampler object,
-#'   \code{iglm_data} for the data object structure. 
+#'   \code{iglm.data} for the data object structure. 
 #'
 #' @export
 #' @importFrom parallel parLapply
@@ -239,7 +239,7 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                                     z_network = res$simulation_networks[[x]],
                                     n_actor = n_actor, return_adj_mat = FALSE)})
   tmp = lapply(1:length(res$simulation_networks),
-               function(x){iglm_data(x_attribute = tmp[[x]]$x_attribute,
+               function(x){iglm.data(x_attribute = tmp[[x]]$x_attribute,
                                    y_attribute = tmp[[x]]$y_attribute,
                                    z_network = tmp[[x]]$z_network, 
                                    n_actor = length(tmp[[x]]$x_attribute),
@@ -249,8 +249,8 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                                    scale_y = preprocessed$data_object$scale_y, 
                                    return_neighborhood = FALSE)})
   # browser()
-  class(tmp) <- "iglm_data.list"
-  attr(tmp, "neighborhood") <- iglm_data.neighborhood(preprocessed$data_object$neighborhood)
+  class(tmp) <- "iglm.data.list"
+  attr(tmp, "neighborhood") <- iglm.data.neighborhood(preprocessed$data_object$neighborhood)
   colnames(res$stats) <- preprocessed$coef_names
   return(list(samples = tmp, stats = res$stats))
 }

@@ -16,7 +16,7 @@ iglm(
 }
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
-name of a `iglm_data` object available in the calling environment. 
+name of a `iglm.data` object available in the calling environment. 
 See \code{\link{model_terms}} for details on specifying the right-hand side terms.}
 
 \item{coef}{Optional numeric vector of initial coefficients for the structural
@@ -76,17 +76,17 @@ This help page documents the various statistics available in 'iglm',
 corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
 components of the joint model.
 This is a user-facing constructor for creating a \code{\link{iglm_object}}. This \code{R6} object 
-encompasses the complete model specification, linking the formula, data (\code{\link{iglm_data}} object), 
+encompasses the complete model specification, linking the formula, data (\code{\link{iglm.data}} object), 
 initial coefficients, MCMC sampler settings, and estimation controls.
 It serves as the primary input for subsequent methods like \code{$estimate()} and \code{$simulate()}.
 }
 \examples{
 # Example usage:
 library(iglm)
-# Create a iglm_data data object (example)
+# Create a iglm.data data object (example)
 n_actors <- 50
 neighborhood <- matrix(1, nrow = n_actors, ncol = n_actors)
-xyz_obj <- iglm_data(neighborhood = neighborhood, directed = FALSE,
+xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE,
                    type_x = "binomial", type_y = "binomial")
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)

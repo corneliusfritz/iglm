@@ -1,13 +1,13 @@
 #' @docType class
 #' @title A R6 class to represent networks with unit-level attributes
 #' @description
-#' The `iglm_data` class is a container for storing, validating, and analyzing
+#' The `iglm.data` class is a container for storing, validating, and analyzing
 #' unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 #' @import R6
 #' @importFrom Matrix sparseMatrix spMatrix bdiag diag
 #' @importFrom Hmisc capitalize
 #' @export
-iglm_data_generator <- R6::R6Class("iglm_data",
+iglm.data_generator <- R6::R6Class("iglm.data",
                                  private = list(
                                    .x_attribute = NULL,
                                    .y_attribute = NULL,
@@ -102,7 +102,7 @@ iglm_data_generator <- R6::R6Class("iglm_data",
                                  
                                  public = list(
                                    #' @description
-                                   #' Create a new `iglm_data` object, that includes data on two attributes and one network. 
+                                   #' Create a new `iglm.data` object, that includes data on two attributes and one network. 
                                    #'
                                    #' @param x_attribute A numeric vector for the first unit-level attribute.
                                    #' @param y_attribute A numeric vector for the second unit-level attribute.
@@ -131,8 +131,8 @@ iglm_data_generator <- R6::R6Class("iglm_data",
                                    #' @param return_neighborhood Logical. If `TRUE` (default) and
                                    #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
                                    #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
-                                   #' @param file (character) Optional file path to load a saved `iglm_data` object state.  
-                                   #' @return A new `iglm_data` object.
+                                   #' @param file (character) Optional file path to load a saved `iglm.data` object state.  
+                                   #' @return A new `iglm.data` object.
                                    initialize = function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                                                          neighborhood = NULL, directed = NA, n_actor = NA, 
                                                          type_x = "binomial", type_y = "binomial",
@@ -148,7 +148,7 @@ iglm_data_generator <- R6::R6Class("iglm_data",
                                                             "neighborhood", "directed", "n_actor",
                                                             "type_x", "type_y", "scale_x", "scale_y")
                                        if (!is.list(data_loaded) || !all(required_fields %in% names(data_loaded))) {
-                                         stop("File does not contain a valid iglm_data state.", call. = FALSE)
+                                         stop("File does not contain a valid iglm.data state.", call. = FALSE)
                                        }
                                        x_attribute = data_loaded$x_attribute
                                        y_attribute = data_loaded$y_attribute
@@ -265,10 +265,10 @@ iglm_data_generator <- R6::R6Class("iglm_data",
                                      invisible(self)
                                    },
                                    #' @description
-                                   #' Gathers the current state of the `iglm_data` object into a list.
+                                   #' Gathers the current state of the `iglm.data` object into a list.
                                    #' This includes all attributes, network, and configuration
                                    #' details necessary to reconstruct the object later.
-                                   #' @return A list containing the current state of the `iglm_data` object.
+                                   #' @return A list containing the current state of the `iglm.data` object.
                                    gather = function(){
                                      data_to_save <- list(
                                        x_attribute = private$.x_attribute,
@@ -285,11 +285,11 @@ iglm_data_generator <- R6::R6Class("iglm_data",
                                      return(data_to_save)
                                    },
                                    #' @description
-                                   #' Saves the current state of the `iglm_data` object to a specified file path
+                                   #' Saves the current state of the `iglm.data` object to a specified file path
                                    #' in RDS format. This includes all attributes, network, and configuration
                                    #' details necessary to reconstruct the object later.
                                    #' @param file (character) The file where the object state should be saved.
-                                   #' @return The `iglm_data` object itself (`self`), invisibly. 
+                                   #' @return The `iglm.data` object itself (`self`), invisibly. 
                                    save = function(file){
                                      if (missing(file) || !is.character(file) || length(file) != 1) {
                                        stop("A valid 'file' (character string) must be provided.", call. = FALSE)
@@ -1041,7 +1041,7 @@ iglm_data_generator <- R6::R6Class("iglm_data",
                                      invisible(list(graph = g, coords = coords))
                                    },
                                    #' @description
-                                   #' Print a summary of the `iglm_data` object to the console.
+                                   #' Print a summary of the `iglm.data` object to the console.
                                    #'
                                    #' @param digits (integer) Number of digits to round numeric output to.
                                    #' @param ... Additional arguments (not used).
@@ -1121,7 +1121,7 @@ iglm_data_generator <- R6::R6Class("iglm_data",
                                      y_sum <- summarize_attr(private$.y_attribute, private$.type_y)
                                      
                                      
-                                     cat("iglm_data object\n")
+                                     cat("iglm.data object\n")
                                      cat("  vertices   :", n, "\n")
                                      cat("  directed   :", if (dir_flag) "TRUE" else "FALSE", "\n")
                                      cat("  scales     : scale_x=", numfmt(private$.scale_x),
@@ -1175,11 +1175,11 @@ iglm_data_generator <- R6::R6Class("iglm_data",
                                  )
 )
 
-#' Constructor for the iglm_data R6 object
+#' Constructor for the iglm.data R6 object
 #'
 #' @description
-#' Creates a `iglm_data` object, which stores network and attribute data.
-#' This function acts as a user-friendly interface to the `iglm_data` R6 class generator.
+#' Creates a `iglm.data` object, which stores network and attribute data.
+#' This function acts as a user-friendly interface to the `iglm.data` R6 class generator.
 #' It handles data input, infers parameters like the number of actors (`n_actor`)
 #' and network directedness (`directed`) if not explicitly provided, processes
 #' network data into a consistent edgelist format, calculates the overlap
@@ -1213,15 +1213,15 @@ iglm_data_generator <- R6::R6Class("iglm_data",
 #' @param return_neighborhood Logical. If `TRUE` (default) and
 #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
 #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
-#' @param file (character) Optional file path to load a saved `iglm_data` object state.   
-#' @return An object of class `iglm_data` (and `R6`).
+#' @param file (character) Optional file path to load a saved `iglm.data` object state.   
+#' @return An object of class `iglm.data` (and `R6`).
 #' @export
-iglm_data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
+iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     neighborhood = NULL, directed = NA, n_actor = NA, 
                     type_x = "binomial", type_y = "binomial",
                     scale_x = 1, scale_y = 1, 
                     return_neighborhood = TRUE, file = NULL) {
-  iglm_data_generator$new(x_attribute = x_attribute,
+  iglm.data_generator$new(x_attribute = x_attribute,
                         y_attribute = y_attribute,
                         z_network = z_network,
                         neighborhood = neighborhood,

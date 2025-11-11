@@ -23,30 +23,131 @@ public:
   arma::mat overlap_mat;
   
   int n_actor;
-  // Constructor
-  XZ_class (int, bool, std::string, double); 
-  // Empty constructor without neighborhood
-  XZ_class (int, bool, arma::mat, arma::mat, std::string, double); 
-  // Empty network and attribute but with neighborhood and overlap structure
-  XZ_class (int, bool, std::unordered_map< int, std::unordered_set<int>>, 
-            std::unordered_map< int, std::unordered_set<int>>, 
-            arma::mat, std::string, double); 
-  // Matrix constructor
-  XZ_class (int, bool, arma::mat, arma::vec, arma::mat, arma::mat, std::string, double);
+  // Constructors
+  XZ_class(int n_actor_, bool directed_, std::string type_, double scale_): x_attribute(n_actor_, type_, scale_), z_network(n_actor_,directed_){
+    n_actor = n_actor_;
+    for (int i = 1; i <= n_actor; i++){
+      // Rcout << i  << std::endl;
+      neighborhood[i] = std::unordered_set<int>();
+      overlap[i] = std::unordered_set<int>();
+    }
+    overlap_mat = arma::zeros<arma::mat>(2, 0);
+  }
+  
+  XZ_class(int n_actor_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_): x_attribute(n_actor_, type_, scale_), z_network(n_actor_,directed_){
+    n_actor = n_actor_;
+    mat_to_map_neighborhood(neighborhood_,overlap_, n_actor_, directed_,
+                            neighborhood,
+                            overlap);
+    overlap_mat = overlap_;
+  }
+  
+  
+  XZ_class(int n_actor_, bool directed_, std::unordered_map< int, std::unordered_set<int>> neighborhood_,
+                     std::unordered_map< int, std::unordered_set<int>> overlap_,
+                     arma::mat overlap_mat_, std::string type_, double scale_): x_attribute(n_actor_, type_, scale_), z_network(n_actor_,directed_){
+    
+    neighborhood = neighborhood_;
+    overlap = overlap_;
+    overlap_mat = overlap_mat_;
+    n_actor = n_actor_;
+  }
+  
+  
+  XZ_class(int n_actor_, bool directed_, arma::mat z_network_, arma::vec x_attribute_, 
+                     arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_):
+    x_attribute(n_actor_, x_attribute_, type_, scale_), z_network(n_actor_,directed_, z_network_){
+    n_actor = n_actor_;
+    mat_to_map_neighborhood(neighborhood_,overlap_, n_actor, directed_,
+                            neighborhood,
+                            overlap);
+    overlap_mat = overlap_;
+    
+  }
   
   // Member functions
-  void assign_neighborhood(std::unordered_map< int, std::unordered_set<int>> new_neighborhood);
-  void change_neighborhood(int actor, std::unordered_set<int> new_neighborhood);
-  // void initialize(arma::mat, arma::vec, arma::mat);
-  // void initialize_from_zero(arma::mat);
-  bool check_if_full_neighborhood();
-  void copy_from(XZ_class);
-  void neighborhood_initialize();
-  void print();
-  void neighborhood_randomization(int seed, int K);
-  void set_neighborhood_from_mat(arma::mat mat);
-  bool get_val_neighborhood(int, int) const;
-  bool get_val_overlap(int, int) const;
-  void set_info(arma::vec, std::unordered_map< int, std::unordered_set<int>>);
-  void set_info_arma(arma::vec, arma::mat);
+  
+  bool get_val_overlap(int from, int to )const {
+    if(overlap.at(from).count(to)){
+      return(true);
+    } else if(overlap.at(to).count(from)) {
+      return(true);
+    } else {
+      return(false);
+    }
+  }
+  
+  
+  bool get_val_neighborhood(int from, int to ) const{
+    if(neighborhood.at(from).count(to)){
+      return(true);
+    } else {
+      return(false);
+    }
+  }
+  
+  // This function checks if the neighborhood is full or not
+  bool check_if_full_neighborhood() {
+    int sum_tmp= 0;
+    for(int i: seq(1,n_actor)){
+      if((int) neighborhood.at(i).size() == n_actor){
+        sum_tmp ++;
+      }
+    }
+    if(sum_tmp == n_actor){
+      return(true);
+    } else {
+      return(false);
+    }
+  }
+  void print() {
+    Rcout << "Network" << std::endl;
+    Rcout << map_to_mat(z_network.adj_list, n_actor) << std::endl;
+    Rcout << "Attribute" << std::endl;
+    x_attribute.print();
+    Rcout << "Neighborhood Matrix" << std::endl;
+    Rcout << map_to_mat(neighborhood, n_actor) << std::endl;
+    // print_set(neighborhood,n_ac);
+  }
+  
+  void copy_from(XZ_class obj) {
+    z_network = obj.z_network;
+    x_attribute = obj.x_attribute;
+    neighborhood = obj.neighborhood;
+    n_actor = obj.n_actor;
+  }
+  
+  
+  void set_neighborhood_from_mat(arma::mat mat) {
+    arma::rowvec tmp_row;
+    for (int i = 1; i <= n_actor; i++){
+      tmp_row = mat.row(i-1);
+      arma::uvec ids = find(tmp_row == 1) + 1; // Find indices
+      // Rcout << ids << std::endl;
+      neighborhood.at(i)= std::unordered_set<int>(ids.begin(),ids.end());
+    }
+  }
+  
+  void neighborhood_initialize() {
+    for (int i = 1; i <= n_actor; i++){
+      neighborhood[i] = std::unordered_set<int>();
+    }
+  }
+  
+  void assign_neighborhood(std::unordered_map< int, std::unordered_set<int>> new_neighborhood) {
+    neighborhood = new_neighborhood;
+  }
+  void set_info(arma::vec x_attribute_, std::unordered_map< int, std::unordered_set<int>> z_network_) {
+    x_attribute.attribute = x_attribute_;
+    z_network.adj_list = z_network_;
+  }
+  
+  void set_info_arma(arma::vec x_attribute_, arma::mat z_network_) {
+    x_attribute.attribute = x_attribute_;
+    mat_to_map(z_network_,n_actor, z_network.directed, z_network.adj_list,z_network.adj_list_in);
+  }
+  
+  void change_neighborhood(int actor, std::unordered_set<int> new_neighborhood) {
+    neighborhood.at(actor -1 ) = new_neighborhood;
+  }
 };

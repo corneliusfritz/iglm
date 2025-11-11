@@ -35,7 +35,7 @@ corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
 components of the joint model.
 In the formula interface, these terms can be specified by adding them in the 
 right-hand side of a model formula, e.g.,
-\code{iglm_data ~ attribute_x + edges(mode = "local") + popularity, ...}.
+\code{iglm.data ~ attribute_x + edges(mode = "local") + popularity, ...}.
 See the documentation for \code{\link{iglm}} for details on model fitting
 and estimation.
 }

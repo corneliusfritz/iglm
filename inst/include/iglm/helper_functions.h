@@ -10,10 +10,9 @@
 #include <vector>
 #include <algorithm>
 #include <random>
-
+#include "iglm/extension_api.hpp"
 // [[Rcpp::depends(RcppArmadillo)]]
 using namespace Rcpp;
-
 
 template<typename T>
 void print_vector(std::vector<T> tmp){
