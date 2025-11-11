@@ -8,20 +8,20 @@ count_statistics(formula)
 }
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
-name of a \code{\link{netplus}} object available in the calling environment. 
+name of a \code{\link{iglm_data}} object available in the calling environment. 
 See \code{\link{model_terms}} for details on specifying the right-hand side terms.}
 }
 \value{
 A named numeric vector. Each element corresponds to a term in the
   `formula`, and its value is the calculated observed feature
-  for that term based on the data in the \code{\link{netplus}} object. The names of the
+  for that term based on the data in the \code{\link{iglm_data}} object. The names of the
   vector match the coefficient names derived from the formula terms.
 }
 \description{
 Computes statistics.
 }
 \examples{
-# Create a simple netplus object
+# Create a iglm_data object
 n_actors = 10
 neighborhood = matrix(1, nrow = n_actors, ncol = n_actors)
 type_x <- "binomial"
@@ -29,7 +29,7 @@ type_y <- "binomial"
 x_attr_data <- rbinom(n_actors, 1, 0.5)
 y_attr_data <- rbinom(n_actors, 1, 0.5)
 z_net_data  <- matrix(0, nrow = n_actors, ncol = n_actors) 
-object = netplus(z_network = z_net_data, x_attribute = x_attr_data,
+object = iglm_data(z_network = z_net_data, x_attribute = x_attr_data,
  y_attribute = y_attr_data, neighborhood = neighborhood,
  directed = FALSE,type_x = type_x,type_y = type_y)
 count_statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)

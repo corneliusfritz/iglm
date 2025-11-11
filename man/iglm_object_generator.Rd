@@ -8,7 +8,7 @@
 The `iglm_object` class encapsulates all components required to define,
 estimate, and simulate from a network generalized linear model. This includes
 the model formula, coefficients, the underlying network and attribute data
-(via a `netplus` object), sampler controls, estimation controls, and storage
+(via a `iglm_data` object), sampler controls, estimation controls, and storage
 for results.
 }
 \references{
@@ -29,13 +29,13 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 
 \item{\code{results}}{(`results`) Read-only. The \code{\link{results}} R6 object containing all estimation and simulation outputs.}
 
-\item{\code{netplus}}{(`netplus`) Read-only. The associated \code{\link{netplus}} R6 object containing the network and attribute data.}
+\item{\code{iglm_data}}{(`iglm_data`) Read-only. The associated \code{\link{iglm_data}} R6 object containing the network and attribute data.}
 
 \item{\code{control}}{(`control.iglm`) Read-only. The \code{\link{control.iglm}} object specifying estimation parameters.}
 
 \item{\code{sampler}}{(`sampler_iglm`) Read-only. The  \code{\link{sampler_iglm}} object specifying MCMC sampling parameters.}
 
-\item{\code{count_statistics}}{(`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `netplus` data.}
+\item{\code{count_statistics}}{(`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm_data` data.}
 }
 \if{html}{\out{</div>}}
 }
@@ -62,7 +62,7 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 \if{latex}{\out{\hypertarget{method-iglm_object-new}{}}}
 \subsection{Method \code{new()}}{
 Internal method to calculate the observed count statistics based on the
-model formula and the data in the `netplus` object. Populates the
+model formula and the data in the `iglm_data` object. Populates the
 `private$.count_statistics` field.
 
 
@@ -89,7 +89,7 @@ and control objects, calculating initial statistics, and validating.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{formula}}{A model `formula` object. The left-hand side should be the
-name of a \code{\link{netplus}} object available in the calling environment. 
+name of a \code{\link{iglm_data}} object available in the calling environment. 
 See \code{\link{model_terms}} for details on specifying the right-hand side terms.}
 
 \item{\code{coef}}{A numeric vector of initial coefficients for the terms in
@@ -133,7 +133,7 @@ model parameters. Requires simulations to have been run first (via
 \describe{
 \item{\code{formula}}{A formula specifying the network statistics to assess
 (e.g., `~ degree_distribution() + geodesic_distances_distribution()`).
-The terms should correspond to methods available in the \code{\link{netplus}} 
+The terms should correspond to methods available in the \code{\link{iglm_data}} 
 object that end with `distributions`.}
 }
 \if{html}{\out{</div>}}
@@ -207,7 +207,7 @@ easy saving or inspection.
 A list containing all key components of the \code{\link{iglm_object}}.
   This includes the formula, coefficients, sampler, control settings,
   preprocessing info, time taken for estimation, count statistics,
-  results, and the underlying \code{\link{netplus}} data object.
+  results, and the underlying \code{\link{iglm_data}} data object.
 }
 }
 \if{html}{\out{<hr>}}
@@ -307,7 +307,7 @@ neighborhoods is known. Default is 0.}
 }
 \subsection{Returns}{
 A list containing the simulated networks (`samples`, as a
-  `netplus.list` if `only_stats = FALSE`) and/or their summary
+  `iglm_data.list` if `only_stats = FALSE`) and/or their summary
   statistics (`stats`), invisibly.
 }
 }
@@ -322,7 +322,7 @@ Requires \code{simulate} or \code{estimate} to have been run first.
 }
 
 \subsection{Returns}{
-A list of \code{\link{netplus}} objects representing
+A list of \code{\link{iglm_data}} objects representing
   the simulated networks, invisibly. Returns an error if no samples
   are available.
 }
@@ -351,7 +351,7 @@ redefining the entire model.
 \if{html}{\out{<a id="method-iglm_object-set_target"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm_object-set_target}{}}}
 \subsection{Method \code{set_target()}}{
-Replace the internal `netplus` data object with a new one. This is
+Replace the internal `iglm_data` data object with a new one. This is
 useful for applying a fitted model to new observed data. Recalculates
 count statistics and re-validates the object.
 \subsection{Usage}{
@@ -361,7 +361,7 @@ count statistics and re-validates the object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{x}}{A \code{\link{netplus}} `` object containing the new observed data.}
+\item{\code{x}}{A \code{\link{iglm_data}} `` object containing the new observed data.}
 }
 \if{html}{\out{</div>}}
 }

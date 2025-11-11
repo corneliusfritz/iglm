@@ -34,7 +34,7 @@ during estimation/simulation (fixed design in regression). Default is `FALSE`.}
 a progress bar during estimation. Default is `FALSE`.}
 
 \item{return_samples}{(logical). If \code{TRUE} (default), return simulated network/attribute
-samples (i.e., \code{netplus} objects) generated during estimation (if applicable).}
+samples (i.e., \code{iglm_data} objects) generated during estimation (if applicable).}
 
 \item{offset_nonoverlap}{(numeric) A value added to the linear predictor for
 dyads not in the 'overlap' set. Default is `0`.}

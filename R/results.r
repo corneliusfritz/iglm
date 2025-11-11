@@ -143,7 +143,7 @@ results_generator <- R6::R6Class("results",
                                    #'   and columns represent all coefficients (non-popularity then popularity),
                                    #'   showing their values during estimation. If provided, appends to any
                                    #'   existing path.
-                                   #' @param samples (list) A list of simulated `netplus` objects (class `netplus.list`).
+                                   #' @param samples (list) A list of simulated `iglm_data` objects (class `iglm_data.list`).
                                    #'   If provided, replaces any existing samples.
                                    #' @param var (matrix) The estimated variance-covariance matrix for the
                                    #'   non-popularity coefficients. Replaces existing matrix.
@@ -202,13 +202,13 @@ results_generator <- R6::R6Class("results",
                                          rbind(private$.coefficients_path, coefficients_path)
                                      }
                                      if(!is.null(samples)){
-                                       if(! "netplus.list" %in% class(samples)){
-                                         stop("`samples` must be of class `netplus.list`.", call. = FALSE)
+                                       if(! "iglm_data.list" %in% class(samples)){
+                                         stop("`samples` must be of class `iglm_data.list`.", call. = FALSE)
                                        } else {
                                          if(length(private$.samples) ==0){
                                            private$.samples <- samples
                                          } else {
-                                           private$.samples <- append_netplus(private$.samples, samples)
+                                           private$.samples <- append_iglm_data(private$.samples, samples)
                                          }
                                          
                                          
@@ -555,7 +555,7 @@ results_generator <- R6::R6Class("results",
                                  active = list(
                                    #' @field coefficients_path (`matrix` or `NULL`) Read-only. The path of all estimated coefficients across iterations.
                                    coefficients_path = function(value) { if(missing(value)) private$.coefficients_path else stop("`coefficients_path` is read-only.", call. = FALSE) },
-                                   #' @field samples (`list` or `NULL`) Read-only. A list of simulated `netplus` objects (class `netplus.list`).
+                                   #' @field samples (`list` or `NULL`) Read-only. A list of simulated `iglm_data` objects (class `iglm_data.list`).
                                    samples = function(value) { if(missing(value)) private$.samples else stop("`samples` is read-only.", call. = FALSE)},
                                    #' @field stats (`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples.
                                    stats = function(value) { if(missing(value)) private$.stats else stop("`stats` is read-only.", call. = FALSE)},

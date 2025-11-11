@@ -34,7 +34,7 @@ is_cluster_active <- function(clust) {
 #' @param display_progress (logical) If `TRUE`, display progress messages or
 #'   a progress bar during estimation. Default is `FALSE`.
 #' @param return_samples (logical). If \code{TRUE} (default), return simulated network/attribute
-#'   samples (i.e., \code{netplus} objects) generated during estimation (if applicable).
+#'   samples (i.e., \code{iglm_data} objects) generated during estimation (if applicable).
 #' @param return_z (logical). If \code{TRUE}, return the change statistics for the \code{z} network. Default is \code{FALSE}.
 #' @param offset_nonoverlap (numeric) A value added to the linear predictor for
 #'   dyads not in the 'overlap' set. Default is `0`.

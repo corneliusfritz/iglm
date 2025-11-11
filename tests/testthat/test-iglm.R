@@ -18,7 +18,7 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   type_x <- "binomial"
   type_y <- "binomial"
   
-  xyz_obj_new = netplus(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
+  xyz_obj_new = iglm_data(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
   gt_coef = c(3, -1,-1)
   gt_coef_pop =  c(rnorm(n = n_actors, -2, 1))
   
@@ -50,7 +50,7 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   model_tmp_new$simulate()
   expect_equal(length(model_tmp_new$results$samples),expected = 1)
   expect_equal(nrow(model_tmp_new$results$stats),expected = 1)
-  expect_equal(model_tmp_new$netplus$density_z(),expected = 0)
+  expect_equal(model_tmp_new$iglm_data$density_z(),expected = 0)
   
   
   expect_equal(inherits(model_tmp_loaded,"iglm_object"),expected = TRUE)
@@ -59,7 +59,7 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   
   samples <- model_tmp_new$get_samples()
   model_tmp_new$set_target(samples[[1]])
-  expect_equal(model_tmp_new$netplus$density_z(),
+  expect_equal(model_tmp_new$iglm_data$density_z(),
                          expected = nrow(samples[[1]]$z_network)/(n_actors *(n_actors-1)/2))
   expect_warning(model_tmp_new$estimate())
   

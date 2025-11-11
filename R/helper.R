@@ -57,7 +57,7 @@ eval_change <- function(formula, additional_args = NULL,object) {
     method_to_call <- object[[func_name]]
     if (is.function(method_to_call)) {
       
-      # Execute the function call using the netplus object's environment (self)
+      # Execute the function call using the iglm_data object's environment (self)
       result <- do.call(method_to_call, args)
       
       # Store the result
@@ -255,7 +255,7 @@ check_overlap <- function(mat_1, mat_2){
   return(duplicated(combined, fromLast = TRUE)[1:nrow(mat_1)])
 }
 
-netplus.neighborhood = function(neighborhood, directed = NA, n_actor = NA){
+iglm_data.neighborhood = function(neighborhood, directed = NA, n_actor = NA){
   
   if(is.na(n_actor)){
     if(ncol(neighborhood)>2){
@@ -290,7 +290,7 @@ netplus.neighborhood = function(neighborhood, directed = NA, n_actor = NA){
   }
   res = list(neighborhood = neighborhood,  
              overlap = overlap)
-  class(res) = "netplus.neighborhood"
+  class(res) = "iglm_data.neighborhood"
   return(res)
 }
 
@@ -305,8 +305,8 @@ get_i <- function(x, i) {
 }
 
 #' @export
-#' @method [[ netplus.list
-`[[.netplus.list` <- function(x, i, ...) {
+#' @method [[ iglm_data.list
+`[[.iglm_data.list` <- function(x, i, ...) {
   item <- get_i(x,i)
   # browser()
   item$set_neighborhood_overlap(attr(x,"neighborhood")$neighborhood, 
@@ -314,15 +314,15 @@ get_i <- function(x, i) {
   item
 }
 
-append_netplus <- function(x,y){
+append_iglm_data <- function(x,y){
   tmp <- c(x,y)
   attributes(tmp)<- attributes(x)
-  class(tmp) <- "netplus.list"
+  class(tmp) <- "iglm_data.list"
   return(tmp)
 }
 #' @export
-#' @method [ netplus.list
-`[.netplus.list` <- function(x, i, ...) {
+#' @method [ iglm_data.list
+`[.iglm_data.list` <- function(x, i, ...) {
   # browser()
   res <- list()
   k <- 1
@@ -338,11 +338,11 @@ append_netplus <- function(x,y){
 }
 
 #' @export
-#' @method print netplus.list
-print.netplus.list <- function(x, ...) {
+#' @method print iglm_data.list
+print.iglm_data.list <- function(x, ...) {
   # Header
   n_items <- length(x)
-  cat("List of netplus object with", n_items,
+  cat("List of iglm_data object with", n_items,
       if (n_items == 1L) "entry\n" else "entries\n")
   
   # Summarize elements
