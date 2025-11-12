@@ -45,7 +45,7 @@ An object of class \`sampler_net_attr\` (and \`R6\`).
 sampler_comp_default <- sampler.net_attr()
 sampler_comp_default
 #>   Number of proposals : 10000
-#>   Random seed         : 167759
+#>   Random seed         : 297839
 
 # Custom settings
 sampler_comp_custom <- sampler.net_attr(n_proposals = 50000, seed = 123)
