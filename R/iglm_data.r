@@ -138,7 +138,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                          type_x = "binomial", type_y = "binomial",
                                                          scale_x = 1, scale_y = 1, return_neighborhood = TRUE, 
                                                          file = NULL) {
-                                     # browser()
                                      if(!is.null(file)){
                                        if(!file.exists(file)){
                                          stop(paste("File",file,"does not exist."))
@@ -187,6 +186,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          private$.z_network[lower.tri(private$.z_network)] <- 0
                                        }
                                        private$.z_network <- which(private$.z_network == 1, arr.ind = T)
+                                     }
+                                     
+                                     if(!directed){
+                                       wrong_tmp <- private$.z_network[,1] > private$.z_network[,2]
+                                       correct_tmp <- private$.z_network[,1] < private$.z_network[,2]
+                                       private$.z_network <- rbind(private$.z_network[correct_tmp, c(1,2)], 
+                                                                   private$.z_network[wrong_tmp, c(2,1)])
+                                       private$.z_network <- private$.z_network[!duplicated(private$.z_network), ]
                                      }
                                      
                                      if(is.na(n_actor)){
@@ -1254,19 +1261,39 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
 #' @param file (character) Optional file path to load a saved `iglm.data` object state.   
 #' @return An object of class `iglm.data` (and `R6`).
+#' @examples
+#' data(state_twitter)
+#' state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
+#' state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
+#' state_twitter$iglm.data$density_x()
+#' state_twitter$iglm.data$density_y()
+#' 
+#' # Generate a small iglm data object either via adjacency matrix or edgelist
+#' tmp_adjacency <- iglm.data(z_network = matrix(c(0,1,1,0,
+#'                                                 1,0,0,1,
+#'                                                 1,0,0,1,
+#'                                                 0,1,1,0), nrow=4, byrow=TRUE),
+#'                            directed = FALSE,
+#'                            n_actor = 4,
+#'                            type_x = "binomial",
+#'                            type_y = "binomial")
+#' 
+#' 
+#' tmp_edgelist <- iglm.data(z_network = tmp_adjacency$z_network, 
+#'                           directed = FALSE,
+#'                        n_actor = 4,
+#'                        type_x = "binomial",
+#'                        type_y = "binomial")
+#' 
+#' tmp_edgelist$density_z()
+#' tmp_adjacency$density_z()
 #' @export
 iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
-                    neighborhood = NULL, directed = NA, n_actor = NA, 
+                    neighborhood = NULL, directed = TRUE, n_actor = NA, 
                     type_x = "binomial", type_y = "binomial",
                     scale_x = 1, scale_y = 1, 
                     return_neighborhood = TRUE, file = NULL) {
   
-  if(!directed){
-    wrong_tmp <- z_network[,1] > z_network[,2]
-    correct_tmp <- z_network[,1] < z_network[,2]
-    z_network <- rbind(z_network[correct_tmp, c(1,2)], z_network[wrong_tmp, c(2,1)])
-    z_network <- z_network[!duplicated(z_network), ]
-  }
   iglm.data_generator$new(x_attribute = x_attribute,
                         y_attribute = y_attribute,
                         z_network = z_network,

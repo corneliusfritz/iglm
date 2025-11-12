@@ -24,7 +24,6 @@ test_that('Define a iglm.data object and check all functions', {
   expect_equal(loaded_tmp$density_y(),expected = 0)
   expect_equal(loaded_tmp$density_z(),expected = 0)
   rm(loaded_tmp)
-  
   tmp <- iglm.data(z_network =  matrix(c(0,1,1,0,
                                        1,0,0,1,
                                        1,0,0,1,

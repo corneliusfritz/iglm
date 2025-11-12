@@ -9,7 +9,7 @@ iglm.data(
   y_attribute = NULL,
   z_network = NULL,
   neighborhood = NULL,
-  directed = NA,
+  directed = TRUE,
   n_actor = NA,
   type_x = "binomial",
   type_y = "binomial",
@@ -71,4 +71,31 @@ and network directedness (`directed`) if not explicitly provided, processes
 network data into a consistent edgelist format, calculates the overlap
 relation based on an optional neighborhood definition, and performs
 extensive validation of all inputs.
+}
+\examples{
+data(state_twitter)
+state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
+state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
+state_twitter$iglm.data$density_x()
+state_twitter$iglm.data$density_y()
+
+# Generate a small iglm data object either via adjacency matrix or edgelist
+tmp_adjacency <- iglm.data(z_network = matrix(c(0,1,1,0,
+                                                1,0,0,1,
+                                                1,0,0,1,
+                                                0,1,1,0), nrow=4, byrow=TRUE),
+                           directed = FALSE,
+                           n_actor = 4,
+                           type_x = "binomial",
+                           type_y = "binomial")
+
+
+tmp_edgelist <- iglm.data(z_network = tmp_adjacency$z_network, 
+                          directed = FALSE,
+                       n_actor = 4,
+                       type_x = "binomial",
+                       type_y = "binomial")
+
+tmp_edgelist$density_z()
+tmp_adjacency$density_z()
 }
