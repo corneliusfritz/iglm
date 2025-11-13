@@ -142,6 +142,59 @@ implemented terms are grouped into three categories:
 
   - `alocal`: \\h\_{i,j}(x,y,z) = (1 - c\_{i,j}) w\_{i,j} z\_{i,j}\\
 
+- `isolates`:
+
+  **Isolates \[z-term\]:** Counts and accounts for the number of
+  non-isolated nodes.
+
+- `nonisolates`:
+
+  **Non-Isolates \[z-term\]:** Counts and accounts for the number of
+  non-isolated nodes. It is the exact negative of the `isolates`
+  statistic.
+
+- `gwodegree(decay)`:
+
+  **Geometrically Weighted Out-Degree \[z-term\]:** The Geometrically
+  Weighted Out-Degree statistic is implemented as in the \`ergm\`
+  package.
+
+- `gwidegree(decay)`:
+
+  **Geometrically Weighted In-Degree \[z-term\]:** The Geometrically
+  Weighted In-Degree (GWIDegree) statistic is implemented as in the
+  \`ergm\` package.
+
+- `gwesp(data, mode = "global", variant = "OTP")`:
+
+  **Geometrically Weighted Edegewise-Shared Partners \[h-term\]:**
+  Geometrically weighted edgewise shared partners (GWESP) statistic for
+  directed networks as implemented in the \`ergm\` package. Variants
+  include: OTP (outgoing two-paths, \\z\_{i,h}\\z\_{h,j}\\ z\_{i,j}\\),
+  ITP (incoming two-paths, \\z\_{h,i}\\z\_{j,h}\\ z\_{i,j}\\), OSP
+  (outgoing shared partners, \\z\_{i,h}\\z\_{j,h}\\ z\_{i,j}\\), ISP
+  (incoming shared partners, \\z\_{h,i}\\z\_{h,j}\\ z\_{i,j}\\).
+
+  - `global`: ESP counts are calculated over all edges in the network.
+
+  - `local`: ESP counts are restricted to local edges only (edges with
+    non-overlapping neighborhoods).
+
+- `gwdsp(data, mode = "global", variant = "OTP")`:
+
+  **Geometrically Weighted Dyadwise-Shared Partners \[h-term\]:**
+  Geometrically weighted dyadwise shared partners (GWDSP) statistic for
+  directed networks as implemented in the \`ergm\` package. Variants
+  include: OTP (outgoing two-paths, \\z\_{i,h}\\z\_{h,j}\\), ITP
+  (incoming two-paths, \\z\_{h,i}\\z\_{j,h}\\), OSP (outgoing shared
+  partners, \\z\_{i,h}\\z\_{j,h}\\), ISP (incoming shared partners,
+  \\z\_{h,i}\\z\_{h,j}\\).
+
+  - `global`: ESP counts are calculated over all edges in the network.
+
+  - `local`: ESP counts are restricted to local edges only (edges with
+    non-overlapping neighborhoods).
+
 - `cov_z_out(data, mode = "global")`:
 
   **Covariate Sender \[h-term\]:** The effect of a monadic covariate

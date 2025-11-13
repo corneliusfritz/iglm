@@ -193,6 +193,37 @@ The implemented terms are grouped into three categories:</p><ol><li><p>\(g_i\) t
 <li><p><code>alocal</code>: \(h_{i,j}(x,y,z) = (1 - c_{i,j}) w_{i,j} z_{i,j}\)</p></li>
 </ul><p></p></dd>
 
+  #'   <dt><code>isolates</code></dt>
+<dd><p><strong>Isolates [z-term]:</strong>
+    Counts and accounts for the number of non-isolated nodes.</p></dd>
+
+  <dt><code>nonisolates</code></dt>
+<dd><p><strong>Non-Isolates [z-term]:</strong>
+    Counts and accounts for the number of non-isolated nodes. It is the exact
+    negative of the <code>isolates</code> statistic.</p></dd>
+
+  <dt><code>gwodegree(decay)</code></dt>
+<dd><p><strong>Geometrically Weighted Out-Degree  [z-term]:</strong>
+    The Geometrically Weighted Out-Degree statistic is implemented as in the `ergm` package.</p></dd>
+
+  <dt><code>gwidegree(decay)</code></dt>
+<dd><p><strong>Geometrically Weighted In-Degree [z-term]:</strong>
+    The Geometrically Weighted In-Degree (GWIDegree) statistic is implemented as in the `ergm` package.</p></dd>
+
+  <dt><code>gwesp(data, mode = "global", variant = "OTP")</code></dt>
+<dd><p><strong>Geometrically Weighted  Edegewise-Shared Partners [h-term]:</strong> Geometrically weighted edgewise shared partners (GWESP) statistic for directed networks as implemented in the `ergm` package.
+    Variants include: OTP (outgoing two-paths, \(z_{i,h}\,z_{h,j}\, z_{i,j}\)), ITP (incoming two-paths, \(z_{h,i}\,z_{j,h}\, z_{i,j}\)),
+    OSP (outgoing shared partners, \(z_{i,h}\,z_{j,h}\, z_{i,j}\)), ISP (incoming shared partners, \(z_{h,i}\,z_{h,j}\, z_{i,j}\)).</p><ul><li><p><code>global</code>: ESP counts are calculated over all edges in the network.</p></li>
+<li><p><code>local</code>: ESP counts are restricted to local edges only (edges with non-overlapping neighborhoods).</p></li>
+</ul><p></p></dd>
+
+  <dt><code>gwdsp(data, mode = "global", variant = "OTP")</code></dt>
+<dd><p><strong>Geometrically Weighted  Dyadwise-Shared Partners [h-term]:</strong> Geometrically weighted dyadwise shared partners (GWDSP) statistic for directed networks as implemented in the `ergm` package.
+    Variants include: OTP (outgoing two-paths, \(z_{i,h}\,z_{h,j}\)), ITP (incoming two-paths, \(z_{h,i}\,z_{j,h}\)),
+    OSP (outgoing shared partners, \(z_{i,h}\,z_{j,h}\)), ISP (incoming shared partners, \(z_{h,i}\,z_{h,j}\)).</p><ul><li><p><code>global</code>: ESP counts are calculated over all edges in the network.</p></li>
+<li><p><code>local</code>: ESP counts are restricted to local edges only (edges with non-overlapping neighborhoods).</p></li>
+</ul><p></p></dd>
+
   <dt><code>cov_z_out(data, mode = "global")</code></dt>
 <dd><p><strong>Covariate Sender [h-term]:</strong> The effect of a monadic covariate \(v_{i}\) on being the sender in a directed network.</p><ul><li><p><code>global</code>: \(h_{i,j}(x,y,z) = v_i z_{i,j}\)</p></li>
 <li><p><code>local</code>: \(h_{i,j}(x,y,z) = c_{i,j} v_i z_{i,j}\)</p></li>
