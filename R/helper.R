@@ -376,7 +376,7 @@ formula_preprocess = function(formula){
   formula_info <- rhs_terms_as_list(formula)
   
   term_per_term <-  unlist(lapply(formula_info, function(x) x$base_name))
-  special_terms <- c("gwesp", "edges", "mutual", "cov_z", "cov_z_out", "cov_z_in",
+  special_terms <- c("gwdegree","gwdsp","gwesp", "edges", "mutual", "cov_z", "cov_z_out", "cov_z_in",
                      "inedges_y", "outedges_y","attribute_xy", "inedges_x", "outedges_x")
   is_special <- term_per_term %in%special_terms
   
@@ -391,7 +391,7 @@ formula_preprocess = function(formula){
   }))
   term_per_term[is_special] <- paste0(term_per_term[is_special], "_", mode_per_term[is_special], sep = "")
   
-  is_very_special <- term_per_term %in% c("gwesp_global", "gwesp_local")
+  is_very_special <- term_per_term %in% c("gwdsp_global","gwdsp_local","gwesp_global", "gwesp_local")
   for(m in which(is_very_special)){
     formula_info[[m]]$data <- matrix(formula_info[[m]]$decay)
   }
