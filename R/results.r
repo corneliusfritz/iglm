@@ -296,8 +296,11 @@ results_generator <- R6::R6Class("results",
                                          stop("No model assessment available to plot.", call. = FALSE)
                                        } else {
                                          if(private$.model_assessment$include_mcmc){
+                                           
                                            normalized <- sweep(private$.stats, 2, private$.model_assessment$count_statistics, "-")
                                            colmeans_normalized <- colMeans(normalized)
+                                           normalized <- sweep(normalized, 2, colMeans(private$.stats), "/")
+                                           
                                            for(i in 1:ncol(normalized)){
                                              plot(density(normalized[,i]), main = paste0(names(colmeans_normalized)[i]), 
                                                   bty ="l", xlab = "Difference")

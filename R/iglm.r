@@ -439,6 +439,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                              
                                              
                                            }
+                                           
                                            if(length(info$simulations) > 0){
                                              tmp = lapply(1:length(info$simulations),
                                                           function(x){iglm.data(x_attribute = info$simulations[[x]]$x_attribute,
@@ -454,6 +455,9 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                              class(tmp) <- "iglm.data.list"
                                              attr(tmp, "neighborhood") <- iglm.data.neighborhood(private$.iglm.data$neighborhood)
                                              info$simulations <- tmp
+                                             colnames(info$stats) <- private$.preprocess$coef_names
+                                             
+                                             
                                            }
                                            
                                            # Remove samples because they would not anymore be consistent with the currect estimates
