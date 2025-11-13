@@ -57,7 +57,7 @@ You can specify a model formula that includes various network statistics
 and attribute effects. For example:
 
 ``` r
-formula <- object ~ edges(mode = "local") + attribute_y + attribute_x + popularity
+formula <- object ~ edges + attribute_y + attribute_x + popularity
 ```
 
 To fully define the model, you need to set up a sampler for the MCMC
@@ -106,10 +106,16 @@ model_tmp_new$iglm.data$degree_distribution(plot = TRUE)
 ![](iglm_files/figure-html/unnamed-chunk-7-1.png)
 
     #> info
-    #>    0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15 
-    #> 0.04 0.02 0.04 0.12 0.03 0.10 0.07 0.16 0.03 0.07 0.05 0.02 0.04 0.02 0.03 0.02 
-    #>   16   17   18   19   20   21   22   23   24   25   26   27   28   29 
-    #> 0.03 0.03 0.01 0.02 0.01 0.01 0.00 0.00 0.00 0.01 0.00 0.01 0.00 0.01
+    #>    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18 
+    #> 0.01 0.00 0.00 0.01 0.00 0.00 0.02 0.00 0.01 0.02 0.03 0.00 0.01 0.00 0.01 0.02 
+    #>   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34 
+    #> 0.01 0.05 0.03 0.04 0.03 0.05 0.03 0.00 0.03 0.03 0.01 0.02 0.03 0.02 0.02 0.03 
+    #>   35   36   37   38   39   40   41   42   43   44   45   46   47   48   49   50 
+    #> 0.03 0.02 0.01 0.01 0.01 0.02 0.03 0.02 0.02 0.00 0.03 0.01 0.00 0.02 0.02 0.01 
+    #>   51   52   53   54   55   56   57   58   59   60   61   62   63   64   65   66 
+    #> 0.00 0.01 0.01 0.03 0.01 0.00 0.01 0.02 0.00 0.02 0.00 0.00 0.00 0.02 0.01 0.00 
+    #>   67   68   69   70   71   72   73 
+    #> 0.01 0.00 0.00 0.00 0.01 0.00 0.01
 
 ## Model Assessment
 
@@ -118,8 +124,8 @@ diagnostics:
 
 ``` r
 model_tmp_new$model_assessment(formula = ~  degree_distribution + 
-                                 geodesic_distances_distribution + edgewise_shared_partner_distribution)
+                                 geodesic_distances_distribution + edgewise_shared_partner_distribution + mcmc_diagnostics)
 model_tmp_new$results$plot(model_assessment = T)
 ```
 
-![](iglm_files/figure-html/unnamed-chunk-8-1.png)![](iglm_files/figure-html/unnamed-chunk-8-2.png)![](iglm_files/figure-html/unnamed-chunk-8-3.png)
+![](iglm_files/figure-html/unnamed-chunk-8-1.png)![](iglm_files/figure-html/unnamed-chunk-8-2.png)![](iglm_files/figure-html/unnamed-chunk-8-3.png)![](iglm_files/figure-html/unnamed-chunk-8-4.png)![](iglm_files/figure-html/unnamed-chunk-8-5.png)![](iglm_files/figure-html/unnamed-chunk-8-6.png)

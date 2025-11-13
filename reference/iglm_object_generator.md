@@ -184,7 +184,9 @@ parameters. Requires simulations to have been run first (via
   A formula specifying the network statistics to assess (e.g., \`~
   degree_distribution() + geodesic_distances_distribution()\`). The
   terms should correspond to methods available in the
-  [`iglm.data`](iglm.data.md) object that end with \`distributions\`.
+  [`iglm.data`](iglm.data.md) object that end with \`distributions\`. If
+  the term mcmc_diagnostics is included, MCMC diagnostics will also be
+  computed.
 
 #### Returns
 
