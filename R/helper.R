@@ -142,6 +142,9 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
       if(!is.null(arg_exprs$mode)){
         name_addon <- paste0(name_addon,arg_exprs$mode)
       }
+      if(!is.null(arg_exprs$variant)){
+        name_addon <- paste0(name_addon,arg_exprs$variant)
+      }
       elt_name  <- paste0(base_name,"_",name_addon)
       taken_names <- c(taken_names, elt_name)
       out[[elt_name]] <- entry
@@ -373,7 +376,7 @@ formula_preprocess = function(formula){
   formula_info <- rhs_terms_as_list(formula)
   
   term_per_term <-  unlist(lapply(formula_info, function(x) x$base_name))
-  special_terms <- c("edges", "mutual", "cov_z", "cov_z_out", "cov_z_in",
+  special_terms <- c("gwesp", "edges", "mutual", "cov_z", "cov_z_out", "cov_z_in",
                      "inedges_y", "outedges_y","attribute_xy", "inedges_x", "outedges_x")
   is_special <- term_per_term %in%special_terms
   
@@ -388,7 +391,24 @@ formula_preprocess = function(formula){
   }))
   term_per_term[is_special] <- paste0(term_per_term[is_special], "_", mode_per_term[is_special], sep = "")
   
-  # print.iglm_formulainfo(formula_info)
+  is_very_special <- term_per_term %in% c("gwesp_global", "gwesp_local")
+  for(m in which(is_very_special)){
+    formula_info[[m]]$data <- matrix(formula_info[[m]]$decay)
+  }
+  
+  # x <- formula_info[is_very_special][[2]]
+  
+  variant_per_term <- lapply(formula_info, function(x) x$variant)
+  variant_per_term <- unlist(lapply(variant_per_term, function(x){
+    if(is.null(x)){"OSP"
+    } else{
+      if(!x %in% c("ITP","ISP", "OTP", "OSP")){
+        stop(paste0("Mode '", x, "' not recognized. Please use 'ITP','ISP', 'OTP' or 'OSP'."))
+      } else x
+    }
+  }))
+  term_per_term[is_very_special] <- paste0(term_per_term[is_very_special], "_", variant_per_term[is_very_special], sep = "")
+  
   type_per_term <- lapply(formula_info, function(x) x$type)
   type_per_term <- unlist(lapply(type_per_term, function(x) if(is.null(x)){1} else{x}))
   

@@ -3,4 +3,5 @@
 ^\.github$
 ^pkgdown/
 _pkgdown.yml
+readme.Rmd
 ^man/figures

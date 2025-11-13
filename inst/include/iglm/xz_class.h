@@ -21,6 +21,7 @@ public:
   std::unordered_map< int, std::unordered_set<int>> neighborhood;
   std::unordered_map< int, std::unordered_set<int>> overlap;
   arma::mat overlap_mat;
+  std::unordered_set<int> all_actors; 
   
   int n_actor;
   // Constructors
@@ -32,6 +33,11 @@ public:
       overlap[i] = std::unordered_set<int>();
     }
     overlap_mat = arma::zeros<arma::mat>(2, 0);
+    
+    for (int i = 1; i <= n_actor_; ++i) {
+      all_actors.insert(i);
+    }
+    
   }
   
   XZ_class(int n_actor_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_): x_attribute(n_actor_, type_, scale_), z_network(n_actor_,directed_){
@@ -40,6 +46,11 @@ public:
                             neighborhood,
                             overlap);
     overlap_mat = overlap_;
+    
+    for (int i = 1; i <= n_actor_; ++i) {
+      all_actors.insert(i);
+    }
+    
   }
   
   
@@ -51,6 +62,11 @@ public:
     overlap = overlap_;
     overlap_mat = overlap_mat_;
     n_actor = n_actor_;
+    
+    for (int i = 1; i <= n_actor_; ++i) {
+      all_actors.insert(i);
+    }
+    
   }
   
   
@@ -62,7 +78,9 @@ public:
                             neighborhood,
                             overlap);
     overlap_mat = overlap_;
-    
+    for (int i = 1; i <= n_actor_; ++i) {
+      all_actors.insert(i);
+    }
   }
   
   // Member functions
@@ -76,6 +94,49 @@ public:
       return(false);
     }
   }
+  std::unordered_set<int> get_common_partners(unsigned int from,unsigned int to, std::string type = "OSP")const {
+    return(z_network.get_common_partners(from,to,type));
+  }
+  size_t count_common_partners(unsigned int from,unsigned int to, std::string type = "OSP")const {
+    return(z_network.count_common_partners(from,to,type));
+  }
+  std::unordered_set<int> get_common_partners_nb(unsigned int from,unsigned int to, std::string type = "OSP")const {
+    if(type == "OTP"){
+      return(get_intersection(get_intersection(z_network.adj_list.at(from),overlap.at(from)),
+                              get_intersection(z_network.adj_list_in.at(to),overlap.at(to)))); 
+    } else  if(type == "ISP"){ 
+      return(get_intersection(get_intersection(z_network.adj_list_in.at(from),overlap.at(from)),
+                              get_intersection(z_network.adj_list_in.at(to),overlap.at(to)))); 
+    }else  if(type == "OSP"){ 
+      return(get_intersection(get_intersection(z_network.adj_list.at(from),overlap.at(from)), 
+                                get_intersection(z_network.adj_list.at(to),overlap.at(to)))); 
+    } 
+    else  if(type == "ITP"){
+      return(get_intersection(get_intersection(z_network.adj_list_in.at(from),overlap.at(from)), 
+                              get_intersection(z_network.adj_list.at(to),overlap.at(to)))); 
+    } 
+    std::unordered_set<int> res; 
+    return(res);
+  } 
+  
+  
+  size_t count_common_partners_nb(unsigned int from,unsigned int to, std::string type = "OSP")const {
+    if(type == "OTP"){
+      return(count_intersection(get_intersection(z_network.adj_list.at(from),overlap.at(from)),
+                              get_intersection(z_network.adj_list_in.at(to),overlap.at(to)))); 
+    } else  if(type == "ISP"){ 
+      return(count_intersection(get_intersection(z_network.adj_list_in.at(from),overlap.at(from)),
+                              get_intersection(z_network.adj_list_in.at(to),overlap.at(to)))); 
+    }else  if(type == "OSP"){ 
+      return(count_intersection(get_intersection(z_network.adj_list.at(from),overlap.at(from)), 
+                              get_intersection(z_network.adj_list.at(to),overlap.at(to)))); 
+    } 
+    else  if(type == "ITP"){
+      return(count_intersection(get_intersection(z_network.adj_list_in.at(from),overlap.at(from)), 
+                              get_intersection(z_network.adj_list.at(to),overlap.at(to)))); 
+    } 
+    return(0);
+  } 
   
   
   bool get_val_neighborhood(int from, int to ) const{

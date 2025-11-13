@@ -134,7 +134,8 @@ model parameters. Requires simulations to have been run first (via
 \item{\code{formula}}{A formula specifying the network statistics to assess
 (e.g., `~ degree_distribution() + geodesic_distances_distribution()`).
 The terms should correspond to methods available in the \code{\link{iglm.data}} 
-object that end with `distributions`.}
+object that end with `distributions`. 
+If the term mcmc_diagnostics is included, MCMC diagnostics will also be computed.}
 }
 \if{html}{\out{</div>}}
 }

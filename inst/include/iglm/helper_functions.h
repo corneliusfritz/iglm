@@ -210,5 +210,76 @@ inline std::vector< int> armavec_to_vector(arma::vec vec) {
   // print_vector(res);
   return(res);
 }
+
+inline std::unordered_set<int> get_set_difference(
+    const std::unordered_set<int>& set1,
+    const std::unordered_set<int>& set2)
+{
+  std::unordered_set<int> difference;
+  difference.reserve(set1.size()); 
+   
+  for (const int& element : set1) {
+    if (!set2.count(element)) {
+      difference.insert(element);
+    }
+  } 
+  
+  return difference;
+}
+
+inline std::unordered_set<int> get_intersection(
+    const std::unordered_set<int>& set1,
+    const std::unordered_set<int>& set2)
+{
+  const auto& smaller_set = (set1.size() < set2.size()) ? set1 : set2;
+  const auto& larger_set  = (set1.size() < set2.size()) ? set2 : set1;
+  
+  // Allocate the result set
+  std::unordered_set<int> intersection;
+  intersection.reserve(smaller_set.size());
+  
+  for (const int& element : smaller_set) {
+    if (larger_set.count(element)) {
+      intersection.insert(element);
+    }
+  }
+  
+  return intersection;
+}
+
+
+inline size_t count_difference(
+    const std::unordered_set<int>& set1,
+    const std::unordered_set<int>& set2)
+{
+  size_t count = 0;
+  for (const int& element : set1) {
+    if (!set2.count(element)) {
+      count++;
+    }
+  } 
+  
+  return count;
+} 
+
+inline size_t count_intersection(
+    const std::unordered_set<int>& set1,
+    const std::unordered_set<int>& set2)
+{ 
+  const auto& smaller_set = (set1.size() < set2.size()) ? set1 : set2;
+  const auto& larger_set  = (set1.size() < set2.size()) ? set2 : set1;
+  size_t count = 0;
+  // Allocate the result set
+  
+  for (const int& element : smaller_set) {
+    if (larger_set.count(element)) {
+      count++;
+    }
+  }
+  
+  return count;
+}
+
+
 #endif
 

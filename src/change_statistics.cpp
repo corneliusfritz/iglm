@@ -23,41 +23,16 @@
 //  @param is_full_neighborhood A reference to a `bool` flag, controlling the scope or **boundary condition**.
 //  @returns double The calculated validation score or fitness value.
 
-
-//' @rdname model_terms
-//'
-//' @details
-//' \code{mutual_global()} is the R-level function name for this
-//' statistic.
-//'
-//' This term adds a statistic equal to the total number of mutual dyads
-//' in the network. A dyad $(i, j)$ is defined as mutual if, and only if,
-//' the edge $i \to j$ exists and the edge $j \to i$ also exists.
-//' @export 
 auto xyz_stat_repetition = CHANGESTAT{
-   if(mode == "z"){
-     return(object.z_network.get_val(actor_j, actor_i));
-   }  
-   else{
-     return(0);
-   }  
- }; 
+  if(mode == "z"){
+    return(object.z_network.get_val(actor_j, actor_i));
+  }  
+  else{
+    return(0);
+  }  
+}; 
 EFFECT_REGISTER("mutual_global", ::xyz_stat_repetition, "mutual_global", 0);
 
-//' @rdname model_terms
-//' @details
-//' \code{edges_global()} is the R-level function name for this
-//' statistic. This term adds a statistic equal to the total number
-//' of edges in the network.
-//'
-//' The change statistic is always 1 for any dyad toggle, as
-//' adding or removing any single edge (in "z" mode) changes
-//' the total edge count by 1.
-//'
-//' @examples
-//' # my_formula <- network ~ edges_global()
-//'
-//' @export
 auto xyz_stat_edges= CHANGESTAT
 {
   
@@ -78,17 +53,6 @@ auto xyz_stat_repetition_nonb= CHANGESTAT{
   }  
 };
 EFFECT_REGISTER("mutual_alocal", ::xyz_stat_repetition_nonb, "mutual_alocal", 0);
-//' @rdname model_terms
-//'
-//' @details
-//' \code{mutual_alocal()} is the R-level function name for this
-//' statistic.
-//'
-//' This term counts mutual dyads only for pairs of actors $(i, j)$
-//' that are *not* in the same local neighborhood
-//' (i.e., \code{object.get_val_overlap(actor_i, actor_j)} is false).
-//'
-//' @export
 auto xyz_stat_repetition_nb= CHANGESTAT{
   if(mode == "z"){
     return(object.z_network.get_val(actor_j, actor_i)*object.get_val_overlap(actor_i,actor_j));
@@ -314,15 +278,10 @@ EFFECT_REGISTER("attribute_xy_local", ::xyz_stat_attribute_xy_nb, "attribute_xy_
 
 auto xyz_stat_attribute_xy_nonb= CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> all_actors;
-    for (int i = 1; i <= object.n_actor; ++i) {
-      all_actors.insert(i);
-    }
-    std::unordered_set<int> difference_result;
-    std::set_difference(
-      all_actors.begin(), all_actors.end(),
-      object.overlap.at(actor_i).begin(), object.overlap.at(actor_i).end(),
-      std::inserter(difference_result, difference_result.begin()));
+    
+    std::unordered_set<int> difference_result =
+      get_set_difference(object.all_actors, object.overlap.at(actor_i));;
+    
     
     int res = 0;
     for (auto itr = difference_result.begin(); itr != difference_result.end(); itr++) {
@@ -330,17 +289,8 @@ auto xyz_stat_attribute_xy_nonb= CHANGESTAT{
     }
     return(res);
   } else if(mode == "x"){ 
-    std::unordered_set<int> all_actors;
-    for (int i = 1; i <= object.n_actor; ++i) {
-      all_actors.insert(i);
-    }
-    std::unordered_set<int> difference_result;
-    std::set_difference(
-      all_actors.begin(), all_actors.end(),
-      object.overlap.at(actor_i).begin(), object.overlap.at(actor_i).end(),
-      std::inserter(difference_result, difference_result.begin()));
-    
-    
+    std::unordered_set<int> difference_result = 
+      get_set_difference(object.all_actors, object.overlap.at(actor_i));
     int res = 0;
     for (auto itr = difference_result.begin(); itr != difference_result.end(); itr++) {
       res+= object.x_attribute.get_val(*itr);
@@ -362,9 +312,7 @@ auto xyz_stat_attribute_yz_nb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i)); 
     } else {   
       connections_of_i = connections_of_i_all;
     }    
@@ -387,9 +335,7 @@ auto xyz_stat_attribute_xz_nb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i= get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {   
       connections_of_i = connections_of_i_all;
     }   
@@ -461,9 +407,7 @@ auto xyz_stat_edges_x_out_nb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {   
       connections_of_i = connections_of_i_all;
     }    
@@ -484,9 +428,7 @@ auto xyz_stat_edges_x_out_nonb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_difference(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                          std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                          std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_set_difference(connections_of_i_all, object.overlap.at(actor_i));
     } else {   
       connections_of_i = connections_of_i_all;
     }    
@@ -520,9 +462,8 @@ auto xyz_stat_edges_x_in_nb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
+      
     } else {   
       connections_of_i = connections_of_i_all;
     }   
@@ -543,9 +484,7 @@ auto xyz_stat_edges_x_in_nonb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_difference(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                          std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                          std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_set_difference(connections_of_i_all, object.overlap.at(actor_i));
     } else {   
       return(0.0);
     }   
@@ -579,9 +518,7 @@ auto xyz_stat_edges_y_out_nb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i)); 
     } else {   
       connections_of_i = connections_of_i_all;
     }   
@@ -602,10 +539,7 @@ auto xyz_stat_edges_y_out_nonb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_difference(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                          std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                          std::inserter(connections_of_i, std::begin(connections_of_i)));
-    } else {   
+      connections_of_i = get_set_difference(connections_of_i_all, object.overlap.at(actor_i));
       return(0.0);
     }   
     return(connections_of_i.size());
@@ -639,9 +573,7 @@ auto xyz_stat_edges_y_in_nb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all,object.overlap.at(actor_i));
     } else {    
       connections_of_i = connections_of_i_all;
     }    
@@ -662,9 +594,7 @@ auto xyz_stat_edges_y_in_nonb= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_difference(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                          std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                          std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_set_difference(connections_of_i_all, object.overlap.at(actor_i));
     } else {    
       return(0.0);
     }    
@@ -730,9 +660,8 @@ auto xyz_stat_interaction_edges= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections with overlap between them
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
+      
     } else {
       connections_of_i = connections_of_i_all;
     }
@@ -753,9 +682,8 @@ auto xyz_stat_interaction_edges= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all,object.overlap.at(actor_i)); 
+      
     } else {
       connections_of_i = connections_of_i_all;
     }
@@ -798,9 +726,8 @@ auto xyz_stat_interaction_edges_cov= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all,object.overlap.at(actor_i));
+      
     } else { 
       connections_of_i = connections_of_i_all;
     }
@@ -835,9 +762,7 @@ auto xyz_stat_interaction_edges_xy= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections with overlap between them
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {
       connections_of_i = connections_of_i_all;
     }
@@ -856,9 +781,7 @@ auto xyz_stat_interaction_edges_xy= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else { 
       connections_of_i = connections_of_i_all;
     } 
@@ -994,9 +917,7 @@ auto xyz_stat_interaction_edges_y_cov= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {  
       connections_of_i = connections_of_i_all;
     }  
@@ -1039,9 +960,7 @@ auto xyz_stat_interaction_edges_xy_scaled= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections with overlap between them
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {
       connections_of_i = connections_of_i_all;
     }
@@ -1066,9 +985,7 @@ auto xyz_stat_interaction_edges_xy_scaled= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {  
       connections_of_i = connections_of_i_all;
     }  
@@ -1110,9 +1027,7 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections with overlap between them
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {
       connections_of_i = connections_of_i_all;
     }
@@ -1136,9 +1051,7 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {  
       connections_of_i = connections_of_i_all;
     } 
@@ -1226,9 +1139,7 @@ auto xyz_stat_matching_edges_x= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {
       connections_of_i = connections_of_i_all;
     }
@@ -1247,9 +1158,7 @@ auto xyz_stat_matching_edges_x= CHANGESTAT{
       // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
       if(!is_full_neighborhood){
         // Next we only want to get the connections within the same group
-        std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                              std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                              std::inserter(connections_of_i, std::begin(connections_of_i)));
+        connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
       } else {
         connections_of_i = connections_of_i_all;
       }
@@ -1296,9 +1205,7 @@ auto xyz_stat_matching_edges_y= CHANGESTAT{
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
-      std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                            std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                            std::inserter(connections_of_i, std::begin(connections_of_i)));
+      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
     } else {
       connections_of_i = connections_of_i_all;
     }
@@ -1318,9 +1225,7 @@ auto xyz_stat_matching_edges_y= CHANGESTAT{
       // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
       if(!is_full_neighborhood){
         // Next we only want to get the connections within the same group
-        std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-                              std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-                              std::inserter(connections_of_i, std::begin(connections_of_i)));
+        connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
       } else {
         connections_of_i = connections_of_i_all;
       }
@@ -1856,3 +1761,407 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
 };
 
 EFFECT_REGISTER("transitive", ::xyz_stat_transitive_edges, "transitive", 0);
+
+auto xyz_stat_nonisolates= CHANGESTAT{
+  if(mode == "z"){ 
+    arma::vec res(3);
+    int degree_i,degree_j;  
+    if(object.z_network.directed){
+      degree_i = object.z_network.adj_list.at(actor_i).size() + 
+        object.z_network.adj_list_in.at(actor_i).size();
+      degree_j = object.z_network.adj_list.at(actor_j).size() + 
+        object.z_network.adj_list_in.at(actor_j).size();
+    } else {
+      degree_i = object.z_network.adj_list.at(actor_i).size();
+      degree_j = object.z_network.adj_list.at(actor_j).size();
+    }
+    // If the edge is already there, we need to substract one of the degrees
+    if(object.z_network.get_val(actor_i, actor_j)){
+      degree_i -= 1;
+      degree_j -= 1;
+    }
+    return((degree_i == 0) +(degree_j == 0));
+  }else {
+    return(0);
+  }  
+};
+EFFECT_REGISTER("nonisolates", ::xyz_stat_nonisolates, "nonisolates", 0);
+
+auto xyz_stat_isolates= CHANGESTAT{
+  if(mode == "z"){ 
+    arma::vec res(3);
+    int degree_i,degree_j;  
+    if(object.z_network.directed){
+      degree_i = object.z_network.adj_list.at(actor_i).size() + 
+        object.z_network.adj_list_in.at(actor_i).size();
+      degree_j = object.z_network.adj_list.at(actor_j).size() + 
+        object.z_network.adj_list_in.at(actor_j).size();
+    } else {
+      degree_i = object.z_network.adj_list.at(actor_i).size();
+      degree_j = object.z_network.adj_list.at(actor_j).size();
+    } 
+    // If the edge is already there, we need to substract one of the degrees
+    if(object.z_network.get_val(actor_i, actor_j)){
+      degree_i -= 1;
+      degree_j -= 1;
+    }
+    return(-(degree_i == 0)-(degree_j == 0));
+  }else {
+    return(0);
+  }  
+};
+EFFECT_REGISTER("isolates", ::xyz_stat_isolates, "isolates", 1.0);
+
+auto xyz_stat_gwesp_local_ITP= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    // 1. Step: For all ISP of i and j 
+    std::unordered_set<int> itp_ij = object.get_common_partners_nb(actor_i, actor_j, "ITP");
+    double res = expo_pos*(1- pow(expo_min, 
+                                  itp_ij.size()));
+    // 2. Step: For all h in ITP of i and j check their ISP between j and h 
+    
+    std::unordered_set<int>::iterator itr;
+    for (itr = itp_ij.begin(); itr != itp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners_nb(actor_j, *itr, "ITP")); 
+      res += pow(expo_min, object.count_common_partners_nb(*itr,actor_i,  "ITP")); 
+    }
+    return(res);
+  }else {  
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_local_ITP", ::xyz_stat_gwesp_local_ITP, "gwesp_local_ITP",0.0);
+
+auto xyz_stat_gwesp_local_ISP= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    // 1. Step: For all ISP of i and j 
+    double res = expo_pos*(1- pow(expo_min, 
+                                  object.count_common_partners_nb(actor_i, actor_j, "ISP")));
+    // 2. Step: For all h in OSP of i and j check their ISP between j and h 
+    std::unordered_set<int> osp_ij = object.get_common_partners_nb(actor_i, actor_j, "OSP");
+    std::unordered_set<int>::iterator itr;
+    for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners_nb(actor_j, *itr, "ISP")); 
+    }
+    // 3. Step: For all h in OTP of i and j check their ISP between h and j
+    std::unordered_set<int> otp_ij = object.get_common_partners_nb(actor_i, actor_j, "OTP");
+    for (itr = otp_ij.begin(); itr != otp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners_nb(*itr,actor_j,  "ISP")); 
+    }
+    return(res);
+  }else {
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_local_ISP", ::xyz_stat_gwesp_local_ISP, "gwesp_local_ISP",0.0);
+
+auto xyz_stat_gwesp_local_OTP= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    // 1. Step: For all OTP of i and j 
+    
+    double res = expo_pos*(1- pow(expo_min, 
+                                  object.count_common_partners_nb(actor_i, actor_j, "OTP")));
+    // 2. Step: 
+    std::unordered_set<int> osp_ij = object.get_common_partners_nb(actor_i, actor_j, "OSP");
+    std::unordered_set<int>::iterator itr;
+    for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners_nb(actor_i, *itr, "OTP")); 
+    }
+    // 3. Step:
+    std::unordered_set<int> isp_ij = object.get_common_partners_nb(actor_i, actor_j, "ISP");
+    for (itr = isp_ij.begin(); itr != isp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners_nb(*itr,actor_j,  "OTP")); 
+    }
+    return(res);
+  }else { 
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_local_OTP", ::xyz_stat_gwesp_local_OTP, "gwesp_local_OTP",0.0);
+
+auto xyz_stat_gwesp_local_OSP= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    // 1. Step: For all OSP of i and j 
+    double res = expo_pos*(1- pow(expo_min, 
+                                  object.count_common_partners_nb(actor_i, actor_j, "OSP")));
+    // 2. Step: 
+    std::unordered_set<int>::iterator itr;
+    std::unordered_set<int> otp_ij = object.get_common_partners_nb(actor_i, actor_j, "OTP");
+    for (itr = otp_ij.begin(); itr != otp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners_nb(actor_i, *itr, "OSP")); 
+    }
+    // 3. Step:
+    std::unordered_set<int> isp_ij = object.get_common_partners_nb(actor_i, actor_j, "ISP");
+    for (itr = isp_ij.begin(); itr != isp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners_nb(*itr,actor_i,  "OSP")); 
+    }
+    return(res);
+  }else { 
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_local_OSP", ::xyz_stat_gwesp_local_OSP, "gwesp_local_OSP",0.0);
+
+auto xyz_stat_gwesp_ITP= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    // 1. Step: For all ISP of i and j 
+    std::unordered_set<int> itp_ij = object.get_common_partners(actor_i, actor_j, "ITP");
+    double res = expo_pos*(1- pow(expo_min, 
+                                  itp_ij.size()));
+    // 2. Step: For all h in ITP of i and j check their ISP between j and h 
+    
+    std::unordered_set<int>::iterator itr;
+    for (itr = itp_ij.begin(); itr != itp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners(actor_j, *itr, "ITP")); 
+      res += pow(expo_min, object.count_common_partners(*itr,actor_i,  "ITP")); 
+    }
+    return(res);
+  }else { 
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_global_ITP", ::xyz_stat_gwesp_ITP, "gwesp_global_ITP",0.0);
+
+auto xyz_stat_gwesp_ISP= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    // 1. Step: For all ISP of i and j 
+    double res = expo_pos*(1- pow(expo_min, 
+                                  object.count_common_partners(actor_i, actor_j, "ISP")));
+    // 2. Step: For all h in OSP of i and j check their ISP between j and h 
+    std::unordered_set<int> osp_ij = object.get_common_partners(actor_i, actor_j, "OSP");
+    std::unordered_set<int>::iterator itr;
+    for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners(actor_j, *itr, "ISP")); 
+    }
+    // 3. Step: For all h in OTP of i and j check their ISP between h and j
+    std::unordered_set<int> otp_ij = object.get_common_partners(actor_i, actor_j, "OTP");
+    for (itr = otp_ij.begin(); itr != otp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners(*itr,actor_j,  "ISP")); 
+    }
+    return(res);
+  }else {
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_global_ISP", ::xyz_stat_gwesp_ISP, "gwesp_global_ISP",0.0);
+
+auto xyz_stat_gwesp_OTP= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    // 1. Step: For all OTP of i and j 
+    
+    double res = expo_pos*(1- pow(expo_min, 
+                                  object.count_common_partners(actor_i, actor_j, "OTP")));
+    // 2. Step: 
+    std::unordered_set<int> osp_ij = object.get_common_partners(actor_i, actor_j, "OSP");
+    std::unordered_set<int>::iterator itr;
+    for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners(actor_i, *itr, "OTP")); 
+    }
+    // 3. Step:
+    std::unordered_set<int> isp_ij = object.get_common_partners(actor_i, actor_j, "ISP");
+    for (itr = isp_ij.begin(); itr != isp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners(*itr,actor_j,  "OTP")); 
+    }
+    return(res);
+  }else {  
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_global_OTP", ::xyz_stat_gwesp_OTP, "gwesp_global_OTP",0.0);
+
+auto xyz_stat_gwesp_OSP= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    // 1. Step: For all OSP of i and j 
+    double res = expo_pos*(1- pow(expo_min, 
+                                  object.count_common_partners(actor_i, actor_j, "OSP")));
+    // 2. Step: 
+    std::unordered_set<int>::iterator itr;
+    std::unordered_set<int> otp_ij = object.get_common_partners(actor_i, actor_j, "OTP");
+    for (itr = otp_ij.begin(); itr != otp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners(actor_i, *itr, "OSP")); 
+    }
+    // 3. Step:
+    std::unordered_set<int> isp_ij = object.get_common_partners(actor_i, actor_j, "ISP");
+    for (itr = isp_ij.begin(); itr != isp_ij.end(); itr++) {
+      res += pow(expo_min, object.count_common_partners(*itr,actor_i,  "OSP")); 
+    }
+    return(res);
+  }else { 
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_global_OSP", ::xyz_stat_gwesp_OSP, "gwesp_global_OSP",0.0);
+
+
+// arma::vec stat_two_star_pos(const std::unordered_map< int, std::set<int>> &edges_pos,
+//                             const std::unordered_map< int, std::set<int>> &edges_neg,
+//                             int &n_actors,
+//                             int &tmp_random_i,
+//                             int &tmp_random_j, 
+//                             arma::mat &data, 
+//                             int &type){
+//   arma::vec res(3);
+//   int degree_i = edges_pos.at(tmp_random_i).size();
+//   int degree_j = edges_pos.at(tmp_random_j).size();
+//   if(edges_pos.at(tmp_random_i).count(tmp_random_j)){
+//     res.at(0) = degree_i + degree_j-2;
+//     res.at(1) = 0;
+//     res.at(2) = -res.at(0);
+//   } else {
+//     res.at(0) = degree_i + degree_j;
+//     res.at(1) = 0;
+//     res.at(2) = -res.at(0);
+//   }
+//   return(res);
+// }
+
+// arma::vec stat_gwdsp(const std::unordered_map< int, std::set<int>> &edges_pos,
+//                          const  std::unordered_map< int, std::set<int>> &edges_neg,
+//                          int &n_actors,
+//                          int &tmp_random_i,
+//                          int &tmp_random_j, 
+//                          arma::mat &data, 
+//                          int &type){
+//   arma::vec res(3);
+//   res.fill(0);
+//   double expo_min = (1-exp(-data.at(0,0)));  
+//   // double expo_pos = exp(data.at(0,0));  
+//   
+//   std::set<int> intersection, tmp,intersection_ij;
+//   // Step 1: Get all connections of tmp_random_i
+//   std::set<int> connections_of_i = edges_pos.at(tmp_random_i);
+//   // Step 2: Get all connections of tmp_random_j
+//   std::set<int> connections_of_j = edges_pos.at(tmp_random_j);
+//   connections_of_j.erase(tmp_random_i);
+//   connections_of_i.erase(tmp_random_j);
+//   // Step 3: Go through all connections of j and count its two-paths with i (call them h)
+//   std::set<int>::iterator itr;
+//   
+//   for (itr = connections_of_j.begin(); itr != connections_of_j.end(); itr++) {
+//     // For each connection of j we go through the positive edges 
+//     // and count how many of them are intersecting with connections of i 
+//     tmp = edges_pos.at(*itr);
+//     // Get the size of the intersection of tmp and connections_of_i
+//     intersection.clear();    
+//     std::set_intersection(std::begin(tmp), std::end(tmp),
+//                           std::begin(connections_of_i), std::end(connections_of_i),
+//                           std::inserter(intersection, std::begin(intersection)));
+//     res.at(0) +=  pow(expo_min, intersection.size());
+//   }
+//   // Step 4: Go through all connections of i and count its two-paths with j
+//   for (itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+//     // For each connection of j we go through the positive edges 
+//     tmp = edges_pos.at(*itr);
+//     // Get the size of the intersection of tmp and connections_of_i
+//     intersection.clear();    
+//     std::set_intersection(std::begin(tmp), std::end(tmp),
+//                           std::begin(connections_of_j), std::end(connections_of_j),
+//                           std::inserter(intersection, std::begin(intersection)));
+//     res.at(0) +=  pow(expo_min, intersection.size());
+//   }
+//   res.at(1) = 0;
+//   res.at(2) = -res.at(0);
+//   
+//   return(res);
+// }
+// arma::vec stat_gwese_pos(const std::unordered_map< int, std::set<int>> &edges_pos,
+//                          const std::unordered_map< int, std::set<int>> &edges_neg,
+//                          int &n_actors,
+//                          int &tmp_random_i,
+//                          int &tmp_random_j, 
+//                          arma::mat &data, 
+//                          int &type){
+//   arma::vec res(3);
+//   res.fill(0);
+//   double expo_min = (1-exp(-data.at(0,0)));  
+//   double expo_pos = exp(data.at(0,0));  
+//   
+//   std::set<int>::iterator itr;
+//   std::set<int> intersection_ij,intersection, tmp;
+//   std::set<int> connections_of_i_neg = edges_neg.at(tmp_random_i);
+//   std::set<int> connections_of_j_neg = edges_neg.at(tmp_random_j);
+//   std::set<int> connections_of_i_pos = edges_pos.at(tmp_random_i);
+//   std::set<int> connections_of_j_pos = edges_pos.at(tmp_random_j);
+// 
+//   // Step 3: Get the intersection of connections to i and j -> case a)
+//   // Rcout << "Positive connections of i" << std::endl;
+//   std::set_intersection(std::begin(connections_of_i_neg), std::end(connections_of_i_neg),
+//                         std::begin(connections_of_j_neg), std::end(connections_of_j_neg),
+//                         std::inserter(intersection_ij, std::begin(intersection_ij)));
+//   res.at(0) += expo_pos*(1- pow(expo_min, intersection_ij.size()));
+//   
+//   // If tmp_i and tmp_j are already connected, we need to delete them from the tmp graph 
+//   connections_of_i_neg.erase(tmp_random_j);
+//   connections_of_j_neg.erase(tmp_random_i);
+//   // Check for each positive connection of i that has a negative connection to j how many negative common partner it has with i
+//   // How many common enemies do we have?  
+//   for (itr = connections_of_i_pos.begin(); itr != connections_of_i_pos.end(); itr++) {
+//     tmp = edges_neg.at(*itr);
+//     if(tmp.count(tmp_random_j)){
+//       intersection.clear();    
+//       std::set_intersection(std::begin(tmp), std::end(tmp),
+//                             std::begin(connections_of_i_neg), std::end(connections_of_i_neg),
+//                             std::inserter(intersection, std::begin(intersection)));
+//       res.at(1) +=  pow(expo_min, intersection.size());
+//       // Rcout << intersection.size() << std::endl;
+//       
+//     }
+//   }
+//   // Check for each positive connection of j that has a negative connection to i how many negative common partner it has with j
+//   // How many common enemies do we have?  
+//   for (itr = connections_of_j_pos.begin(); itr != connections_of_j_pos.end(); itr++) {
+//     tmp = edges_neg.at(*itr);
+//     if(tmp.count(tmp_random_i)){
+//       intersection.clear();    
+//       std::set_intersection(std::begin(tmp), std::end(tmp),
+//                             std::begin(connections_of_j_neg), std::end(connections_of_j_neg),
+//                             std::inserter(intersection, std::begin(intersection)));
+//       res.at(1) +=  pow(expo_min, intersection.size());
+//       }
+//   }
+//   res.at(2) = res.at(1) - res.at(0);
+//   return(res);
+// }
+// arma::vec stat_gwdegree(const std::unordered_map< int, std::set<int>> &edges_pos,
+//                         const std::unordered_map< int, std::set<int>> &edges_neg,
+//                         int &n_actors,
+//                         int &tmp_random_i,
+//                         int &tmp_random_j, 
+//                         arma::mat &data, 
+//                         int &type){
+//   arma::vec res(3);
+//   int degree_i = edges_pos.at(tmp_random_i).size() + edges_neg.at(tmp_random_i).size();
+//   int degree_j = edges_pos.at(tmp_random_j).size() + edges_neg.at(tmp_random_j).size();
+//   double expo_min = (1-exp(-data.at(0,0)));  
+//   // double expo_pos = exp(data.at(0,0)); 
+//   // If the edge is already there, we need to substract one of the degrees
+//   if(edges_pos.at(tmp_random_i).count(tmp_random_j)){
+//     degree_i -= 1;
+//     degree_j -= 1;
+//   }
+//   if(edges_neg.at(tmp_random_i).count(tmp_random_j)){
+//     degree_i -= 1;
+//     degree_j -= 1;
+//   } 
+// 
+//   res.at(0) = pow(expo_min, degree_i) + pow(expo_min, degree_j);
+//   res.at(1) = res.at(0);
+//   res.at(2) = 0;
+//   return(res);
+// }

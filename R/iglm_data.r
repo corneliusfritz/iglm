@@ -55,12 +55,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      if (private$.type_x == "binomial" && !all(private$.x_attribute %in% c(0, 1))) {
                                        errors <- c(errors, "For 'binomial' type, 'x_attribute' must be a binary vector.")
                                      }
+                                     # browser()
                                      if (private$.type_x == "poisson" && !all(floor(private$.x_attribute) == private$.x_attribute & private$.x_attribute >= 0)) {
                                        errors <- c(errors, "For 'poisson' type, 'x_attribute' must be a vector of non-negative integers.")
                                      }
                                      if (private$.type_y == "binomial" && !all(private$.y_attribute %in% c(0, 1))) {
                                        errors <- c(errors, "For 'binomial' type, 'y_attribute' must be a binary vector.")
                                      }
+                                     # browser()
                                      if (private$.type_y == "poisson" && !all(floor(private$.y_attribute) == private$.y_attribute & private$.y_attribute >= 0)) {
                                        errors <- c(errors, "For 'poisson' type, 'y_attribute' must be a vector of non-negative integers.")
                                      }
@@ -425,7 +427,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    dyadwise_shared_partner = function(type = "ALL"){
                                      
                                      adj_mat <- sparseMatrix(i = private$.z_network[,1],
-                                                             j = private$.z_network[,2],
+                                                             j = private$.z_network[,2],symmetric = !private$.directed,
                                                              dims = c(private$.n_actor, private$.n_actor))
                                      if(is.null(private$.descriptives$dyadwise_shared_partner)){
                                        private$.descriptives$dyadwise_shared_partner <- list()
@@ -490,8 +492,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      info <- info/(sum(info)*prob + (!prob))
                                      private$.descriptives$geodesic_distances_distribution <- info
                                      if(plot){
-                                       barplot(info, main = "Geodesic Distance Distribution",
-                                               xlab = "Distance", ylab = ifelse(prob,"Proportion","Count"))
+                                       barplot(info,
+                                               xlab = "Geodesic Distance", ylab = ifelse(prob,"Proportion","Count"), 
+                                               las = 1 )
                                      }
                                      return(info)
                                    },
@@ -602,9 +605,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        private$.descriptives$edgewise_shared_partner_distribution$ALL<- info
                                      }
                                      if(plot){
-                                       barplot(info, main = paste0(type, "- Edgewise Shared Partner Distribution"),
-                                               xlab = "Number of Shared Partners",
-                                               ylab = ifelse(prob, "Proportion", "Count"))
+                                       barplot(info, 
+                                               xlab = paste0("Number of ", type, "- Edgewise Shared Partners"),
+                                               ylab = ifelse(prob, "Proportion", "Count"), 
+                                               las = 1 )
                                      }
                                      return(info)
                                    },
@@ -685,9 +689,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        private$.descriptives$dyadwise_shared_partner_distribution$ALL<- info
                                      }
                                      if(plot){
-                                       barplot(info, main = paste0(type, "- Dyadwise Shared Partner Distribution"),
-                                               xlab = "Number of Shared Partners",
-                                               ylab = ifelse(prob, "Proportion", "Count"))
+                                       barplot(info, 
+                                               xlab = paste0("Number of ",type, "- Dyadwise Shared Partners"), 
+                                               ylab = ifelse(prob, "Proportion", "Count"), 
+                                               las = 1 )
                                      }
                                      return(info)
                                    },
@@ -735,11 +740,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      if(plot){
                                        if(private$.directed){
                                          par(mfrow=c(1,2))
-                                         barplot(info$in_degree, main = "In-Degree Distribution", xlab = "In-Degree", ylab = ifelse(prob, "Proportion", "Count"))
-                                         barplot(info$out_degree, main = "Out-Degree Distribution", xlab = "Out-Degree", ylab = ifelse(prob, "Proportion", "Count"))
+                                         barplot(info$in_degree, 
+                                                 xlab = "In-Degree", 
+                                                 ylab = ifelse(prob, "Proportion", "Count"), 
+                                                 las = 1 )
+                                         barplot(info$out_degree,
+                                                 xlab = "Out-Degree", 
+                                                 ylab = ifelse(prob, "Proportion", "Count"), 
+                                                 las = 1 )
                                          par(mfrow=c(1,1))
                                        } else {
-                                         barplot(info, main = "Degree Distribution", xlab = "Degree", ylab = ifelse(prob, "Proportion", "Count"))
+                                         barplot(info, 
+                                                 xlab = "Degree",
+                                                 ylab = ifelse(prob, "Proportion", "Count"), 
+                                                 las = 1 )
                                        }
                                      }
                                      return(info)
@@ -860,8 +874,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      private$.descriptives$spillover_degree_distribution <- res
                                      if(plot){
                                        par(mfrow=c(1,2))
-                                       barplot(out_degree_x_y, main = "Out-Spillover Degree Distribution", xlab = "Out-Spillover Degree", ylab = ifelse(prob, "Proportion", "Count"))
-                                       barplot(in_degree_x_y, main = "In-Spillover Degree Distribution", xlab = "In-Spillover Degree", ylab = ifelse(prob, "Proportion", "Count"))
+                                       barplot(out_degree_x_y, 
+                                               xlab = "Out-Spillover Degree", 
+                                               ylab = ifelse(prob, "Proportion", "Count"), 
+                                               las = 1 )
+                                       barplot(in_degree_x_y, 
+                                               xlab = "In-Spillover Degree", 
+                                               ylab = ifelse(prob, "Proportion", "Count"), 
+                                               las = 1)
                                        par(mfrow=c(1,1))
                                      }
                                      return(res)
