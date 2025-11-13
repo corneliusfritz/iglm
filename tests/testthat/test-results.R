@@ -30,7 +30,8 @@ test_that('Define a iglm object and check all the results information', {
                                init_empty = F)
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + popularity,
                           coef = gt_coef,  coef_popularity = gt_coef_pop, sampler = sampler_new, 
-                          control = control.iglm(accelerated = F,max_it = 200, display_progress = T, var = T))
+                          control = control.iglm(accelerated = FALSE,max_it = 200,
+                                                 display_progress = TRUE, var = TRUE))
   
   tmp_name <- paste(tempfile(), ".RDS")
   model_tmp_new$results$save(file = tmp_name)

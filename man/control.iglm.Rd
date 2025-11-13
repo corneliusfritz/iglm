@@ -5,22 +5,22 @@
 \title{Set Control Parameters for iglm Estimation}
 \usage{
 control.iglm(
-  estimate_model = T,
-  fix_x = F,
+  estimate_model = TRUE,
+  fix_x = FALSE,
   display_progress = FALSE,
-  return_samples = T,
+  return_samples = TRUE,
   offset_nonoverlap = 0,
   var = FALSE,
-  non_stop = F,
+  non_stop = FALSE,
   tol = 0.001,
   max_it = 100,
-  return_x = F,
-  return_y = F,
-  return_z = F,
-  accelerated = T,
+  return_x = FALSE,
+  return_y = FALSE,
+  return_z = FALSE,
+  accelerated = TRUE,
   cluster = NULL,
-  exact = F,
-  updated_uncertainty = T
+  exact = FALSE,
+  updated_uncertainty = TRUE
 )
 }
 \arguments{

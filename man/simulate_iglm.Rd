@@ -9,11 +9,11 @@ simulate_iglm(
   coef,
   coef_popularity = NULL,
   sampler = NULL,
-  only_stats = T,
-  display_progress = F,
+  only_stats = TRUE,
+  display_progress = FALSE,
   offset_nonoverlap = 0,
   cluster = NULL,
-  fix_x = F
+  fix_x = FALSE
 )
 }
 \arguments{

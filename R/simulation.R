@@ -93,11 +93,11 @@
 #' @importFrom parallel parLapply
 simulate_iglm = function(formula,coef,coef_popularity = NULL, 
                         sampler = NULL, 
-                        only_stats = T, 
-                        display_progress = F, 
+                        only_stats = TRUE, 
+                        display_progress = FALSE, 
                         offset_nonoverlap = 0,
                         cluster = NULL, 
-                        fix_x = F) {
+                        fix_x = FALSE) {
   if(is.null(sampler)){
     sampler= sampler.iglm()
     # if no specifications of the sampler are provided use the default one
@@ -177,7 +177,7 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                                    seed_z = sampler$sampler.z$seed,
                                    n_proposals_z = sampler$sampler.z$n_proposals,
                                    n_simulation = 1,
-                                   only_stats =F,
+                                   only_stats =FALSE,
                                    display_progress = display_progress, 
                                    popularity = popularity, 
                                    offset_nonoverlap = offset_nonoverlap, fix_x = fix_x)
@@ -220,7 +220,7 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                        n_proposals_z = sampler$sampler.z$n_proposals,
                        n_simulation = length(x),
                        only_stats =only_stats,
-                       display_progress = F, 
+                       display_progress = FALSE, 
                        popularity = popularity, fix_x = fix_x,
                        offset_nonoverlap = offset_nonoverlap)
     },preprocessed = preprocessed, n_actor = n_actor, coef = coef, 

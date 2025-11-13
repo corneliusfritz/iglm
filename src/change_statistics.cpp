@@ -795,6 +795,85 @@ auto xyz_stat_interaction_edges_xy= CHANGESTAT{
   }
 };
 EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy", 0);
+
+// auto xyz_stat_spillover_yy_log= CHANGESTAT{
+//   if(mode == "z"){
+//     // What to do if the network change stat is desired
+//     // z_ij from 0 -> 1
+//     // Rcout <<  res << std::endl;
+// 
+//     if(object.get_val_overlap(actor_i, actor_j)){
+//       return((object.y_attribute.get_val(actor_i))* log(object.y_attribute.get_val(actor_j) +1));
+//     } else {
+//       return(0);
+//     }
+//   } else if (mode == "y"){
+//     // What to do if the attribute change stat is wanted
+//     // y_i from k -> k + 1
+//     double res = 0;
+//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
+//     std::unordered_set<int> connections_of_i;
+// 
+//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
+//     if(!is_full_neighborhood){
+//       // Next we only want to get the connections with overlap between them
+//       connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
+//     } else {
+//       connections_of_i = connections_of_i_all;
+//     }
+//     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+//       res+= log(object.y_attribute.get_val(*itr) +1);
+//     }
+//     Rcout << res << std::endl;
+//     return(res);
+//   } else{
+//     double res = 0;
+//     // Rcout << res << std::endl;
+//     return(res);
+//   }
+// };
+// EFFECT_REGISTER("spillover_yy_log", ::xyz_stat_spillover_yy_log, "spillover_yy_log", 0);
+
+// 
+// auto xyz_stat_spillover_yy_log= CHANGESTAT{
+//   if(mode == "z"){
+//     // What to do if the network change stat is desired
+//     // z_ij from 0 -> 1
+//     // Rcout <<  res << std::endl;
+//     
+//     if(object.get_val_overlap(actor_i, actor_j)){
+//       return( log(object.y_attribute.get_val(actor_i) +1)* log(object.y_attribute.get_val(actor_j) +1));  
+//     } else { 
+//       return(0);
+//     }  
+//   } else if (mode == "y"){  
+//     // What to do if the attribute change stat is wanted
+//     // y_i from k -> k + 1
+//     double res = 0;
+//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
+//     std::unordered_set<int> connections_of_i;
+//     
+//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
+//     if(!is_full_neighborhood){
+//       // Next we only want to get the connections with overlap between them
+//       connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
+//     } else { 
+//       connections_of_i = connections_of_i_all;
+//     } 
+//     double val_previously = object.y_attribute.get_val(actor_i);
+//     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+//       res+= log(object.y_attribute.get_val(*itr) +1) * log(val_previously +1); 
+//     }  
+//     // Rcout << res << std::endl;
+//     return(res);
+//   } else{  
+//     double res = 0;
+//     // Rcout << res << std::endl;
+//     return(res);
+//   }
+// };
+// EFFECT_REGISTER("spillover_yy_log", ::xyz_stat_spillover_yy_log, "spillover_yy_log", 0);
+
 // 
 // auto xyz_stat_interaction_edges_directed= CHANGESTAT{
 //   if(mode == "z"){
@@ -934,77 +1013,357 @@ EFFECT_REGISTER("spillover_yc", ::xyz_stat_interaction_edges_y_cov, "spillover_y
 
 
 
-auto xyz_stat_interaction_edges_xy_scaled= CHANGESTAT{
+// auto xyz_stat_interaction_edges_xy_scaled= CHANGESTAT{
+//   if(mode == "z"){
+//     // What to do if the network change stat is desired
+//     // z_ij from 0 -> 1
+//     if(object.get_val_overlap(actor_i, actor_j)){
+//       if(object.neighborhood.at(actor_i).size()>0){
+//         return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)/object.neighborhood.at(actor_i).size());  
+//       } else {
+//         return(0);
+//       }
+//     } else {  
+//       return(0);
+//     }  
+//     
+//   } else if (mode == "x"){  
+//     // What to do if the attribute change stat is wanted
+//     // x_i from 0 -> 1
+//     double res = 0;
+//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
+//     std::unordered_set<int> connections_of_i;
+//     
+//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
+//     if(!is_full_neighborhood){
+//       // Next we only want to get the connections with overlap between them
+//       connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
+//     } else {
+//       connections_of_i = connections_of_i_all;
+//     }
+//     
+//     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+//       res+= object.y_attribute.get_val(*itr); 
+//     } 
+//     // Rcout <<  res << std::endl;
+//     // Rcout <<  res/object.neighborhood.at(actor_i).size() << std::endl;
+//     if(object.neighborhood.at(actor_i).size()>0){
+//       return(res/object.neighborhood.at(actor_i).size());  
+//     } else {
+//       return(0);
+//     }
+//   } else{ 
+//     // What to do if the attribute change stat is wanted
+//     // y_i from 0 -> 1
+//     double res = 0;
+//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
+//     std::unordered_set<int> connections_of_i, overlap;
+//     
+//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
+//     if(!is_full_neighborhood){
+//       // Next we only want to get the connections within the same group
+//       connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
+//     } else {  
+//       connections_of_i = connections_of_i_all;
+//     }  
+//     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+//       // if(*itr != actor_j){
+//       res+= object.x_attribute.get_val(*itr);   
+//       // }
+//     }  
+//     // Rcout <<  res << std::endl;
+//     // Rcout <<  res/object.neighborhood.at(actor_i).size() << std::endl;
+//     if(object.neighborhood.at(actor_i).size()>0){
+//       return(res/object.neighborhood.at(actor_i).size());  
+//     } else {
+//       return(0);
+//     }
+//     
+//   }
+// };
+// EFFECT_REGISTER("spillover_xy_scaled", ::xyz_stat_interaction_edges_xy_scaled, "spillover_xy_scaled", 0);
+
+auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
   if(mode == "z"){
-    // What to do if the network change stat is desired
-    // z_ij from 0 -> 1
+    // -------------------------------------
+    // Changestat for z_{i,j}: 0 -> 1
+    // Delta_g = Y_i * (A_i_new - A_i_old)
+    // -------------------------------------
     
+    if(!object.get_val_overlap(actor_i, actor_j)){
+      return 0;
+    }
     
-    if(object.get_val_overlap(actor_i, actor_j)){
-      if(object.neighborhood.at(actor_i).size()>0){
-        return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)/object.neighborhood.at(actor_i).size());  
-      } else {
-        return(0);
+    double Y_i = object.y_attribute.get_val(actor_i);
+    if (Y_i == 0) return 0; // If Y_i is 0, the change is 0
+    
+    double X_j = object.x_attribute.get_val(actor_j);
+    
+    // --- Calculate A_i_old (Average X of out-neighbors) ---
+    double S_i_old = 0;
+    std::unordered_set<int> out_neighbors_old = object.z_network.adj_list.at(actor_i);
+    double d_i_old = out_neighbors_old.size();
+    
+    for (int l : out_neighbors_old) {
+      if (object.get_val_overlap(actor_i, l)) {
+        S_i_old += object.x_attribute.get_val(l);
       }
-    } else {  
-      return(0);
-    }  
+    }
+    double A_i_old = (d_i_old > 0) ? (S_i_old / d_i_old) : 0;
     
-  } else if (mode == "x"){  
-    // What to do if the attribute change stat is wanted
-    // x_i from 0 -> 1
+    // --- Calculate A_i_new ---
+    double S_i_new = S_i_old + X_j; // X_j is added because O_ij=1
+    double d_i_new = d_i_old + 1;
+    double A_i_new = S_i_new / d_i_new;
+    
+    return Y_i * (A_i_new - A_i_old);
+    
+  } else if (mode == "x"){
+    // -------------------------------------
+    // Changestat for X_i: k -> k+1 (Receiver)
+    // Delta_g = sum_k( (Y_k * z_ki * O_ki) / max(1, d_k^z) )
+    // -------------------------------------
+    
     double res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections with overlap between them
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {
-      connections_of_i = connections_of_i_all;
+    for (int k : in_neighbors) {
+      if (object.get_val_overlap(k, actor_i)) {
+        double d_k_z = object.z_network.adj_list.at(k).size();
+        if (d_k_z > 0) {
+          double Y_k = object.y_attribute.get_val(k);
+          res += Y_k / d_k_z;
+        }
+      }
     }
+    return res;
     
-    for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-      res+= object.y_attribute.get_val(*itr); 
-    } 
-    // Rcout <<  res << std::endl;
-    // Rcout <<  res/object.neighborhood.at(actor_i).size() << std::endl;
-    if(object.neighborhood.at(actor_i).size()>0){
-      return(res/object.neighborhood.at(actor_i).size());  
-    } else {
-      return(0);
-    }
-  } else{ 
-    // What to do if the attribute change stat is wanted
-    // y_i from 0 -> 1
-    double res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-    std::unordered_set<int> connections_of_i, overlap;
+  } else if (mode == "y"){
+    // -------------------------------------
+    // Changestat for Y_i: k -> k+1 (Sender)
+    // Delta_g = (1 / max(1, d_i^z)) * sum_j(z_ij * O_ij * X_j)
+    // -------------------------------------
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {  
-      connections_of_i = connections_of_i_all;
-    }  
-    for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-      // if(*itr != actor_j){
-      res+= object.x_attribute.get_val(*itr);   
-      // }
-    }  
-    // Rcout <<  res << std::endl;
-    // Rcout <<  res/object.neighborhood.at(actor_i).size() << std::endl;
-    if(object.neighborhood.at(actor_i).size()>0){
-      return(res/object.neighborhood.at(actor_i).size());  
-    } else {
-      return(0);
+    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+    double d_i_z = out_neighbors.size();
+    
+    if (d_i_z == 0) return 0;
+    
+    double S_i = 0; // The sum of neighbor X's
+    for (int j : out_neighbors) {
+      if (object.get_val_overlap(actor_i, j)) {
+        S_i += object.x_attribute.get_val(j);
+      }
     }
+    return S_i / d_i_z;
     
   }
+  return 0; // Default case
 };
-EFFECT_REGISTER("spillover_xy_scaled", ::xyz_stat_interaction_edges_xy_scaled, "spillover_xy_scaled", 0);
+EFFECT_REGISTER("spillover_yx_scaled", ::xyz_stat_spillover_yx_scaled, "spillover_yx_scaled", 0);
+
+auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
+  if(mode == "z"){
+    // -------------------------------------
+    // Changestat for z_{i,j}: 0 -> 1
+    // Delta_g = X_i * (A_i_new - A_i_old)
+    // -------------------------------------
+    
+    if(!object.get_val_overlap(actor_i, actor_j)){
+      return 0;
+    }
+    
+    double X_i = object.x_attribute.get_val(actor_i);
+    if (X_i == 0) return 0; // If X_i is 0, the change is 0
+    
+    double Y_j = object.y_attribute.get_val(actor_j);
+    
+    // --- Calculate A_i_old (Average Y of out-neighbors) ---
+    double S_i_old = 0;
+    std::unordered_set<int> out_neighbors_old = object.z_network.adj_list.at(actor_i);
+    double d_i_old = out_neighbors_old.size();
+    
+    for (int l : out_neighbors_old) {
+      if (object.get_val_overlap(actor_i, l)) {
+        S_i_old += object.y_attribute.get_val(l);
+      }
+    }
+    double A_i_old = (d_i_old > 0) ? (S_i_old / d_i_old) : 0;
+    
+    // --- Calculate A_i_new ---
+    double S_i_new = S_i_old + Y_j; // Y_j is added because O_ij=1
+    double d_i_new = d_i_old + 1;
+    double A_i_new = S_i_new / d_i_new;
+    
+    return X_i * (A_i_new - A_i_old);
+    
+  } else if (mode == "x"){
+    // -------------------------------------
+    // Changestat for X_i: k -> k+1 (Sender)
+    // Delta_g = (1 / max(1, d_i^z)) * sum_j(z_ij * O_ij * Y_j)
+    // -------------------------------------
+    
+    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+    double d_i_z = out_neighbors.size();
+    
+    if (d_i_z == 0) return 0;
+    
+    double S_i = 0; // The sum of neighbor Y's
+    for (int j : out_neighbors) {
+      if (object.get_val_overlap(actor_i, j)) {
+        S_i += object.y_attribute.get_val(j);
+      }
+    }
+    return S_i / d_i_z;
+    
+  } else if (mode == "y"){
+    // -------------------------------------
+    // Changestat for Y_i: k -> k+1 (Receiver)
+    // Delta_g = sum_k( (X_k * z_ki * O_ki) / max(1, d_k^z) )
+    // -------------------------------------
+    
+    double res = 0;
+    std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
+    
+    for (int k : in_neighbors) {
+      if (object.get_val_overlap(k, actor_i)) {
+        double d_k_z = object.z_network.adj_list.at(k).size();
+        if (d_k_z > 0) {
+          double X_k = object.x_attribute.get_val(k);
+          res += X_k / d_k_z;
+        }
+      }
+    }
+    return res;
+  }
+  return 0; // Default case
+};
+
+EFFECT_REGISTER("spillover_xy_scaled", ::xyz_stat_spillover_xy_scaled, "spillover_yx_scaled", 0);
+
+
+auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
+  if(mode == "z"){
+    if(!object.get_val_overlap(actor_i, actor_j)){
+      return 0;
+    }
+    
+    // Get actor i's attribute
+    double Y_i = object.y_attribute.get_val(actor_i);
+    if (Y_i == 0) return 0; // If Y_i is 0, the change is 0
+    
+    // Get actor j's attribute
+    double Y_j = object.y_attribute.get_val(actor_j);
+    
+    // --- Calculate A_i_old ---
+    double S_i_old = 0;
+    std::unordered_set<int> out_neighbors_old = object.z_network.adj_list.at(actor_i);
+    double d_i_old = out_neighbors_old.size();
+    
+    for (int l : out_neighbors_old) {
+      if (object.get_val_overlap(actor_i, l)) {
+        S_i_old += object.y_attribute.get_val(l);
+      }
+    }
+    
+    double A_i_old = (d_i_old > 0) ? (S_i_old / d_i_old) : 0;
+
+    double S_i_new = S_i_old + Y_j; 
+    double d_i_new = d_i_old + 1;
+    
+    double A_i_new = S_i_new / d_i_new; 
+    return Y_i * (A_i_new - A_i_old);
+    
+  } else if (mode == "y"){
+    double res = 0;
+
+    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+    double d_i_z = out_neighbors.size();
+    
+    if (d_i_z > 0) {
+      double S_i = 0; 
+      for (int j : out_neighbors) {
+        if (object.get_val_overlap(actor_i, j)) {
+          S_i += object.y_attribute.get_val(j);
+        }
+      }
+      res += S_i / d_i_z;
+    }
+    std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
+    
+    for (int k : in_neighbors) {
+      if (object.get_val_overlap(k, actor_i)) {
+        double d_k_z = object.z_network.adj_list.at(k).size();
+        if (d_k_z > 0) {
+          double Y_k = object.y_attribute.get_val(k);
+          res += Y_k / d_k_z;
+        }
+      }
+    }
+    
+    return res;
+    
+  } else {
+    // Return 0 for any other mode
+    return 0;
+  }
+};
+EFFECT_REGISTER("spillover_yy_scaled", ::xyz_stat_spillover_yy_scaled, "spillover_yy_scaled", 0);
+
+// 
+// auto xyz_stat_interaction_edges_yy_scaled= CHANGESTAT{
+//   if(mode == "z"){
+//     // We assume i != j (no self-loops)
+//     if(object.get_val_overlap(actor_i, actor_j)){
+//       double d_i_N = object.overlap.at(actor_i).size();
+//       
+//       if(d_i_N > 0){
+//         double Y_i = object.y_attribute.get_val(actor_i);
+//         double Y_j = object.y_attribute.get_val(actor_j);
+//         
+//         return (Y_i * Y_j) / d_i_N;
+//       } else {
+//         return 0; 
+//       }
+//     } else {
+//       return 0; 
+//     }
+//     
+//   } else if (mode == "y"){
+//     double res = 0;
+// 
+//     double d_i_N = object.overlap.at(actor_i).size();
+//     if (d_i_N > 0) {
+//       // Get all out-neighbors j of i
+//       std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+//       
+//       for (int j : out_neighbors) {
+//         if (object.get_val_overlap(actor_i, j)) {
+//           res += object.y_attribute.get_val(j) / d_i_N;
+//         }
+//       }
+//     }
+//     
+//     // --- Term 2: Y_i as Receiver ---
+//     std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
+//     
+//     for (int k : in_neighbors) {
+//       if (object.get_val_overlap(k, actor_i)) {
+//         
+//         double d_k_N = object.overlap.at(k).size();
+//         if (d_k_N > 0) {
+//           res += object.y_attribute.get_val(k) / d_k_N;
+//         }
+//       }
+//     }
+//     return res;
+//     
+//   } else {
+//     // Return 0 for any other mode (e.g., "x")
+//     return 0;
+//   }
+// };
+// EFFECT_REGISTER("spillover_yy_scaled", ::xyz_stat_interaction_edges_yy_scaled, "spillover_yy_scaled", 0);
 
 
 auto xyz_stat_interaction_edges_yx= CHANGESTAT{
