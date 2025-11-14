@@ -306,16 +306,7 @@ EFFECT_REGISTER("attribute_xy_alocal", ::xyz_stat_attribute_xy_nonb, "attribute_
 auto xyz_stat_attribute_yz_nb= CHANGESTAT{
   if(mode == "y"){
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
-    
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i)); 
-    } else {   
-      connections_of_i = connections_of_i_all;
-    }    
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i) ;
     res = connections_of_i.size();
     return(res);
   } else if(mode == "z"){  
@@ -329,16 +320,7 @@ EFFECT_REGISTER("attribute_yz_local", ::xyz_stat_attribute_yz_nb, "attribute_yz_
 auto xyz_stat_attribute_xz_nb= CHANGESTAT{
   if(mode == "x"){
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
-    
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i= get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {   
-      connections_of_i = connections_of_i_all;
-    }   
+    std::unordered_set<int> connections_of_i=  object.adj_list_nb.at(actor_i);
     res = connections_of_i.size();
     return(res);
   } else if(mode == "z"){ 
@@ -401,16 +383,8 @@ EFFECT_REGISTER("attribute_xz_local", ::xyz_stat_attribute_xz_nb, "attribute_xz_
 
 auto xyz_stat_edges_x_out_nb= CHANGESTAT{
   if(mode == "x"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
-    
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {   
-      connections_of_i = connections_of_i_all;
-    }    
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
+
     return(connections_of_i.size());
   } else if(mode == "z"){  
     return(object.x_attribute.get_val(actor_i)*object.get_val_overlap(actor_i,actor_j));
@@ -456,17 +430,8 @@ EFFECT_REGISTER("outedges_x_global", ::xyz_stat_edges_x_out, "outedges_x_global"
 
 auto xyz_stat_edges_x_in_nb= CHANGESTAT{
   if(mode == "x"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-      
-    } else {   
-      connections_of_i = connections_of_i_all;
-    }   
     return(connections_of_i.size());
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(actor_j)*object.overlap.at(actor_i).count(actor_j));
@@ -512,16 +477,8 @@ EFFECT_REGISTER("inedges_x_global", ::xyz_stat_edges_x_in, "inedges_x_global", 0
 
 auto xyz_stat_edges_y_out_nb= CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i)); 
-    } else {   
-      connections_of_i = connections_of_i_all;
-    }   
     return(connections_of_i.size());
   } else if(mode == "z"){ 
     return(object.y_attribute.get_val(actor_i)*object.overlap.at(actor_i).count(actor_j));
@@ -567,16 +524,8 @@ EFFECT_REGISTER("outedges_y_global", ::xyz_stat_edges_y_out, "outedges_y_global"
 
 auto xyz_stat_edges_y_in_nb= CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all,object.overlap.at(actor_i));
-    } else {    
-      connections_of_i = connections_of_i_all;
-    }    
     return(connections_of_i.size());
   } else if(mode == "z"){ 
     return(object.y_attribute.get_val(actor_j)*object.overlap.at(actor_i).count(actor_j));
@@ -654,17 +603,8 @@ auto xyz_stat_interaction_edges= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections with overlap between them
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-      
-    } else {
-      connections_of_i = connections_of_i_all;
-    }
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       res+= object.y_attribute.get_val(*itr);
@@ -676,17 +616,8 @@ auto xyz_stat_interaction_edges= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all,object.overlap.at(actor_i)); 
-      
-    } else {
-      connections_of_i = connections_of_i_all;
-    }
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
       res+= object.x_attribute.get_val(*itr);  
@@ -720,17 +651,8 @@ auto xyz_stat_interaction_edges_cov= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all,object.overlap.at(actor_i));
-      
-    } else { 
-      connections_of_i = connections_of_i_all;
-    }
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
       res+= data.at(0, *itr-1);  
@@ -756,16 +678,8 @@ auto xyz_stat_interaction_edges_xy= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections with overlap between them
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {
-      connections_of_i = connections_of_i_all;
-    }
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       res+= object.y_attribute.get_val(*itr); 
     } 
@@ -775,16 +689,8 @@ auto xyz_stat_interaction_edges_xy= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else { 
-      connections_of_i = connections_of_i_all;
-    } 
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
       res+= object.x_attribute.get_val(*itr);   
@@ -990,16 +896,8 @@ auto xyz_stat_interaction_edges_y_cov= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {  
-      connections_of_i = connections_of_i_all;
-    }  
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
       res+= data.at(0,*itr-1);   
@@ -1380,16 +1278,8 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections with overlap between them
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {
-      connections_of_i = connections_of_i_all;
-    }
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // Rcout << "Attribute of actor";
       // Rcout << *itr << std::endl;
@@ -1404,16 +1294,8 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {  
-      connections_of_i = connections_of_i_all;
-    } 
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
       res+= object.x_attribute.get_val(*itr);   
@@ -1492,16 +1374,8 @@ auto xyz_stat_matching_edges_x= CHANGESTAT{
     // x_i from 0 -> 1
     // The change statistic will be sum_{h with h and i being in the same neighborhood}x_h z_{h,i} 
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {
-      connections_of_i = connections_of_i_all;
-    }
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // Rcout << "Attribute of actor";
       // Rcout << *itr << std::endl;
@@ -1511,16 +1385,8 @@ auto xyz_stat_matching_edges_x= CHANGESTAT{
       // }
     }
     if(object.z_network.directed){
-      std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-      std::unordered_set<int> connections_of_i;
+      std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
       
-      // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-      if(!is_full_neighborhood){
-        // Next we only want to get the connections within the same group
-        connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-      } else {
-        connections_of_i = connections_of_i_all;
-      }
       for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
         // Rcout << "Attribute of actor";
         // Rcout << *itr << std::endl;
@@ -1558,16 +1424,8 @@ auto xyz_stat_matching_edges_y= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    std::unordered_set<int> connections_of_i;
+    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-    if(!is_full_neighborhood){
-      // Next we only want to get the connections within the same group
-      connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-    } else {
-      connections_of_i = connections_of_i_all;
-    }
     for ( auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // Rcout << "Attribute of actor";
       // Rcout << *itr << std::endl;
@@ -1578,16 +1436,7 @@ auto xyz_stat_matching_edges_y= CHANGESTAT{
       
     }
     if(object.z_network.directed){
-      std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-      std::unordered_set<int> connections_of_i;
-      
-      // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-      if(!is_full_neighborhood){
-        // Next we only want to get the connections within the same group
-        connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-      } else {
-        connections_of_i = connections_of_i_all;
-      }
+      std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
       for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
         // Rcout << "Attribute of actor";
         // Rcout << *itr << std::endl;
@@ -2443,15 +2292,13 @@ auto xyz_stat_gwdsp_ITP_local= CHANGESTAT{
     double res = 0.0;
     // 1. Step: 
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> out_j = object.z_network.adj_list.at(actor_j);
-    out_j = get_intersection(out_j,object.overlap.at(actor_j));
+    std::unordered_set<int> out_j = object.adj_list_nb.at(actor_j);
     for (itr = out_j.begin(); itr != out_j.end(); itr++) {
       if(actor_i == *itr) continue;
       res += pow(expo_min, object.count_common_partners_nb(actor_i, *itr, "OTP")); 
     } 
     // 2. Step: 
-    std::unordered_set<int> in_i = object.z_network.adj_list_in.at(actor_i);
-    in_i = get_intersection(in_i,object.overlap.at(actor_i));
+    std::unordered_set<int> in_i = object.adj_list_in_nb.at(actor_i);
     for (itr = in_i.begin(); itr != in_i.end(); itr++) {
       if(actor_j == *itr) continue;
       res += pow(expo_min, object.count_common_partners_nb(*itr, actor_j, "OTP")); 
@@ -2474,8 +2321,7 @@ auto xyz_stat_gwdsp_ISP_local= CHANGESTAT{
     double res = 0.0;
     // 1. Step: 
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> out_i = object.z_network.adj_list.at(actor_i);
-    out_i = get_intersection(out_i,object.overlap.at(actor_i));
+    std::unordered_set<int> out_i = object.adj_list_nb.at(actor_i);
     for (itr = out_i.begin(); itr != out_i.end(); itr++) {
       int tmp = object.count_common_partners_nb(actor_j, *itr, "ISP");
       res += pow(expo_min, tmp); 
@@ -2499,9 +2345,7 @@ auto xyz_stat_gwdsp_OSP_local= CHANGESTAT{
     double res = 0.0;
     // 1. Step:
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> in_j = object.z_network.adj_list_in.at(actor_j);
-    in_j = get_intersection(in_j,
-                            object.overlap.at(actor_j));
+    std::unordered_set<int> in_j = object.adj_list_in_nb.at(actor_j);
     for (itr = in_j.begin(); itr != in_j.end(); itr++) {
       int tmp = object.count_common_partners_nb(actor_i, *itr, "OSP");
       res += pow(expo_min, tmp); 

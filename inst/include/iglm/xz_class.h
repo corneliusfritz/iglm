@@ -18,6 +18,8 @@ public:
   // Member
   Attribute x_attribute;
   Network z_network;
+  std::unordered_map< int, std::unordered_set<int>> adj_list_nb;
+  std::unordered_map< int, std::unordered_set<int>> adj_list_in_nb;
   std::unordered_map< int, std::unordered_set<int>> neighborhood;
   std::unordered_map< int, std::unordered_set<int>> overlap;
   arma::mat overlap_mat;
@@ -30,6 +32,8 @@ public:
     for (int i = 1; i <= n_actor; i++){
       // Rcout << i  << std::endl;
       neighborhood[i] = std::unordered_set<int>();
+      adj_list_nb[i] = std::unordered_set<int>();
+      adj_list_in_nb[i] = std::unordered_set<int>();
       overlap[i] = std::unordered_set<int>();
     }
     overlap_mat = arma::zeros<arma::mat>(2, 0);
@@ -47,9 +51,13 @@ public:
                             overlap);
     overlap_mat = overlap_;
     
-    for (int i = 1; i <= n_actor_; ++i) {
+    for (int i = 1; i <= n_actor; i++){
+      adj_list_nb[i] = std::unordered_set<int>();
+      adj_list_in_nb[i] = std::unordered_set<int>();
       all_actors.insert(i);
     }
+    
+    
     
   }
   
@@ -63,9 +71,13 @@ public:
     overlap_mat = overlap_mat_;
     n_actor = n_actor_;
     
-    for (int i = 1; i <= n_actor_; ++i) {
+    for (int i = 1; i <= n_actor; i++){
+      adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
+      adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
       all_actors.insert(i);
     }
+    
+    
     
   }
   
@@ -78,13 +90,50 @@ public:
                             neighborhood,
                             overlap);
     overlap_mat = overlap_;
-    for (int i = 1; i <= n_actor_; ++i) {
+    for (int i = 1; i <= n_actor; i++){
+      adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
+      adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
       all_actors.insert(i);
-    }
+    } 
   }
   
   // Member functions
-  
+  void add_edge(int from, int to) {
+    if(z_network.directed){
+      z_network.adj_list.at(from).insert(to);
+      z_network.adj_list_in.at(to).insert(from);
+      if(overlap.at(from).count(to)){
+        adj_list_nb.at(from).insert(to);
+        adj_list_in_nb.at(to).insert(from);
+      }
+    } else{
+      z_network.adj_list.at(from).insert(to);
+      z_network.adj_list.at(to).insert(from);
+      if(overlap.at(from).count(to)){
+        adj_list_nb.at(from).insert(to);
+        adj_list_nb.at(to).insert(from);
+      }
+    } 
+    
+  } 
+  // This is a member function to delete a particular matrix
+  void delete_edge(int from, int to) {
+    if(z_network.directed){
+      z_network.adj_list.at(from).erase(to);
+      z_network.adj_list_in.at(to).erase(from);
+      if(overlap.at(from).count(to)){
+        adj_list_nb.at(from).erase(to);
+        adj_list_in_nb.at(to).erase(from);
+      }
+    } else{ 
+      z_network.adj_list.at(from).erase(to);
+      z_network.adj_list.at(to).erase(from);
+      if(overlap.at(from).count(to)){
+        adj_list_nb.at(from).erase(to);
+        adj_list_nb.at(to).erase(from);
+      }
+    } 
+  }
   bool get_val_overlap(int from, int to )const {
     if(overlap.at(from).count(to)){
       return(true);
@@ -102,42 +151,39 @@ public:
   }
   std::unordered_set<int> get_common_partners_nb(unsigned int from,unsigned int to, std::string type = "OSP")const {
     if(type == "OTP"){
-      return(get_intersection(get_intersection(z_network.adj_list.at(from),overlap.at(from)),
-                              get_intersection(z_network.adj_list_in.at(to),overlap.at(to)))); 
+      return(get_intersection(adj_list_nb.at(from),
+                              adj_list_in_nb.at(to))); 
     } else  if(type == "ISP"){ 
-      return(get_intersection(get_intersection(z_network.adj_list_in.at(from),overlap.at(from)),
-                              get_intersection(z_network.adj_list_in.at(to),overlap.at(to)))); 
+      return(get_intersection(adj_list_in_nb.at(from),
+                              adj_list_in_nb.at(to))); 
     }else  if(type == "OSP"){ 
-      return(get_intersection(get_intersection(z_network.adj_list.at(from),overlap.at(from)), 
-                                get_intersection(z_network.adj_list.at(to),overlap.at(to)))); 
+      return(get_intersection(adj_list_nb.at(from),
+                              adj_list_nb.at(to))); 
     } 
     else  if(type == "ITP"){
-      return(get_intersection(get_intersection(z_network.adj_list_in.at(from),overlap.at(from)), 
-                              get_intersection(z_network.adj_list.at(to),overlap.at(to)))); 
+      return(get_intersection(adj_list_in_nb.at(from), 
+                              adj_list_nb.at(to))); 
     } 
     std::unordered_set<int> res; 
     return(res);
   } 
   
-  
   size_t count_common_partners_nb(unsigned int from,unsigned int to, std::string type = "OSP")const {
     if(type == "OTP"){
-      return(count_intersection(get_intersection(z_network.adj_list.at(from),overlap.at(from)),
-                              get_intersection(z_network.adj_list_in.at(to),overlap.at(to)))); 
+      return(count_intersection(adj_list_nb.at(from),
+                              adj_list_in_nb.at(to))); 
     } else  if(type == "ISP"){ 
-      return(count_intersection(get_intersection(z_network.adj_list_in.at(from),overlap.at(from)),
-                              get_intersection(z_network.adj_list_in.at(to),overlap.at(to)))); 
-    }else  if(type == "OSP"){ 
-      return(count_intersection(get_intersection(z_network.adj_list.at(from),overlap.at(from)), 
-                              get_intersection(z_network.adj_list.at(to),overlap.at(to)))); 
-    } 
+      return(count_intersection(adj_list_in_nb.at(from),
+                              adj_list_in_nb.at(to))); 
+    }else  if(type == "OSP"){  
+      return(count_intersection(adj_list_nb.at(from),
+                              adj_list_nb.at(to))); 
+    }  
     else  if(type == "ITP"){
-      return(count_intersection(get_intersection(z_network.adj_list_in.at(from),overlap.at(from)), 
-                              get_intersection(z_network.adj_list.at(to),overlap.at(to)))); 
+      return(count_intersection(adj_list_in_nb.at(from), 
+                              adj_list_nb.at(to))); 
     } 
-    return(0);
   } 
-  
   
   bool get_val_neighborhood(int from, int to ) const{
     if(neighborhood.at(from).count(to)){

@@ -141,7 +141,7 @@ arma::vec xyz_count_global_statistic( XYZ_class &object,
                                                      z,
                                                      is_full_neighborhood,
                                                      functions);
-            alt_object.z_network.add_edge(i,*it);
+            alt_object.add_edge(i,*it);
             res +=change_stat;
           }
         } else {
@@ -154,7 +154,7 @@ arma::vec xyz_count_global_statistic( XYZ_class &object,
                                                    z,
                                                    is_full_neighborhood,
                                                    functions);
-          alt_object.z_network.add_edge(i,*it);
+          alt_object.add_edge(i,*it);
           res +=change_stat;
         }
         it++;
@@ -343,13 +343,13 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(random_accept(a)<HR.at(0)){
           if(object.z_network.get_val(i,j) == 0){
-            object.z_network.add_edge(i,j);
+            object.add_edge(i,j);
             global_stats += tmp_stat;
           }
         } else {
           if(object.z_network.get_val(i,j)){
             global_stats -= tmp_stat;  
-            object.z_network.delete_edge(i,j);
+            object.delete_edge(i,j);
           }
         }
         ++ a; 
@@ -376,13 +376,13 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(random_accept(a)<HR.at(0)){
           if(object.z_network.get_val(i,j) == 0){
-            object.z_network.add_edge(i,j);
+            object.add_edge(i,j);
             global_stats += tmp_stat;
           } 
         } else {
           if(object.z_network.get_val(i,j)){
             global_stats -= tmp_stat;  
-            object.z_network.delete_edge(i,j);
+            object.delete_edge(i,j);
           } 
         }
         ++ a; 
@@ -443,13 +443,13 @@ void xyz_simulate_network_consecutive_popularity_mh( const arma::vec &coef_nonpo
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(random_accept(a)<HR.at(0)){
           if(object.z_network.get_val(i,j) == 0){
-            object.z_network.add_edge(i,j);
+            object.add_edge(i,j);
             global_stats += change_stat;
           }
         } else {
           if(object.z_network.get_val(i,j)){
             global_stats -= change_stat;  
-            object.z_network.delete_edge(i,j);
+            object.delete_edge(i,j);
           }
         }
         ++ a; 
@@ -479,13 +479,13 @@ void xyz_simulate_network_consecutive_popularity_mh( const arma::vec &coef_nonpo
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(random_accept(a)<HR.at(0)){
           if(object.z_network.get_val(i,j) == 0){
-            object.z_network.add_edge(i,j);
+            object.add_edge(i,j);
             global_stats += change_stat;
           }
         } else {
           if(object.z_network.get_val(i,j)){
             global_stats -= change_stat;  
-            object.z_network.delete_edge(i,j);
+            object.delete_edge(i,j);
           }
         }
         ++ a; 
@@ -582,10 +582,10 @@ void xyz_simulate_network_mh( const arma::vec coef,
       global_stats += tmp_stat;
       // Here we modify the network
       if(proposed_change == 0){
-        object.z_network.delete_edge(tmp_i,tmp_j);
+        object.delete_edge(tmp_i,tmp_j);
       } 
       if(proposed_change == 1){
-        object.z_network.add_edge(tmp_i,tmp_j);
+        object.add_edge(tmp_i,tmp_j);
       }
     }
   }
@@ -683,10 +683,10 @@ void xyz_simulate_network_mh_popularity( const arma::vec coef_nonpopularity,
       global_stats += tmp_stat;
       // Here we modify the network
       if(proposed_change == 0){
-        object.z_network.delete_edge(tmp_i,tmp_j);
+        object.delete_edge(tmp_i,tmp_j);
       } 
       if(proposed_change == 1){
-        object.z_network.add_edge(tmp_i,tmp_j);
+        object.add_edge(tmp_i,tmp_j);
       }
     }
   }
@@ -794,9 +794,9 @@ void xyz_simulate_network_mh_popularity( const arma::vec coef_nonpopularity,
 //       
 //       // Apply the change to the network object
 //       if (multiplier == 1) { // We proposed adding
-//         object.z_network.add_edge(tmp_i, tmp_j);
+//         object.add_edge(tmp_i, tmp_j);
 //       } else { // We proposed deleting
-//         object.z_network.delete_edge(tmp_i, tmp_j);
+//         object.delete_edge(tmp_i, tmp_j);
 //       }
 //     }
 //     // If rejected, do nothing to global_stats or object.z_network
