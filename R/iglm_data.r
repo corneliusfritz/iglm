@@ -314,7 +314,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    density_z = function(){
                                      m = nrow(private$.z_network)/(private$.n_actor*(private$.n_actor-1)/(2 - private$.directed))
                                      private$.descriptives$density_z <- m
-                                     return(m)
+                                     invisible(m)
                                    },
                                    #' @description
                                    #' Calculates the mean of the `x_attribute`.
@@ -322,7 +322,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    density_x = function(){
                                      m = mean(private$.x_attribute)
                                      private$.descriptives$density_x <- m
-                                     return(m)
+                                     invisible(m)
                                    },
                                    #' @description
                                    #' Calculates the mean of the `y_attribute`.
@@ -330,7 +330,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    density_y = function(){
                                      m = mean(private$.y_attribute)
                                      private$.descriptives$density_y <- m
-                                     return(m)
+                                     invisible(m)
                                    },
                                    #' @description
                                    #' Calculates the matrix of edgewise shared partners.
@@ -380,7 +380,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
                                        }
                                      }
-                                     return(res)
+                                     invisible(res)
                                    }
                                    ,
                                    #' @description
@@ -457,7 +457,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
                                        }
                                      }
-                                     return(res)
+                                     invisible(res)
                                    }
                                    ,
                                    #' @description
@@ -496,7 +496,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                xlab = "Geodesic Distance", ylab = ifelse(prob,"Proportion","Count"), 
                                                las = 1 )
                                      }
-                                     return(info)
+                                     invisible(info)
                                    },
                                    #' @description
                                    #' Calculates the all-pairs geodesic distance matrix for the
@@ -525,7 +525,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        F_tmp <- F_new
                                      }
                                      private$.descriptives$geodesic_distances <- D
-                                     return(D)
+                                     invisible(D)
                                    },
                                    #' @description
                                    #' Calculates the distribution of edgewise shared partners.
@@ -610,7 +610,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                ylab = ifelse(prob, "Proportion", "Count"), 
                                                las = 1 )
                                      }
-                                     return(info)
+                                     invisible(info)
                                    },
                                    #' @description
                                    #' Calculates the distribution of edgewise shared partners.
@@ -694,7 +694,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                ylab = ifelse(prob, "Proportion", "Count"), 
                                                las = 1 )
                                      }
-                                     return(info)
+                                     invisible(info)
                                    },
                                    #' @description
                                    #' Calculates the degree distribution of the `z_network`.
@@ -756,7 +756,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                  las = 1 )
                                        }
                                      }
-                                     return(info)
+                                     invisible(info)
                                    },
                                    #' @description
                                    #' Calculates the degree sequence(s) of the `z_network`.
@@ -800,7 +800,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        res$degree_seq = degree_seq
                                      }
                                      private$.descriptives$degree = res
-                                     return(res)
+                                     invisible(res)
                                    },
                                    #' @description
                                    #' Calculates the spillover degree distribution between actors with
@@ -884,7 +884,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                las = 1)
                                        par(mfrow=c(1,1))
                                      }
-                                     return(res)
+                                     invisible(res)
                                     },
                                    #' @description
                                    #' Plot the network using `igraph`.
