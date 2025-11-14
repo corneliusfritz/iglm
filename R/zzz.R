@@ -121,7 +121,7 @@
 #'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) w_{i,j} z_{i,j}}
 #'     }
 #'   }
-#'   #'   \item{\code{isolates}}{
+#'   \item{\code{isolates}}{
 #'     \strong{Isolates [z-term]:}
 #'     Counts and accounts for the number of non-isolated nodes. 
 #'   }

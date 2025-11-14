@@ -2,6 +2,10 @@
 ^\.Rproj\.user$
 ^\.github$
 ^pkgdown/
+^doc/
 _pkgdown.yml
 readme.Rmd
 ^man/figures
+^doc$
+^Meta$
+^README\.md$
