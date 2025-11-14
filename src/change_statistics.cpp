@@ -305,10 +305,7 @@ EFFECT_REGISTER("attribute_xy_alocal", ::xyz_stat_attribute_xy_nonb, "attribute_
 
 auto xyz_stat_attribute_yz_nb= CHANGESTAT{
   if(mode == "y"){
-    int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i) ;
-    res = connections_of_i.size();
-    return(res);
+    return(object.adj_list_nb.at(actor_i).size());
   } else if(mode == "z"){  
     return(object.y_attribute.get_val(actor_i) + object.y_attribute.get_val(actor_j));
   } else { 
@@ -319,10 +316,7 @@ EFFECT_REGISTER("attribute_yz_local", ::xyz_stat_attribute_yz_nb, "attribute_yz_
 
 auto xyz_stat_attribute_xz_nb= CHANGESTAT{
   if(mode == "x"){
-    int res = 0;
-    std::unordered_set<int> connections_of_i=  object.adj_list_nb.at(actor_i);
-    res = connections_of_i.size();
-    return(res);
+    return(object.adj_list_nb.at(actor_i).size());
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(actor_i) + object.x_attribute.get_val(actor_j));
   } else { 
@@ -383,9 +377,7 @@ EFFECT_REGISTER("attribute_xz_local", ::xyz_stat_attribute_xz_nb, "attribute_xz_
 
 auto xyz_stat_edges_x_out_nb= CHANGESTAT{
   if(mode == "x"){
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
-
-    return(connections_of_i.size());
+    return(object.adj_list_nb.at(actor_i).size());
   } else if(mode == "z"){  
     return(object.x_attribute.get_val(actor_i)*object.get_val_overlap(actor_i,actor_j));
   }else { 
@@ -403,9 +395,9 @@ auto xyz_stat_edges_x_out_nonb= CHANGESTAT{
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
       connections_of_i = get_set_difference(connections_of_i_all, object.overlap.at(actor_i));
-    } else {   
+    } else {    
       connections_of_i = connections_of_i_all;
-    }    
+    }     
     return(connections_of_i.size());
   } else if(mode == "z"){  
     return(object.x_attribute.get_val(actor_i)*(1-object.get_val_overlap(actor_i,actor_j)));
@@ -418,8 +410,7 @@ EFFECT_REGISTER("outedges_x_alocal", ::xyz_stat_edges_x_out_nonb, "outedges_x_al
 
 auto xyz_stat_edges_x_out= CHANGESTAT{
   if(mode == "x"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    return(connections_of_i_all.size());
+    return(object.z_network.adj_list.at(actor_i).size());
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(actor_i));
   }else {
@@ -430,9 +421,7 @@ EFFECT_REGISTER("outedges_x_global", ::xyz_stat_edges_x_out, "outedges_x_global"
 
 auto xyz_stat_edges_x_in_nb= CHANGESTAT{
   if(mode == "x"){
-    std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
-    
-    return(connections_of_i.size());
+    return(object.adj_list_in_nb.at(actor_i).size());
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(actor_j)*object.overlap.at(actor_i).count(actor_j));
   }else {
@@ -464,8 +453,7 @@ EFFECT_REGISTER("inedges_x_alocal", ::xyz_stat_edges_x_in_nonb, "inedges_x_aloca
 
 auto xyz_stat_edges_x_in= CHANGESTAT{
   if(mode == "x"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-    return(connections_of_i_all.size());
+    return(object.z_network.adj_list_in.at(actor_i).size());
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(actor_j));
   }else {
@@ -477,9 +465,7 @@ EFFECT_REGISTER("inedges_x_global", ::xyz_stat_edges_x_in, "inedges_x_global", 0
 
 auto xyz_stat_edges_y_out_nb= CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
-    
-    return(connections_of_i.size());
+    return(object.adj_list_nb.at(actor_i).size());
   } else if(mode == "z"){ 
     return(object.y_attribute.get_val(actor_i)*object.overlap.at(actor_i).count(actor_j));
   }else {
@@ -511,8 +497,7 @@ EFFECT_REGISTER("outedges_y_alocal", ::xyz_stat_edges_y_out_nonb, "outedges_y_al
 
 auto xyz_stat_edges_y_out = CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-    return(connections_of_i_all.size());
+    return(object.z_network.adj_list.at(actor_i).size());
   } else if(mode == "z"){ 
     return(object.y_attribute.get_val(actor_i));
   }else {
@@ -524,9 +509,7 @@ EFFECT_REGISTER("outedges_y_global", ::xyz_stat_edges_y_out, "outedges_y_global"
 
 auto xyz_stat_edges_y_in_nb= CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
-    
-    return(connections_of_i.size());
+    return(object.adj_list_in_nb.at(actor_i).size());
   } else if(mode == "z"){ 
     return(object.y_attribute.get_val(actor_j)*object.overlap.at(actor_i).count(actor_j));
   }else {
@@ -558,8 +541,7 @@ EFFECT_REGISTER("inedges_y_alocal", ::xyz_stat_edges_y_in_nonb, "inedges_y_aloca
 
 auto xyz_stat_edges_y_in= CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-    return(connections_of_i_all.size());
+    return(object.z_network.adj_list_in.at(actor_i).size());
   } else if(mode == "z"){ 
     return(object.y_attribute.get_val(actor_j));
   }else {
@@ -604,8 +586,6 @@ auto xyz_stat_interaction_edges= CHANGESTAT{
     // x_i from 0 -> 1
     int res = 0;
     std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
-    
-    
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       res+= object.y_attribute.get_val(*itr);
       // }
@@ -983,10 +963,6 @@ EFFECT_REGISTER("spillover_yc", ::xyz_stat_interaction_edges_y_cov, "spillover_y
 
 auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
   if(mode == "z"){
-    // -------------------------------------
-    // Changestat for z_{i,j}: 0 -> 1
-    // Delta_g = Y_i * (A_i_new - A_i_old)
-    // -------------------------------------
     
     if(!object.get_val_overlap(actor_i, actor_j)){
       return 0;
@@ -1017,10 +993,6 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
     return Y_i * (A_i_new - A_i_old);
     
   } else if (mode == "x"){
-    // -------------------------------------
-    // Changestat for X_i: k -> k+1 (Receiver)
-    // Delta_g = sum_k( (Y_k * z_ki * O_ki) / max(1, d_k^z) )
-    // -------------------------------------
     
     double res = 0;
     std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
@@ -1037,10 +1009,6 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
     return res;
     
   } else if (mode == "y"){
-    // -------------------------------------
-    // Changestat for Y_i: k -> k+1 (Sender)
-    // Delta_g = (1 / max(1, d_i^z)) * sum_j(z_ij * O_ij * X_j)
-    // -------------------------------------
     
     std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
     double d_i_z = out_neighbors.size();
@@ -1062,10 +1030,6 @@ EFFECT_REGISTER("spillover_yx_scaled", ::xyz_stat_spillover_yx_scaled, "spillove
 
 auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
   if(mode == "z"){
-    // -------------------------------------
-    // Changestat for z_{i,j}: 0 -> 1
-    // Delta_g = X_i * (A_i_new - A_i_old)
-    // -------------------------------------
     
     if(!object.get_val_overlap(actor_i, actor_j)){
       return 0;
@@ -1088,18 +1052,13 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
     }
     double A_i_old = (d_i_old > 0) ? (S_i_old / d_i_old) : 0;
     
-    // --- Calculate A_i_new ---
-    double S_i_new = S_i_old + Y_j; // Y_j is added because O_ij=1
+    double S_i_new = S_i_old + Y_j; 
     double d_i_new = d_i_old + 1;
     double A_i_new = S_i_new / d_i_new;
     
     return X_i * (A_i_new - A_i_old);
     
   } else if (mode == "x"){
-    // -------------------------------------
-    // Changestat for X_i: k -> k+1 (Sender)
-    // Delta_g = (1 / max(1, d_i^z)) * sum_j(z_ij * O_ij * Y_j)
-    // -------------------------------------
     
     std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
     double d_i_z = out_neighbors.size();
@@ -1115,11 +1074,6 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
     return S_i / d_i_z;
     
   } else if (mode == "y"){
-    // -------------------------------------
-    // Changestat for Y_i: k -> k+1 (Receiver)
-    // Delta_g = sum_k( (X_k * z_ki * O_ki) / max(1, d_k^z) )
-    // -------------------------------------
-    
     double res = 0;
     std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
     
@@ -1134,7 +1088,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
     }
     return res;
   }
-  return 0; // Default case
+  return 0; 
 };
 
 EFFECT_REGISTER("spillover_xy_scaled", ::xyz_stat_spillover_xy_scaled, "spillover_yx_scaled", 0);
@@ -1146,14 +1100,10 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
       return 0;
     }
     
-    // Get actor i's attribute
     double Y_i = object.y_attribute.get_val(actor_i);
     if (Y_i == 0) return 0; // If Y_i is 0, the change is 0
-    
-    // Get actor j's attribute
     double Y_j = object.y_attribute.get_val(actor_j);
     
-    // --- Calculate A_i_old ---
     double S_i_old = 0;
     std::unordered_set<int> out_neighbors_old = object.z_network.adj_list.at(actor_i);
     double d_i_old = out_neighbors_old.size();
@@ -1207,62 +1157,6 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
   }
 };
 EFFECT_REGISTER("spillover_yy_scaled", ::xyz_stat_spillover_yy_scaled, "spillover_yy_scaled", 0);
-
-// 
-// auto xyz_stat_interaction_edges_yy_scaled= CHANGESTAT{
-//   if(mode == "z"){
-//     // We assume i != j (no self-loops)
-//     if(object.get_val_overlap(actor_i, actor_j)){
-//       double d_i_N = object.overlap.at(actor_i).size();
-//       
-//       if(d_i_N > 0){
-//         double Y_i = object.y_attribute.get_val(actor_i);
-//         double Y_j = object.y_attribute.get_val(actor_j);
-//         
-//         return (Y_i * Y_j) / d_i_N;
-//       } else {
-//         return 0; 
-//       }
-//     } else {
-//       return 0; 
-//     }
-//     
-//   } else if (mode == "y"){
-//     double res = 0;
-// 
-//     double d_i_N = object.overlap.at(actor_i).size();
-//     if (d_i_N > 0) {
-//       // Get all out-neighbors j of i
-//       std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
-//       
-//       for (int j : out_neighbors) {
-//         if (object.get_val_overlap(actor_i, j)) {
-//           res += object.y_attribute.get_val(j) / d_i_N;
-//         }
-//       }
-//     }
-//     
-//     // --- Term 2: Y_i as Receiver ---
-//     std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
-//     
-//     for (int k : in_neighbors) {
-//       if (object.get_val_overlap(k, actor_i)) {
-//         
-//         double d_k_N = object.overlap.at(k).size();
-//         if (d_k_N > 0) {
-//           res += object.y_attribute.get_val(k) / d_k_N;
-//         }
-//       }
-//     }
-//     return res;
-//     
-//   } else {
-//     // Return 0 for any other mode (e.g., "x")
-//     return 0;
-//   }
-// };
-// EFFECT_REGISTER("spillover_yy_scaled", ::xyz_stat_interaction_edges_yy_scaled, "spillover_yy_scaled", 0);
-
 
 auto xyz_stat_interaction_edges_yx= CHANGESTAT{
   if(mode == "z"){
@@ -2383,8 +2277,8 @@ EFFECT_REGISTER("gwdegree_global", ::xyz_stat_gwodegree, "gwdegree_global",0.0);
 auto xyz_stat_gwidegree_local= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
-    std::unordered_set<int> tmp = object.z_network.adj_list_in.at(actor_j);
-    return(pow(expo_min, count_intersection(tmp,object.overlap.at(actor_j))));
+    return(pow(expo_min, object.adj_list_in_nb.at(actor_j).size()));
+    
   }else {  
     return(0);
   }
@@ -2394,167 +2288,10 @@ EFFECT_REGISTER("gwidegree_local", ::xyz_stat_gwidegree_local, "gwidegree_local"
 auto xyz_stat_gwodegree_local= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
-    std::unordered_set<int> tmp = object.z_network.adj_list.at(actor_i);
-    return(pow(expo_min, count_intersection(tmp,object.overlap.at(actor_i))));
+    return(pow(expo_min, object.adj_list_nb.at(actor_i).size()));
   }else {  
     return(0);
   }
 }; 
 EFFECT_REGISTER("gwodegree_local", ::xyz_stat_gwodegree_local, "gwodegree_local",0.0);
 EFFECT_REGISTER("gwdegree_local", ::xyz_stat_gwodegree_local, "gwdegree_local",0.0);
-// arma::vec stat_two_star_pos(const std::unordered_map< int, std::set<int>> &edges_pos,
-//                             const std::unordered_map< int, std::set<int>> &edges_neg,
-//                             int &n_actors,
-//                             int &tmp_random_i,
-//                             int &tmp_random_j, 
-//                             arma::mat &data, 
-//                             int &type){
-//   arma::vec res(3);
-//   int degree_i = edges_pos.at(tmp_random_i).size();
-//   int degree_j = edges_pos.at(tmp_random_j).size();
-//   if(edges_pos.at(tmp_random_i).count(tmp_random_j)){
-//     res.at(0) = degree_i + degree_j-2;
-//     res.at(1) = 0;
-//     res.at(2) = -res.at(0);
-//   } else {
-//     res.at(0) = degree_i + degree_j;
-//     res.at(1) = 0;
-//     res.at(2) = -res.at(0);
-//   }
-//   return(res);
-// }
-
-// arma::vec stat_gwdsp(const std::unordered_map< int, std::set<int>> &edges_pos,
-//                          const  std::unordered_map< int, std::set<int>> &edges_neg,
-//                          int &n_actors,
-//                          int &tmp_random_i,
-//                          int &tmp_random_j, 
-//                          arma::mat &data, 
-//                          int &type){
-//   arma::vec res(3);
-//   res.fill(0);
-//   double expo_min = (1-exp(-data.at(0,0)));  
-//   // double expo_pos = exp(data.at(0,0));  
-//   
-//   std::set<int> intersection, tmp,intersection_ij;
-//   // Step 1: Get all connections of tmp_random_i
-//   std::set<int> connections_of_i = edges_pos.at(tmp_random_i);
-//   // Step 2: Get all connections of tmp_random_j
-//   std::set<int> connections_of_j = edges_pos.at(tmp_random_j);
-//   connections_of_j.erase(tmp_random_i);
-//   connections_of_i.erase(tmp_random_j);
-//   // Step 3: Go through all connections of j and count its two-paths with i (call them h)
-//   std::set<int>::iterator itr;
-//   
-//   for (itr = connections_of_j.begin(); itr != connections_of_j.end(); itr++) {
-//     // For each connection of j we go through the positive edges 
-//     // and count how many of them are intersecting with connections of i 
-//     tmp = edges_pos.at(*itr);
-//     // Get the size of the intersection of tmp and connections_of_i
-//     intersection.clear();    
-//     std::set_intersection(std::begin(tmp), std::end(tmp),
-//                           std::begin(connections_of_i), std::end(connections_of_i),
-//                           std::inserter(intersection, std::begin(intersection)));
-//     res.at(0) +=  pow(expo_min, intersection.size());
-//   }
-//   // Step 4: Go through all connections of i and count its two-paths with j
-//   for (itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-//     // For each connection of j we go through the positive edges 
-//     tmp = edges_pos.at(*itr);
-//     // Get the size of the intersection of tmp and connections_of_i
-//     intersection.clear();    
-//     std::set_intersection(std::begin(tmp), std::end(tmp),
-//                           std::begin(connections_of_j), std::end(connections_of_j),
-//                           std::inserter(intersection, std::begin(intersection)));
-//     res.at(0) +=  pow(expo_min, intersection.size());
-//   }
-//   res.at(1) = 0;
-//   res.at(2) = -res.at(0);
-//   
-//   return(res);
-// }
-// arma::vec stat_gwese_pos(const std::unordered_map< int, std::set<int>> &edges_pos,
-//                          const std::unordered_map< int, std::set<int>> &edges_neg,
-//                          int &n_actors,
-//                          int &tmp_random_i,
-//                          int &tmp_random_j, 
-//                          arma::mat &data, 
-//                          int &type){
-//   arma::vec res(3);
-//   res.fill(0);
-//   double expo_min = (1-exp(-data.at(0,0)));  
-//   double expo_pos = exp(data.at(0,0));  
-//   
-//   std::set<int>::iterator itr;
-//   std::set<int> intersection_ij,intersection, tmp;
-//   std::set<int> connections_of_i_neg = edges_neg.at(tmp_random_i);
-//   std::set<int> connections_of_j_neg = edges_neg.at(tmp_random_j);
-//   std::set<int> connections_of_i_pos = edges_pos.at(tmp_random_i);
-//   std::set<int> connections_of_j_pos = edges_pos.at(tmp_random_j);
-// 
-//   // Step 3: Get the intersection of connections to i and j -> case a)
-//   // Rcout << "Positive connections of i" << std::endl;
-//   std::set_intersection(std::begin(connections_of_i_neg), std::end(connections_of_i_neg),
-//                         std::begin(connections_of_j_neg), std::end(connections_of_j_neg),
-//                         std::inserter(intersection_ij, std::begin(intersection_ij)));
-//   res.at(0) += expo_pos*(1- pow(expo_min, intersection_ij.size()));
-//   
-//   // If tmp_i and tmp_j are already connected, we need to delete them from the tmp graph 
-//   connections_of_i_neg.erase(tmp_random_j);
-//   connections_of_j_neg.erase(tmp_random_i);
-//   // Check for each positive connection of i that has a negative connection to j how many negative common partner it has with i
-//   // How many common enemies do we have?  
-//   for (itr = connections_of_i_pos.begin(); itr != connections_of_i_pos.end(); itr++) {
-//     tmp = edges_neg.at(*itr);
-//     if(tmp.count(tmp_random_j)){
-//       intersection.clear();    
-//       std::set_intersection(std::begin(tmp), std::end(tmp),
-//                             std::begin(connections_of_i_neg), std::end(connections_of_i_neg),
-//                             std::inserter(intersection, std::begin(intersection)));
-//       res.at(1) +=  pow(expo_min, intersection.size());
-//       // Rcout << intersection.size() << std::endl;
-//       
-//     }
-//   }
-//   // Check for each positive connection of j that has a negative connection to i how many negative common partner it has with j
-//   // How many common enemies do we have?  
-//   for (itr = connections_of_j_pos.begin(); itr != connections_of_j_pos.end(); itr++) {
-//     tmp = edges_neg.at(*itr);
-//     if(tmp.count(tmp_random_i)){
-//       intersection.clear();    
-//       std::set_intersection(std::begin(tmp), std::end(tmp),
-//                             std::begin(connections_of_j_neg), std::end(connections_of_j_neg),
-//                             std::inserter(intersection, std::begin(intersection)));
-//       res.at(1) +=  pow(expo_min, intersection.size());
-//       }
-//   }
-//   res.at(2) = res.at(1) - res.at(0);
-//   return(res);
-// }
-// arma::vec stat_gwdegree(const std::unordered_map< int, std::set<int>> &edges_pos,
-//                         const std::unordered_map< int, std::set<int>> &edges_neg,
-//                         int &n_actors,
-//                         int &tmp_random_i,
-//                         int &tmp_random_j, 
-//                         arma::mat &data, 
-//                         int &type){
-//   arma::vec res(3);
-//   int degree_i = edges_pos.at(tmp_random_i).size() + edges_neg.at(tmp_random_i).size();
-//   int degree_j = edges_pos.at(tmp_random_j).size() + edges_neg.at(tmp_random_j).size();
-//   double expo_min = (1-exp(-data.at(0,0)));  
-//   // double expo_pos = exp(data.at(0,0)); 
-//   // If the edge is already there, we need to substract one of the degrees
-//   if(edges_pos.at(tmp_random_i).count(tmp_random_j)){
-//     degree_i -= 1;
-//     degree_j -= 1;
-//   }
-//   if(edges_neg.at(tmp_random_i).count(tmp_random_j)){
-//     degree_i -= 1;
-//     degree_j -= 1;
-//   } 
-// 
-//   res.at(0) = pow(expo_min, degree_i) + pow(expo_min, degree_j);
-//   res.at(1) = res.at(0);
-//   res.at(2) = 0;
-//   return(res);
-// }
