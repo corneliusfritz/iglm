@@ -155,7 +155,5 @@ tmp_edgelist <- iglm.data(z_network = tmp_adjacency$z_network,
                        type_y = "binomial")
 
 tmp_edgelist$density_z()
-#> [1] 0.6666667
 tmp_adjacency$density_z()
-#> [1] 0.6666667
 ```
