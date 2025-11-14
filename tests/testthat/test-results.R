@@ -19,7 +19,7 @@ test_that('Define a iglm object and check all the results information', {
   type_y <- "binomial"
   
   xyz_obj_new = iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
-  
+  xyz_obj_new$overlap
   gt_coef = c(3, -1,-1)
   gt_coef_pop =  c(rnorm(n = n_actors, -2, 1))
   
@@ -28,6 +28,9 @@ test_that('Define a iglm object and check all the results information', {
                                sampler.y = sampler.net_attr(n_proposals =  n_actors*10, seed = 32),
                                sampler.z = sampler.net_attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
                                init_empty = F)
+  # xyz_obj_new$neighborhood
+  # xyz_obj_new$z_network <- xyz_obj_new$neighborhood
+  
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + popularity,
                           coef = gt_coef,  coef_popularity = gt_coef_pop, sampler = sampler_new, 
                           control = control.iglm(accelerated = FALSE,max_it = 200,

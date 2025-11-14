@@ -16,37 +16,46 @@
 class XZ_class {
 public:
   // Member
-  Attribute x_attribute;
+  int n_actor;
   Network z_network;
+  std::unordered_map< int, std::unordered_set<int>> overlap;
+  Attribute x_attribute;
+  // Other members
+  std::unordered_map< int, std::unordered_set<int>> neighborhood;
   std::unordered_map< int, std::unordered_set<int>> adj_list_nb;
   std::unordered_map< int, std::unordered_set<int>> adj_list_in_nb;
-  std::unordered_map< int, std::unordered_set<int>> neighborhood;
-  std::unordered_map< int, std::unordered_set<int>> overlap;
   arma::mat overlap_mat;
-  std::unordered_set<int> all_actors; 
-  
-  int n_actor;
+  std::unordered_set<int> all_actors;
   // Constructors
-  XZ_class(int n_actor_, bool directed_, std::string type_, double scale_): x_attribute(n_actor_, type_, scale_), z_network(n_actor_,directed_){
-    n_actor = n_actor_;
-    for (int i = 1; i <= n_actor; i++){
+  // Constructor 1 (Corrected)
+  XZ_class(int n_actor_, bool directed_, std::string type_, double scale_):
+    n_actor(n_actor_),                             
+    z_network(n_actor_, directed_),              
+    overlap(),                                  
+    x_attribute(n_actor_, type_, scale_)         
+  {
+    for (int i = 1; i <= n_actor; i++){ 
       // Rcout << i  << std::endl;
       neighborhood[i] = std::unordered_set<int>();
       adj_list_nb[i] = std::unordered_set<int>();
       adj_list_in_nb[i] = std::unordered_set<int>();
       overlap[i] = std::unordered_set<int>();
-    }
+    } 
     overlap_mat = arma::zeros<arma::mat>(2, 0);
     
-    for (int i = 1; i <= n_actor_; ++i) {
+    for (int i = 1; i <= n_actor; ++i) { 
       all_actors.insert(i);
-    }
-    
+    } 
   }
   
-  XZ_class(int n_actor_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_): x_attribute(n_actor_, type_, scale_), z_network(n_actor_,directed_){
-    n_actor = n_actor_;
-    mat_to_map_neighborhood(neighborhood_,overlap_, n_actor_, directed_,
+  // Constructor 2
+  XZ_class(int n_actor_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_):
+    n_actor(n_actor_),                             
+    z_network(n_actor_, directed_),             
+    overlap(),                                 
+    x_attribute(n_actor_, type_, scale_)        
+  {
+    mat_to_map_neighborhood(neighborhood_, overlap_, n_actor, directed_,
                             neighborhood,
                             overlap);
     overlap_mat = overlap_;
@@ -55,48 +64,57 @@ public:
       adj_list_nb[i] = std::unordered_set<int>();
       adj_list_in_nb[i] = std::unordered_set<int>();
       all_actors.insert(i);
-    }
-    
-    
-    
+    } 
   }
   
-  
+  // Constructor 3 
   XZ_class(int n_actor_, bool directed_, std::unordered_map< int, std::unordered_set<int>> neighborhood_,
-                     std::unordered_map< int, std::unordered_set<int>> overlap_,
-                     arma::mat overlap_mat_, std::string type_, double scale_): x_attribute(n_actor_, type_, scale_), z_network(n_actor_,directed_){
-    
-    neighborhood = neighborhood_;
-    overlap = overlap_;
-    overlap_mat = overlap_mat_;
-    n_actor = n_actor_;
-    
-    for (int i = 1; i <= n_actor; i++){
+           std::unordered_map< int, std::unordered_set<int>> overlap_,
+           arma::mat overlap_mat_, std::string type_, double scale_):
+    n_actor(n_actor_),                             
+    z_network(n_actor_, directed_),                
+    overlap(overlap_),                            
+    x_attribute(n_actor_, type_, scale_),         
+    neighborhood(neighborhood_),                  
+    overlap_mat(overlap_mat_)                     
+  {
+    // Rcout << "Hello"  << std::endl;
+    // This loop is correct and uses the initialized members.
+    for (int i = 1; i <= n_actor; i++){ // Use the member n_actor
+      // Rcout << i  << std::endl;
       adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
-      adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
+      if(z_network.directed){
+        adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
+      }
       all_actors.insert(i);
     }
-    
-    
-    
   }
   
-  
-  XZ_class(int n_actor_, bool directed_, arma::mat z_network_, arma::vec x_attribute_, 
-                     arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_):
-    x_attribute(n_actor_, x_attribute_, type_, scale_), z_network(n_actor_,directed_, z_network_){
-    n_actor = n_actor_;
-    mat_to_map_neighborhood(neighborhood_,overlap_, n_actor, directed_,
+  // Constructor 4 
+  XZ_class(int n_actor_, bool directed_, arma::mat z_network_, arma::vec x_attribute_,
+           arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_):
+    n_actor(n_actor_),                               
+    z_network(n_actor_, directed_, z_network_),      
+    overlap(),                                       
+    x_attribute(n_actor_, x_attribute_, type_, scale_)
+  {
+    // Rcout << "Hello 4"  << std::endl;
+    mat_to_map_neighborhood(neighborhood_, overlap_, n_actor, directed_,
                             neighborhood,
                             overlap);
     overlap_mat = overlap_;
     for (int i = 1; i <= n_actor; i++){
+      // Rcout << i  << std::endl;
+      // Rcout << overlap.size()  << std::endl;
+      // Rcout << z_network.adj_list.size()  << std::endl;
+      // Rcout << z_network.adj_list_in.size()  << std::endl;
       adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
-      adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
+      if(z_network.directed){
+        adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
+      }
       all_actors.insert(i);
-    } 
-  }
-  
+    }
+  } 
   // Member functions
   void add_edge(int from, int to) {
     if(z_network.directed){
@@ -182,7 +200,9 @@ public:
     else  if(type == "ITP"){
       return(count_intersection(adj_list_in_nb.at(from), 
                               adj_list_nb.at(to))); 
-    } 
+    } else{
+      return(0);
+    }
   } 
   
   bool get_val_neighborhood(int from, int to ) const{

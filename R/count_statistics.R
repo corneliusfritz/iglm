@@ -51,7 +51,8 @@ count_statistics = function(formula) {
 # }
 
 xyz_count_statistics = function(preprocessed, ...) {
-  n_actor = length(preprocessed$data_object$x_attribute)
+  n_actor_tmp = length(preprocessed$data_object$x_attribute)
+  # browser()
   xyz_count_global(z_network =  preprocessed$data_object$z_network,
                    x_attribute = preprocessed$data_object$x_attribute,
                    y_attribute = preprocessed$data_object$y_attribute,
@@ -65,5 +66,5 @@ xyz_count_statistics = function(preprocessed, ...) {
                    terms = preprocessed$term_names,
                    data_list = preprocessed$data_list,
                    type_list = preprocessed$type_list,
-                   n_actor = n_actor)
+                   n_actor = n_actor_tmp)
 }
