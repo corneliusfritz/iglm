@@ -2209,8 +2209,12 @@ auto xyz_stat_gwdsp_ISP= CHANGESTAT{
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> out_i = object.z_network.adj_list.at(actor_i);
     for (itr = out_i.begin(); itr != out_i.end(); itr++) {
+      if(actor_j == *itr) continue;
       tmp_count = object.count_common_partners(actor_j, *itr, "ISP");
-      res += 2.0*pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0; 
+      }
+      res += 2.0*pow(expo_min, tmp_count); 
     }
     return(res);
   }else {   
@@ -2230,8 +2234,12 @@ auto xyz_stat_gwdsp_OSP= CHANGESTAT{
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> in_j = object.z_network.adj_list_in.at(actor_j);
     for (itr = in_j.begin(); itr != in_j.end(); itr++) {
+      if(actor_i == *itr) continue;
       tmp_count = object.count_common_partners(actor_i, *itr, "OSP");
-      res += 2.0*pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0; 
+      }
+      res += 2.0*pow(expo_min, tmp_count); 
     }
     return(res);
   }else {  
@@ -2245,23 +2253,27 @@ EFFECT_REGISTER("gwdsp_global_OSP", ::xyz_stat_gwdsp_OSP, "gwdsp_global_OSP",0.0
 auto xyz_stat_gwdsp_ITP_local= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
-    if(object.overlap.at(actor_i).count(actor_j) == 0){
-      return(0.0);
-    }
     double res = 0.0;
     // 1. Step: 
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    }
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> out_j = object.adj_list_nb.at(actor_j);
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     for (itr = out_j.begin(); itr != out_j.end(); itr++) {
       if(actor_i == *itr) continue;
-      res += pow(expo_min, object.count_common_partners_nb(actor_i, *itr, "OTP")); 
+      tmp_count = object.count_common_partners_nb(actor_i, *itr, "OTP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     } 
     // 2. Step: 
     std::unordered_set<int> in_i = object.adj_list_in_nb.at(actor_i);
     for (itr = in_i.begin(); itr != in_i.end(); itr++) {
       if(actor_j == *itr) continue;
-      res += pow(expo_min, object.count_common_partners_nb(*itr, actor_j, "OTP")); 
-    } 
+      tmp_count = object.count_common_partners_nb(*itr, actor_j, "OTP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+    }  
     return(res);
   }else {     
     return(0);
@@ -2270,57 +2282,70 @@ auto xyz_stat_gwdsp_ITP_local= CHANGESTAT{
 EFFECT_REGISTER("gwdsp_local_ITP", ::xyz_stat_gwdsp_ITP_local, "gwdsp_local_ITP",0.0);
 EFFECT_REGISTER("gwdsp_local_OTP", ::xyz_stat_gwdsp_ITP_local, "gwdsp_local_OTP",0.0);
 
-
 auto xyz_stat_gwdsp_ISP_local= CHANGESTAT{
   if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
-    if(object.overlap.at(actor_i).count(actor_j) == 0){
-      return(0.0);
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
     }
+    double expo_min = (1-exp(-data.at(0,0)));  
     double res = 0.0;
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     // 1. Step: 
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> out_i = object.adj_list_nb.at(actor_i);
     for (itr = out_i.begin(); itr != out_i.end(); itr++) {
-      int tmp = object.count_common_partners_nb(actor_j, *itr, "ISP");
-      res += pow(expo_min, tmp); 
-      res += pow(expo_min, tmp); 
-      
+      if(actor_j == *itr) continue;
+      tmp_count = object.count_common_partners_nb(actor_j, *itr, "ISP");
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0; 
+      }
+      res += 2.0*pow(expo_min, tmp_count); 
     } 
     return(res);
-  }else {   
+  }else {    
     return(0);
   } 
 };  
 EFFECT_REGISTER("gwdsp_local_ISP", ::xyz_stat_gwdsp_ISP_local, "gwdsp_local_ISP",0.0);
 
-
 auto xyz_stat_gwdsp_OSP_local= CHANGESTAT{
   if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
-    if(object.overlap.at(actor_i).count(actor_j) == 0){
-      return(0.0);
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
     }
+    double expo_min = (1-exp(-data.at(0,0)));  
     double res = 0.0;
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     // 1. Step:
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> in_j = object.adj_list_in_nb.at(actor_j);
     for (itr = in_j.begin(); itr != in_j.end(); itr++) {
-      int tmp = object.count_common_partners_nb(actor_i, *itr, "OSP");
-      res += pow(expo_min, tmp); 
-      res += pow(expo_min, tmp); 
-    } 
-    return(res);
-  }else {   
+      if(actor_i == *itr) continue;
+      tmp_count = object.count_common_partners_nb(actor_i, *itr, "OSP");
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0; 
+      } 
+      res += 2.0*pow(expo_min, tmp_count); 
+    }
+    return(res); 
+  }else {  
     return(0);
   }
 }; 
-EFFECT_REGISTER("gwdsp_local_OSP", ::xyz_stat_gwdsp_OSP_local, "gwdsp_local_OSP",0.0);
+
+EFFECT_REGISTER("gwdsp_local_OSP", ::xyz_stat_gwdsp_OSP_local, "gwdsp_global_local_OSP",0.0);
 
 auto xyz_stat_gwidegree= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
-    return(pow(expo_min, object.z_network.adj_list_in.at(actor_j).size()));
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count = object.z_network.adj_list_in.at(actor_j).size();
+    if (edge_exists) {
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0; 
+    }
+    return(pow(expo_min, tmp_count));
   }else {  
     return(0);
   }
@@ -2329,8 +2354,13 @@ EFFECT_REGISTER("gwidegree_global", ::xyz_stat_gwidegree, "gwidegree_global",0.0
 
 auto xyz_stat_gwodegree= CHANGESTAT{
   if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
-    return(pow(expo_min, object.z_network.adj_list.at(actor_i).size()));
+    double expo_min = (1-exp(-data.at(0,0)));
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count = object.z_network.adj_list.at(actor_i).size();
+    if (edge_exists) {
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0; 
+    }
+    return(pow(expo_min, tmp_count));
   }else {  
     return(0);
   }
@@ -2338,12 +2368,18 @@ auto xyz_stat_gwodegree= CHANGESTAT{
 EFFECT_REGISTER("gwodegree_global", ::xyz_stat_gwodegree, "gwodegree_global",0.0);
 EFFECT_REGISTER("gwdegree_global", ::xyz_stat_gwodegree, "gwdegree_global",0.0);
 
-
 auto xyz_stat_gwidegree_local= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
-    return(pow(expo_min, object.adj_list_in_nb.at(actor_j).size()));
-    
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    }
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count = object.adj_list_in_nb.at(actor_j).size();
+    if (edge_exists) {
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0; 
+    }
+    return(pow(expo_min, tmp_count));
   }else {  
     return(0);
   }
@@ -2353,7 +2389,15 @@ EFFECT_REGISTER("gwidegree_local", ::xyz_stat_gwidegree_local, "gwidegree_local"
 auto xyz_stat_gwodegree_local= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
-    return(pow(expo_min, object.adj_list_nb.at(actor_i).size()));
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    }
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count = object.adj_list_nb.at(actor_i).size();
+    if (edge_exists) {
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0; 
+    }
+    return(pow(expo_min, tmp_count));
   }else {  
     return(0);
   }
