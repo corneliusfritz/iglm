@@ -4,8 +4,10 @@
 #' The `iglm.data` class is a container for storing, validating, and analyzing
 #' unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 #' @import R6
+#' @importFrom igraph graph_from_edgelist layout_with_fr vcount add_vertices V plot.igraph
+#' @importFrom grDevices colorRampPalette adjustcolor
+#' @importFrom graphics legend plot
 #' @importFrom Matrix sparseMatrix spMatrix bdiag diag
-#' @importFrom Hmisc capitalize
 #' @export
 iglm.data_generator <- R6::R6Class("iglm.data",
                                  private = list(

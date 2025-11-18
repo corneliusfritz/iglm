@@ -8,7 +8,7 @@ Authors@R: c(
     person(given = "Michael", family = "Schweinberger", role = c("aut"), email = "michael.schweinberger@psu.edu"))
 Description: An implementation of generalized linear models (GLMs) for studying relationships among attributes in connected populations, where responses of connected units can be dependent, as introduced by Fritz et al. (2025) <doi:10.1080/01621459.2025.2565851>. 'igml' extends GLMs for independent responses to dependent responses and can be used for studying spillover in connected populations and other network-mediated phenomena.
 License: GPL-3
-Imports: Rcpp (>= 1.0.8), Hmisc, R6, MASS, RcppArmadillo, stringr, Matrix, parallel, methods
+Imports: Rcpp (>= 1.0.8), R6, MASS, RcppArmadillo, Matrix, parallel, methods, coda, igraph
 Suggests: rmarkdown, knitr, testthat
 Depends: RcppProgress, R (>= 3.5.0)
 LinkingTo: Rcpp, RcppProgress, RcppArmadillo, Matrix

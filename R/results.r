@@ -164,7 +164,7 @@ results_generator <- R6::R6Class("results",
                                    #'   from a completed estimation run. Updates the internal status.
                                    #' @return The `results` object itself (`self`), invisibly. Called for its
                                    #'   side effects.
-                                   #' @importFrom coda mcmc thin start
+                                   #' @importFrom coda mcmc thin
                                    update = function(coefficients_path= NULL, 
                                                      samples= NULL, 
                                                      var= NULL,

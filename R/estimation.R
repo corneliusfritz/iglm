@@ -1,6 +1,5 @@
 
 #' @importFrom stats binomial glm qnorm rnorm terms.formula update.formula var
-#' @importFrom stringr str_split 
 #' @importFrom Matrix spMatrix 
 #' @importFrom methods as
 #' @importFrom stats as.formula 
