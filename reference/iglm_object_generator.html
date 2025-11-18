@@ -84,7 +84,7 @@ for results.</p>
 <dd><p>(`sampler_iglm`) Read-only. The  <code><a href="sampler_iglm_generator.html">sampler_iglm</a></code> object specifying MCMC sampling parameters.</p></dd>
 
 
-<dt><code>count_statistics</code></dt>
+<dt><code>sufficient_statistics</code></dt>
 <dd><p>(`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.</p></dd>
 
 
@@ -113,7 +113,7 @@ for results.</p>
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Internal method to calculate the observed count statistics based on the
 model formula and the data in the `iglm.data` object. Populates the
-`private$.count_statistics` field.</p>
+`private$.sufficient_statistics` field.</p>
 
 <p>Internal validation method. Checks the consistency and validity of
 all components of the `iglm_object`. Stops with an error if any

@@ -281,8 +281,9 @@ estimation. Replaces \`samples\` and \`stats\`.
 - `stats`:
 
   (matrix) A matrix of summary statistics from simulations, where rows
-  correspond to simulations and columns to statistics. Replaces existing
-  matrix.
+  correspond to simulations and columns to statistics. Replaces or
+  extends the existing matrix and will be turned into a mcmc object from
+  the \`coda\` package.
 
 - `estimated`:
 

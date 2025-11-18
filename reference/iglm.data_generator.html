@@ -94,6 +94,13 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).</p
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
 <ul><li><p><a href="#method-iglm.data-new"><code>iglm.data_generator$new()</code></a></p></li>
+<li><p><a href="#method-iglm.data-set_z_network"><code>iglm.data_generator$set_z_network()</code></a></p></li>
+<li><p><a href="#method-iglm.data-set_type_x"><code>iglm.data_generator$set_type_x()</code></a></p></li>
+<li><p><a href="#method-iglm.data-set_type_y"><code>iglm.data_generator$set_type_y()</code></a></p></li>
+<li><p><a href="#method-iglm.data-set_scale_x"><code>iglm.data_generator$set_scale_x()</code></a></p></li>
+<li><p><a href="#method-iglm.data-set_scale_y"><code>iglm.data_generator$set_scale_y()</code></a></p></li>
+<li><p><a href="#method-iglm.data-set_x_attribute"><code>iglm.data_generator$set_x_attribute()</code></a></p></li>
+<li><p><a href="#method-iglm.data-set_y_attribute"><code>iglm.data_generator$set_y_attribute()</code></a></p></li>
 <li><p><a href="#method-iglm.data-gather"><code>iglm.data_generator$gather()</code></a></p></li>
 <li><p><a href="#method-iglm.data-save"><code>iglm.data_generator$save()</code></a></p></li>
 <li><p><a href="#method-iglm.data-density_z"><code>iglm.data_generator$density_z()</code></a></p></li>
@@ -205,33 +212,75 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.</p></d
 <p>A new `iglm.data` object.</p>
 </div>
 
-</div><p></p><hr><a id="method-iglm.data-gather"></a><div class="section">
-<h3 id="method-gather-">Method <code>gather()</code><a class="anchor" aria-label="anchor" href="#method-gather-"></a></h3>
-<p>Gathers the current state of the `iglm.data` object into a list.
-This includes all attributes, network, and configuration
-details necessary to reconstruct the object later.</p><div class="section">
+</div><p></p><hr><a id="method-iglm.data-set_z_network"></a><div class="section">
+<h3 id="method-set-z-network-">Method <code>set_z_network()</code><a class="anchor" aria-label="anchor" href="#method-set-z-network-"></a></h3>
+<p>Sets the `z_network` of the `iglm.data` object.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">gather</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
-<p>A list containing the current state of the `iglm.data` object.</p>
-</div>
-
-</div><p></p><hr><a id="method-iglm.data-save"></a><div class="section">
-<h3 id="method-save-">Method <code><a href="https://rdrr.io/r/base/save.html" class="external-link">save()</a></code><a class="anchor" aria-label="anchor" href="#method-save-"></a></h3>
-<p>Saves the current state of the `iglm.data` object to a specified file path
-in RDS format. This includes all attributes, network, and configuration
-details necessary to reconstruct the object later.</p><div class="section">
-<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">save</span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">set_z_network</span><span class="op">(</span><span class="va">z_network</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>file</code></dt>
-<dd><p>(character) The file where the object state should be saved.</p></dd>
+<p></p><div class="arguments"><dl><dt><code>z_network</code></dt>
+<dd><p>A matrix representing the network. Can be a 2-column
+edgelist or a square adjacency matrix.
+@return The `iglm.data` object itself (`self`), invisibly.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-iglm.data-set_type_x"></a><div class="section">
+<h3 id="method-set-type-x-">Method <code>set_type_x()</code><a class="anchor" aria-label="anchor" href="#method-set-type-x-"></a></h3>
+<p>Sets the `type_x` of the `iglm.data` object.</p><div class="section">
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">set_type_x</span><span class="op">(</span><span class="va">type_x</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>type_x</code></dt>
+<dd><p>A character string for the type of `x_attribute`.
+Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
+@return The `iglm.data` object itself (`self`), invisibly.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-iglm.data-set_type_y"></a><div class="section">
+<h3 id="method-set-type-y-">Method <code>set_type_y()</code><a class="anchor" aria-label="anchor" href="#method-set-type-y-"></a></h3>
+<p>Sets the `type_y` of the `iglm.data` object.</p><div class="section">
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">set_type_y</span><span class="op">(</span><span class="va">type_y</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>type_y</code></dt>
+<dd><p>A character string for the type of `y_attribute`.
+Must be one of `"binomial"`, `"poisson"`, or `"normal"`.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
+<p>The `iglm.data` object itself (`self`), invisibly.</p>
+</div>
+
+</div><p></p><hr><a id="method-iglm.data-set_scale_x"></a><div class="section">
+<h3 id="method-set-scale-x-">Method <code>set_scale_x()</code><a class="anchor" aria-label="anchor" href="#method-set-scale-x-"></a></h3>
+<p>Sets the `scale_x` of the `iglm.data` object.</p><div class="section">
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">set_scale_x</span><span class="op">(</span><span class="va">scale_x</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>scale_x</code></dt>
+<dd><p>A positive numeric value for scaling (e.g., variance
+for "normal" type).</p></dd>
 
 
 </dl><p></p></div>
@@ -241,39 +290,136 @@ details necessary to reconstruct the object later.</p><div class="section">
 <p>The `iglm.data` object itself (`self`), invisibly.</p>
 </div>
 
+</div><p></p><hr><a id="method-iglm.data-set_scale_y"></a><div class="section">
+<h3 id="method-set-scale-y-">Method <code>set_scale_y()</code><a class="anchor" aria-label="anchor" href="#method-set-scale-y-"></a></h3>
+<p>Sets the `scale_y` of the `iglm.data` object.</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">set_scale_y</span><span class="op">(</span><span class="va">scale_y</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>scale_y</code></dt>
+<dd><p>A positive numeric value for scaling (e.g., variance
+for "normal" type).</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<p>The `iglm.data` object itself (`self`), invisibly.</p>
+</div>
+
+</div><p></p><hr><a id="method-iglm.data-set_x_attribute"></a><div class="section">
+<h3 id="method-set-x-attribute-">Method <code>set_x_attribute()</code><a class="anchor" aria-label="anchor" href="#method-set-x-attribute-"></a></h3>
+<p>Sets the `x_attribute` of the `iglm.data` object.</p><div class="section">
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">set_x_attribute</span><span class="op">(</span><span class="va">x_attribute</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>x_attribute</code></dt>
+<dd><p>A numeric vector for the first unit-level attribute.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
+<p>The `iglm.data` object itself (`self`), invisibly.</p>
+</div>
+
+</div><p></p><hr><a id="method-iglm.data-set_y_attribute"></a><div class="section">
+<h3 id="method-set-y-attribute-">Method <code>set_y_attribute()</code><a class="anchor" aria-label="anchor" href="#method-set-y-attribute-"></a></h3>
+<p>Sets the `y_attribute` of the `iglm.data` object.</p><div class="section">
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">set_y_attribute</span><span class="op">(</span><span class="va">y_attribute</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>y_attribute</code></dt>
+<dd><p>A numeric vector for the first unit-level attribute.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<p>The `iglm.data` object itself (`self`), invisibly.</p>
+</div>
+
+</div><p></p><hr><a id="method-iglm.data-gather"></a><div class="section">
+<h3 id="method-gather-">Method <code>gather()</code><a class="anchor" aria-label="anchor" href="#method-gather-"></a></h3>
+<p>Gathers the current state of the `iglm.data` object into a list.
+This includes all attributes, network, and configuration
+details necessary to reconstruct the object later.</p><div class="section">
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">gather</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
+<p>A list containing the current state of the `iglm.data` object.</p>
+</div>
+
+</div><p></p><hr><a id="method-iglm.data-save"></a><div class="section">
+<h3 id="method-save-">Method <code><a href="https://rdrr.io/r/base/save.html" class="external-link">save()</a></code><a class="anchor" aria-label="anchor" href="#method-save-"></a></h3>
+<p>Saves the current state of the `iglm.data` object to a specified file path
+in RDS format. This includes all attributes, network, and configuration
+details necessary to reconstruct the object later.</p><div class="section">
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">save</span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>file</code></dt>
+<dd><p>(character) The file where the object state should be saved.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
+<p>The `iglm.data` object itself (`self`), invisibly.</p>
+</div>
+
 </div><p></p><hr><a id="method-iglm.data-density_z"></a><div class="section">
 <h3 id="method-density-z-">Method <code>density_z()</code><a class="anchor" aria-label="anchor" href="#method-density-z-"></a></h3>
 <p>Calculates the density of the `z_network`.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">density_z</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
 <p>A numeric value for the network density.</p>
 </div>
 
 </div><p></p><hr><a id="method-iglm.data-density_x"></a><div class="section">
 <h3 id="method-density-x-">Method <code>density_x()</code><a class="anchor" aria-label="anchor" href="#method-density-x-"></a></h3>
 <p>Calculates the mean of the `x_attribute`.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">density_x</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
+<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
 <p>A numeric value for the mean of `x_attribute`.</p>
 </div>
 
 </div><p></p><hr><a id="method-iglm.data-density_y"></a><div class="section">
 <h3 id="method-density-y-">Method <code>density_y()</code><a class="anchor" aria-label="anchor" href="#method-density-y-"></a></h3>
 <p>Calculates the mean of the `y_attribute`.</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">density_y</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
 <p>A numeric value for the mean of `y_attribute`.</p>
 </div>
 
@@ -281,12 +427,12 @@ details necessary to reconstruct the object later.</p><div class="section">
 <h3 id="method-edgewise-shared-partner-">Method <code>edgewise_shared_partner()</code><a class="anchor" aria-label="anchor" href="#method-edgewise-shared-partner-"></a></h3>
 <p>Calculates the matrix of edgewise shared partners.
 This is a two-path matrix (e.g., $A A^T$ or $A^T A$).</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">edgewise_shared_partner</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"ALL"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>type</code></dt>
 <dd><p>(character) The type of two-path to calculate for directed
 networks. Ignored if network is undirected.
@@ -302,19 +448,19 @@ Default is `"ALL"`.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
+<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
 <p>A sparse matrix (`dgCMatrix`) of shared partner counts.</p>
 </div>
 
 </div><p></p><hr><a id="method-iglm.data-set_neighborhood_overlap"></a><div class="section">
 <h3 id="method-set-neighborhood-overlap-">Method <code>set_neighborhood_overlap()</code><a class="anchor" aria-label="anchor" href="#method-set-neighborhood-overlap-"></a></h3>
 <p>Sets the neighborhood and overlap matrices.</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">set_neighborhood_overlap</span><span class="op">(</span><span class="va">neighborhood</span>, <span class="va">overlap</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>neighborhood</code></dt>
 <dd><p>A matrix for a secondary neighborhood.
 Can be a 2-column edgelist or a square adjacency matrix.</p></dd>
@@ -328,7 +474,7 @@ Can be a 2-column edgelist or a square adjacency matrix.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
+<h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
 <p>None. Updates the internal neighborhood and overlap matrices.</p>
 </div>
 
@@ -336,12 +482,12 @@ Can be a 2-column edgelist or a square adjacency matrix.</p></dd>
 <h3 id="method-dyadwise-shared-partner-">Method <code>dyadwise_shared_partner()</code><a class="anchor" aria-label="anchor" href="#method-dyadwise-shared-partner-"></a></h3>
 <p>Calculates the matrix of edgewise shared partners.
 This is a two-path matrix (e.g., $A A^T$ or $A^T A$).</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">dyadwise_shared_partner</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"ALL"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>type</code></dt>
 <dd><p>(character) The type of two-path to calculate for directed
 networks. Ignored if network is undirected.
@@ -357,7 +503,7 @@ Default is `"ALL"`.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<h4 id="returns-13">Returns<a class="anchor" aria-label="anchor" href="#returns-13"></a></h4>
 <p>A sparse matrix (`dgCMatrix`) of shared partner counts.</p>
 </div>
 
@@ -365,7 +511,7 @@ Default is `"ALL"`.</p></dd>
 <h3 id="method-geodesic-distances-distribution-">Method <code>geodesic_distances_distribution()</code><a class="anchor" aria-label="anchor" href="#method-geodesic-distances-distribution-"></a></h3>
 <p>Calculates the geodesic distance distribution of the symmetrized
 `z_network`.</p><div class="section">
-<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<h4 id="usage-16">Usage<a class="anchor" aria-label="anchor" href="#usage-16"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">geodesic_distances_distribution</span><span class="op">(</span></span>
 <span>  value_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prob <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -374,7 +520,7 @@ Default is `"ALL"`.</p></dd>
 </div>
 
 <div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-12">Arguments<a class="anchor" aria-label="anchor" href="#arguments-12"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>value_range</code></dt>
 <dd><p>(numeric vector) A vector `c(min, max)` specifying
 the range of distances to tabulate. If `NULL` (default), the range
@@ -393,7 +539,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
+<h4 id="returns-14">Returns<a class="anchor" aria-label="anchor" href="#returns-14"></a></h4>
 <p>A named vector (a `table` object) with the distribution of
   geodesic distances. Includes `Inf` for unreachable pairs.</p>
 </div>
@@ -402,12 +548,12 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 <h3 id="method-geodesic-distances-">Method <code>geodesic_distances()</code><a class="anchor" aria-label="anchor" href="#method-geodesic-distances-"></a></h3>
 <p>Calculates the all-pairs geodesic distance matrix for the
 symmetrized `z_network` using a matrix-based BFS algorithm.</p><div class="section">
-<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<h4 id="usage-17">Usage<a class="anchor" aria-label="anchor" href="#usage-17"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">geodesic_distances</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
+<h4 id="returns-15">Returns<a class="anchor" aria-label="anchor" href="#returns-15"></a></h4>
 <p>A sparse matrix (`dgCMatrix`) where `D[i, j]` is the
   shortest path distance from i to j. `Inf` indicates no path.</p>
 </div>
@@ -415,7 +561,7 @@ symmetrized `z_network` using a matrix-based BFS algorithm.</p><div class="secti
 </div><p></p><hr><a id="method-iglm.data-edgewise_shared_partner_distribution"></a><div class="section">
 <h3 id="method-edgewise-shared-partner-distribution-">Method <code>edgewise_shared_partner_distribution()</code><a class="anchor" aria-label="anchor" href="#method-edgewise-shared-partner-distribution-"></a></h3>
 <p>Calculates the distribution of edgewise shared partners.</p><div class="section">
-<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<h4 id="usage-18">Usage<a class="anchor" aria-label="anchor" href="#usage-18"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">edgewise_shared_partner_distribution</span><span class="op">(</span></span>
 <span>  type <span class="op">=</span> <span class="st">"ALL"</span>,</span>
 <span>  value_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -425,7 +571,7 @@ symmetrized `z_network` using a matrix-based BFS algorithm.</p><div class="secti
 </div>
 
 <div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-13">Arguments<a class="anchor" aria-label="anchor" href="#arguments-13"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>type</code></dt>
 <dd><p>(character) The type of shared partner matrix to use.
 See `edgewise_shared_partner` for details. Default is `"ALL"`.</p></dd>
@@ -449,7 +595,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
+<h4 id="returns-16">Returns<a class="anchor" aria-label="anchor" href="#returns-16"></a></h4>
 <p>A named vector (a `table` object) with the distribution of
   shared partner counts.</p>
 </div>
@@ -457,7 +603,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </div><p></p><hr><a id="method-iglm.data-dyadwise_shared_partner_distribution"></a><div class="section">
 <h3 id="method-dyadwise-shared-partner-distribution-">Method <code>dyadwise_shared_partner_distribution()</code><a class="anchor" aria-label="anchor" href="#method-dyadwise-shared-partner-distribution-"></a></h3>
 <p>Calculates the distribution of edgewise shared partners.</p><div class="section">
-<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<h4 id="usage-19">Usage<a class="anchor" aria-label="anchor" href="#usage-19"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">dyadwise_shared_partner_distribution</span><span class="op">(</span></span>
 <span>  type <span class="op">=</span> <span class="st">"ALL"</span>,</span>
 <span>  value_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -467,7 +613,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </div>
 
 <div class="section">
-<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<h4 id="arguments-14">Arguments<a class="anchor" aria-label="anchor" href="#arguments-14"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>type</code></dt>
 <dd><p>(character) The type of shared partner matrix to use.
 See `edgewise_shared_partner` for details. Default is `"ALL"`.</p></dd>
@@ -491,7 +637,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
+<h4 id="returns-17">Returns<a class="anchor" aria-label="anchor" href="#returns-17"></a></h4>
 <p>A named vector (a `table` object) with the distribution of
   shared partner counts.</p>
 </div>
@@ -499,7 +645,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </div><p></p><hr><a id="method-iglm.data-degree_distribution"></a><div class="section">
 <h3 id="method-degree-distribution-">Method <code>degree_distribution()</code><a class="anchor" aria-label="anchor" href="#method-degree-distribution-"></a></h3>
 <p>Calculates the degree distribution of the `z_network`.</p><div class="section">
-<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
+<h4 id="usage-20">Usage<a class="anchor" aria-label="anchor" href="#usage-20"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">degree_distribution</span><span class="op">(</span></span>
 <span>  value_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prob <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -508,7 +654,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </div>
 
 <div class="section">
-<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<h4 id="arguments-15">Arguments<a class="anchor" aria-label="anchor" href="#arguments-15"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>value_range</code></dt>
 <dd><p>(numeric vector) A vector `c(min, max)` specifying
 the range of degrees to tabulate. If `NULL` (default), the range
@@ -527,7 +673,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-13">Returns<a class="anchor" aria-label="anchor" href="#returns-13"></a></h4>
+<h4 id="returns-18">Returns<a class="anchor" aria-label="anchor" href="#returns-18"></a></h4>
 <p>If the network is directed, a list containing two `table`
   objects: `in_degree` and `out_degree`. If undirected, a single
   `table` object with the degree distribution.</p>
@@ -536,12 +682,12 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </div><p></p><hr><a id="method-iglm.data-degree"></a><div class="section">
 <h3 id="method-degree-">Method <code>degree()</code><a class="anchor" aria-label="anchor" href="#method-degree-"></a></h3>
 <p>Calculates the degree sequence(s) of the `z_network`.</p><div class="section">
-<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
+<h4 id="usage-21">Usage<a class="anchor" aria-label="anchor" href="#usage-21"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">degree</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-14">Returns<a class="anchor" aria-label="anchor" href="#returns-14"></a></h4>
+<h4 id="returns-19">Returns<a class="anchor" aria-label="anchor" href="#returns-19"></a></h4>
 <p>If the network is directed, a list containing two vectors:
   `in_degree_seq` and `out_degree_seq`. If undirected, a single
   list containing the vector `degree_seq`.</p>
@@ -551,7 +697,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 <h3 id="method-spillover-degree-distribution-">Method <code>spillover_degree_distribution()</code><a class="anchor" aria-label="anchor" href="#method-spillover-degree-distribution-"></a></h3>
 <p>Calculates the spillover degree distribution between actors with
 `x_attribute == 1` and actors with `y_attribute == 1`.</p><div class="section">
-<h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
+<h4 id="usage-22">Usage<a class="anchor" aria-label="anchor" href="#usage-22"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">spillover_degree_distribution</span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  value_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -560,7 +706,7 @@ distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
 </div>
 
 <div class="section">
-<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
+<h4 id="arguments-16">Arguments<a class="anchor" aria-label="anchor" href="#arguments-16"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>prob</code></dt>
 <dd><p>(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.</p></dd>
@@ -579,7 +725,7 @@ is inferred from the data.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-15">Returns<a class="anchor" aria-label="anchor" href="#returns-15"></a></h4>
+<h4 id="returns-20">Returns<a class="anchor" aria-label="anchor" href="#returns-20"></a></h4>
 <p>A list containing two `table` objects:
   `out_spillover_degree` (from x_i=1 to y_j=1) and
   `in_spillover_degree` (from y_i=1 to x_j=1).</p>
@@ -591,12 +737,12 @@ is inferred from the data.</p></dd>
 <p>Visualizes the `z_network` using the `igraph` package.
 Nodes can be colored by `x_attribute` and sized by `y_attribute`.
 `neighborhood` edges can be plotted as a background layer.</p><div class="section">
-<h4 id="usage-16">Usage<a class="anchor" aria-label="anchor" href="#usage-16"></a></h4>
+<h4 id="usage-23">Usage<a class="anchor" aria-label="anchor" href="#usage-23"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span></span>
 <span>  node_color <span class="op">=</span> <span class="st">"x"</span>,</span>
 <span>  node_size <span class="op">=</span> <span class="st">"y"</span>,</span>
 <span>  show_overlap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  layout <span class="op">=</span> <span class="fu">igraph</span><span class="fu">::</span><span class="va">layout_with_fr</span>,</span>
+<span>  layout <span class="op">=</span> <span class="fu">igraph</span><span class="fu">::</span><span class="va"><a href="https://r.igraph.org/reference/layout_with_fr.html" class="external-link">layout_with_fr</a></span>,</span>
 <span>  network_edges_col <span class="op">=</span> <span class="st">"grey60"</span>,</span>
 <span>  neighborhood_edges_col <span class="op">=</span> <span class="st">"orange"</span>,</span>
 <span>  main <span class="op">=</span> <span class="st">""</span>,</span>
@@ -613,7 +759,7 @@ Nodes can be colored by `x_attribute` and sized by `y_attribute`.
 </div>
 
 <div class="section">
-<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
+<h4 id="arguments-17">Arguments<a class="anchor" aria-label="anchor" href="#arguments-17"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>node_color</code></dt>
 <dd><p>(character) Attribute to map to node color.
 One of `"x"` (default), `"y"`, or `"none"`.</p></dd>
@@ -684,7 +830,7 @@ One of `"y"` (default), `"x"`, or `"constant"`.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-16">Returns<a class="anchor" aria-label="anchor" href="#returns-16"></a></h4>
+<h4 id="returns-21">Returns<a class="anchor" aria-label="anchor" href="#returns-21"></a></h4>
 <p>A list containing the `igraph` object (`graph`) and the
   layout coordinates (`coords`), invisibly.</p>
 </div>
@@ -692,12 +838,12 @@ One of `"y"` (default), `"x"`, or `"constant"`.</p></dd>
 </div><p></p><hr><a id="method-iglm.data-print"></a><div class="section">
 <h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
 <p>Print a summary of the `iglm.data` object to the console.</p><div class="section">
-<h4 id="usage-17">Usage<a class="anchor" aria-label="anchor" href="#usage-17"></a></h4>
+<h4 id="usage-24">Usage<a class="anchor" aria-label="anchor" href="#usage-24"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
+<h4 id="arguments-18">Arguments<a class="anchor" aria-label="anchor" href="#arguments-18"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>digits</code></dt>
 <dd><p>(integer) Number of digits to round numeric output to.</p></dd>
 
@@ -709,19 +855,19 @@ One of `"y"` (default), `"x"`, or `"constant"`.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-17">Returns<a class="anchor" aria-label="anchor" href="#returns-17"></a></h4>
+<h4 id="returns-22">Returns<a class="anchor" aria-label="anchor" href="#returns-22"></a></h4>
 <p>The object's private environment, invisibly.</p>
 </div>
 
 </div><p></p><hr><a id="method-iglm.data-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-18">Usage<a class="anchor" aria-label="anchor" href="#usage-18"></a></h4>
+<h4 id="usage-25">Usage<a class="anchor" aria-label="anchor" href="#usage-25"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.data_generator</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-12">Arguments<a class="anchor" aria-label="anchor" href="#arguments-12"></a></h4>
+<h4 id="arguments-19">Arguments<a class="anchor" aria-label="anchor" href="#arguments-19"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

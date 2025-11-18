@@ -61,7 +61,7 @@ Methodology), 7, 647-676.
   [`sampler_iglm`](sampler_iglm_generator.md) object specifying MCMC
   sampling parameters.
 
-- `count_statistics`:
+- `sufficient_statistics`:
 
   (\`numeric\`) Read-only. A named vector of the observed network
   statistics corresponding to the model terms, calculated on the current
@@ -103,7 +103,7 @@ Methodology), 7, 647-676.
 
 Internal method to calculate the observed count statistics based on the
 model formula and the data in the \`iglm.data\` object. Populates the
-\`private\$.count_statistics\` field.
+\`private\$.sufficient_statistics\` field.
 
 Internal validation method. Checks the consistency and validity of all
 components of the \`iglm_object\`. Stops with an error if any check

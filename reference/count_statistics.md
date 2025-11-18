@@ -14,8 +14,11 @@ count_statistics(formula)
 
   A model \`formula\` object. The left-hand side should be the name of a
   [`iglm.data`](iglm.data.md) object available in the calling
-  environment. See [`model_terms`](model_terms.md) for details on
-  specifying the right-hand side terms.
+  environment. Alternatively, the left-hand side can be a
+  `iglm.data.list` object to compute statistics for multiple
+  [`iglm.data`](iglm.data.md) objects at once (is, e.g., the normal
+  outcome of all simulations). See [`model_terms`](model_terms.md) for
+  details on specifying the right-hand side terms.
 
 ## Value
 

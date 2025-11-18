@@ -67,6 +67,20 @@ connections (z_network).
 
 - [`iglm.data_generator$new()`](#method-iglm.data-new)
 
+- [`iglm.data_generator$set_z_network()`](#method-iglm.data-set_z_network)
+
+- [`iglm.data_generator$set_type_x()`](#method-iglm.data-set_type_x)
+
+- [`iglm.data_generator$set_type_y()`](#method-iglm.data-set_type_y)
+
+- [`iglm.data_generator$set_scale_x()`](#method-iglm.data-set_scale_x)
+
+- [`iglm.data_generator$set_scale_y()`](#method-iglm.data-set_scale_y)
+
+- [`iglm.data_generator$set_x_attribute()`](#method-iglm.data-set_x_attribute)
+
+- [`iglm.data_generator$set_y_attribute()`](#method-iglm.data-set_y_attribute)
+
 - [`iglm.data_generator$gather()`](#method-iglm.data-gather)
 
 - [`iglm.data_generator$save()`](#method-iglm.data-save)
@@ -197,6 +211,145 @@ and one network.
 #### Returns
 
 A new \`iglm.data\` object.
+
+------------------------------------------------------------------------
+
+### Method `set_z_network()`
+
+Sets the \`z_network\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_z_network(z_network)
+
+#### Arguments
+
+- `z_network`:
+
+  A matrix representing the network. Can be a 2-column edgelist or a
+  square adjacency matrix. @return The \`iglm.data\` object itself
+  (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### Method `set_type_x()`
+
+Sets the \`type_x\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_type_x(type_x)
+
+#### Arguments
+
+- `type_x`:
+
+  A character string for the type of \`x_attribute\`. Must be one of
+  \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. @return The
+  \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### Method `set_type_y()`
+
+Sets the \`type_y\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_type_y(type_y)
+
+#### Arguments
+
+- `type_y`:
+
+  A character string for the type of \`y_attribute\`. Must be one of
+  \`"binomial"\`, \`"poisson"\`, or \`"normal"\`.
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### Method `set_scale_x()`
+
+Sets the \`scale_x\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_scale_x(scale_x)
+
+#### Arguments
+
+- `scale_x`:
+
+  A positive numeric value for scaling (e.g., variance for "normal"
+  type).
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### Method `set_scale_y()`
+
+Sets the \`scale_y\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_scale_y(scale_y)
+
+#### Arguments
+
+- `scale_y`:
+
+  A positive numeric value for scaling (e.g., variance for "normal"
+  type).
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### Method `set_x_attribute()`
+
+Sets the \`x_attribute\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_x_attribute(x_attribute)
+
+#### Arguments
+
+- `x_attribute`:
+
+  A numeric vector for the first unit-level attribute.
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### Method `set_y_attribute()`
+
+Sets the \`y_attribute\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_y_attribute(y_attribute)
+
+#### Arguments
+
+- `y_attribute`:
+
+  A numeric vector for the first unit-level attribute.
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
