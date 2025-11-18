@@ -881,8 +881,6 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats += (tmp_val- object.x_attribute.get_val(tmp_i))*change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
-        
-        
       }
       if(object.x_attribute.type == "normal"){
         HR= coef.t()*change_stat;
@@ -3752,25 +3750,14 @@ List xyz_approximate_variability(arma::vec& coef,
   }
   // arma::vec gradient_tmp;
   for(int i = 1; i <=(n_simulation+n_burn_in);i ++) {
-    // Rcout << " Mean x \n";
-    // Rcout << mean(object.x_attribute.attribute) << std::endl;
-    // Rcout << " Mean y \n";
-    // Rcout << mean(object.y_attribute.attribute) << std::endl;
-    // Rcout << " Number z\n";
-    // Rcout << object.z_network.number_edges() << std::endl;
     Rcpp::checkUserInterrupt();
     if(display_progress) {
       Rcpp::Rcout.flush();
       Rcout << "Sample: " + std::to_string(i)  << "\r";
     }
-    // Simulate the network
-    // Rcout << "Start Network"  << std::endl;
-    // p.increment(); // update progress
     
     if(!fix_x){
       // Sample X| Y,Z
-      
-      
       xyz_simulate_attribute_mh(coef,object,
                                 n_proposals_x,seed_x +i,
                                 data_list,
@@ -3780,8 +3767,6 @@ List xyz_approximate_variability(arma::vec& coef,
                                 global_stats, "x");  
     }
     // Sample Y| X,Z
-    // Rcout << "Sampling Y| X,Z" << std::endl;
-    
     xyz_simulate_attribute_mh(coef,object,
                               n_proposals_y,seed_y +i,
                               data_list, type_list,

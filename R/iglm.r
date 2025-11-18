@@ -29,13 +29,13 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                        .control = NULL,
                                        .preprocess = NULL,
                                        .time_estimation = NULL,
-                                       .count_statistics = NULL,
+                                       .sufficient_statistics = NULL,
                                        .results = list(),
                                        #' @description
                                        #' Internal method to calculate the observed count statistics based on the
                                        #' model formula and the data in the `iglm.data` object. Populates the
-                                       #' `private$.count_statistics` field.
-                                       .calc_count_statistics = function() {
+                                       #' `private$.sufficient_statistics` field.
+                                       .calc_sufficient_statistics = function() {
                                          counts <- as.vector(xyz_count_global(z_network =  private$.iglm.data$z_network,
                                                                               x_attribute =private$.iglm.data$x_attribute,
                                                                               y_attribute = private$.iglm.data$y_attribute,
@@ -51,7 +51,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                                               type_list = private$.preprocess$type_list,
                                                                               n_actor = private$.iglm.data$n_actor))
                                          names(counts) <- private$.preprocess$coef_names
-                                         private$.count_statistics <- counts
+                                         private$.sufficient_statistics <- counts
                                        },
                                        #' @description
                                        #' Internal validation method. Checks the consistency and validity of
@@ -97,8 +97,8 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                            stop("Invalid control object in iglm_object.", call. = FALSE)
                                          }
                                          
-                                         if(is.null(private$.count_statistics)){
-                                           stop("Count statistics have not been computed yet.", call. = FALSE)
+                                         if(is.null(private$.sufficient_statistics)){
+                                           stop("Sufficient statistics have not been computed yet.", call. = FALSE)
                                          }
                                        }
                                      ),
@@ -134,7 +134,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                            data_loaded <- readRDS(file)
                                            required_fields <- c("formula", "preprocess", "iglm.data", "coef", 
                                                                 "coef_popularity", "time_estimation", 
-                                                                "count_statistics", "results", 
+                                                                "sufficient_statistics", "results", 
                                                                 "control", "sampler")
                                            if (!is.list(data_loaded) || !all(required_fields %in% names(data_loaded))) {
                                              stop("File does not contain a valid iglm state.", call. = FALSE)
@@ -155,7 +155,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                            private$.coef_popularity <- data_loaded$coef_popularity
                                            private$.coef_popularity_internal <- private$.coef_popularity
                                            private$.time_estimation <- data_loaded$time_estimation
-                                           private$.count_statistics <- data_loaded$count_statistics
+                                           private$.sufficient_statistics <- data_loaded$sufficient_statistics
                                            
                                            private$.results <- results(size_coef = length(private$.coef), 
                                                                        size_coef_popularity =length(private$.coef_popularity)*
@@ -221,7 +221,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                              }
                                              private$.sampler <- sampler
                                            }
-                                           private$.calc_count_statistics()
+                                           private$.calc_sufficient_statistics()
                                          }
                                          private$.validate()
                                          invisible(self)
@@ -249,11 +249,11 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          if("mcmc_diagnostics" %in% names_tmp){
                                            names_tmp <- names_tmp[names_tmp != "mcmc_diagnostics"]
                                            formula <- update(formula, . ~ . - mcmc_diagnostics)
-                                           count_statistics <- private$.count_statistics
+                                           sufficient_statistics <- private$.sufficient_statistics
                                            include_mcmc <- TRUE
                                          } else {
                                            include_mcmc <- FALSE
-                                           count_statistics <- NULL
+                                           sufficient_statistics <- NULL
                                          }
                                          names_tmp <- gsub("\"", "", names_tmp)
                                          names_tmp <- gsub("\\(", "_", names_tmp)
@@ -288,7 +288,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                      base_name = base_name,
                                                      names = names_tmp, 
                                                      include_mcmc = include_mcmc, 
-                                                     count_statistics = count_statistics)
+                                                     sufficient_statistics = sufficient_statistics)
                                          class(res) <- "iglm_model_assessment"
                                          private$.results$set_model_assessment(res)
                                          invisible(res)
@@ -314,9 +314,9 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                            tvalue <- est / stderr
                                            pvalue <- 2 * pnorm(-abs(tvalue))
                                            
-                                           coef_table <- cbind(est, stderr, tvalue, pvalue, private$.count_statistics)
+                                           coef_table <- cbind(est, stderr, tvalue, pvalue, private$.sufficient_statistics)
                                            # Check if we can add space between the columns
-                                           colnames(coef_table) <- c("Estimate", "SE", "t-value", "Pr(>|t|)", "Count")
+                                           colnames(coef_table) <- c("Estimate", "SE", "t-value", "Pr(>|t|)", "Suff. Statistic")
                                            rownames(coef_table) <- names
                                            coef_table <- round(coef_table, digits)
                                            eps_threshold <- 10^(-digits)
@@ -332,7 +332,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          } else {
                                            cat("\n")
                                            cat("Observed Sufficient Statistics:\n")
-                                           print(round(private$.count_statistics, digits))
+                                           print(round(private$.sufficient_statistics, digits))
                                          }
                                        }, 
                                        #' @description
@@ -362,7 +362,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                               control = private$.control,
                                               preprocess = private$.preprocess,
                                               time_estimation = private$.time_estimation,
-                                              count_statistics = private$.count_statistics,
+                                              sufficient_statistics = private$.sufficient_statistics,
                                               results = private$.results$gather(),
                                               iglm.data = private$.iglm.data$gather())
                                        }, 
@@ -551,9 +551,9 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          tvalue <- est / stderr
                                          pvalue <- 2 * pnorm(-abs(tvalue))
                                          
-                                         coef_table <- cbind(est, stderr, tvalue, pvalue, private$.count_statistics)
+                                         coef_table <- cbind(est, stderr, tvalue, pvalue, private$.sufficient_statistics)
                                          # Check if we can add space between the columns
-                                         colnames(coef_table) <- c("Estimate", "SE", "t-value", "Pr(>|t|)", "Count")
+                                         colnames(coef_table) <- c("Estimate", "SE", "t-value", "Pr(>|t|)", "Suff. Statistic")
                                          rownames(coef_table) <- names
                                          coef_table <- round(coef_table, digits)
                                          eps_threshold <- 10^(-digits)
@@ -651,7 +651,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          if(private$.control$display_progress){
                                            cat("Target iglm.data object has been set successfully.\n")
                                          }
-                                         private$.calc_count_statistics()
+                                         private$.calc_sufficient_statistics()
                                          private$.validate()
                                        }
                                      ),
@@ -678,8 +678,8 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                        #' @field sampler (`sampler_iglm`) Read-only. The  \code{\link{sampler_iglm}} object specifying MCMC sampling parameters.
                                        sampler = function(value) { if(missing(value)) private$.sampler else stop("`sampler` is read-only.", call. = FALSE) },
                                        
-                                       #' @field count_statistics (`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.
-                                       count_statistics = function(value) { if(missing(value)) private$.count_statistics else stop("`count_statistics` is read-only.", call. = FALSE) }
+                                       #' @field sufficient_statistics (`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.
+                                       sufficient_statistics = function(value) { if(missing(value)) private$.sufficient_statistics else stop("`sufficient_statistics` is read-only.", call. = FALSE) }
                                      )
 )
 

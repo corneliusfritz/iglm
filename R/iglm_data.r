@@ -274,6 +274,81 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      invisible(self)
                                    },
                                    #' @description
+                                   #' Sets the `z_network` of the `iglm.data` object.
+                                   #' @param z_network A matrix representing the network. Can be a 2-column
+                                   #'  edgelist or a square adjacency matrix.
+                                   #'  @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_z_network = function(z_network){
+                                     if(ncol(z_network) > 2){
+                                       if(!private$.directed){
+                                         z_network[lower.tri(z_network)] <- 0
+                                       }
+                                       z_network <- which(z_network == 1, arr.ind = T)
+                                     }
+                                     private$.z_network <- z_network
+                                     private$.validate()
+                                     invisible(self)
+                                   },
+                                   
+                                   #' @description
+                                   #' Sets the `type_x` of the `iglm.data` object.
+                                   #' @param type_x A character string for the type of `x_attribute`.
+                                   #'  Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
+                                   #'  @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_type_x = function(type_x){
+                                     private$.type_x <- type_x
+                                     private$.validate()
+                                     invisible(self)
+                                   },
+                                   #' @description
+                                   #' Sets the `type_y` of the `iglm.data` object.
+                                   #' @param type_y A character string for the type of `y_attribute`.
+                                   #' Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
+                                   #' @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_type_y = function(type_y){
+                                     private$.type_y <- type_y
+                                     private$.validate()
+                                     invisible(self)
+                                   },
+                                   #' @description
+                                   #' Sets the `scale_x` of the `iglm.data` object.
+                                   #' @param scale_x A positive numeric value for scaling (e.g., variance
+                                   #' for "normal" type).
+                                   #' @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_scale_x = function(scale_x){
+                                     private$.scale_x <- scale_x
+                                     private$.validate()
+                                     invisible(self)
+                                   },
+                                   #' @description
+                                   #' Sets the `scale_y` of the `iglm.data` object.
+                                   #' @param scale_y A positive numeric value for scaling (e.g., variance
+                                   #' for "normal" type).
+                                   #' @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_scale_y = function(scale_y){
+                                     private$.scale_y <- scale_y
+                                     private$.validate()
+                                     invisible(self)
+                                   },
+                                   #' @description
+                                   #' Sets the `x_attribute` of the `iglm.data` object.
+                                   #' @param x_attribute A numeric vector for the first unit-level attribute.
+                                   #' @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_x_attribute = function(x_attribute){
+                                     private$.x_attribute <- x_attribute
+                                     private$.validate()
+                                     invisible(self)
+                                   },
+                                   #' @description
+                                   #' Sets the `y_attribute` of the `iglm.data` object.
+                                   #' @param y_attribute A numeric vector for the first unit-level attribute.
+                                   #' @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_y_attribute = function(y_attribute){
+                                     private$.y_attribute <- y_attribute
+                                     private$.validate()
+                                     invisible(self)
+                                   },
+                                   #' @description
                                    #' Gathers the current state of the `iglm.data` object into a list.
                                    #' This includes all attributes, network, and configuration
                                    #' details necessary to reconstruct the object later.

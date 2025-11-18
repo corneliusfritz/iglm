@@ -159,11 +159,12 @@ results_generator <- R6::R6Class("results",
                                    #'   existing vector of log-likelihoods.
                                    #' @param stats (matrix) A matrix of summary statistics from simulations,
                                    #'   where rows correspond to simulations and columns to statistics. Replaces
-                                   #'   existing matrix.
+                                   #'   or extends the existing matrix and will be turned into a mcmc object from the `coda` package.
                                    #' @param estimated (logical) A flag indicating whether these results come
                                    #'   from a completed estimation run. Updates the internal status.
                                    #' @return The `results` object itself (`self`), invisibly. Called for its
                                    #'   side effects.
+                                   #' @importFrom coda mcmc thin start
                                    update = function(coefficients_path= NULL, 
                                                      samples= NULL, 
                                                      var= NULL,
@@ -195,7 +196,20 @@ results_generator <- R6::R6Class("results",
                                        private$.llh <- c(private$.llh, llh)
                                      }
                                      if(!is.null(stats)){
-                                       private$.stats <- stats
+                                       
+                                       if(length(private$.stats) ==0){
+                                         private$.stats <- mcmc(stats)
+                                       } else {
+                                         combined_data <- rbind(private$.stats, mcmc(stats))
+                                         private$.stats <-  combined_chain <- mcmc(
+                                           data = combined_data, 
+                                           start = start(private$.stats), 
+                                           thin = thin(private$.stats)
+                                         )
+                                         
+                                         
+                                       }
+                                       
                                      }
                                      if(!is.null(coefficients_path)){
                                        private$.coefficients_path <- 
@@ -296,16 +310,14 @@ results_generator <- R6::R6Class("results",
                                          stop("No model assessment available to plot.", call. = FALSE)
                                        } else {
                                          if(private$.model_assessment$include_mcmc){
-                                           
-                                           normalized <- sweep(private$.stats, 2, private$.model_assessment$count_statistics, "-")
-                                           colmeans_normalized <- colMeans(normalized)
-                                           normalized <- sweep(normalized, 2, colMeans(private$.stats), "/")
-                                           
+                                           normalized <- private$.stats
+                                           # normalized <- sweep(private$.stats, 2, private$.model_assessment$sufficient_statistics, "-")
+                                           # colmeans_normalized <- colMeans(normalized)
+                                           normalized <- sweep(normalized, 2, private$.model_assessment$sufficient_statistics, "/")
                                            for(i in 1:ncol(normalized)){
-                                             plot(density(normalized[,i]), main = paste0(names(colmeans_normalized)[i]), 
-                                                  bty ="l", xlab = "Difference")
-                                             abline(v = colmeans_normalized[i], col = "darkblue", lwd = 2)
-                                             
+                                             plot(density(normalized[,i]), main = paste0(names(private$.model_assessment$sufficient_statistics)[i]), 
+                                                  bty ="l", xlab = "Percentage of Obversed Sufficient Statistics")
+                                             rug(normalized[,i], lwd = 1)
                                            }
                                           }
                                          tmp_names <- names(private$.model_assessment$observed)

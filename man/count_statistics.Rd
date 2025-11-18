@@ -9,6 +9,8 @@ count_statistics(formula)
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a \code{\link{iglm.data}} object available in the calling environment. 
+Alternatively, the left-hand side can be a \code{\link{iglm.data.list}} object to compute statistics
+for multiple \code{\link{iglm.data}} objects at once.
 See \code{\link{model_terms}} for details on specifying the right-hand side terms.}
 }
 \value{

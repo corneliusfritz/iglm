@@ -5,7 +5,10 @@
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
 #'   name of a \code{\link{iglm.data}} object available in the calling environment. 
+#'   Alternatively, the left-hand side can be a \code{\link{iglm.data.list}} object to compute statistics
+#'   for multiple \code{\link{iglm.data}} objects at once.
 #'   See \code{\link{model_terms}} for details on specifying the right-hand side terms.
+
 #'
 #' @return A named numeric vector. Each element corresponds to a term in the
 #'   `formula`, and its value is the calculated observed feature
@@ -27,11 +30,27 @@
 #' count_statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
 #' @export
 count_statistics = function(formula) {
-  preprocessed = formula_preprocess(formula)
-  counts = as.vector(xyz_count_statistics(preprocessed))
-  names(counts) = preprocessed$coef_names
+  tmp_obj <- eval(formula[[2]],envir = environment(formula))
+  if(inherits(tmp_obj, "iglm.data.list")) {
+    k <- length(tmp_obj)
+    lhs_call <- formula[[2]]
+    rhs_part <- formula[[3]]
+    f_env <- environment(formula)
+    formula_list <- lapply(1:k, function(i) {
+      new_lhs <- call("[[", lhs_call, i)
+      new_formula_call <- call("~", new_lhs, rhs_part)
+      as.formula(new_formula_call, env = f_env)
+    })
+    counts <- lapply(formula_list, function(x){
+      count_statistics(x)
+    })
+    counts <- do.call(counts,what = "rbind")
+  } else{
+    preprocessed = formula_preprocess(formula)
+    counts = as.vector(xyz_count_statistics(preprocessed))
+    names(counts) = preprocessed$coef_names
+  }
   return(counts)
-  
 }
 
 # xz_count_statistics = function(preprocessed, ...) {

@@ -35,7 +35,7 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 
 \item{\code{sampler}}{(`sampler_iglm`) Read-only. The  \code{\link{sampler_iglm}} object specifying MCMC sampling parameters.}
 
-\item{\code{count_statistics}}{(`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.}
+\item{\code{sufficient_statistics}}{(`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.}
 }
 \if{html}{\out{</div>}}
 }
@@ -63,7 +63,7 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 \subsection{Method \code{new()}}{
 Internal method to calculate the observed count statistics based on the
 model formula and the data in the `iglm.data` object. Populates the
-`private$.count_statistics` field.
+`private$.sufficient_statistics` field.
 
 
 Internal validation method. Checks the consistency and validity of

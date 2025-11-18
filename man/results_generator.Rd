@@ -224,7 +224,7 @@ existing vector of log-likelihoods.}
 
 \item{\code{stats}}{(matrix) A matrix of summary statistics from simulations,
 where rows correspond to simulations and columns to statistics. Replaces
-existing matrix.}
+or extends the existing matrix and will be turned into a mcmc object from the `coda` package.}
 
 \item{\code{estimated}}{(logical) A flag indicating whether these results come
 from a completed estimation run. Updates the internal status.}

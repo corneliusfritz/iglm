@@ -1103,24 +1103,30 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
     double Y_i = object.y_attribute.get_val(actor_i);
     if (Y_i == 0) return 0; // If Y_i is 0, the change is 0
     double Y_j = object.y_attribute.get_val(actor_j);
+    double S_without = 0;
+    double d_without = 0;
     
-    double S_i_old = 0;
-    std::unordered_set<int> out_neighbors_old = object.z_network.adj_list.at(actor_i);
-    double d_i_old = out_neighbors_old.size();
-    
-    for (int l : out_neighbors_old) {
+    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+    for (int l : out_neighbors) {
+      if (l == actor_j) continue; // <--- CRITICAL: Skip j to normalize the state
+      
       if (object.get_val_overlap(actor_i, l)) {
-        S_i_old += object.y_attribute.get_val(l);
+        S_without += object.y_attribute.get_val(l);
+        d_without += 1.0;
       }
     }
     
-    double A_i_old = (d_i_old > 0) ? (S_i_old / d_i_old) : 0;
-
-    double S_i_new = S_i_old + Y_j; 
-    double d_i_new = d_i_old + 1;
-    
-    double A_i_new = S_i_new / d_i_new; 
-    return Y_i * (A_i_new - A_i_old);
+    // 2. Calculate "With State" (Base + j)
+    double S_with = S_without + Y_j;
+    double d_with = d_without + 1.0;
+     
+    // 3. Calculate Averages (handling division by zero)
+    double A_without = (d_without > 0) ? (S_without / d_without) : 0;
+    double A_with    = (d_with > 0)    ? (S_with / d_with)       : 0;
+     
+    // 4. Return the Invariant Difference (With - Without)
+    // The MH wrapper will handle the sign (+1 for add, -1 for delete)
+    return Y_i * (A_with - A_without);
     
   } else if (mode == "y"){
     double res = 0;
@@ -1773,7 +1779,6 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
         if (h == actor_i || h == actor_j) continue;
         if (large_in->find(h) == large_in->end()) continue;
         if (!is_full_neighborhood && intersect_group_nb.find(h) == intersect_group_nb.end()) continue;
-        // check object.get_val_neighborhood(h, actor_i) placeholder:
         if (object.neighborhood.at(h).find(actor_i) == object.neighborhood.at(h).end()) continue;
         
         // check uniqueness: no alternative path h -> k -> j where k != i
@@ -1918,6 +1923,13 @@ auto xyz_stat_gwesp_local_ITP= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    }
+    // Check if the edge (i,j) currently exists physically in the object
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
+    
     // 1. Step: For all ISP of i and j 
     std::unordered_set<int> itp_ij = object.get_common_partners_nb(actor_i, actor_j, "ITP");
     double res = expo_pos*(1- pow(expo_min, 
@@ -1926,8 +1938,10 @@ auto xyz_stat_gwesp_local_ITP= CHANGESTAT{
     
     std::unordered_set<int>::iterator itr;
     for (itr = itp_ij.begin(); itr != itp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners_nb(actor_j, *itr, "ITP")); 
-      res += pow(expo_min, object.count_common_partners_nb(*itr,actor_i,  "ITP")); 
+      tmp_count = object.count_common_partners_nb(actor_j, *itr, "ITP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+      tmp_count = object.count_common_partners_nb(*itr,actor_i, "ITP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
   }else {  
@@ -1940,21 +1954,30 @@ auto xyz_stat_gwesp_local_ISP= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    }
+    // Check if the edge (i,j) currently exists physically in the object
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     // 1. Step: For all ISP of i and j 
     double res = expo_pos*(1- pow(expo_min, 
                                   object.count_common_partners_nb(actor_i, actor_j, "ISP")));
     // 2. Step: For all h in OSP of i and j check their ISP between j and h 
     std::unordered_set<int> osp_ij = object.get_common_partners_nb(actor_i, actor_j, "OSP");
     std::unordered_set<int>::iterator itr;
+   
     for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners_nb(actor_j, *itr, "ISP")); 
+      tmp_count = object.count_common_partners_nb(actor_j, *itr, "ISP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step: For all h in OTP of i and j check their ISP between h and j
     std::unordered_set<int> otp_ij = object.get_common_partners_nb(actor_i, actor_j, "OTP");
     for (itr = otp_ij.begin(); itr != otp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners_nb(*itr,actor_j,  "ISP")); 
-    }
-    return(res);
+      tmp_count = object.count_common_partners_nb(*itr, actor_j, "ISP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+    } 
+    return(res); 
   }else {
     return(0);
   }
@@ -1965,6 +1988,13 @@ auto xyz_stat_gwesp_local_OTP= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    } 
+    // Check if the edge (i,j) currently exists physically in the object
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
+    
     // 1. Step: For all OTP of i and j 
     
     double res = expo_pos*(1- pow(expo_min, 
@@ -1973,12 +2003,14 @@ auto xyz_stat_gwesp_local_OTP= CHANGESTAT{
     std::unordered_set<int> osp_ij = object.get_common_partners_nb(actor_i, actor_j, "OSP");
     std::unordered_set<int>::iterator itr;
     for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners_nb(actor_i, *itr, "OTP")); 
+      tmp_count = object.count_common_partners_nb(actor_i, *itr, "OTP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step:
     std::unordered_set<int> isp_ij = object.get_common_partners_nb(actor_i, actor_j, "ISP");
     for (itr = isp_ij.begin(); itr != isp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners_nb(*itr,actor_j,  "OTP")); 
+      tmp_count = object.count_common_partners_nb(*itr, actor_j, "OTP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
   }else { 
@@ -1991,6 +2023,13 @@ auto xyz_stat_gwesp_local_OSP= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    }  
+    // Check if the edge (i,j) currently exists physically in the object
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
+    
     // 1. Step: For all OSP of i and j 
     double res = expo_pos*(1- pow(expo_min, 
                                   object.count_common_partners_nb(actor_i, actor_j, "OSP")));
@@ -1998,12 +2037,14 @@ auto xyz_stat_gwesp_local_OSP= CHANGESTAT{
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> otp_ij = object.get_common_partners_nb(actor_i, actor_j, "OTP");
     for (itr = otp_ij.begin(); itr != otp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners_nb(actor_i, *itr, "OSP")); 
+      tmp_count = object.count_common_partners_nb(actor_i, *itr, "OSP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step:
     std::unordered_set<int> isp_ij = object.get_common_partners_nb(actor_i, actor_j, "ISP");
     for (itr = isp_ij.begin(); itr != isp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners_nb(*itr,actor_i,  "OSP")); 
+      tmp_count = object.count_common_partners_nb(*itr, actor_i, "OSP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
   }else { 
@@ -2012,27 +2053,33 @@ auto xyz_stat_gwesp_local_OSP= CHANGESTAT{
 }; 
 EFFECT_REGISTER("gwesp_local_OSP", ::xyz_stat_gwesp_local_OSP, "gwesp_local_OSP",0.0);
 
-auto xyz_stat_gwesp_ITP= CHANGESTAT{
+auto xyz_stat_gwesp_ITP = CHANGESTAT{
   if(mode == "z"){
+    
+
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
-    // 1. Step: For all ISP of i and j 
     std::unordered_set<int> itp_ij = object.get_common_partners(actor_i, actor_j, "ITP");
-    double res = expo_pos*(1- pow(expo_min, 
-                                  itp_ij.size()));
-    // 2. Step: For all h in ITP of i and j check their ISP between j and h 
     
-    std::unordered_set<int>::iterator itr;
-    for (itr = itp_ij.begin(); itr != itp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners(actor_j, *itr, "ITP")); 
-      res += pow(expo_min, object.count_common_partners(*itr,actor_i,  "ITP")); 
-    }
-    return(res);
-  }else { 
-    return(0);
-  }
-}; 
-EFFECT_REGISTER("gwesp_global_ITP", ::xyz_stat_gwesp_ITP, "gwesp_global_ITP",0.0);
+    if (itp_ij.empty()) return 0.0;
+    double total_change = 0;
+    total_change +=expo_pos*(1- pow(expo_min, 
+                                    object.count_common_partners(actor_i, actor_j, "ITP")));
+    // Check if the edge (i,j) currently exists physically in the object
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
+    for (int k : itp_ij) {
+      tmp_count = object.count_common_partners(actor_j, k, "ITP");
+      total_change += std::pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count);
+      tmp_count = object.count_common_partners(k, actor_i, "ITP");
+      total_change += std::pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count);
+    } 
+    return total_change;
+  } else {  
+    return 0;
+  } 
+};
+EFFECT_REGISTER("gwesp_global_ITP", ::xyz_stat_gwesp_ITP, "gwesp_global_ITP", 0.0);
 
 auto xyz_stat_gwesp_ISP= CHANGESTAT{
   if(mode == "z"){
@@ -2044,13 +2091,18 @@ auto xyz_stat_gwesp_ISP= CHANGESTAT{
     // 2. Step: For all h in OSP of i and j check their ISP between j and h 
     std::unordered_set<int> osp_ij = object.get_common_partners(actor_i, actor_j, "OSP");
     std::unordered_set<int>::iterator itr;
+    // Check if the edge (i,j) currently exists physically in the object
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners(actor_j, *itr, "ISP")); 
+      tmp_count = object.count_common_partners(actor_j, *itr, "ISP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step: For all h in OTP of i and j check their ISP between h and j
     std::unordered_set<int> otp_ij = object.get_common_partners(actor_i, actor_j, "OTP");
     for (itr = otp_ij.begin(); itr != otp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners(*itr,actor_j,  "ISP")); 
+      tmp_count = object.count_common_partners(*itr, actor_j, "ISP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
   }else {
@@ -2070,13 +2122,17 @@ auto xyz_stat_gwesp_OTP= CHANGESTAT{
     // 2. Step: 
     std::unordered_set<int> osp_ij = object.get_common_partners(actor_i, actor_j, "OSP");
     std::unordered_set<int>::iterator itr;
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners(actor_i, *itr, "OTP")); 
+      tmp_count = object.count_common_partners(actor_i, *itr, "OTP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step:
     std::unordered_set<int> isp_ij = object.get_common_partners(actor_i, actor_j, "ISP");
     for (itr = isp_ij.begin(); itr != isp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners(*itr,actor_j,  "OTP")); 
+      tmp_count = object.count_common_partners(*itr, actor_j, "OTP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
   }else {  
@@ -2095,13 +2151,17 @@ auto xyz_stat_gwesp_OSP= CHANGESTAT{
     // 2. Step: 
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> otp_ij = object.get_common_partners(actor_i, actor_j, "OTP");
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     for (itr = otp_ij.begin(); itr != otp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners(actor_i, *itr, "OSP")); 
+      tmp_count = object.count_common_partners(actor_i, *itr, "OSP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step:
     std::unordered_set<int> isp_ij = object.get_common_partners(actor_i, actor_j, "ISP");
     for (itr = isp_ij.begin(); itr != isp_ij.end(); itr++) {
-      res += pow(expo_min, object.count_common_partners(*itr,actor_i,  "OSP")); 
+      tmp_count = object.count_common_partners(*itr, actor_i, "OSP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
   }else { 
@@ -2117,15 +2177,19 @@ auto xyz_stat_gwdsp_ITP= CHANGESTAT{
     // 1. Step: 
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> out_j = object.z_network.adj_list.at(actor_j);
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     for (itr = out_j.begin(); itr != out_j.end(); itr++) {
       if(actor_i == *itr) continue;
-      res += pow(expo_min, object.count_common_partners(actor_i, *itr, "OTP")); 
+      tmp_count = object.count_common_partners(actor_i, *itr, "OTP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     } 
     // 2. Step: 
     std::unordered_set<int> in_i = object.z_network.adj_list_in.at(actor_i);
     for (itr = in_i.begin(); itr != in_i.end(); itr++) {
       if(actor_j == *itr) continue;
-      res += pow(expo_min, object.count_common_partners(*itr, actor_j, "OTP")); 
+      tmp_count = object.count_common_partners(*itr, actor_j, "OTP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     } 
     return(res);
   }else {    
@@ -2139,14 +2203,14 @@ auto xyz_stat_gwdsp_ISP= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double res = 0.0;
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     // 1. Step: 
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> out_i = object.z_network.adj_list.at(actor_i);
     for (itr = out_i.begin(); itr != out_i.end(); itr++) {
-      int tmp = object.count_common_partners(actor_j, *itr, "ISP");
-      res += pow(expo_min, tmp); 
-      res += pow(expo_min, tmp); 
-      
+      tmp_count = object.count_common_partners(actor_j, *itr, "ISP");
+      res += 2.0*pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
   }else {   
@@ -2160,13 +2224,14 @@ auto xyz_stat_gwdsp_OSP= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double res = 0.0;
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
     // 1. Step:
     std::unordered_set<int>::iterator itr;
     std::unordered_set<int> in_j = object.z_network.adj_list_in.at(actor_j);
     for (itr = in_j.begin(); itr != in_j.end(); itr++) {
-      int tmp = object.count_common_partners(actor_i, *itr, "OSP");
-      res += pow(expo_min, tmp); 
-      res += pow(expo_min, tmp); 
+      tmp_count = object.count_common_partners(actor_i, *itr, "OSP");
+      res += 2.0*pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
   }else {  

@@ -39,6 +39,13 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-iglm.data-new}{\code{iglm.data_generator$new()}}
+\item \href{#method-iglm.data-set_z_network}{\code{iglm.data_generator$set_z_network()}}
+\item \href{#method-iglm.data-set_type_x}{\code{iglm.data_generator$set_type_x()}}
+\item \href{#method-iglm.data-set_type_y}{\code{iglm.data_generator$set_type_y()}}
+\item \href{#method-iglm.data-set_scale_x}{\code{iglm.data_generator$set_scale_x()}}
+\item \href{#method-iglm.data-set_scale_y}{\code{iglm.data_generator$set_scale_y()}}
+\item \href{#method-iglm.data-set_x_attribute}{\code{iglm.data_generator$set_x_attribute()}}
+\item \href{#method-iglm.data-set_y_attribute}{\code{iglm.data_generator$set_y_attribute()}}
 \item \href{#method-iglm.data-gather}{\code{iglm.data_generator$gather()}}
 \item \href{#method-iglm.data-save}{\code{iglm.data_generator$save()}}
 \item \href{#method-iglm.data-density_z}{\code{iglm.data_generator$density_z()}}
@@ -128,6 +135,147 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.}
 }
 \subsection{Returns}{
 A new `iglm.data` object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_z_network"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_z_network}{}}}
+\subsection{Method \code{set_z_network()}}{
+Sets the `z_network` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_z_network(z_network)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{z_network}}{A matrix representing the network. Can be a 2-column
+edgelist or a square adjacency matrix.
+@return The `iglm.data` object itself (`self`), invisibly.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_type_x"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_type_x}{}}}
+\subsection{Method \code{set_type_x()}}{
+Sets the `type_x` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_type_x(type_x)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{type_x}}{A character string for the type of `x_attribute`.
+Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
+@return The `iglm.data` object itself (`self`), invisibly.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_type_y"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_type_y}{}}}
+\subsection{Method \code{set_type_y()}}{
+Sets the `type_y` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_type_y(type_y)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{type_y}}{A character string for the type of `y_attribute`.
+Must be one of `"binomial"`, `"poisson"`, or `"normal"`.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The `iglm.data` object itself (`self`), invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_scale_x"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_scale_x}{}}}
+\subsection{Method \code{set_scale_x()}}{
+Sets the `scale_x` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_scale_x(scale_x)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{scale_x}}{A positive numeric value for scaling (e.g., variance
+for "normal" type).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The `iglm.data` object itself (`self`), invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_scale_y"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_scale_y}{}}}
+\subsection{Method \code{set_scale_y()}}{
+Sets the `scale_y` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_scale_y(scale_y)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{scale_y}}{A positive numeric value for scaling (e.g., variance
+for "normal" type).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The `iglm.data` object itself (`self`), invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_x_attribute"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_x_attribute}{}}}
+\subsection{Method \code{set_x_attribute()}}{
+Sets the `x_attribute` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_x_attribute(x_attribute)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x_attribute}}{A numeric vector for the first unit-level attribute.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The `iglm.data` object itself (`self`), invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_y_attribute"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_y_attribute}{}}}
+\subsection{Method \code{set_y_attribute()}}{
+Sets the `y_attribute` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_y_attribute(y_attribute)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{y_attribute}}{A numeric vector for the first unit-level attribute.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The `iglm.data` object itself (`self`), invisibly.
 }
 }
 \if{html}{\out{<hr>}}

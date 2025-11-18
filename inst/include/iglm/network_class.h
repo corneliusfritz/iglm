@@ -13,6 +13,7 @@ class Network {
 public:
   // Members
   bool directed;
+  unsigned int number_edges; 
   // Note that adj_list refers to the outgoing and adj_list_in to the ingoing ties
   // for undirected networks adj_list_in is not initialized and never used 
   std::unordered_map< int, std::unordered_set<int>> adj_list;
@@ -25,34 +26,37 @@ public:
       adj_list[i] = std::unordered_set<int>();
       adj_list_in[i] = std::unordered_set<int>();
     }
+    number_edges = 0;
   }
   
   Network (int n_actors_, bool directed_, arma::mat mat) {
     n_actors = n_actors_;
     directed = directed_;
     mat_to_map(mat,n_actors, directed, adj_list,adj_list_in);
-    // Rcout << "Finished" << std::endl;
-    
+    number_edges = count_edges(); 
   }
-  // This is a member function to change the state of a particular pai in the network
+  // This is a member function to change the state of a particular pair in the network
   // (either from 1->0 or 0->1)
   void change_edge(int from, int to) {
     if(directed){
       if(adj_list.at(from).count(to)){
         adj_list.at(from).erase(to);
         adj_list_in.at(to).erase(from);
+        number_edges--;
       } else {
         adj_list.at(from).insert(to);
         adj_list_in.at(to).insert(from);
-        
+        number_edges ++;
       }
     } else {
       if(adj_list.at(from).count(to)){
         adj_list.at(from).erase(to);
         adj_list.at(to).erase(from);
+        number_edges--;
       } else {
         adj_list.at(from).insert(to);
         adj_list.at(to).insert(from);
+        number_edges ++;
       }
     }
     
@@ -87,7 +91,7 @@ public:
     std::unordered_set<int> res; 
     return(res);
   }
-  double number_edges() const{
+  double count_edges() const{
     double count = 0.0;
     for(int i=1; i<=n_actors; i++){
       count += adj_list.at(i).size();
@@ -112,7 +116,7 @@ public:
       adj_list.at(from).insert(to);
       adj_list.at(to).insert(from);
     }
-    
+    number_edges ++;
   }
   // This is a member function to delete a particular matrix
   void delete_edge(int from, int to) {
@@ -123,6 +127,7 @@ public:
       adj_list.at(from).erase(to);
       adj_list.at(to).erase(from);
     }
+    number_edges --;
   }
   // This is a member function to initialize the matrix
   // void initialize() {
