@@ -816,7 +816,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      }
                                      if(plot){
                                        if(private$.directed){
-                                         par(mfrow=c(1,2))
                                          barplot(info$in_degree, 
                                                  xlab = "In-Degree", 
                                                  ylab = ifelse(prob, "Proportion", "Count"), 
@@ -825,7 +824,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                  xlab = "Out-Degree", 
                                                  ylab = ifelse(prob, "Proportion", "Count"), 
                                                  las = 1 )
-                                         par(mfrow=c(1,1))
                                        } else {
                                          barplot(info, 
                                                  xlab = "Degree",
@@ -950,7 +948,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      
                                      private$.descriptives$spillover_degree_distribution <- res
                                      if(plot){
-                                       par(mfrow=c(1,2))
                                        barplot(out_degree_x_y, 
                                                xlab = "Out-Spillover Degree", 
                                                ylab = ifelse(prob, "Proportion", "Count"), 
@@ -959,7 +956,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                xlab = "In-Spillover Degree", 
                                                ylab = ifelse(prob, "Proportion", "Count"), 
                                                las = 1)
-                                       par(mfrow=c(1,1))
                                      }
                                      invisible(res)
                                     },

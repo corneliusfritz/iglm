@@ -889,281 +889,6 @@ auto xyz_stat_interaction_edges_y_cov= CHANGESTAT{
 };
 EFFECT_REGISTER("spillover_yc", ::xyz_stat_interaction_edges_y_cov, "spillover_yc", 0);
 
-
-
-// auto xyz_stat_interaction_edges_xy_scaled= CHANGESTAT{
-//   if(mode == "z"){
-//     // What to do if the network change stat is desired
-//     // z_ij from 0 -> 1
-//     if(object.get_val_overlap(actor_i, actor_j)){
-//       if(object.neighborhood.at(actor_i).size()>0){
-//         return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)/object.neighborhood.at(actor_i).size());  
-//       } else {
-//         return(0);
-//       }
-//     } else {  
-//       return(0);
-//     }  
-//     
-//   } else if (mode == "x"){  
-//     // What to do if the attribute change stat is wanted
-//     // x_i from 0 -> 1
-//     double res = 0;
-//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-//     std::unordered_set<int> connections_of_i;
-//     
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections with overlap between them
-//       connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-//     } else {
-//       connections_of_i = connections_of_i_all;
-//     }
-//     
-//     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-//       res+= object.y_attribute.get_val(*itr); 
-//     } 
-//     // Rcout <<  res << std::endl;
-//     // Rcout <<  res/object.neighborhood.at(actor_i).size() << std::endl;
-//     if(object.neighborhood.at(actor_i).size()>0){
-//       return(res/object.neighborhood.at(actor_i).size());  
-//     } else {
-//       return(0);
-//     }
-//   } else{ 
-//     // What to do if the attribute change stat is wanted
-//     // y_i from 0 -> 1
-//     double res = 0;
-//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-//     std::unordered_set<int> connections_of_i, overlap;
-//     
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections within the same group
-//       connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-//     } else {  
-//       connections_of_i = connections_of_i_all;
-//     }  
-//     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-//       // if(*itr != actor_j){
-//       res+= object.x_attribute.get_val(*itr);   
-//       // }
-//     }  
-//     // Rcout <<  res << std::endl;
-//     // Rcout <<  res/object.neighborhood.at(actor_i).size() << std::endl;
-//     if(object.neighborhood.at(actor_i).size()>0){
-//       return(res/object.neighborhood.at(actor_i).size());  
-//     } else {
-//       return(0);
-//     }
-//     
-//   }
-// };
-// EFFECT_REGISTER("spillover_xy_scaled", ::xyz_stat_interaction_edges_xy_scaled, "spillover_xy_scaled", 0);
-
-auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
-  if(mode == "z"){
-    
-    if(!object.get_val_overlap(actor_i, actor_j)){
-      return 0;
-    }
-    
-    double Y_i = object.y_attribute.get_val(actor_i);
-    if (Y_i == 0) return 0; // If Y_i is 0, the change is 0
-    
-    double X_j = object.x_attribute.get_val(actor_j);
-    
-    // --- Calculate A_i_old (Average X of out-neighbors) ---
-    double S_i_old = 0;
-    std::unordered_set<int> out_neighbors_old = object.z_network.adj_list.at(actor_i);
-    double d_i_old = out_neighbors_old.size();
-    
-    for (int l : out_neighbors_old) {
-      if (object.get_val_overlap(actor_i, l)) {
-        S_i_old += object.x_attribute.get_val(l);
-      }
-    }
-    double A_i_old = (d_i_old > 0) ? (S_i_old / d_i_old) : 0;
-    
-    // --- Calculate A_i_new ---
-    double S_i_new = S_i_old + X_j; // X_j is added because O_ij=1
-    double d_i_new = d_i_old + 1;
-    double A_i_new = S_i_new / d_i_new;
-    
-    return Y_i * (A_i_new - A_i_old);
-    
-  } else if (mode == "x"){
-    
-    double res = 0;
-    std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
-    
-    for (int k : in_neighbors) {
-      if (object.get_val_overlap(k, actor_i)) {
-        double d_k_z = object.z_network.adj_list.at(k).size();
-        if (d_k_z > 0) {
-          double Y_k = object.y_attribute.get_val(k);
-          res += Y_k / d_k_z;
-        }
-      }
-    }
-    return res;
-    
-  } else if (mode == "y"){
-    
-    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
-    double d_i_z = out_neighbors.size();
-    
-    if (d_i_z == 0) return 0;
-    
-    double S_i = 0; // The sum of neighbor X's
-    for (int j : out_neighbors) {
-      if (object.get_val_overlap(actor_i, j)) {
-        S_i += object.x_attribute.get_val(j);
-      }
-    }
-    return S_i / d_i_z;
-    
-  }
-  return 0; // Default case
-};
-EFFECT_REGISTER("spillover_yx_scaled", ::xyz_stat_spillover_yx_scaled, "spillover_yx_scaled", 0);
-
-auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
-  if(mode == "z"){
-    
-    if(!object.get_val_overlap(actor_i, actor_j)){
-      return 0;
-    }
-    
-    double X_i = object.x_attribute.get_val(actor_i);
-    if (X_i == 0) return 0; // If X_i is 0, the change is 0
-    
-    double Y_j = object.y_attribute.get_val(actor_j);
-    
-    // --- Calculate A_i_old (Average Y of out-neighbors) ---
-    double S_i_old = 0;
-    std::unordered_set<int> out_neighbors_old = object.z_network.adj_list.at(actor_i);
-    double d_i_old = out_neighbors_old.size();
-    
-    for (int l : out_neighbors_old) {
-      if (object.get_val_overlap(actor_i, l)) {
-        S_i_old += object.y_attribute.get_val(l);
-      }
-    }
-    double A_i_old = (d_i_old > 0) ? (S_i_old / d_i_old) : 0;
-    
-    double S_i_new = S_i_old + Y_j; 
-    double d_i_new = d_i_old + 1;
-    double A_i_new = S_i_new / d_i_new;
-    
-    return X_i * (A_i_new - A_i_old);
-    
-  } else if (mode == "x"){
-    
-    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
-    double d_i_z = out_neighbors.size();
-    
-    if (d_i_z == 0) return 0;
-    
-    double S_i = 0; // The sum of neighbor Y's
-    for (int j : out_neighbors) {
-      if (object.get_val_overlap(actor_i, j)) {
-        S_i += object.y_attribute.get_val(j);
-      }
-    }
-    return S_i / d_i_z;
-    
-  } else if (mode == "y"){
-    double res = 0;
-    std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
-    
-    for (int k : in_neighbors) {
-      if (object.get_val_overlap(k, actor_i)) {
-        double d_k_z = object.z_network.adj_list.at(k).size();
-        if (d_k_z > 0) {
-          double X_k = object.x_attribute.get_val(k);
-          res += X_k / d_k_z;
-        }
-      }
-    }
-    return res;
-  }
-  return 0; 
-};
-
-EFFECT_REGISTER("spillover_xy_scaled", ::xyz_stat_spillover_xy_scaled, "spillover_yx_scaled", 0);
-
-
-auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
-  if(mode == "z"){
-    if(!object.get_val_overlap(actor_i, actor_j)){
-      return 0;
-    }
-    
-    double Y_i = object.y_attribute.get_val(actor_i);
-    if (Y_i == 0) return 0; // If Y_i is 0, the change is 0
-    double Y_j = object.y_attribute.get_val(actor_j);
-    double S_without = 0;
-    double d_without = 0;
-    
-    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
-    for (int l : out_neighbors) {
-      if (l == actor_j) continue; // <--- CRITICAL: Skip j to normalize the state
-      
-      if (object.get_val_overlap(actor_i, l)) {
-        S_without += object.y_attribute.get_val(l);
-        d_without += 1.0;
-      }
-    }
-    
-    // 2. Calculate "With State" (Base + j)
-    double S_with = S_without + Y_j;
-    double d_with = d_without + 1.0;
-     
-    // 3. Calculate Averages (handling division by zero)
-    double A_without = (d_without > 0) ? (S_without / d_without) : 0;
-    double A_with    = (d_with > 0)    ? (S_with / d_with)       : 0;
-     
-    // 4. Return the Invariant Difference (With - Without)
-    // The MH wrapper will handle the sign (+1 for add, -1 for delete)
-    return Y_i * (A_with - A_without);
-    
-  } else if (mode == "y"){
-    double res = 0;
-
-    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
-    double d_i_z = out_neighbors.size();
-    
-    if (d_i_z > 0) {
-      double S_i = 0; 
-      for (int j : out_neighbors) {
-        if (object.get_val_overlap(actor_i, j)) {
-          S_i += object.y_attribute.get_val(j);
-        }
-      }
-      res += S_i / d_i_z;
-    }
-    std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
-    
-    for (int k : in_neighbors) {
-      if (object.get_val_overlap(k, actor_i)) {
-        double d_k_z = object.z_network.adj_list.at(k).size();
-        if (d_k_z > 0) {
-          double Y_k = object.y_attribute.get_val(k);
-          res += Y_k / d_k_z;
-        }
-      }
-    }
-    
-    return res;
-    
-  } else {
-    // Return 0 for any other mode
-    return 0;
-  }
-};
-EFFECT_REGISTER("spillover_yy_scaled", ::xyz_stat_spillover_yy_scaled, "spillover_yy_scaled", 0);
-
 auto xyz_stat_interaction_edges_yx= CHANGESTAT{
   if(mode == "z"){
     // What to do if the network change stat is desired
@@ -1207,35 +932,6 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
 };
 EFFECT_REGISTER("spillover_yx", ::xyz_stat_interaction_edges_yx, "spillover_yx", 0);
 
-
-
-// auto xyz_stat_interaction_dyads= CHANGESTAT{
-//   if (mode == "x"){
-//     // What to do if the attribute change stat is wanted
-//     // x_i from 0 -> 1
-//     int res = 0;
-//     std::unordered_set<int>::iterator itr;
-//     for (itr = object.overlap.at(actor_i).begin(); itr != object.overlap.at(actor_i).end(); itr++) {
-//       res+= object.y_attribute.get_val(*itr);
-//     }  
-//     // Rcout << res << std::endl;
-//     return(res);
-//   } else if (mode == "y"){ 
-//     // What to do if the attribute change stat is wanted
-//     // y_i from 0 -> 1
-//     int res = 0;
-//     std::unordered_set<int>::iterator itr;
-//     for (itr = object.overlap.at(actor_i).begin(); itr != object.overlap.at(actor_i).end(); itr++) {
-//       res+= object.x_attribute.get_val(*itr);
-//     } 
-//     // Rcout << res << std::endl;
-//     return(res);
-//   }
-//   // Rcout << "Here we are!" << std::endl;
-//   return(0);
-// };
-// EFFECT_REGISTER("interaction_dyads", ::xyz_stat_interaction_dyads, "interaction_dyads", 0);
-
 auto xyz_stat_attribute_xy= CHANGESTAT{
   // Rcout <<  "Starting" << std::endl;
   if (mode == "x"){
@@ -1251,8 +947,6 @@ auto xyz_stat_attribute_xy= CHANGESTAT{
   }
 };
 EFFECT_REGISTER("attribute_xy_global", ::xyz_stat_attribute_xy, "attribute_xy_global", 0);
-
-// x_i*x_j*z_ij * c_ij
 auto xyz_stat_matching_edges_x= CHANGESTAT{
   if(mode == "z"){
     // What to do if the network change stat is desired
@@ -1347,306 +1041,275 @@ auto xyz_stat_matching_edges_y= CHANGESTAT{
         
       }
     }
-    
-    // Rcout << res << std::endl;
     return(res);
   } else {
     return(0);
   }
 };
 EFFECT_REGISTER("spillover_yy", ::xyz_stat_matching_edges_y, "spillover_yy", 0);
+auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
+  if(mode == "z"){
+    if (!object.get_val_overlap(actor_i, actor_j)) return 0.0; // Scope check
+    
+    double Y_i = object.y_attribute.get_val(actor_i);
+    if (Y_i == 0) return 0;
+    
+    double X_j = object.x_attribute.get_val(actor_j);
+    
+    // 1. Calculate Current State
+    double current_sum_x = 0;
+    double current_deg = 0;
+    
+    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+    for (int l : out_neighbors) {
+      if (object.get_val_overlap(actor_i, l)) {
+        current_sum_x += object.x_attribute.get_val(l);
+        current_deg += 1.0;
+      }
+    }
+    
+    double S_with, d_with, S_without, d_without;
+    bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+    
+    // 2. Back-out / Add-in Logic
+    if (tie_exists) {
+      S_with = current_sum_x;
+      d_with = current_deg;
+      S_without = current_sum_x - X_j;
+      d_without = current_deg - 1.0;
+    } else {
+      S_without = current_sum_x;
+      d_without = current_deg;
+      S_with = current_sum_x + X_j;
+      d_with = current_deg + 1.0;
+    }
+    
+    double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+    double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+    
+    return Y_i * (A_with - A_without);
+  } else if (mode == "x"){
+    double res = 0;
+    std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
+    
+    for (int k : in_neighbors) {
+      if (object.get_val_overlap(k, actor_i)) {
+        
+        // Correctly calculate valid degree for k
+        double deg_k = 0;
+        for(int n_k : object.z_network.adj_list.at(k)){
+          if(object.get_val_overlap(k, n_k)) deg_k += 1.0;
+        }
+        
+        if (deg_k > 0.5) {
+          double Y_k = object.y_attribute.get_val(k);
+          res += Y_k * (1.0 / deg_k);
+        }
+      }
+    }
+    return res;
+  } else if (mode == "y"){
+    std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+    double S_i = 0;
+    double deg_i = 0;
+    
+    for (int j : out_neighbors) {
+      if (object.get_val_overlap(actor_i, j)) {
+        S_i += object.x_attribute.get_val(j);
+        deg_i += 1.0;
+      }
+    }
+    
+    return (deg_i > 0.5) ? (S_i / deg_i) : 0;
+  }
+  return 0; 
+};
+EFFECT_REGISTER("spillover_yx_scaled", ::xyz_stat_spillover_yx_scaled, "spillover_yx_scaled", 0);
+
+auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
+  if(mode == "z"){
+    if (!object.get_val_overlap(actor_i, actor_j)) return 0.0; 
+    
+    double X_i = object.x_attribute.get_val(actor_i);
+    if (X_i == 0) return 0;
+    
+    double Y_j = object.y_attribute.get_val(actor_j);
+    
+    // 1. Calculate Current State
+    double current_sum_y = 0;
+    std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+    double current_deg = out_neighbors.size();
+    for (int l : out_neighbors) {
+      current_sum_y += object.y_attribute.get_val(l);
+    }
+    double S_with, d_with, S_without, d_without;
+    bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+    
+    // 2. Back-out / Add-in Logic
+    if (tie_exists) {
+      S_with = current_sum_y;
+      d_with = current_deg;
+      S_without = current_sum_y - Y_j;
+      d_without = current_deg - 1.0;
+    } else {
+      S_without = current_sum_y;
+      d_without = current_deg;
+      S_with = current_sum_y + Y_j;
+      d_with = current_deg + 1.0;
+    }
+    
+    double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+    double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+    
+    return X_i * (A_with - A_without);
+  } else if (mode == "y"){
+    double res = 0;
+    std::unordered_set<int> in_neighbors = object.adj_list_in_nb.at(actor_i);
+    
+    for (int k : in_neighbors) {
+      if (object.get_val_overlap(k, actor_i)) {
+        double deg_k = object.adj_list_nb.at(k).size();
+        if (deg_k > 0.5) {
+          double X_k = object.x_attribute.get_val(k);
+          res += X_k * (1.0 / deg_k);
+        }
+      } 
+    }
+    return res;
+  } else if (mode == "x"){
+    std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+    double S_i = 0;
+    double deg_i = out_neighbors.size();
+    for (int j : out_neighbors) {
+      S_i += object.y_attribute.get_val(j);
+    }
+    
+    return (deg_i > 0.5) ? (S_i / deg_i) : 0;
+  } 
+  return 0; 
+};
+EFFECT_REGISTER("spillover_xy_scaled", ::xyz_stat_spillover_xy_scaled, "spillover_xy_scaled", 0);
+
+auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
+  // Statistic: y_i * Average(y_neighbors)
+  if (mode == "z") {
+    if (!object.get_val_overlap(actor_i, actor_j)) return 0.0;
+    
+    double Y_i = object.y_attribute.get_val(actor_i);
+    if (Y_i == 0) return 0; 
+    double Y_j = object.y_attribute.get_val(actor_j);
+    
+    double current_sum = 0;
+    std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+    double current_deg = out_neighbors.size();
+    for (int l : out_neighbors) {
+      current_sum += object.y_attribute.get_val(l);
+    }
+    double S_with, d_with, S_without, d_without;
+    bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+    
+    if (tie_exists) {
+      S_with = current_sum;
+      d_with = current_deg;
+      S_without = current_sum - Y_j;
+      d_without = current_deg - 1.0;
+    } else {
+      S_without = current_sum;
+      d_without = current_deg;
+      S_with = current_sum + Y_j;
+      d_with = current_deg + 1.0;
+    }
+    
+    double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+    double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+    
+    return Y_i * (A_with - A_without);
+    
+  } else if (mode == "y") {
+    double total_diff = 0;
+    // Part A: i's own average
+    std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+    double sum_i = 0; 
+    double deg_i = out_neighbors.size();
+    for (int j : out_neighbors) {
+      sum_i += object.y_attribute.get_val(j);
+    } 
+    if (deg_i > 0.5) total_diff += (sum_i / deg_i);
+  
+    std::unordered_set<int> in_neighbors = object.adj_list_in_nb.at(actor_i);
+    for (int k : in_neighbors) {
+      double deg_k = object.adj_list_nb.at(k).size();
+      if (deg_k > 0.5) {
+        double Y_k = object.y_attribute.get_val(k);
+        total_diff += Y_k * (1.0 / deg_k);
+      } 
+    }
+    return total_diff;
+  }  
+  return 0;
+};
+EFFECT_REGISTER("spillover_yy_scaled", ::xyz_stat_spillover_yy_scaled, "spillover_yy_scaled", 0);
 
 
-// // Are there common partners between actor_i and actor_j? -> now this should be the number of transitive edges
-// auto xyz_stat_transitive_edges= CHANGESTAT{
-//   if(mode == "z"){
-//     // If the two actors are not within the same group the change stat is always 0
-//     int res = 0;
-//     
-//     // object.print();
-//     // Rcout <<actor_j << std::endl;
-//     bool same_group = object.get_val_overlap(actor_i, actor_j);
-//     if(same_group){
-//       // First we look at the case for directed connections 
-//       // (a transitive connection is here z_i,j such that a z_i,h and z_h,j exists with h in N_i and in N_j)
-//       if(object.z_network.directed){
-//         std::unordered_set<int> intersect_group, intersect_nb;
-//         // Get the intersection group -> this encompasses all actors that are in the overlapping neighborhoods of i and j 
-//         std::set_intersection(std::begin(object.overlap.at(actor_i)),
-//                               std::end(object.overlap.at(actor_i)),
-//                               std::begin(object.overlap.at(actor_j)),
-//                               std::end(object.overlap.at(actor_j)),
-//                               std::inserter(intersect_group, std::begin(intersect_group)));
-//         
-//         std::set_intersection(std::begin(object.neighborhood.at(actor_i)),
-//                               std::end(object.neighborhood.at(actor_i)),
-//                               std::begin(object.neighborhood.at(actor_j)),
-//                               std::end(object.neighborhood.at(actor_j)),
-//                               std::inserter(intersect_nb, std::begin(intersect_nb)));
-//         // Step 1: Get all connections of actor_i
-//         std::unordered_set<int> out_connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-//         std::unordered_set<int> in_connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-//         std::unordered_set<int> out_connections_of_i, out_connections_of_i_nb;
-//         std::unordered_set<int> in_connections_of_i, in_connections_of_i_nb;
-//         
-//         // Step 2: Get all connections of actor_j
-//         std::unordered_set<int> in_connections_of_j_all = object.z_network.adj_list_in.at(actor_j);
-//         std::unordered_set<int> out_connections_of_j_all = object.z_network.adj_list.at(actor_j);
-//         std::unordered_set<int> in_connections_of_j, in_connections_of_j_nb;
-//         std::unordered_set<int> out_connections_of_j, out_connections_of_j_nb;
-//         
-//         // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//         if(!is_full_neighborhood){
-//           // Next we only want to get the connections of i within the same group
-//           std::set_intersection(std::begin(out_connections_of_i_all), std::end(out_connections_of_i_all),
-//                                 std::begin(intersect_group), std::end(intersect_group),
-//                                 std::inserter(out_connections_of_i, std::begin(out_connections_of_i)));
-//           std::set_intersection(std::begin(in_connections_of_i_all), std::end(in_connections_of_i_all),
-//                                 std::begin(intersect_group), std::end(intersect_group),
-//                                 std::inserter(in_connections_of_i, std::begin(in_connections_of_i)));
-//           std::set_intersection(std::begin(out_connections_of_j_all), std::end(out_connections_of_j_all),
-//                                 std::begin(intersect_group), std::end(intersect_group),
-//                                 std::inserter(out_connections_of_j, std::begin(out_connections_of_j)));
-//           std::set_intersection(std::begin(in_connections_of_j_all), std::end(in_connections_of_j_all),
-//                                 std::begin(intersect_group), std::end(intersect_group),
-//                                 std::inserter(in_connections_of_j, std::begin(in_connections_of_j)));
-//           
-//           std::set_intersection(std::begin(out_connections_of_i_all), std::end(out_connections_of_i_all),
-//                                 std::begin(object.neighborhood.at(actor_i)), std::end(object.neighborhood.at(actor_i)),
-//                                 std::inserter(out_connections_of_i_nb, std::begin(out_connections_of_i_nb)));
-//           std::set_intersection(std::begin(in_connections_of_i_all), std::end(in_connections_of_i_all),
-//                                 std::begin(object.neighborhood.at(actor_i)), std::end(object.neighborhood.at(actor_i)),
-//                                 std::inserter(in_connections_of_i_nb, std::begin(in_connections_of_i_nb)));
-//           std::set_intersection(std::begin(out_connections_of_j_all), std::end(out_connections_of_j_all),
-//                                 std::begin(object.neighborhood.at(actor_j)), std::end(object.neighborhood.at(actor_j)),
-//                                 std::inserter(out_connections_of_j_nb, std::begin(out_connections_of_j_nb)));
-//           std::set_intersection(std::begin(in_connections_of_j_all), std::end(in_connections_of_j_all),
-//                                 std::begin(object.neighborhood.at(actor_j)), std::end(object.neighborhood.at(actor_j)),
-//                                 std::inserter(in_connections_of_j_nb, std::begin(in_connections_of_j_nb)));
-//           
-//         } else {
-//           out_connections_of_i = out_connections_of_i_all;
-//           in_connections_of_i = in_connections_of_i_all;
-//           out_connections_of_j = out_connections_of_j_all;
-//           in_connections_of_j = in_connections_of_j_all;
-//           
-//           out_connections_of_i_nb = out_connections_of_i_all;
-//           in_connections_of_i_nb = in_connections_of_i_all;
-//           out_connections_of_j_nb = out_connections_of_j_all;
-//           in_connections_of_j_nb = in_connections_of_j_all;
-//         }
-//         
-//         // If i and j are already connected exclude them from the respective sets
-//         in_connections_of_j.erase(actor_i);
-//         out_connections_of_i.erase(actor_j);
-//         // intersection_ij is the set of shared connections of actors i and j
-//         // intersection is the set of shared connections of actors *itr and j or i
-//         // tmpis the set of connections or *itr
-//         std::unordered_set<int> intersection_i_out_j_in_nb, intersection_i_in_j_in, 
-//         intersection_i_out_j_out, intersection_i_out_j_in,intersection;
-//         // Step 3: Get the intersection of connections to i and j -> case a)
-//         std::set_intersection(std::begin(in_connections_of_i), std::end(in_connections_of_i),
-//                               std::begin(in_connections_of_j), std::end(in_connections_of_j),
-//                               std::inserter(intersection_i_in_j_in, std::begin(intersection_i_in_j_in)));
-//         std::set_intersection(std::begin(out_connections_of_i), std::end(out_connections_of_i),
-//                               std::begin(out_connections_of_j), std::end(out_connections_of_j),
-//                               std::inserter(intersection_i_out_j_out, std::begin(intersection_i_out_j_out)));
-//         std::set_intersection(std::begin(out_connections_of_i), std::end(out_connections_of_i),
-//                               std::begin(in_connections_of_j), std::end(in_connections_of_j),
-//                               std::inserter(intersection_i_out_j_in, std::begin(intersection_i_out_j_in)));
-//         std::set_intersection(std::begin(intersection_i_out_j_in), std::end(intersection_i_out_j_in),
-//                               std::begin(intersect_nb), std::end(intersect_nb),
-//                               std::inserter(intersection_i_out_j_in_nb, std::begin(intersection_i_out_j_in_nb)));
-//         
-//         if(intersection_i_out_j_in_nb.size()>0){
-//           // If actors i and j have common partners in the same neighborhood then the change statistic is at least 1
-//           // (since 0->1 would make z_ij a transitive edge)
-//           res += 1;
-//         }
-//         //  Going through all actors h that send to i and j
-//         // the change is one if there is no other two path (with z_{h,k} = z_{k,j}) between h and j than the one through i
-//         if(object.get_val_neighborhood(actor_j,actor_i) && (intersection_i_in_j_in.size()>0)){
-//           // Rcout << "The intersection is larger than 0 of size " + std::to_string(intersection_ij.size())<< std::endl;
-//           // For all the partners of i and j we need to check whether they have a connection
-//           // Step 4.1: Get all connections from actors in this intersection
-//           std::unordered_set<int>::iterator itr;
-//           for (itr = intersection_i_in_j_in.begin(); itr != intersection_i_in_j_in.end(); itr++) {
-//             // Save the connections of *itr (which is an iterator going through all common partners within the same neighborhood of i and j)
-//             if(object.get_val_neighborhood(*itr,actor_i)){
-//               std::unordered_set<int> tmp_out, tmp_out2, tmp_out3;
-//               // Possible other connections
-//               tmp_out = object.z_network.adj_list.at(*itr);
-//               // Those are all the outgoing ties within the neighbohood of *itr
-//               std::set_intersection(std::begin(tmp_out), std::end(tmp_out),
-//                                     std::begin(object.neighborhood.at(*itr)), std::end(object.neighborhood.at(*itr)),
-//                                     std::inserter(tmp_out3, std::begin(tmp_out3)));
-//               // Transitive edges can be observed by any two path going through the common neighborhood of h and j
-//               // Only look at the connections of *itr that are in the neighborhood of h and j
-//               std::set_intersection(std::begin(tmp_out3), std::end(tmp_out3),
-//                                     std::begin(object.neighborhood.at(actor_j)), std::end(object.neighborhood.at(actor_j)),
-//                                     std::inserter(tmp_out2, std::begin(tmp_out2)));
-//               // i should not be included here
-//               tmp_out2.erase(actor_i);
-//               intersection.clear();
-//               std::set_intersection(std::begin(tmp_out2), std::end(tmp_out2),
-//                                     std::begin(in_connections_of_j_nb), std::end(in_connections_of_j_nb),
-//                                     std::inserter(intersection, std::begin(intersection)));
-//               // If i and itr* have no common partner, the edge between i and *itr would have become a transitive edge
-//               if(intersection.size()==0){
-//                 res += 1;
-//               }  
-//             }
-//           }
-//         }
-//         //  Going through all actors h that got sent to from i and j
-//         // the change is one if there is no other two path (with z_{i,k} = z_{k,h} = 1) between h and j than the one through j
-//         if(object.get_val_neighborhood(actor_i,actor_j) &&(intersection_i_out_j_out.size()>0)){
-//           // Rcout << "The intersection is larger than 0 of size " + std::to_string(intersection_ij.size())<< std::endl;
-//           // For all the partners of i and j we need to check whether they have a connection
-//           // Step 4.1: Get all connections from actors in this intersection
-//           std::unordered_set<int>::iterator itr;
-//           for (itr = intersection_i_out_j_out.begin(); itr != intersection_i_out_j_out.end(); itr++) {
-//             if(object.get_val_neighborhood(*itr,actor_j)){
-//               std::unordered_set<int> tmp_in, tmp_in2, tmp_in3;
-//               tmp_in = object.z_network.adj_list_in.at(*itr);
-//               // Only look at the connections of *itr that are in its neighborhood
-//               std::set_intersection(std::begin(tmp_in), std::end(tmp_in),
-//                                     std::begin(object.neighborhood.at(*itr)), std::end(object.neighborhood.at(*itr)),
-//                                     std::inserter(tmp_in3, std::begin(tmp_in3)));
-//               // Transitive edges can be observed by any two path going through the common neighborhood of h and j
-//               // Only look at the connections of *itr that are in the neighborhood of h and j
-//               std::set_intersection(std::begin(tmp_in3), std::end(tmp_in3),
-//                                     std::begin(object.neighborhood.at(actor_i)), std::end(object.neighborhood.at(actor_i)),
-//                                     std::inserter(tmp_in2, std::begin(tmp_in2)));
-//               tmp_in2.erase(actor_j);
-//               intersection.clear();
-//               std::set_intersection(std::begin(tmp_in2), std::end(tmp_in2),
-//                                     std::begin(out_connections_of_i_nb), std::end(out_connections_of_i_nb),
-//                                     std::inserter(intersection, std::begin(intersection)));
-//               // If i and itr* have no common partner, the edge between i and *itr would have become a transitive edge
-//               if(intersection.size()==0){
-//                 res += 1;
-//               }  
-//             }
-//           }
-//         }
-//       } else {
-//         // Here we specify what happends in the undirected case
-//         std::unordered_set<int> intersect_group, common_nb;
-//         // Step 1: Get all connections of actor_i and actor_j
-//         std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-//         std::unordered_set<int> connections_of_j_all = object.z_network.adj_list.at(actor_j);
-//         std::unordered_set<int> connections_of_i;
-//         std::unordered_set<int> connections_of_j;
-//         // Get the intersection group of actors h that are in the overlapping neighborhoods of actor i (N_i \cap N_h \neq empty) and j (N_j \cap N_h \neq empty)
-//         std::set_intersection(std::begin(object.overlap.at(actor_i)),
-//                               std::end(object.overlap.at(actor_i)),
-//                               std::begin(object.overlap.at(actor_j)),
-//                               std::end(object.overlap.at(actor_j)),
-//                               std::inserter(intersect_group, std::begin(intersect_group)));
-//         
-//         // We are only interesten in the connection within intersect_group
-//         // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//         if(!is_full_neighborhood){
-//           // Next we only want to get the connections of i within the same group
-//           std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-//                                 std::begin(intersect_group), std::end(intersect_group),
-//                                 std::inserter(connections_of_i, std::begin(connections_of_i)));
-//           // Next we only want to get the connections within the same group
-//           std::set_intersection(std::begin(connections_of_j_all), std::end(connections_of_j_all),
-//                                 std::begin(intersect_group), std::end(intersect_group),
-//                                 std::inserter(connections_of_j, std::begin(connections_of_j)));
-//         } else {
-//           connections_of_i = connections_of_i_all;
-//           connections_of_j = connections_of_j_all;
-//           
-//         }
-//         connections_of_j.erase(actor_i);
-//         connections_of_i.erase(actor_j);
-//         
-//         // Get the intersection group of actors h that in the neighborhoods of i and j
-//         std::set_intersection(std::begin(object.neighborhood.at(actor_i)),
-//                               std::end(object.neighborhood.at(actor_i)),
-//                               std::begin(object.neighborhood.at(actor_j)),
-//                               std::end(object.neighborhood.at(actor_j)),
-//                               std::inserter(common_nb, std::begin(common_nb)));
-//         std::unordered_set<int> intersection_ij, intersection_ij_nb;
-//         std::set_intersection(std::begin(connections_of_i), std::end(connections_of_i),
-//                               std::begin(connections_of_j), std::end(connections_of_j),
-//                               std::inserter(intersection_ij, std::begin(intersection_ij)));
-//         std::set_intersection(std::begin(intersection_ij), std::end(intersection_ij),
-//                               std::begin(common_nb), std::end(common_nb),
-//                               std::inserter(intersection_ij_nb, std::begin(intersection_ij_nb)));
-//         if(intersection_ij_nb.size()>0){
-//           res += 1;
-//         }
-//         
-//         // Step 3: Get the intersection of connections to i and j -> case a)
-//         
-//         if(object.get_val_neighborhood(actor_j,actor_i) && (intersection_ij.size()>0)){
-//           // Step 4.1: Get all connections from actors in this intersection
-//           std::unordered_set<int>::iterator itr;
-//           for (itr = intersection_ij.begin(); itr != intersection_ij.end(); itr++) {
-//             std::unordered_set<int> intersection, tmp, tmp3;
-//             
-//             // Save the connections of *itr (which is an iterator going through all common partners within the same neighborhood of i and j)
-//             tmp = object.z_network.adj_list.at(*itr);
-//             // Only look at the connections of *itr that are in its neighborhood
-//             std::set_intersection(std::begin(tmp), std::end(tmp),
-//                                   std::begin(object.neighborhood.at(*itr)), std::end(object.neighborhood.at(*itr)),
-//                                   std::inserter(tmp3, std::begin(tmp3)));
-//             // Go through the common partners and check if they have no other common partners
-//             // Get the size of the intersection of tmp and connections_of_i
-//             // -> case b) where *itr is connected to people that are connected to i
-//             intersection.clear();
-//             // If i and itr* have no common partner, the edge between i and *itr would have become a transitive edge
-//             if(object.get_val_neighborhood(*itr,actor_i)){
-//               std::unordered_set<int> tmp2;
-//               std::set_intersection(std::begin(tmp3), std::end(tmp3),
-//                                     std::begin(object.neighborhood.at(actor_j)), std::end(object.neighborhood.at(actor_j)),
-//                                     std::inserter(tmp2, std::begin(tmp2)));
-//               // tmp2 is the set of actors that is connected to *itr and in the neighborhood of actor j and *itr
-//               tmp2.erase(actor_i);
-//               std::set_intersection(std::begin(tmp2), std::end(tmp2),
-//                                     std::begin(connections_of_j), std::end(connections_of_j),
-//                                     std::inserter(intersection, std::begin(intersection)));
-//               if(intersection.size()==0){
-//                 res += 1;
-//               }
-//             }
-//             
-//             // Get the size of the intersection of tmp and connections_of_j -> case c)
-//             intersection.clear();
-//             
-//             // If j and itr* have no common partner, the edge between j and *itr would have become a transitive edge
-//             if(object.get_val_neighborhood(*itr,actor_j)){
-//               std::unordered_set<int> tmp1;
-//               std::set_intersection(std::begin(tmp3), std::end(tmp3),
-//                                     std::begin(object.neighborhood.at(actor_i)), std::end(object.neighborhood.at(actor_i)),
-//                                     std::inserter(tmp1, std::begin(tmp1)));
-//               // tmp1 is the set of actors that is connected to *itr and in the neighborhood of actor i and *itr
-//               tmp1.erase(actor_j);
-//               std::set_intersection(std::begin(tmp1), std::end(tmp1),
-//                                     std::begin(connections_of_i), std::end(connections_of_i),
-//                                     std::inserter(intersection, std::begin(intersection)));
-//               if(intersection.size()==0){
-//                 res += 1;
-//               }
-//               intersection.clear();
-//             }
-//           }
-//         }
-//       }
-//     }
-//     // Rcout <<"Actor i: " + std::to_string(actor_i) + " Actor j: " + std::to_string(actor_j) + " Change: "+ std::to_string(res)<< std::endl;
-//     return(res);
-//   }
-//   else{
-//     // Rcout << "Triangle on attribute" << std::endl;
-//     return(0);
-//   }
-// };
-// EFFECT_REGISTER("transitive", ::xyz_stat_transitive_edges, "transitive", 0);
+auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
+  // Statistic: y_i * Average(y_neighbors)
+  if (mode == "z") {
+    if (!object.get_val_overlap(actor_i, actor_j)) return 0.0;
+    
+    double X_i = object.x_attribute.get_val(actor_i);
+    if (X_i == 0) return 0; 
+    double X_j = object.x_attribute.get_val(actor_j);
+    
+    double current_sum = 0;
+    std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+    double current_deg = out_neighbors.size();
+    for (int l : out_neighbors) {
+      current_sum += object.x_attribute.get_val(l);
+    }
+    double S_with, d_with, S_without, d_without;
+    bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+    
+    if (tie_exists) {
+      S_with = current_sum;
+      d_with = current_deg;
+      S_without = current_sum - X_j;
+      d_without = current_deg - 1.0;
+    } else { 
+      S_without = current_sum;
+      d_without = current_deg;
+      S_with = current_sum + X_j;
+      d_with = current_deg + 1.0;
+    }
+     
+    double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+    double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+    
+    return X_i * (A_with - A_without);
+    
+  } else if (mode == "x") {
+    double total_diff = 0;
+    // Part A: i's own average
+    std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+    double sum_i = 0; 
+    double deg_i = out_neighbors.size();
+    for (int j : out_neighbors) {
+      sum_i += object.x_attribute.get_val(j);
+    } 
+    if (deg_i > 0.5) total_diff += (sum_i / deg_i);
+    
+    std::unordered_set<int> in_neighbors = object.adj_list_in_nb.at(actor_i);
+    for (int k : in_neighbors) {
+      double deg_k = object.adj_list_nb.at(k).size();
+      if (deg_k > 0.5) {
+        double X_k = object.x_attribute.get_val(k);
+        total_diff +=X_k * (1.0 / deg_k);
+      } 
+    }
+    return total_diff;
+  }  
+  return 0;
+};
+EFFECT_REGISTER("spillover_xx_scaled", ::xyz_stat_spillover_xx_scaled, "spillover_xx_scaled", 0);
 
 
 static inline bool has_alternative_h_to_j(
@@ -1700,12 +1363,6 @@ static inline bool has_alternative_i_to_h(
 
 auto xyz_stat_transitive_edges = CHANGESTAT {
   if (mode != "z") return 0.0;
-  // if(object.overlap.at(actor_i).count(actor_j) == 0.0) {
-  //   // Rcout << "Actors " << actor_i << " and " << actor_j << object.overlap.at(actor_i).count(actor_j)<< std::endl;
-  //   return 0.0;
-  //   
-  // }
-  // Quick presence checks
   if ((object.z_network.directed && (object.z_network.adj_list_in.find(actor_i) == object.z_network.adj_list_in.end() ||
       object.z_network.adj_list_in.find(actor_j) == object.z_network.adj_list_in.end())))
   {
