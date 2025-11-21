@@ -311,12 +311,10 @@ results_generator <- R6::R6Class("results",
                                        } else {
                                          if(private$.model_assessment$include_mcmc){
                                            normalized <- private$.stats
-                                           # normalized <- sweep(private$.stats, 2, private$.model_assessment$sufficient_statistics, "-")
-                                           # colmeans_normalized <- colMeans(normalized)
                                            normalized <- sweep(normalized, 2, private$.model_assessment$sufficient_statistics, "/")
                                            for(i in 1:ncol(normalized)){
                                              plot(density(normalized[,i]), main = paste0(names(private$.model_assessment$sufficient_statistics)[i]), 
-                                                  bty ="l", xlab = "Percentage of Obversed Sufficient Statistics")
+                                                  bty ="l", xlab = "Ratio between Simulated and Observed Sufficient Statistics")
                                              rug(normalized[,i], lwd = 1)
                                            }
                                           }
