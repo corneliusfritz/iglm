@@ -21,6 +21,7 @@ results_generator <- R6::R6Class("results",
                                    .score_nonpopularity= NULL,
                                    .llh= NULL, 
                                    .model_assessment= NULL, 
+                                   .prediction= NULL, 
                                    .estimated = FALSE
                                  ),public = list(
                                    #' @description
@@ -41,13 +42,14 @@ results_generator <- R6::R6Class("results",
                                                                             nrow = 0, 
                                                                             ncol = size_coef + size_coef_popularity)
                                        private$.llh <- numeric(0)
-                                       private$.samples <- list()  
+                                       private$.samples <- list() 
+                                       private$.prediction <- list() 
                                      } else {
                                        data_loaded <- readRDS(file)
                                        required_fields <- c("coefficients_path", "samples", "stats", "var",
                                                             "fisher_popularity", "fisher_nonpopularity",
                                                             "score_popularity", "score_nonpopularity",
-                                                            "llh", "model_assessment", "estimated")
+                                                            "llh", "model_assessment", "estimated","prediction")
                                        if (!is.list(data_loaded) || !all(required_fields %in% names(data_loaded))) {
                                          stop("File does not contain a valid results state.", call. = FALSE)
                                        }
@@ -62,6 +64,7 @@ results_generator <- R6::R6Class("results",
                                        private$.llh <- data_loaded$llh
                                        private$.model_assessment <- data_loaded$model_assessment
                                        private$.estimated <- data_loaded$estimated
+                                       private$.prediction <- data_loaded$prediction
                                      }
                                      
                                      invisible(self)
@@ -79,6 +82,15 @@ results_generator <- R6::R6Class("results",
                                      }
                                      private$.model_assessment <- res
                                      invisible(self)
+                                   },
+                                   #' @description
+                                   #' Stores prediction results.
+                                   #' @param prediction An object containing the prediction results (is a list of class `iglm.prediction`.
+                                   set_prediction = function(prediction){
+                                     if(!inherits(prediction, "iglm.prediction")){
+                                       stop("`prediction` must be of class `iglm.prediction`.", call. = FALSE)
+                                     }
+                                     private$.prediction <- prediction
                                    },
                                    #' @description
                                    #' Gathers the current state of the `results` object into a list for saving
@@ -231,13 +243,13 @@ results_generator <- R6::R6Class("results",
                                      invisible(self)
                                    }, 
                                    #' @description
-                                   #' Clears the stored simulation samples (`.samples`) from the object,
+                                   #' Clears the stored simulation samples (`.samples`) and statistics (`.stats`) from the object,
                                    #' resetting it to an empty list. This might be used to save memory or
-                                   #' before running new simulations. Does not clear statistics (`.stats`)
-                                   #' or other estimation results.
+                                   #' before running new simulations. 
                                    #' @return The `results` object itself (`self`), invisibly.
                                    remove_samples = function(){
                                      private$.samples <- NULL
+                                     private$.stats <- NULL
                                    },
                                    #' @description
                                    #' Generates diagnostic plots for the estimation results. Currently plots:
@@ -580,7 +592,7 @@ results_generator <- R6::R6Class("results",
                                    coefficients_path = function(value) { if(missing(value)) private$.coefficients_path else stop("`coefficients_path` is read-only.", call. = FALSE) },
                                    #' @field samples (`list` or `NULL`) Read-only. A list of simulated `iglm.data` objects (class `iglm.data.list`).
                                    samples = function(value) { if(missing(value)) private$.samples else stop("`samples` is read-only.", call. = FALSE)},
-                                   #' @field stats (`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples.
+                                   #' @field stats (`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` obect from `coda`.
                                    stats = function(value) { if(missing(value)) private$.stats else stop("`stats` is read-only.", call. = FALSE)},
                                    #' @field var (`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-popularity coefficients.
                                    var = function(value) { if(missing(value)) private$.var else stop("`var` is read-only.", call. = FALSE) },

@@ -438,6 +438,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                           attr_x_scale =  data_object$scale_x, 
                           attr_y_scale = data_object$scale_y
       )
+      
       ind_droped = (as.vector(res$where_wrong)+1)
       if(length(ind_droped)>0){
         preprocessed$term_names = preprocessed$term_names[-ind_droped]
@@ -445,7 +446,11 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
         preprocessed$data_list = preprocessed$data_list[-ind_droped]
         preprocessed$type_list = preprocessed$type_list[-ind_droped]
       } 
+      # names(res$coefficients2) = preprocessed$coef_names
+      rownames(res$coefficients) = preprocessed$coef_names
+      colnames(res$coefficients_path) = c(rownames(res$coefficients_nonpopularity))
       
+    
       if(control$var) {
         if(sampler$n_simulation <= 1){
           warning("Variance estimation requested but sampler has less than 1 simulation. Variance cannot be estimated.")
@@ -575,7 +580,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
   }
   class(res) = "iglm.info"
   if(return_preprocess) {
-    res$preprocess = xyz_prepare_pseudo_estimation(z_network = data_object$z_network,
+    # browser()
+    res$preprocess <-  xyz_prepare_pseudo_estimation(z_network = data_object$z_network,
                                                    x_attribute = data_object$x_attribute,
                                                    y_attribute = data_object$y_attribute,
                                                    neighborhood = data_object$neighborhood,
@@ -592,8 +598,23 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                                    type_y = data_object$type_y,
                                                    attr_x_scale =  data_object$scale_x, 
                                                    attr_y_scale = data_object$scale_y)
-    colnames(res$preprocess) = c("Target",  preprocessed$coef_names)
-  }
+    
+    x=res$preprocess[[1]]
+    y=names(res$preprocess)[[1]]
+    # browser()
+    res$preprocess <-  mapply(x=res$preprocess, y=names(res$preprocess),
+           function(x,y){
+      if(y %in% c("res_x","res_y")){
+        colnames(x$data) = c("target","actor", preprocessed$coef_names)  
+      } else if(y == "res_z"){
+        colnames(x$data) = c("target","sender","receiver", "overlapping",preprocessed$coef_names)  
+      }
+       return(x$data)
+    }, SIMPLIFY = F)
+    
+    
+  
+    }
   # browser()
   # res$iglm.object <- iglm.object(formula=formula,
   #                            coef = res$coefficients_nonpopularity,

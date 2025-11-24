@@ -249,7 +249,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // xyz_prepare_pseudo_estimation
-arma::mat xyz_prepare_pseudo_estimation(arma::mat z_network, arma::vec x_attribute, arma::vec y_attribute, arma::mat neighborhood, arma::mat overlap, bool directed, std::vector<std::string> terms, std::vector<arma::mat>& data_list, std::vector<double>& type_list, bool display_progress, std::string type_x, std::string type_y, double attr_x_scale, double attr_y_scale, bool return_x, bool return_y, bool return_z);
+Rcpp::List xyz_prepare_pseudo_estimation(arma::mat z_network, arma::vec x_attribute, arma::vec y_attribute, arma::mat neighborhood, arma::mat overlap, bool directed, std::vector<std::string> terms, std::vector<arma::mat>& data_list, std::vector<double>& type_list, bool display_progress, std::string type_x, std::string type_y, double attr_x_scale, double attr_y_scale, bool return_x, bool return_y, bool return_z);
 RcppExport SEXP _iglm_xyz_prepare_pseudo_estimation(SEXP z_networkSEXP, SEXP x_attributeSEXP, SEXP y_attributeSEXP, SEXP neighborhoodSEXP, SEXP overlapSEXP, SEXP directedSEXP, SEXP termsSEXP, SEXP data_listSEXP, SEXP type_listSEXP, SEXP display_progressSEXP, SEXP type_xSEXP, SEXP type_ySEXP, SEXP attr_x_scaleSEXP, SEXP attr_y_scaleSEXP, SEXP return_xSEXP, SEXP return_ySEXP, SEXP return_zSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

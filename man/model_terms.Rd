@@ -214,13 +214,25 @@ The implemented terms are grouped into three categories:
     \strong{Symmetric X-X-Z Outcome Spillover [h-term]:} Models \eqn{x}-outcome spillover \strong{within} the local neighborhood.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j}}.
   }
+  \item{\code{spillover_xx_scaled}}{
+    \strong{X-X-Z Outcome Spillover [h-term]:} Models \eqn{x}-outcome spillover \strong{within} the local neighborhood but weights the influence of \eqn{x_j} on \eqn{x_i} by the out-degree of actor \eqn{i} with other actors in its neighborhood, denoted by \eqn{\text{local\_degree(i)} (for undirected networks, the degree is used)}.
+    Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j} / \text{local\_degree(i)}}.
+  }
   \item{\code{spillover_yy}}{
     \strong{Symmetric Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood. 
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j}}.
   }
+  \item{\code{spillover_yy_scaled}}{
+    \strong{Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood but weights the influence of \eqn{y_j} on \eqn{y_i} by the degree of actor \eqn{i} with other actors in its neighborhood, defined above.
+    Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j} / \text{local\_degree(i)}}.
+  }
   \item{\code{spillover_xy}}{
     \strong{Directed X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood. 
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j}}.
+  }
+  \item{\code{spillover_xy_scaled}}{
+    \strong{X-Y-Z Outcome Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood but weights the influence of \eqn{y_j} on \eqn{x_i} by the degree of actor \eqn{i} with other actors in its neighborhood, defined above.
+    Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j} / \text{local\_degree(i)}}.
   }
   \item{\code{spillover_xy_symm}}{
     \strong{Symmetric X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \leftrightarrow y_j} treatment spillover \strong{within} the local neighborhood. 
@@ -229,6 +241,10 @@ The implemented terms are grouped into three categories:
   \item{\code{spillover_yx}}{
     \strong{Directed Y-X-Z Treatment Spillover [h-term]:} Models the \eqn{y_i \to x_j} treatment spillover \strong{within} the local neighborhood.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i x_j z_{i,j}}.
+  }
+  \item{\code{spillover_yx_scaled}}{
+    \strong{Y-X-Z Outcome Spillover [h-term]:} Models the \eqn{y_i \to x_j} treatment spillover \strong{within} the local neighborhood but weights the influence of \eqn{x_j} on \eqn{y_i} by the degree of actor \eqn{i} with other actors in its neighborhood, defined above.
+    Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i x_j z_{i,j} / \text{local\_degree(i)}}.
   }
   \item{\code{spillover_yc}}{
     \strong{Directed Y-C-Z Treatment Spillover [h-term]:} Models \eqn{y}-treat spillover to a covariate \eqn{v}  \strong{within} the local neighborhood.

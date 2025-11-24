@@ -3890,7 +3890,7 @@ List xyz_approximate_variability(arma::vec& coef,
 
 
 // [[Rcpp::export]]
-arma::mat xyz_prepare_pseudo_estimation(arma::mat z_network,
+Rcpp::List xyz_prepare_pseudo_estimation(arma::mat z_network,
                                         arma::vec x_attribute,
                                         arma::vec y_attribute ,
                                         arma::mat neighborhood,
@@ -3908,6 +3908,7 @@ arma::mat xyz_prepare_pseudo_estimation(arma::mat z_network,
                                         bool return_y = false,
                                         bool return_z = false) {
   // Set up objects
+  Rcpp::List res, res_x, res_y, res_z;
   int n_actor = y_attribute.size();
   // Rcout << "Read Data" << std::endl;
   XYZ_class object(n_actor,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, type_x, type_y,attr_x_scale, attr_y_scale);
@@ -3922,16 +3923,23 @@ arma::mat xyz_prepare_pseudo_estimation(arma::mat z_network,
   // strings z, x, and y later needed to tell the sufficient statistics
   // what type of change statistic is wanted
   std::string z = "z", x = "x", y = "y";
+  arma::vec i_vec, j_vec,overlap_vec;
+  if(directed){
+    i_vec = arma::vec(n_actor*(n_actor-1)); 
+    j_vec = arma::vec(n_actor*(n_actor-1)); 
+    overlap_vec = arma::vec(n_actor*(n_actor-1)); 
+  } else {  
+    i_vec= arma::vec(n_actor*(n_actor-1)/2); 
+    j_vec= arma::vec(n_actor*(n_actor-1)/2); 
+    overlap_vec = arma::vec(n_actor*(n_actor-1)/2); 
+  } 
+  
   // Just a temporary vector of the change statistics for one dyad of the network
   arma::vec change_stat_network(functions.size()),
   // The same thing but for the attributes i and j
   change_stat_attribute_i(functions.size());
   int x_i, y_i, z_ij;
-  // int ncores = 5;
   arma::mat res_covs, res_target;
-  // Rcout << "Here" << std::endl;
-  // Rcout << terms.size() << std::endl;
-  // Rcout << n_actor << std::endl;
   if(directed){
     res_covs = arma::mat(n_actor*(n_actor-1) + n_actor*2,terms.size());
     res_target = arma::mat(n_actor*(n_actor-1) +n_actor*2,1);
@@ -3939,7 +3947,7 @@ arma::mat xyz_prepare_pseudo_estimation(arma::mat z_network,
     res_covs = arma::mat(n_actor*(n_actor-1)/2 + n_actor*2,terms.size());
     res_target = arma::mat(n_actor*(n_actor-1)/2 +n_actor*2,1);
   }
-  // Rcout << object.z_network.number_edges() << std::endl;
+  arma::vec res_actor = arma::linspace<arma::vec>(1.0, (double)n_actor, n_actor);
   int now = 0;
   if(return_z){
     for(int i: seq(1,n_actor-1)){
@@ -3966,9 +3974,21 @@ arma::mat xyz_prepare_pseudo_estimation(arma::mat z_network,
                                                          functions);
         res_covs.row(now)= (change_stat_network).as_row();
         res_target.row(now) = z_ij;
+        i_vec.at(now) = i;
+        j_vec.at(now) = j;
+        overlap_vec.at(now) = object.overlap.at(i).count(j);
+        
         now += 1;
       }
     }
+    res_z.push_back(arma::join_rows(res_target.rows(0, now-1),arma::join_rows(i_vec.rows(0, now-1),
+                                                    j_vec.rows(0, now-1),
+                                                    overlap_vec.rows(0, now-1)), 
+                                    res_covs.rows(0, now-1)), "data");
+    res.push_back(res_z, "res_z");
+    res_covs.fill(0);
+    res_target.fill(0);
+    now = 0;
   }
   if(return_x){
     for(int i: seq(1,n_actor)){
@@ -3986,6 +4006,12 @@ arma::mat xyz_prepare_pseudo_estimation(arma::mat z_network,
       res_target.row(now) = x_i;
       now += 1;
     }
+    res_x.push_back(arma::join_rows(res_target.rows(0, now-1),res_actor,
+                                    res_covs.rows(0, now-1)), "data");
+    res.push_back(res_x, "res_x");
+    res_covs.fill(0);
+    res_target.fill(0);
+    now = 0;
   }
   
   if(return_y){
@@ -4004,10 +4030,13 @@ arma::mat xyz_prepare_pseudo_estimation(arma::mat z_network,
       res_target.row(now) = y_i;
       now += 1;
     }
+    res_y.push_back(arma::join_rows(res_target.rows(0, now-1),res_actor,res_covs.rows(0, now-1)), "data");
+    res.push_back(res_y, "res_y");
+    res_covs.fill(0);
+    res_target.fill(0);
+    now = 0;
   }
-  arma::mat res;
-  // res_covs.insert_cols(res_target);
-  res = arma::join_rows(res_target,res_covs);
-  return(res.rows(0, now-1));
+    
+  return(res);
 }
 

@@ -18,7 +18,7 @@ bindings of the main `iglm_object`.
 
 \item{\code{samples}}{(`list` or `NULL`) Read-only. A list of simulated `iglm.data` objects (class `iglm.data.list`).}
 
-\item{\code{stats}}{(`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples.}
+\item{\code{stats}}{(`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` obect from `coda`.}
 
 \item{\code{var}}{(`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-popularity coefficients.}
 
@@ -240,10 +240,9 @@ The `results` object itself (`self`), invisibly. Called for its
 \if{html}{\out{<a id="method-results-remove_samples"></a>}}
 \if{latex}{\out{\hypertarget{method-results-remove_samples}{}}}
 \subsection{Method \code{remove_samples()}}{
-Clears the stored simulation samples (`.samples`) from the object,
+Clears the stored simulation samples (`.samples`) and statistics (`.stats`) from the object,
 resetting it to an empty list. This might be used to save memory or
-before running new simulations. Does not clear statistics (`.stats`)
-or other estimation results.
+before running new simulations.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{results_generator$remove_samples()}\if{html}{\out{</div>}}
 }

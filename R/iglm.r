@@ -242,6 +242,10 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                        #'   observed statistics and the distribution of simulated statistics.
                                        #'   The result is also stored internally.
                                        model_assessment = function(formula){
+                                         if(!private$.results$estimated){
+                                           stop("Model has not been estimated yet, assessing the fit thus makes little sense.", call. = FALSE)
+                                         }
+                                         
                                          if(length(private$.results$samples) ==0){
                                            self$simulate()
                                          }
@@ -602,6 +606,157 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          invisible(private$.results$simulation)
                                        }, 
                                        #' @description
+                                       #' Calculates predicted values for the nodal covariates (\code{x}), the outcome variable (\code{y}), 
+                                       #' and the network structure (\code{z}). The function supports two prediction modes: 
+                                       #' \emph{marginal} (based on Monte Carlo integration over simulated samples) and 
+                                       #' \emph{conditional} (based on the analytical linear predictor and point estimates).
+                                       #'
+                                       #' @param variant A character string specifying the type of prediction to generate. 
+                                       #'   Must be one of:
+                                       #'   \itemize{
+                                       #'     \item \code{"marginal"}: Computes predictions by aggregating over the MCMC samples stored 
+                                       #'     in the internal results. If samples do not exist, \code{self$simulate()} is triggered automatically. 
+                                       #'     This represents the expectation integrated over the uncertainty of the latent process.
+                                       #'     \item \code{"conditional"}: Computes predictions using the systematic component of the 
+                                       #'     Generalized Linear Model (GLM). It calculates the linear predictor \eqn{\eta = X\beta} 
+                                       #'     (plus offset and popularity terms for the network) and applies the inverse link function 
+                                       #'     \eqn{\mu = g^{-1}(\eta)}.
+                                       #'   }
+                                       #'   Defaults to \code{c("conditional", "marginal")}.
+                                       #' @param type A character vector indicating which components to predict. Options are:
+                                       #'   \itemize{
+                                       #'     \item \code{"x"}: Nodal covariates.
+                                       #'     \item \code{"y"}: Nodal outcome variable.
+                                       #'     \item \code{"z"}: Dyadic network structure (interaction probabilities).
+                                       #'   }
+                                       #'   Defaults to \code{c("x", "y", "z")}.
+                                       #'
+                                       #' @details
+                                       #' \strong{Marginal Predictions:}
+                                       #' When \code{variant = "marginal"}, the function approximates the expected value via Monte Carlo integration:
+                                       #' \deqn{\hat{\mu} = \frac{1}{S} \sum_{s=1}^{S} y^{(s)}}
+                                       #' where \eqn{y^{(s)}} are the realized values from the \eqn{s}-th simulation sample. 
+                                       #' For the network \code{z}, this results in an edge probability matrix averaged over all sampled networks.
+                                       #'
+                                       #' \strong{Conditional Predictions:}
+                                       #' When \code{variant = "conditional"}, the function calculates the theoretical mean \eqn{\mu} based on the 
+                                       #' estimated coefficients \eqn{\hat{\theta}}:
+                                       #' \itemize{
+                                       #'   \item For \strong{Binomial} families: \eqn{\mu = (1 + \exp(-\eta))^{-1}} (Logistic).
+                                       #'   \item For \strong{Poisson} families: \eqn{\mu = \exp(\eta)} (Exponential).
+                                       #'   \item For \strong{Gaussian} families: \eqn{\mu = \eta} (Identity).
+                                       #' }
+                                       #' For the network component \code{z}, the linear predictor includes dyadic covariates, 
+                                       #' popularity effects (sender/receiver variances), and structural offsets.
+                                       #'
+                                       #' @return A list containing the requested predictions:
+                                       #' \describe{
+                                       #'   \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the actor ID and subsequent 
+                                       #'   columns represent the predicted mean values.}
+                                       #'   \item{\code{z}}{A data frame containing the edgelist with columns: \code{sender}, \code{receiver}, 
+                                       #'   and \code{prediction} (probability or intensity).}
+                                       #' }
+                                       #' The results are also invisibly stored in the internal state \code{private$.results}.
+                                       predict = function(variant = c("conditional", "marginal"), type = c("x", "y", "z")){
+                                         if(!private$.results$estimated){
+                                           stop("Model has not been estimated yet, prediction thus makes little sense.", call. = FALSE)
+                                         }
+                                         res <- list()
+                                         if(length(variant) >1){
+                                           stop("Please provide only one variant: 'conditional' or 'marginal'.", call. = FALSE)
+                                         }
+                                         if(variant == "marginal"){
+                                           if(is.null(private$.results$samples)){
+                                             self$simulate()
+                                           }
+                                           if("x" %in% type){
+                                             res$x <- data.frame(cbind(1:private$.iglm.data$n_actor,private$.iglm.data$x_attribute,
+                                                            colMeans(do.call(what = "rbind", lapply(private$.results$samples,function(x) x$x_attribute)))))
+                                             names(res$x) <- c("actor","target", "prediction")
+                                           }
+                                           if("y" %in% type){
+                                             res$y <- data.frame(cbind(1:private$.iglm.data$n_actor,private$.iglm.data$y_attribute,
+                                                            colMeans(do.call(what = "rbind", lapply(private$.results$samples,function(x) x$y_attribute)))))
+                                             names(res$y) <- c("actor", "target","prediction")
+                                           }
+                                           if("z" %in% type){
+                                             
+                                             matrices_list <- lapply(private$.results$samples,function(x) sparseMatrix(x$z_network[,1],x$z_network[,2], symmetric = !x$directed,
+                                                                                                                       dims = c(x$n_actor,x$n_actor)))
+                                             res_z <- Reduce("+", matrices_list)/length(matrices_list)
+                                             res_z <- as.matrix(res_z)
+                                             rownames(res_z) <- colnames(res_z) <- paste0(1:private$.iglm.data$n_actor)
+                                             network_obs <- matrix(0, nrow = model_cov$iglm.data$n_actor, ncol = model_cov$iglm.data$n_actor)
+                                             network_obs[model_cov$iglm.data$z_network] <- 1
+                                             res$z <- data.frame(
+                                               sender = rownames(res_z)[row(res_z)],
+                                               receiver = colnames(res_z)[row(res_z)],
+                                               target = as.vector(network_obs), 
+                                               prediction = as.vector(res_z)
+                                             )
+                                           }
+                                         } else if(variant == "conditional"){
+                                           # browser()
+                                           control_old <- private$.control
+                                           private$.control$estimate_model <- FALSE
+                                           private$.control$display_progress <- FALSE
+                                           private$.control$return_x <- 
+                                             private$.control$return_y <- 
+                                             private$.control$return_z <- FALSE
+                                           if("x" %in% type){
+                                             private$.control$return_x <- TRUE
+                                             info <- self$estimate()
+                                             lp <- info$res_x[,-c(1,2)] %*%private$.coef
+                                             if(private$.iglm.data$type_x == "binomial"){
+                                               mu <- 1/(1+exp(-lp))
+                                             } else if(private$.iglm.data$type_x == "gaussian"){
+                                               mu <- lp
+                                             } else if(private$.iglm.data$type_x == "poisson"){
+                                               mu <- exp(lp)
+                                             }
+                                             private$.control$return_x <- FALSE
+                                             res$x <- data.frame(cbind(info$res_x[,c(2,1)],
+                                                            mu))
+                                             names(res$x) <- c("actor","target", "prediction")
+                                             
+                                           }
+                                           if("y" %in% type){
+                                             private$.control$return_y <- TRUE
+                                             info <- self$estimate()
+                                             lp <- info$res_y[,-c(1,2)] %*%private$.coef
+                                             if(private$.iglm.data$type_y == "binomial"){
+                                               mu <- 1/(1+exp(-lp))
+                                             } else if(private$.iglm.data$type_y == "gaussian"){
+                                               mu <- lp
+                                             } else if(private$.iglm.data$type_y == "poisson"){
+                                               mu <- exp(lp)
+                                             }
+                                             res$y <- data.frame(cbind(info$res_y[,c(2,1)],
+                                                            mu))
+                                             names(res$y) <- c("actor","target", "prediction")
+                                             
+                                             private$.control$return_y <- FALSE
+                                           }
+                                           if("z" %in% type){
+                                             private$.control$return_z <- TRUE
+                                             # debugonce(estimate_xyz)
+                                             info <- self$estimate()
+                                             # private$.control$offset_nonoverlap[]
+                                             lp <- info$res_z[,-c(1,2,3,4)] %*%private$.coef + private$.coef_popularity[info$res_z[,3]] +
+                                               private$.coef_popularity[info$res_z[,3] + private$.iglm.data$n_actor*private$.iglm.data$directed] +
+                                               private$.control$offset_nonoverlap * (1-info$res_z[,4])
+                                             mu <- 1/(1+exp(-lp))
+                                             res$z <- data.frame(cbind(info$res_z[,c(2,3,1)],
+                                                            mu))
+                                             names(res$z)[4] <- c("prediction")
+                                             
+                                           }
+                                         }
+                                         class(res) <- "iglm.prediction"
+                                         private$.results$set_prediction(res)
+                                         invisible(res)
+                                       },
+                                       #' @description
                                        #' Retrieve the simulated networks stored in the object.
                                        #' Requires \code{simulate} or \code{estimate} to have been run first.
                                        #' @return A list of \code{\link{iglm.data}} objects representing
@@ -714,7 +869,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
 #' }
 #' This separation allows the model to simultaneously capture individual-level
 #' behavior (via \eqn{g_i}) and dyadic, network-based dependencies (via \eqn{h_{i,j}}), 
-#' including local dependence limited to overlapping neighborhoods (see, Fritz et al., 2025). 
+#' including lo cal dependence limited to overlapping neighborhoods (see, Fritz et al., 2025). 
 #' This help page documents the various statistics available in 'iglm',
 #' corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
 #' components of the joint model.
