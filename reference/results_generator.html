@@ -56,7 +56,7 @@ bindings of the main `iglm_object`.</p>
 
 
 <dt><code>stats</code></dt>
-<dd><p>(`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples.</p></dd>
+<dd><p>(`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` obect from `coda`.</p></dd>
 
 
 <dt><code>var</code></dt>
@@ -316,10 +316,9 @@ from a completed estimation run. Updates the internal status.</p></dd>
 
 </div><p></p><hr><a id="method-results-remove_samples"></a><div class="section">
 <h3 id="method-remove-samples-">Method <code>remove_samples()</code><a class="anchor" aria-label="anchor" href="#method-remove-samples-"></a></h3>
-<p>Clears the stored simulation samples (`.samples`) from the object,
+<p>Clears the stored simulation samples (`.samples`) and statistics (`.stats`) from the object,
 resetting it to an empty list. This might be used to save memory or
-before running new simulations. Does not clear statistics (`.stats`)
-or other estimation results.</p><div class="section">
+before running new simulations.</p><div class="section">
 <h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">results_generator</span><span class="op">$</span><span class="fu">remove_samples</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>

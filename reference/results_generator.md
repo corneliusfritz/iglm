@@ -22,7 +22,7 @@ bindings of the main \`iglm_object\`.
 - `stats`:
 
   (\`matrix\` or \`NULL\`) Read-only. Matrix of summary statistics for
-  simulated samples.
+  simulated samples, which are an \`mcmc\` obect from \`coda\`.
 
 - `var`:
 
@@ -299,10 +299,9 @@ effects.
 
 ### Method `remove_samples()`
 
-Clears the stored simulation samples (\`.samples\`) from the object,
-resetting it to an empty list. This might be used to save memory or
-before running new simulations. Does not clear statistics (\`.stats\`)
-or other estimation results.
+Clears the stored simulation samples (\`.samples\`) and statistics
+(\`.stats\`) from the object, resetting it to an empty list. This might
+be used to save memory or before running new simulations.
 
 #### Usage
 
