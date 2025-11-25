@@ -152,7 +152,7 @@ It serves as the primary input for subsequent methods like <code>$estimate()</co
 <dl><dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
 <dd><p>A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment.
-See <code>model_terms</code> for details on specifying the right-hand side terms.</p></dd>
+See <code><a href="model.terms.html">model.terms</a></code> for details on specifying the right-hand side terms.</p></dd>
 
 
 <dt id="arg-coef">coef<a class="anchor" aria-label="anchor" href="#arg-coef"></a></dt>
@@ -169,7 +169,7 @@ should be `NULL`. Length must match `n_actor` (for undirected) or
 
 
 <dt id="arg-sampler">sampler<a class="anchor" aria-label="anchor" href="#arg-sampler"></a></dt>
-<dd><p>An object of class <code><a href="https://rdrr.io/pkg/iglm/man/sampler.iglm.html" class="external-link">sampler.iglm</a></code>, controlling the MCMC sampling scheme. If `NULL`,
+<dd><p>An object of class <code><a href="sampler.iglm.html">sampler.iglm</a></code>, controlling the MCMC sampling scheme. If `NULL`,
 default sampler settings will be used.</p></dd>
 
 
@@ -209,13 +209,12 @@ other arguments are ignored and the object is loaded from the file.</p></dd>
 <span class="r-in"><span><span class="va">gt_coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges_local"</span> <span class="op">=</span> <span class="fl">3</span>, <span class="st">"attribute_y"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, <span class="st">"attribute_x"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gt_coef_pop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n_actors</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Define MCMC sampler</span></span></span>
-<span class="r-in"><span><span class="va">sampler_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iglm/man/sampler.iglm.html" class="external-link">sampler.iglm</a></span><span class="op">(</span>n_burn_in <span class="op">=</span> <span class="fl">100</span>, n_simulation <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>                               sampler.x <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actors</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                               sampler.y <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actors</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">32</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                               sampler.z <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">neighborhood</span> <span class="op">&gt;</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span><span class="va">sampler_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="sampler.iglm.html">sampler.iglm</a></span><span class="op">(</span>n_burn_in <span class="op">=</span> <span class="fl">100</span>, n_simulation <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>                               sampler_x <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actors</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                               sampler_y <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actors</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">32</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                               sampler_z <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">neighborhood</span> <span class="op">&gt;</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span>                               <span class="op">)</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">134</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                               init_empty <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in sampler.iglm(n_burn_in = 100, n_simulation = 10, sampler.x = sampler.net.attr(n_proposals = n_actors *     10, seed = 13), sampler.y = sampler.net.attr(n_proposals = n_actors *     10, seed = 32), sampler.z = sampler.net.attr(n_proposals = sum(neighborhood &gt;     0) * 10, seed = 134), init_empty = FALSE):</span> unused arguments (sampler.x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13), sampler.y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32), sampler.z = sampler.net.attr(n_proposals = sum(neighborhood &gt; 0) * 10, seed = 134))</span>
 <span class="r-in"><span><span class="co"># Create iglm model specification</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span> <span class="op">&lt;-</span> <span class="fu">iglm</span><span class="op">(</span>formula <span class="op">=</span> <span class="va">xyz_obj</span> <span class="op">~</span> <span class="fu">edges</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>                          <span class="va">attribute_y</span> <span class="op">+</span> <span class="va">attribute_x</span> <span class="op">+</span> <span class="va">popularity</span>,</span></span>
@@ -224,20 +223,16 @@ other arguments are ignored and the object is loaded from the file.</p></dd>
 <span class="r-in"><span>                          sampler <span class="op">=</span> <span class="va">sampler_new</span>,</span></span>
 <span class="r-in"><span>                          control <span class="op">=</span> <span class="fu"><a href="control.iglm.html">control.iglm</a></span><span class="op">(</span>accelerated <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>                          max_it <span class="op">=</span> <span class="fl">200</span>, display_progress <span class="op">=</span> <span class="cn">FALSE</span>, var <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'sampler_new' not found</span>
 <span class="r-in"><span><span class="co"># Simulate from the model</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">simulate</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'model_tmp_new' not found</span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">set_target</span><span class="op">(</span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">get_samples</span><span class="op">(</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'model_tmp_new' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Estimate model parameters</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">estimate</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'model_tmp_new' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Model Assessment</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">model_assessment</span><span class="op">(</span>formula <span class="op">=</span> <span class="op">~</span>  <span class="va">degree_distribution</span> <span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'model_tmp_new' not found</span>
+<span class="r-plt img"><img src="iglm-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># model_tmp_new$results$plot(model_assessment = TRUE)</span></span></span>
 <span class="r-in"><span>                                                   </span></span>
 </code></pre></div>

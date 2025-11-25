@@ -24,7 +24,7 @@ simulate_iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  [`model_terms`](model_terms.md) for details on specifying the
+  [`model.terms`](model.terms.md) for details on specifying the
   right-hand side terms.
 
 - coef:
@@ -43,11 +43,11 @@ simulate_iglm(
 
 - sampler:
 
-  An object of class \`sampler_iglm\` (created by \`sampler.iglm()\`)
+  An object of class \`sampler.iglm\` (created by \`sampler.iglm()\`)
   specifying the MCMC sampling parameters. This includes the number of
   simulations (\`n_simulation\`), burn-in iterations (\`n_burn_in\`),
   initialization settings (\`init_empty\`), and component sampler
-  settings (\`sampler.x\`, \`sampler.y\`, etc.). If \`NULL\` (default),
+  settings (\`sampler_x\`, \`sampler_y\`, etc.). If \`NULL\` (default),
   default settings from \`sampler.iglm()\` are used.
 
 - only_stats:

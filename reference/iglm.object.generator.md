@@ -57,8 +57,7 @@ Methodology), 7, 647-676.
 
 - `sampler`:
 
-  (\`sampler.iglm\`) Read-only. The
-  [`sampler.iglm`](https://rdrr.io/pkg/iglm/man/sampler.iglm.html)
+  (\`sampler.iglm\`) Read-only. The [`sampler.iglm`](sampler.iglm.md)
   object specifying MCMC sampling parameters.
 
 - `sufficient_statistics`:
@@ -134,8 +133,8 @@ and control objects, calculating initial statistics, and validating.
 
   A model \`formula\` object. The left-hand side should be the name of a
   [`iglm.data`](iglm.data.md) object available in the calling
-  environment. See `model_terms` for details on specifying the
-  right-hand side terms.
+  environment. See [`model.terms`](model.terms.md) for details on
+  specifying the right-hand side terms.
 
 - `coef`:
 
@@ -150,9 +149,8 @@ and control objects, calculating initial statistics, and validating.
 
 - `sampler`:
 
-  A [`sampler.iglm`](https://rdrr.io/pkg/iglm/man/sampler.iglm.html)
-  object specifying the MCMC sampler settings. If \`NULL\`, default
-  settings are used.
+  A [`sampler.iglm`](sampler.iglm.md) object specifying the MCMC sampler
+  settings. If \`NULL\`, default settings are used.
 
 - `control`:
 
@@ -344,7 +342,7 @@ Prints the summary to the console and returns \`NULL\` invisibly.
 Simulate networks from the fitted model or a specified model. Stores the
 simulations and/or summary statistics internally. The simulation is
 carried out using the internal MCMC sampler described in
-[`simulate.iglm`](simulate.iglm.md).
+[`simulate_iglm`](simulate_iglm.md).
 
 #### Usage
 
@@ -535,8 +533,8 @@ changing the sampling scheme without redefining the entire model.
 
 - `sampler`:
 
-  A [`sampler.iglm`](https://rdrr.io/pkg/iglm/man/sampler.iglm.html)
-  object. @return The [`iglm.object`](iglm.md) itself, invisibly.
+  A [`sampler.iglm`](sampler.iglm.md) object. @return The
+  [`iglm.object`](iglm.md) itself, invisibly.
 
 ------------------------------------------------------------------------
 

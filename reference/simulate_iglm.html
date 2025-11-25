@@ -57,7 +57,7 @@
 <dl><dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
 <dd><p>A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment.
-See <code><a href="model_terms.html">model_terms</a></code> for details on specifying the right-hand side terms.</p></dd>
+See <code><a href="model.terms.html">model.terms</a></code> for details on specifying the right-hand side terms.</p></dd>
 
 
 <dt id="arg-coef">coef<a class="anchor" aria-label="anchor" href="#arg-coef"></a></dt>
@@ -74,11 +74,11 @@ undirected networks) or `2 * n_actor` (for directed networks), where
 
 
 <dt id="arg-sampler">sampler<a class="anchor" aria-label="anchor" href="#arg-sampler"></a></dt>
-<dd><p>An object of class `sampler_iglm` (created by
+<dd><p>An object of class `sampler.iglm` (created by
 `sampler.iglm()`) specifying the MCMC sampling parameters. This includes
 the number of simulations (`n_simulation`), burn-in iterations (`n_burn_in`),
 initialization settings (`init_empty`), and component sampler settings
-(`sampler.x`, `sampler.y`, etc.).
+(`sampler_x`, `sampler_y`, etc.).
 If `NULL` (default), default settings from `sampler.iglm()` are used.</p></dd>
 
 

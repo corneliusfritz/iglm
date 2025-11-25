@@ -17,8 +17,8 @@ count_statistics(formula)
   environment. Alternatively, the left-hand side can be a
   `iglm.data.list` object to compute statistics for multiple
   [`iglm.data`](iglm.data.md) objects at once (is, e.g., the normal
-  outcome of all simulations). See `model_terms` for details on
-  specifying the right-hand side terms.
+  outcome of all simulations). See [`model.terms`](model.terms.md) for
+  details on specifying the right-hand side terms.
 
 ## Value
 

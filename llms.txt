@@ -152,14 +152,13 @@ model_tmp_new$results$plot(model_assessment = T)
 - [`rice`](rice.md) : A network of friendships between students at Rice
   University.
 - [`sampler.iglm()`](sampler.iglm.md) : Constructor for a iglm Sampler
-- [`sampler.iglm.generator`](sampler.iglm.generator.md)
-  [`sampler.iglm`](sampler.iglm.generator.md) : R6 Class for iglm
-  Sampler Settings
+- [`sampler.iglm.generator`](sampler.iglm.generator.md) : R6 Class for
+  iglm Sampler Settings
 - [`sampler.net.attr()`](sampler.net.attr.md) : Constructor for Single
   Component Sampler Settings
 - [`sampler.net.attr.generator`](sampler.net.attr.generator.md) : R6
   Class for Single Component Sampler Settings
-- [`simulate(`*`<iglm>`*`)`](simulate.iglm.md) : Simulate responses and
+- [`simulate_iglm()`](simulate_iglm.md) : Simulate responses and
   connections
 - [`state_twitter`](state_twitter.md) : Twitter (X) data list for U.S.
   state legislators (10-state subset)

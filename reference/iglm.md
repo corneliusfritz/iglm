@@ -61,7 +61,8 @@ iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  `model_terms` for details on specifying the right-hand side terms.
+  [`model.terms`](model.terms.md) for details on specifying the
+  right-hand side terms.
 
 - coef:
 
@@ -78,10 +79,9 @@ iglm(
 
 - sampler:
 
-  An object of class
-  [`sampler.iglm`](https://rdrr.io/pkg/iglm/man/sampler.iglm.html),
-  controlling the MCMC sampling scheme. If \`NULL\`, default sampler
-  settings will be used.
+  An object of class [`sampler.iglm`](sampler.iglm.md), controlling the
+  MCMC sampling scheme. If \`NULL\`, default sampler settings will be
+  used.
 
 - control:
 
@@ -134,12 +134,11 @@ gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
 gt_coef_pop <- rnorm(n = n_actors, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler.x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
-                               sampler.y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
-                               sampler.z = sampler.net.attr(n_proposals = sum(neighborhood > 0
+                               sampler_x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
+                               sampler_y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+                               sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0
                                ) * 10, seed = 134),
                                init_empty = FALSE)
-#> Error in sampler.iglm(n_burn_in = 100, n_simulation = 10, sampler.x = sampler.net.attr(n_proposals = n_actors *     10, seed = 13), sampler.y = sampler.net.attr(n_proposals = n_actors *     10, seed = 32), sampler.z = sampler.net.attr(n_proposals = sum(neighborhood >     0) * 10, seed = 134), init_empty = FALSE): unused arguments (sampler.x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13), sampler.y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32), sampler.z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134))
 # Create iglm model specification
 model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
                           attribute_y + attribute_x + popularity,
@@ -148,20 +147,16 @@ model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
                           sampler = sampler_new,
                           control = control.iglm(accelerated = FALSE,
                           max_it = 200, display_progress = FALSE, var = TRUE))
-#> Error: object 'sampler_new' not found
 # Simulate from the model
 model_tmp_new$simulate()
-#> Error: object 'model_tmp_new' not found
 model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])
-#> Error: object 'model_tmp_new' not found
 
 # Estimate model parameters
 model_tmp_new$estimate()
-#> Error: object 'model_tmp_new' not found
 
 # Model Assessment
 model_tmp_new$model_assessment(formula = ~  degree_distribution )
-#> Error: object 'model_tmp_new' not found
+
 # model_tmp_new$results$plot(model_assessment = TRUE)
                                                    
 ```

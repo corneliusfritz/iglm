@@ -81,7 +81,7 @@ for results.</p>
 
 
 <dt><code>sampler</code></dt>
-<dd><p>(`sampler.iglm`) Read-only. The  <code><a href="https://rdrr.io/pkg/iglm/man/sampler.iglm.html" class="external-link">sampler.iglm</a></code> object specifying MCMC sampling parameters.</p></dd>
+<dd><p>(`sampler.iglm`) Read-only. The  <code><a href="sampler.iglm.html">sampler.iglm</a></code> object specifying MCMC sampling parameters.</p></dd>
 
 
 <dt><code>sufficient_statistics</code></dt>
@@ -140,7 +140,7 @@ and control objects, calculating initial statistics, and validating.</p><div cla
 <p></p><div class="arguments"><dl><dt><code>formula</code></dt>
 <dd><p>A model `formula` object. The left-hand side should be the
 name of a <code><a href="iglm.data.html">iglm.data</a></code> object available in the calling environment.
-See <code>model_terms</code> for details on specifying the right-hand side terms.</p></dd>
+See <code><a href="model.terms.html">model.terms</a></code> for details on specifying the right-hand side terms.</p></dd>
 
 
 <dt><code>coef</code></dt>
@@ -156,7 +156,7 @@ not include popularity terms.</p></dd>
 
 
 <dt><code>sampler</code></dt>
-<dd><p>A <code><a href="https://rdrr.io/pkg/iglm/man/sampler.iglm.html" class="external-link">sampler.iglm</a></code> object specifying the MCMC sampler
+<dd><p>A <code><a href="sampler.iglm.html">sampler.iglm</a></code> object specifying the MCMC sampler
 settings. If `NULL`, default settings are used.</p></dd>
 
 
@@ -343,7 +343,7 @@ Requires the model to have been estimated first.</p><div class="section">
 <h3 id="method-simulate-">Method <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code><a class="anchor" aria-label="anchor" href="#method-simulate-"></a></h3>
 <p>Simulate networks from the fitted model or a specified model. Stores
 the simulations and/or summary statistics internally. The simulation
-is carried out using the internal MCMC sampler described in <code><a href="simulate.iglm.html">simulate.iglm</a></code>.</p><div class="section">
+is carried out using the internal MCMC sampler described in <code><a href="simulate_iglm.html">simulate_iglm</a></code>.</p><div class="section">
 <h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.object.generator</span><span class="op">$</span><span class="fu">simulate</span><span class="op">(</span></span>
 <span>  nsim <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -506,7 +506,7 @@ redefining the entire model.</p><div class="section">
 <div class="section">
 <h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>sampler</code></dt>
-<dd><p>A <code><a href="https://rdrr.io/pkg/iglm/man/sampler.iglm.html" class="external-link">sampler.iglm</a></code> object.
+<dd><p>A <code><a href="sampler.iglm.html">sampler.iglm</a></code> object.
 @return The <code><a href="iglm.html">iglm.object</a></code> itself, invisibly.</p></dd>
 
 
