@@ -75,9 +75,9 @@ gt_coef = c(3,-1,-1)
 gt_coef_pop =  c(rnorm(n = n_actors, -2, 1))
 # Define the sampler
 sampler_tmp = sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler.x = sampler.net_attr(n_proposals =  n_actors*10,seed = 13),
-                               sampler.y = sampler.net_attr(n_proposals =  n_actors*10, seed = 32),
-                               sampler.z = sampler.net_attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
+                               sampler_x = sampler.net.attr(n_proposals =  n_actors*10,seed = 13),
+                               sampler_y = sampler.net.attr(n_proposals =  n_actors*10, seed = 32),
+                               sampler_z = sampler.net.attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
                                init_empty = F)
 
 model_tmp_new <- iglm(formula = formula,
