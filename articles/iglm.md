@@ -113,7 +113,12 @@ diagnostics:
 ``` r
 model_tmp_new$model_assessment(formula = ~  degree_distribution + 
                                  geodesic_distances_distribution + edgewise_shared_partner_distribution + mcmc_diagnostics)
-model_tmp_new$results$plot(model_assessment = T)
 ```
 
 ![](iglm_files/figure-html/unnamed-chunk-8-1.png)![](iglm_files/figure-html/unnamed-chunk-8-2.png)![](iglm_files/figure-html/unnamed-chunk-8-3.png)![](iglm_files/figure-html/unnamed-chunk-8-4.png)![](iglm_files/figure-html/unnamed-chunk-8-5.png)![](iglm_files/figure-html/unnamed-chunk-8-6.png)
+
+``` r
+model_tmp_new$results$plot(model_assessment = T)
+```
+
+![](iglm_files/figure-html/unnamed-chunk-8-7.png)![](iglm_files/figure-html/unnamed-chunk-8-8.png)![](iglm_files/figure-html/unnamed-chunk-8-9.png)![](iglm_files/figure-html/unnamed-chunk-8-10.png)![](iglm_files/figure-html/unnamed-chunk-8-11.png)![](iglm_files/figure-html/unnamed-chunk-8-12.png)
