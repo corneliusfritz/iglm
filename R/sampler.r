@@ -148,7 +148,6 @@ sampler.net.attr <- function(n_proposals = 10000, seed = NA, file = NULL) {
 
 #' @docType class
 #' @title R6 Class for iglm Sampler Settings
-#' @aliases sampler.iglm
 #' @description
 #' The `sampler.iglm` class is an R6 container for specifying and storing
 #' the parameters that control the MCMC (Markov Chain Monte Carlo) sampling

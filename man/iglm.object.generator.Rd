@@ -92,7 +92,7 @@ and control objects, calculating initial statistics, and validating.
 \describe{
 \item{\code{formula}}{A model `formula` object. The left-hand side should be the
 name of a \code{\link{iglm.data}} object available in the calling environment. 
-See \code{\link{model_terms}} for details on specifying the right-hand side terms.}
+See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
 
 \item{\code{coef}}{A numeric vector of initial coefficients for the terms in
 the formula (excluding popularity). If `NULL`, coefficients are
@@ -281,7 +281,7 @@ Prints the summary to the console and returns `NULL` invisibly.
 \subsection{Method \code{simulate()}}{
 Simulate networks from the fitted model or a specified model. Stores
 the simulations and/or summary statistics internally. The simulation 
-is carried out using the internal MCMC sampler described in \code{\link{simulate.iglm}}.
+is carried out using the internal MCMC sampler described in \code{\link{simulate_iglm}}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$simulate(
   nsim = 1,

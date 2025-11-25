@@ -5,7 +5,7 @@
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
 #'   name of a `iglm.data` object available in the calling environment. 
-#'   See \code{\link{model_terms}} for details on specifying the right-hand side terms.
+#'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
 #' @param coef Numeric vector containing the coefficient values for the structural
 #'   (non-popularity) terms defined in the `formula`.
 #' @param coef_popularity Numeric vector specifying the popularity coefficient
@@ -91,7 +91,7 @@
 #'
 #' @export
 #' @importFrom parallel parLapply
-simulate.iglm = function(formula,coef,coef_popularity = NULL, 
+simulate_iglm = function(formula,coef,coef_popularity = NULL, 
                         sampler = NULL, 
                         only_stats = TRUE, 
                         display_progress = FALSE, 

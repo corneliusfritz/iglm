@@ -109,7 +109,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                        #' and control objects, calculating initial statistics, and validating.
                                        #' @param formula A model `formula` object. The left-hand side should be the
                                        #'   name of a \code{\link{iglm.data}} object available in the calling environment. 
-                                       #'   See \code{\link{model_terms}} for details on specifying the right-hand side terms.
+                                       #'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
                                        #' @param coef A numeric vector of initial coefficients for the terms in
                                        #'   the formula (excluding popularity). If `NULL`, coefficients are
                                        #'   initialized to zero.
@@ -586,7 +586,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                        #' @description
                                        #' Simulate networks from the fitted model or a specified model. Stores
                                        #' the simulations and/or summary statistics internally. The simulation 
-                                       #' is carried out using the internal MCMC sampler described in \code{\link{simulate.iglm}}.
+                                       #' is carried out using the internal MCMC sampler described in \code{\link{simulate_iglm}}.
                                        #' @param nsim (integer) Number of networks to simulate. Default is 1.
                                        #' @param only_stats (logical) If `TRUE`, only calculate and store summary
                                        #'   statistics for each simulation, discarding the network object itself.
@@ -600,10 +600,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                        #' @return A list containing the simulated networks (`samples`, as a
                                        #'   `iglm.data.list` if `only_stats = FALSE`) and/or their summary
                                        #'   statistics (`stats`), invisibly.
+                                       #' @importFrom grDevices col2rgb rgb
                                        simulate = function (nsim = 1, only_stats = FALSE, display_progress=TRUE,
                                                             offset_nonoverlap= 0) {
-                                         # debugonce(simulate.iglm)
-                                         info <- simulate.iglm(formula = private$.formula, coef = private$.coef, 
+                                         # debugonce(simulate_iglm)
+                                         info <- simulate_iglm(formula = private$.formula, coef = private$.coef, 
                                                                coef_popularity = private$.coef_popularity,
                                                                sampler = private$.sampler, 
                                                                only_stats = only_stats, 
@@ -925,7 +926,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
 #'   name of a `iglm.data` object available in the calling environment. 
-#'   See \code{\link{model_terms}} for details on specifying the right-hand side terms.
+#'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
 #' @param coef Optional numeric vector of initial coefficients for the structural
 #'   (non-popularity) terms in `formula`. If `NULL`, coefficients are
 #'   initialized to zero. Length must match the number of terms.
@@ -954,9 +955,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' gt_coef_pop <- rnorm(n = n_actors, -2, 1)
 #' # Define MCMC sampler
 #' sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-#'                                sampler.x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
-#'                                sampler.y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
-#'                                sampler.z = sampler.net.attr(n_proposals = sum(neighborhood > 0
+#'                                sampler_x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
+#'                                sampler_y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+#'                                sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0
 #'                                ) * 10, seed = 134),
 #'                                init_empty = FALSE)
 #' # Create iglm model specification

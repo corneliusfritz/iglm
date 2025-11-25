@@ -11,7 +11,7 @@ count_statistics(formula)
 name of a \code{\link{iglm.data}} object available in the calling environment. 
 Alternatively, the left-hand side can be a \code{iglm.data.list} object to compute statistics
 for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
-See \code{\link{model_terms}} for details on specifying the right-hand side terms.}
+See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
 }
 \value{
 A named numeric vector. Each element corresponds to a term in the

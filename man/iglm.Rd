@@ -17,7 +17,7 @@ iglm(
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment. 
-See \code{\link{model_terms}} for details on specifying the right-hand side terms.}
+See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
 
 \item{coef}{Optional numeric vector of initial coefficients for the structural
 (non-popularity) terms in `formula`. If `NULL`, coefficients are
@@ -93,9 +93,9 @@ gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
 gt_coef_pop <- rnorm(n = n_actors, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler.x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
-                               sampler.y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
-                               sampler.z = sampler.net.attr(n_proposals = sum(neighborhood > 0
+                               sampler_x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
+                               sampler_y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+                               sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0
                                ) * 10, seed = 134),
                                init_empty = FALSE)
 # Create iglm model specification

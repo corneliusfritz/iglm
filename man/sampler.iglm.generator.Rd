@@ -3,7 +3,6 @@
 \docType{class}
 \name{sampler.iglm.generator}
 \alias{sampler.iglm.generator}
-\alias{sampler.iglm}
 \title{R6 Class for iglm Sampler Settings}
 \description{
 The `sampler.iglm` class is an R6 container for specifying and storing
