@@ -31,12 +31,12 @@ features:
 
 This separation allows the model to simultaneously capture
 individual-level behavior (via \\g_i\\) and dyadic, network-based
-dependencies (via \\h\_{i,j}\\), including local dependence limited to
+dependencies (via \\h\_{i,j}\\), including lo cal dependence limited to
 overlapping neighborhoods (see, Fritz et al., 2025). This help page
 documents the various statistics available in 'iglm', corresponding to
 the \\g_i\\ (attribute-level) and \\h\_{i,j}\\ (pair-level) components
 of the joint model. This is a user-facing constructor for creating a
-`iglm_object`. This `R6` object encompasses the complete model
+`iglm.object`. This `R6` object encompasses the complete model
 specification, linking the formula, data ([`iglm.data`](iglm.data.md)
 object), initial coefficients, MCMC sampler settings, and estimation
 controls. It serves as the primary input for subsequent methods like
@@ -61,8 +61,7 @@ iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  [`model_terms`](model_terms.md) for details on specifying the
-  right-hand side terms.
+  `model_terms` for details on specifying the right-hand side terms.
 
 - coef:
 
@@ -79,7 +78,8 @@ iglm(
 
 - sampler:
 
-  An object of class [`sampler_iglm`](sampler_iglm_generator.md),
+  An object of class
+  [`sampler.iglm`](https://rdrr.io/pkg/iglm/man/sampler.iglm.html),
   controlling the MCMC sampling scheme. If \`NULL\`, default sampler
   settings will be used.
 
@@ -92,12 +92,12 @@ iglm(
 - file:
 
   Optional character string specifying a file path to load a previously
-  saved `iglm_object` from disk (in RDS format). If provided, other
+  saved `iglm.object` from disk (in RDS format). If provided, other
   arguments are ignored and the object is loaded from the file.
 
 ## Value
 
-An object of class `iglm_object`.
+An object of class `iglm.object`.
 
 ## References
 
@@ -134,11 +134,12 @@ gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
 gt_coef_pop <- rnorm(n = n_actors, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler.x = sampler.net_attr(n_proposals = n_actors * 10, seed = 13),
-                               sampler.y = sampler.net_attr(n_proposals = n_actors * 10, seed = 32),
-                               sampler.z = sampler.net_attr(n_proposals = sum(neighborhood > 0
+                               sampler.x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
+                               sampler.y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+                               sampler.z = sampler.net.attr(n_proposals = sum(neighborhood > 0
                                ) * 10, seed = 134),
                                init_empty = FALSE)
+#> Error in sampler.iglm(n_burn_in = 100, n_simulation = 10, sampler.x = sampler.net.attr(n_proposals = n_actors *     10, seed = 13), sampler.y = sampler.net.attr(n_proposals = n_actors *     10, seed = 32), sampler.z = sampler.net.attr(n_proposals = sum(neighborhood >     0) * 10, seed = 134), init_empty = FALSE): unused arguments (sampler.x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13), sampler.y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32), sampler.z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134))
 # Create iglm model specification
 model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
                           attribute_y + attribute_x + popularity,
@@ -147,16 +148,20 @@ model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
                           sampler = sampler_new,
                           control = control.iglm(accelerated = FALSE,
                           max_it = 200, display_progress = FALSE, var = TRUE))
+#> Error: object 'sampler_new' not found
 # Simulate from the model
 model_tmp_new$simulate()
+#> Error: object 'model_tmp_new' not found
 model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])
+#> Error: object 'model_tmp_new' not found
 
 # Estimate model parameters
 model_tmp_new$estimate()
+#> Error: object 'model_tmp_new' not found
 
 # Model Assessment
 model_tmp_new$model_assessment(formula = ~  degree_distribution )
-
+#> Error: object 'model_tmp_new' not found
 # model_tmp_new$results$plot(model_assessment = TRUE)
                                                    
 ```

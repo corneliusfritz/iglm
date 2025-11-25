@@ -9,17 +9,17 @@
 <url><loc>/reference/iglm.data.html</loc></url>
 <url><loc>/reference/iglm.data_generator.html</loc></url>
 <url><loc>/reference/iglm.html</loc></url>
-<url><loc>/reference/iglm_object_generator.html</loc></url>
+<url><loc>/reference/iglm.object.generator.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
-<url><loc>/reference/model_terms.html</loc></url>
+<url><loc>/reference/model.terms.html</loc></url>
+<url><loc>/reference/results.generator.html</loc></url>
 <url><loc>/reference/results.html</loc></url>
-<url><loc>/reference/results_generator.html</loc></url>
 <url><loc>/reference/rice.html</loc></url>
+<url><loc>/reference/sampler.iglm.generator.html</loc></url>
 <url><loc>/reference/sampler.iglm.html</loc></url>
-<url><loc>/reference/sampler.net_attr.html</loc></url>
-<url><loc>/reference/sampler_iglm_generator.html</loc></url>
-<url><loc>/reference/sampler_net_attr_generator.html</loc></url>
-<url><loc>/reference/simulate_iglm.html</loc></url>
+<url><loc>/reference/sampler.net.attr.generator.html</loc></url>
+<url><loc>/reference/sampler.net.attr.html</loc></url>
+<url><loc>/reference/simulate.iglm.html</loc></url>
 <url><loc>/reference/state_twitter.html</loc></url>
 </urlset>
 
