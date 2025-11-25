@@ -13,11 +13,11 @@
 #'   `formula` includes popularity terms. Its length must be `n_actor` (for
 #'   undirected networks) or `2 * n_actor` (for directed networks), where
 #'   `n_actor` is determined from the `iglm.data` object in the formula. 
-#' @param sampler An object of class `sampler_iglm` (created by
+#' @param sampler An object of class `sampler.iglm` (created by
 #'   `sampler.iglm()`) specifying the MCMC sampling parameters. This includes
 #'   the number of simulations (`n_simulation`), burn-in iterations (`n_burn_in`),
 #'   initialization settings (`init_empty`), and component sampler settings
-#'   (`sampler.x`, `sampler.y`, etc.).
+#'   (`sampler_x`, `sampler_y`, etc.).
 #'   If `NULL` (default), default settings from `sampler.iglm()` are used.
 #' @param only_stats (logical). If \code{TRUE} (default, consistent with the usage signature), the
 #'   function returns only the matrix of features calculated
@@ -91,7 +91,7 @@
 #'
 #' @export
 #' @importFrom parallel parLapply
-simulate_iglm = function(formula,coef,coef_popularity = NULL, 
+simulate.iglm = function(formula,coef,coef_popularity = NULL, 
                         sampler = NULL, 
                         only_stats = TRUE, 
                         display_progress = FALSE, 
@@ -102,7 +102,8 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
     sampler= sampler.iglm()
     # if no specifications of the sampler are provided use the default one
   }
-  if("sampler.iglm" %in% class(sampler)){
+  
+  if(!inherits(sampler, "sampler.iglm")){
     sampler= sampler.iglm()
   }
   # Search for all things in the environment of the formula
@@ -135,12 +136,12 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                            data_list = preprocessed$data_list,
                            type_list = preprocessed$type_list,
                            n_burn_in = sampler$n_burn_in,
-                           seed_x = sampler$sampler.x$seed,
-                           n_proposals_x = sampler$sampler.x$n_proposals,
-                           seed_y = sampler$sampler.y$seed,
-                           n_proposals_y = sampler$sampler.y$n_proposals,
-                           seed_z = sampler$sampler.z$seed,
-                           n_proposals_z = sampler$sampler.z$n_proposals,
+                           seed_x = sampler$sampler_x$seed,
+                           n_proposals_x = sampler$sampler_x$n_proposals,
+                           seed_y = sampler$sampler_y$seed,
+                           n_proposals_y = sampler$sampler_y$n_proposals,
+                           seed_z = sampler$sampler_z$seed,
+                           n_proposals_z = sampler$sampler_z$n_proposals,
                            n_simulation = sampler$n_simulation,
                            only_stats =only_stats,
                            display_progress = display_progress, 
@@ -170,12 +171,12 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                                    data_list = preprocessed$data_list,
                                    type_list = preprocessed$type_list,
                                    n_burn_in = sampler$n_burn_in,
-                                   seed_x = sampler$sampler.x$seed,
-                                   n_proposals_x = sampler$sampler.x$n_proposals,
-                                   seed_y = sampler$sampler.y$seed,
-                                   n_proposals_y = sampler$sampler.y$n_proposals,
-                                   seed_z = sampler$sampler.z$seed,
-                                   n_proposals_z = sampler$sampler.z$n_proposals,
+                                   seed_x = sampler$sampler_x$seed,
+                                   n_proposals_x = sampler$sampler_x$n_proposals,
+                                   seed_y = sampler$sampler_y$seed,
+                                   n_proposals_y = sampler$sampler_y$n_proposals,
+                                   seed_z = sampler$sampler_z$seed,
+                                   n_proposals_z = sampler$sampler_z$n_proposals,
                                    n_simulation = 1,
                                    only_stats =FALSE,
                                    display_progress = display_progress, 
@@ -212,12 +213,12 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                        data_list = preprocessed$data_list,
                        type_list = preprocessed$type_list,
                        n_burn_in = sampler$n_burn_in,
-                       seed_x = sampler$sampler.x$seed + min(x),
-                       n_proposals_x = sampler$sampler.x$n_proposals,
-                       seed_y = sampler$sampler.y$seed + 2*min(x),
-                       n_proposals_y = sampler$sampler.y$n_proposals,
-                       seed_z = sampler$sampler.z$seed +  3*min(x),
-                       n_proposals_z = sampler$sampler.z$n_proposals,
+                       seed_x = sampler$sampler_x$seed + min(x),
+                       n_proposals_x = sampler$sampler_x$n_proposals,
+                       seed_y = sampler$sampler_y$seed + 2*min(x),
+                       n_proposals_y = sampler$sampler_y$n_proposals,
+                       seed_z = sampler$sampler_z$seed +  3*min(x),
+                       n_proposals_z = sampler$sampler_z$n_proposals,
                        n_simulation = length(x),
                        only_stats =only_stats,
                        display_progress = FALSE, 

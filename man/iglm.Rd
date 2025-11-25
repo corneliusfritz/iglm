@@ -2,7 +2,7 @@
 % Please edit documentation in R/iglm.r
 \name{iglm}
 \alias{iglm}
-\alias{iglm_object}
+\alias{iglm.object}
 \title{Construct a iglm Model Specification Object}
 \usage{
 iglm(
@@ -28,18 +28,18 @@ coefficients. Required if `formula` includes popularity terms, otherwise
 should be `NULL`. Length must match `n_actor` (for undirected) or
 `2 * n_actor` (for directed).}
 
-\item{sampler}{An object of class \code{\link{sampler_iglm}}, controlling the MCMC sampling scheme. If `NULL`,
+\item{sampler}{An object of class \code{\link{sampler.iglm}}, controlling the MCMC sampling scheme. If `NULL`,
 default sampler settings will be used.}
 
 \item{control}{An object of class \code{\link{control.iglm}}, specifying parameters for the estimation algorithm.
 If `NULL`, default control settings will be used.}
 
 \item{file}{Optional character string specifying a file path to load a
-previously saved  \code{\link{iglm_object}} from disk (in RDS format). If provided,
+previously saved  \code{\link{iglm.object}} from disk (in RDS format). If provided,
 other arguments are ignored and the object is loaded from the file.}
 }
 \value{
-An object of class \code{\link{iglm_object}}.
+An object of class \code{\link{iglm.object}}.
 }
 \description{
 The \code{iglm} package implements a comprehensive regression framework  introduced in Fritz et al. (2025) for 
@@ -71,11 +71,11 @@ which is defined by two distinct sets of user-specified features:
 }
 This separation allows the model to simultaneously capture individual-level
 behavior (via \eqn{g_i}) and dyadic, network-based dependencies (via \eqn{h_{i,j}}), 
-including local dependence limited to overlapping neighborhoods (see, Fritz et al., 2025). 
+including lo cal dependence limited to overlapping neighborhoods (see, Fritz et al., 2025). 
 This help page documents the various statistics available in 'iglm',
 corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
 components of the joint model.
-This is a user-facing constructor for creating a \code{\link{iglm_object}}. This \code{R6} object 
+This is a user-facing constructor for creating a \code{\link{iglm.object}}. This \code{R6} object 
 encompasses the complete model specification, linking the formula, data (\code{\link{iglm.data}} object), 
 initial coefficients, MCMC sampler settings, and estimation controls.
 It serves as the primary input for subsequent methods like \code{$estimate()} and \code{$simulate()}.
@@ -93,9 +93,9 @@ gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
 gt_coef_pop <- rnorm(n = n_actors, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler.x = sampler.net_attr(n_proposals = n_actors * 10, seed = 13),
-                               sampler.y = sampler.net_attr(n_proposals = n_actors * 10, seed = 32),
-                               sampler.z = sampler.net_attr(n_proposals = sum(neighborhood > 0
+                               sampler.x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
+                               sampler.y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+                               sampler.z = sampler.net.attr(n_proposals = sum(neighborhood > 0
                                ) * 10, seed = 134),
                                init_empty = FALSE)
 # Create iglm model specification

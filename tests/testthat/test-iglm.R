@@ -23,12 +23,12 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   gt_coef_pop =  c(rnorm(n = n_actors, -2, 1))
   
   sampler_new = sampler.iglm(n_burn_in = 10, n_simulation = 1,
-                               sampler.x = sampler.net_attr(n_proposals =  n_actors*10,seed = 13),
-                               sampler.y = sampler.net_attr(n_proposals =  n_actors*10, seed = 32),
-                               sampler.z = sampler.net_attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
+                               sampler_x = sampler.net.attr(n_proposals =  n_actors*10,seed = 13),
+                               sampler_y = sampler.net.attr(n_proposals =  n_actors*10, seed = 32),
+                               sampler_z = sampler.net.attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
                                init_empty = F)
   
-  expect_equal(inherits(sampler_new,"sampler_iglm"),expected = TRUE)
+  expect_equal(inherits(sampler_new,"sampler.iglm"),expected = TRUE)
   
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + popularity,
                           coef = gt_coef,  coef_popularity = gt_coef_pop, sampler = sampler_new, 
@@ -39,11 +39,11 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   model_tmp_new$save(file = tmp_name)
   model_tmp_loaded <- iglm(file = tmp_name)
   
-  expect_equal(inherits(model_tmp_loaded,"iglm_object"),expected = TRUE)
+  expect_equal(inherits(model_tmp_loaded,"iglm.object"),expected = TRUE)
   expect_equal(length(model_tmp_loaded$results$samples),expected = 0)
   expect_equal(model_tmp_loaded$results$stats,expected = NULL)
   
-  expect_equal(inherits(model_tmp_new,"iglm_object"),expected = TRUE)
+  expect_equal(inherits(model_tmp_new,"iglm.object"),expected = TRUE)
   expect_equal(length(model_tmp_new$results$samples),expected = 0)
   expect_equal(model_tmp_new$results$stats,expected = NULL)
   
@@ -54,7 +54,7 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   expect_equal(model_tmp_new$iglm.data$density_z(),expected = 0)
   
   
-  expect_equal(inherits(model_tmp_loaded,"iglm_object"),expected = TRUE)
+  expect_equal(inherits(model_tmp_loaded,"iglm.object"),expected = TRUE)
   expect_equal(length(model_tmp_loaded$results$samples),expected = 0)
   expect_equal(model_tmp_loaded$results$stats,expected = NULL)
   
@@ -62,17 +62,20 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   model_tmp_new$set_target(samples[[1]])
   expect_equal(model_tmp_new$iglm.data$density_z(),
                          expected = nrow(samples[[1]]$z_network)/(n_actors *(n_actors-1)/2))
-  expect_warning(model_tmp_new$estimate())
+  # debugonce(model_tmp_new$estimate)
+  expect_error(model_tmp_new$estimate())
   
   
   sampler_est = sampler.iglm(n_burn_in = 1, n_simulation = 10,
-                               sampler.x = sampler.net_attr(n_proposals =  n_actors*10,seed = 1),
-                               sampler.y = sampler.net_attr(n_proposals =  n_actors*10, seed = 3),
-                               sampler.z = sampler.net_attr(n_proposals = sum(neighborhood>0)*10, seed = 13),
+                               sampler_x = sampler.net.attr(n_proposals =  n_actors*10,seed = 1),
+                               sampler_y = sampler.net.attr(n_proposals =  n_actors*10, seed = 3),
+                               sampler_z = sampler.net.attr(n_proposals = sum(neighborhood>0)*10, seed = 13),
                                init_empty = F)
   
   model_tmp_new$set_sampler(sampler_est)
+  model_tmp_new$sampler
   expect_equal(model_tmp_new$sampler$n_burn_in, 1)
+  # debugonce(model_tmp_new$estimate)
   model_tmp_new$estimate()
   expect_no_warning(model_tmp_new$estimate())
   # expect_equal(as.vector(round(model_tmp_new$coef)), round(gt_coef))

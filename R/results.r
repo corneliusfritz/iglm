@@ -9,7 +9,7 @@
 #' @import R6
 #' @import RcppProgress
 #' @importFrom graphics plot lines abline layout title par axis boxplot
-results_generator <- R6::R6Class("results",
+results.generator <- R6::R6Class("results",
                                  private = list(
                                    .coefficients_path = NULL,
                                    .samples = NULL,
@@ -1086,7 +1086,7 @@ results_generator <- R6::R6Class("results",
 #'   NA structures appropriately sized based on the input dimensions.
 #' @export 
 results <- function(size_coef,size_coef_popularity, file = NULL) {
-  results_generator$new(size_coef = size_coef, 
+  results.generator$new(size_coef = size_coef, 
                         size_coef_popularity =size_coef_popularity, 
                         file = file)
 }

@@ -24,9 +24,9 @@ test_that('Define a iglm object and check all the results information', {
   gt_coef_pop =  c(rnorm(n = n_actors, -2, 1))
   
   sampler_new = sampler.iglm(n_burn_in = 10, n_simulation = 1,
-                               sampler.x = sampler.net_attr(n_proposals =  n_actors*10,seed = 13),
-                               sampler.y = sampler.net_attr(n_proposals =  n_actors*10, seed = 32),
-                               sampler.z = sampler.net_attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
+                               sampler_x = sampler.net.attr(n_proposals =  n_actors*10,seed = 13),
+                               sampler_y = sampler.net.attr(n_proposals =  n_actors*10, seed = 32),
+                               sampler_z = sampler.net.attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
                                init_empty = F)
   # xyz_obj_new$neighborhood
   # xyz_obj_new$z_network <- xyz_obj_new$neighborhood
@@ -39,6 +39,7 @@ test_that('Define a iglm object and check all the results information', {
   tmp_name <- paste(tempfile(), ".RDS")
   model_tmp_new$results$save(file = tmp_name)
   loaded_results <- results(file = tmp_name) 
+  model_tmp_new$simulate
   model_tmp_new$simulate()
   expect_equal(length(loaded_results$samples),expected = 0)
   expect_equal(length(model_tmp_new$results$samples),expected = 1)

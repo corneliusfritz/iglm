@@ -298,5 +298,5 @@ add_alpha <- function(color_code, alpha_level) {
 #' Stewart, J.R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. The Annals of Statistics, to appear. 
 #' 
 #' @aliases terms
-#' @name model_terms
+#' @name model.terms
 NULL

@@ -5,9 +5,9 @@
 \title{Constructor for a iglm Sampler}
 \usage{
 sampler.iglm(
-  sampler.x = NULL,
-  sampler.y = NULL,
-  sampler.z = NULL,
+  sampler_x = NULL,
+  sampler_y = NULL,
+  sampler_z = NULL,
   n_simulation = 100,
   n_burn_in = 10,
   init_empty = TRUE,
@@ -16,14 +16,14 @@ sampler.iglm(
 )
 }
 \arguments{
-\item{sampler.x}{An object of class `sampler_net_attr` (created by
-`sampler.net_attr()`) specifying how to sample the `x_attribute`.
-If `NULL` (default), default `sampler.net_attr()` settings are used.}
+\item{sampler_x}{An object of class `sampler.net.attr` (created by
+`sampler.net.attr()`) specifying how to sample the `x_attribute`.
+If `NULL` (default), default `sampler.net.attr()` settings are used.}
 
-\item{sampler.y}{An object of class `sampler_net_attr` specifying how to
+\item{sampler_y}{An object of class `sampler.net.attr` specifying how to
 sample the `y_attribute`. If `NULL` (default), default settings are used.}
 
-\item{sampler.z}{An object of class `sampler_net_attr` specifying how to
+\item{sampler_z}{An object of class `sampler.net.attr` specifying how to
 sample the `z_network` ties *within* the defined neighborhood/overlap region.
 If `NULL` (default), default settings are used.}
 
@@ -47,10 +47,10 @@ user's responsibility.}
 the specified .rds file instead of initializing from parameters.}
 }
 \value{
-An object of class `sampler_iglm` (and `R6`).
+An object of class `sampler.iglm` (and `R6`).
 }
 \description{
-Creates an object of class `sampler_iglm` (and `R6`) which holds all
+Creates an object of class `sampler.iglm` (and `R6`) which holds all
 parameters controlling the MCMC sampling process for `iglm` models.
 This includes global settings like the number of simulations and burn-in,
 as well as references to specific samplers for the network (`z`) and
@@ -62,9 +62,9 @@ passing them to the `iglm` constructor or simulation functions.
 \examples{
 n_actors <- 50
 sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler.x = sampler.net_attr(n_proposals = n_actors * 10, seed = 13),
-                               sampler.y = sampler.net_attr(n_proposals = n_actors * 10, seed = 32),
-                               sampler.z = sampler.net_attr(n_proposals = n_actors^2, seed = 134),
+                               sampler_x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
+                               sampler_y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+                               sampler_z = sampler.net.attr(n_proposals = n_actors^2, seed = 134),
                                init_empty = FALSE)
 sampler_new
 # Change some values of the  sampler 
@@ -73,5 +73,5 @@ sampler_new$set_n_simulation(100)
 sampler_new$n_simulation                                
 }
 \seealso{
-`sampler.net_attr`, `iglm`, `control.iglm`
+`sampler.net.attr`, `iglm`, `control.iglm`
 }

@@ -22,15 +22,16 @@ test_that('Test some sufficient statistics for undirected networks', {
   gt_coef_pop =  c(rnorm(n = n_actors, -2, 1))
   
   sampler_new = sampler.iglm(n_burn_in = 10, n_simulation = 1,
-                             sampler.x = sampler.net_attr(n_proposals =  n_actors*10,seed = 13),
-                             sampler.y = sampler.net_attr(n_proposals =  n_actors*10, seed = 32),
-                             sampler.z = sampler.net_attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
+                             sampler_x = sampler.net.attr(n_proposals =  n_actors*10,seed = 13),
+                             sampler_y = sampler.net.attr(n_proposals =  n_actors*10, seed = 32),
+                             sampler_z = sampler.net.attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
                              init_empty = F)
+  
   
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + popularity,
                         coef = gt_coef,  coef_popularity = gt_coef_pop, sampler = sampler_new, 
                         control = control.iglm(accelerated = F,max_it = 200, display_progress = F, var = T))
-  
+  # debugonce(model_tmp_new$simulate)
   model_tmp_new$simulate()
   
   count_values_iglm <- count_statistics(model_tmp_new$results$samples[[1]] ~ spillover_xx_scaled+ spillover_yy_scaled +
@@ -89,9 +90,9 @@ test_that('Test some sufficient statistics for directed networks', {
   gt_coef_pop =  c(rnorm(n = n_actors, -2, 1))
   
   sampler_new = sampler.iglm(n_burn_in = 10, n_simulation = 1,
-                             sampler.x = sampler.net_attr(n_proposals =  n_actors*10,seed = 13),
-                             sampler.y = sampler.net_attr(n_proposals =  n_actors*10, seed = 32),
-                             sampler.z = sampler.net_attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
+                             sampler_x = sampler.net.attr(n_proposals =  n_actors*10,seed = 13),
+                             sampler_y = sampler.net.attr(n_proposals =  n_actors*10, seed = 32),
+                             sampler_z = sampler.net.attr(n_proposals = sum(neighborhood>0)*10, seed = 134),
                              init_empty = F)
   
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x,

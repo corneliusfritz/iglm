@@ -2,14 +2,14 @@
 #' @title R6 Class for Single Component Sampler Settings
 #' @description
 #' The `sampler_net_attr` class is a simple R6 container used within the
-#' `sampler_iglm` class. It holds the MCMC sampling parameters
+#' `sampler.iglm` class. It holds the MCMC sampling parameters
 #' for a single component of the `iglm` model, such as one attribute
 #' (e.g., `x_attribute`) or a part of the network (e.g., `z_network` within
 #' the overlap). It primarily stores the number of proposals and a random seed.
 #' @importFrom R6 R6Class
 #' @importFrom stats runif
 #' @export
-sampler_net_attr_generator <- R6::R6Class("sampler_net_attr",
+sampler.net.attr.generator <- R6::R6Class("sampler.net.attr",
                                           private = list(
                                             .n_proposals = NULL,
                                             .seed = NULL
@@ -120,7 +120,7 @@ sampler_net_attr_generator <- R6::R6Class("sampler_net_attr",
 #' specifies the MCMC sampling parameters for a single component (like an
 #' attribute vector or a network structure) within the larger `iglm`
 #' simulation framework. It is typically used as input when creating a
-#' `sampler_iglm` object.
+#' `sampler.iglm` object.
 #'
 #' @param n_proposals (integer) The number of MCMC proposals (iterations) to
 #'   perform for this specific component during each sampling update.
@@ -135,35 +135,35 @@ sampler_net_attr_generator <- R6::R6Class("sampler_net_attr",
 #' @seealso `sampler.iglm`
 #' @examples
 #' # Default settings
-#' sampler_comp_default <- sampler.net_attr()
+#' sampler_comp_default <- sampler.net.attr()
 #' sampler_comp_default
 #'
 #' # Custom settings
-#' sampler_comp_custom <- sampler.net_attr(n_proposals = 50000, seed = 123)
+#' sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, seed = 123)
 #' sampler_comp_custom
-sampler.net_attr <- function(n_proposals = 10000, seed = NA, file = NULL) {
-  sampler_net_attr_generator$new(n_proposals = n_proposals, seed = seed, file = file)
+sampler.net.attr <- function(n_proposals = 10000, seed = NA, file = NULL) {
+  sampler.net.attr.generator$new(n_proposals = n_proposals, seed = seed, file = file)
 }
 
 
 #' @docType class
 #' @title R6 Class for iglm Sampler Settings
-#' @aliases sampler_iglm
+#' @aliases sampler.iglm
 #' @description
-#' The `sampler_iglm` class is an R6 container for specifying and storing
+#' The `sampler.iglm` class is an R6 container for specifying and storing
 #' the parameters that control the MCMC (Markov Chain Monte Carlo) sampling
 #' process used in \code{\link{iglm}} simulations and potentially during estimation.
 #' It includes settings for the number of simulations, burn-in period,
 #' initialization, and
 #' parallelization options. It also holds references to component samplers
-#' (\code{\link{sampler.net_attr}} objects) responsible for sampling individual parts
+#' (\code{\link{sampler.net.attr}} objects) responsible for sampling individual parts
 #' (attributes x, y, network z).
 #' @importFrom R6 R6Class
-sampler_iglm_generator <- R6::R6Class("sampler_iglm",
+sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                         private = list(
-                                          .sampler.x = NULL,
-                                          .sampler.y = NULL,
-                                          .sampler.z = NULL,
+                                          .sampler_x = NULL,
+                                          .sampler_y = NULL,
+                                          .sampler_z = NULL,
                                           .n_simulation = NULL,
                                           .n_burn_in = NULL,
                                           .init_empty = NULL,
@@ -184,14 +184,14 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                             if(!is.logical(private$.init_empty)){
                                               stop("`init_empty` must be a logical value (TRUE or FALSE).", call. = FALSE)
                                             }
-                                            if (!inherits(private$.sampler.x, "sampler_net_attr")) {
-                                              stop("`sampler.x` must be created with `sampler.net_attr()`.", call. = FALSE)
+                                            if (!inherits(private$.sampler_x, "sampler.net.attr")) {
+                                              stop("`sampler_x` must be created with `sampler.net.attr()`.", call. = FALSE)
                                             }
-                                            if (!inherits(private$.sampler.y, "sampler_net_attr")) {
-                                              stop("`sampler.y` must be created with `sampler.net_attr()`.", call. = FALSE)
+                                            if (!inherits(private$.sampler_y, "sampler.net.attr")) {
+                                              stop("`sampler_y` must be created with `sampler.net.attr()`.", call. = FALSE)
                                             }
-                                            if (!inherits(private$.sampler.z, "sampler_net_attr")) {
-                                              stop("`sampler.z` must be created with `sampler.net_attr()`.", call. = FALSE)
+                                            if (!inherits(private$.sampler_z, "sampler.net.attr")) {
+                                              stop("`sampler_z` must be created with `sampler.net.attr()`.", call. = FALSE)
                                             }
                                             
                                           }
@@ -199,16 +199,16 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                         
                                         public = list(
                                           #' @description
-                                          #' Create a new `sampler_iglm` object. Initializes all sampler settings,
-                                          #' using defaults for component samplers (`sampler.net_attr`) if not provided,
+                                          #' Create a new `sampler.iglm` object. Initializes all sampler settings,
+                                          #' using defaults for component samplers (`sampler.net.attr`) if not provided,
                                           #' and validates inputs.
-                                          #' @param sampler.x An object of class `sampler_net_attr` controlling
-                                          #'   sampling for the x attribute. If `NULL`, defaults from `sampler.net_attr()` are used.
-                                          #' @param sampler.y An object of class `sampler_net_attr` controlling
-                                          #'   sampling for the y attribute. If `NULL`, defaults from `sampler.net_attr()` are used.
-                                          #' @param sampler.z An object of class `sampler_net_attr` controlling
+                                          #' @param sampler_x An object of class `sampler.net.attr` controlling
+                                          #'   sampling for the x attribute. If `NULL`, defaults from `sampler.net.attr()` are used.
+                                          #' @param sampler_y An object of class `sampler.net.attr` controlling
+                                          #'   sampling for the y attribute. If `NULL`, defaults from `sampler.net.attr()` are used.
+                                          #' @param sampler_z An object of class `sampler.net.attr` controlling
                                           #'   sampling for the z network (within the defined neighborhood/overlap).
-                                          #'   If `NULL`, defaults from `sampler.net_attr()` are used.
+                                          #'   If `NULL`, defaults from `sampler.net.attr()` are used.
                                           #' @param n_simulation (integer) The number of network/attribute configurations
                                           #'   to simulate and store after the burn-in period. Default is 100. Must be non-negative.
                                           #' @param n_burn_in (integer) The number of initial MCMC iterations to discard
@@ -222,16 +222,16 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                           #'   are run sequentially.
                                           #' @param file (character or `NULL`) If provided, loads the sampler state from
                                           #'  the specified .rds file instead of initializing from parameters.
-                                          #' @return A new `sampler_iglm` object.
-                                          initialize = function(sampler.x = NULL, sampler.y = NULL, sampler.z = NULL, 
+                                          #' @return A new `sampler.iglm` object.
+                                          initialize = function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL, 
                                                                 n_simulation = 100, n_burn_in = 10, init_empty = TRUE, 
                                                                 cluster = NULL, file = NULL) {
                                             
                                             if(is.null(file)){
                                               # Use default component samplers if not provided
-                                              private$.sampler.x <- if (is.null(sampler.x)) sampler.net_attr() else sampler.x
-                                              private$.sampler.y <- if (is.null(sampler.y)) sampler.net_attr() else sampler.y
-                                              private$.sampler.z <- if (is.null(sampler.z)) sampler.net_attr() else sampler.z
+                                              private$.sampler_x <- if (is.null(sampler_x)) sampler.net.attr() else sampler_x
+                                              private$.sampler_y <- if (is.null(sampler_y)) sampler.net.attr() else sampler_y
+                                              private$.sampler_z <- if (is.null(sampler_z)) sampler.net.attr() else sampler_z
                                               
                                               # Store core parameters
                                               private$.n_simulation <- as.integer(n_simulation)
@@ -240,9 +240,9 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                               private$.cluster <- cluster
                                               
                                               # Validate sub-samplers
-                                              sub_samplers <- list(private$.sampler.x, private$.sampler.y, private$.sampler.z)
-                                              if (!all(sapply(sub_samplers, inherits, "sampler_net_attr"))) {
-                                                stop("Component samplers (sampler.x, .y, .z, .z_nonoverlap) must be created with `sampler.net_attr()`.")
+                                              sub_samplers <- list(private$.sampler_x, private$.sampler_y, private$.sampler_z)
+                                              if (!all(sapply(sub_samplers, inherits, "sampler.net.attr"))) {
+                                                stop("Component samplers (sampler_x, _y, _z) must be created with `sampler.net.attr()`.")
                                               }
                                             } else {
                                               if (!file.exists(file)) {
@@ -254,24 +254,24 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                               data <- readRDS(file)
                                               # browser()
                                               # Check that the loaded data is valid (optional but recommended)
-                                              required_fields <- c("sampler.x","sampler.y","sampler.z",
+                                              required_fields <- c("sampler_x","sampler_y","sampler_z",
                                                                    "init_empty", 
                                                                    "n_simulation",
                                                                    "n_burn_in")
                                               if (!is.list(data) || !all(required_fields %in% names(data))) {
-                                                stop("File does not contain a valid sampler_iglm state.", call. = FALSE)
+                                                stop("File does not contain a valid sampler.iglm state.", call. = FALSE)
                                               }
                                               # Restore state by assigning to private fields
                                               private$.n_simulation <- data$n_simulation
                                               private$.n_burn_in <- data$n_burn_in
                                               private$.init_empty <- data$init_empty
                                               
-                                              private$.sampler.x <- sampler_net_attr_generator$new(n_proposals = data$sampler.x$n_proposals,
-                                                                                                  seed = data$sampler.x$seed)
-                                              private$.sampler.y <- sampler_net_attr_generator$new(n_proposals = data$sampler.y$n_proposals,
-                                                                                                  seed = data$sampler.y$seed)
-                                              private$.sampler.z <- sampler_net_attr_generator$new(n_proposals = data$sampler.z$n_proposals,
-                                                                                                  seed = data$sampler.z$seed)
+                                              private$.sampler_x <- sampler.net.attr.generator$new(n_proposals = data$sampler_x$n_proposals,
+                                                                                                  seed = data$sampler_x$seed)
+                                              private$.sampler_y <- sampler.net.attr.generator$new(n_proposals = data$sampler_y$n_proposals,
+                                                                                                  seed = data$sampler_y$seed)
+                                              private$.sampler_z <- sampler.net.attr.generator$new(n_proposals = data$sampler_z$n_proposals,
+                                                                                                  seed = data$sampler_z$seed)
                                             }
                                             private$.validate()
                                             invisible(self)
@@ -286,7 +286,7 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                           #' @description
                                           #' Deactivates parallel processing for this sampler instance by setting
                                           #' the internal cluster object reference to `NULL`.
-                                          #' @return The `sampler_iglm` object itself (`self`), invisibly.
+                                          #' @return The `sampler.iglm` object itself (`self`), invisibly.
                                           deactive_cluster = function(){
                                             private$.cluster = NULL
                                             private$.validate()
@@ -320,45 +320,45 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                           },
                                           #' @description 
                                           #' Sets the sampler configuration for the x attribute.
-                                          #' @param sampler.x An object of class `sampler_net_attr`.
+                                          #' @param sampler_x An object of class `sampler_net_attr`.
                                           #' @return None. 
-                                          set_x_sampler = function(sampler.x){
-                                            if(!inherits(sampler.x, "sampler_net_attr")){
-                                              stop("`sampler.x` must be created with `sampler.net_attr()`.", call. = FALSE)
+                                          set_x_sampler = function(sampler_x){
+                                            if(!inherits(sampler_x, "sampler_net_attr")){
+                                              stop("`sampler_x` must be created with `sampler.net.attr()`.", call. = FALSE)
                                             }
-                                            private$.sampler.x = sampler.x
+                                            private$.sampler_x = sampler_x
                                             private$.validate()
                                           },
                                           #' @description 
                                           #' Sets the sampler configuration for the y attribute.
-                                          #' @param sampler.y An object of class `sampler_net_attr`.
+                                          #' @param sampler_y An object of class `sampler_net_attr`.
                                           #' @return None. 
-                                          set_y_sampler = function(sampler.y){
-                                            if(!inherits(sampler.y, "sampler_net_attr")){
-                                              stop("`sampler.y` must be created with `sampler.net_attr()`.", call. = FALSE)
+                                          set_y_sampler = function(sampler_y){
+                                            if(!inherits(sampler_y, "sampler_net_attr")){
+                                              stop("`sampler_y` must be created with `sampler.net.attr()`.", call. = FALSE)
                                             }
-                                            private$.sampler.y = sampler.y
+                                            private$.sampler_y = sampler_y
                                             private$.validate()
                                           },
                                           #' @description 
                                           #' Sets the sampler configuration for the z attribute.
-                                          #' @param sampler.z An object of class `sampler_net_attr`.
+                                          #' @param sampler_z An object of class `sampler_net_attr`.
                                           #' @return None. 
-                                          set_z_sampler = function(sampler.z){
-                                            if(!inherits(sampler.z, "sampler_net_attr")){
-                                              stop("`sampler.z` must be created with `sampler.net_attr()`.", call. = FALSE)
+                                          set_z_sampler = function(sampler_z){
+                                            if(!inherits(sampler_z, "sampler_net_attr")){
+                                              stop("`sampler_z` must be created with `sampler.net.attr()`.", call. = FALSE)
                                             }
-                                            private$.sampler.z = sampler.z
+                                            private$.sampler_z = sampler_z
                                             private$.validate()
                                           },
                                           #' @description
                                           #' Prints a formatted summary of the sampler configuration to the console.
                                           #' Includes core parameters (simulation count, burn-in, etc.) and calls
-                                          #' the `print` method for each component sampler (`sampler.x`, `sampler.y`, etc.).
+                                          #' the `print` method for each component sampler (`sampler_x`, `sampler_y`, etc.).
                                           #' @param digits (integer) Number of digits for formatting numeric values
                                           #'   (like `prob_nb`). Default: 3.
                                           #' @param ... Additional arguments (currently ignored).
-                                          #' @return The `sampler_iglm` object itself (`self`), invisibly.
+                                          #' @return The `sampler.iglm` object itself (`self`), invisibly.
                                           print = function(digits = 3, ...) {
                                             numfmt <- function(v) format(round(v, digits), nsmall = digits, trim = TRUE)
                                             cat("Sampler settings\n")
@@ -371,12 +371,12 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                             cat("\n")
                                             
                                             cat("Sub-samplers\n")
-                                            cat("  sampler.x:\n")
-                                            private$.sampler.x$print(indent = "    ")
-                                            cat("  sampler.y:\n")
-                                            private$.sampler.y$print(indent = "    ")
-                                            cat("  sampler.z:\n")
-                                            private$.sampler.z$print(indent = "    ")
+                                            cat("  sampler_x:\n")
+                                            private$.sampler_x$print(indent = "    ")
+                                            cat("  sampler_y:\n")
+                                            private$.sampler_y$print(indent = "    ")
+                                            cat("  sampler_z:\n")
+                                            private$.sampler_z$print(indent = "    ")
                                             invisible(self)
                                           }, 
                                           #' @description
@@ -384,9 +384,9 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                           #' @return A list containing all information of the sampler.
                                           gather = function(){
                                             list(
-                                              sampler.x = private$.sampler.x$gather(),
-                                              sampler.y = private$.sampler.y$gather(),
-                                              sampler.z = private$.sampler.z$gather(),
+                                              sampler_x = private$.sampler_x$gather(),
+                                              sampler_y = private$.sampler_y$gather(),
+                                              sampler_z = private$.sampler_z$gather(),
                                               n_simulation = private$.n_simulation,
                                               n_burn_in = private$.n_burn_in,
                                               init_empty = private$.init_empty
@@ -395,7 +395,7 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                           #' @description
                                           #' Save the object's complete state to a directory.
                                           #' This will save the main sampler's settings to a file
-                                          #' named 'sampler_iglm_state.rds' within the specified
+                                          #' named 'sampler.iglm_state.rds' within the specified
                                           #' directory, and will also call the `save()` method for each
                                           #' nested sampler (.x, .y, .z), saving them into the same
                                           #' directory.
@@ -415,12 +415,12 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
                                         ),
                                         
                                         active = list(
-                                          #' @field sampler.x (`sampler_net_attr`) Read-only. The sampler configuration object for the x attribute.
-                                          sampler.x = function(value) { if(missing(value)) private$.sampler.x else stop("`sampler.x` is read-only.", call. = FALSE) },
-                                          #' @field sampler.y (`sampler_net_attr`) Read-only. The sampler configuration object for the y attribute.
-                                          sampler.y = function(value) { if(missing(value)) private$.sampler.y else stop("`sampler.y` is read-only.", call. = FALSE) },
-                                          #' @field sampler.z (`sampler_net_attr`) Read-only. The sampler configuration object for the z network (overlap region).
-                                          sampler.z = function(value) { if(missing(value)) private$.sampler.z else stop("`sampler.z` is read-only.", call. = FALSE) },
+                                          #' @field sampler_x (`sampler_net_attr`) Read-only. The sampler configuration object for the x attribute.
+                                          sampler_x = function(value) { if(missing(value)) private$.sampler_x else stop("`sampler_x` is read-only.", call. = FALSE) },
+                                          #' @field sampler_y (`sampler_net_attr`) Read-only. The sampler configuration object for the y attribute.
+                                          sampler_y = function(value) { if(missing(value)) private$.sampler_y else stop("`sampler_y` is read-only.", call. = FALSE) },
+                                          #' @field sampler_z (`sampler_net_attr`) Read-only. The sampler configuration object for the z network (overlap region).
+                                          sampler_z = function(value) { if(missing(value)) private$.sampler_z else stop("`sampler_z` is read-only.", call. = FALSE) },
                                           #' @field n_simulation (`integer`) Read-only. The number of simulations to generate after burn-in.
                                           n_simulation = function(value) { if(missing(value)) private$.n_simulation else stop("`n_simulation` is read-only.", call. = FALSE) },
                                           #' @field n_burn_in (`integer`) Read-only. The number of burn-in iterations.
@@ -436,7 +436,7 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
 #' Constructor for a iglm Sampler 
 #'
 #' @description
-#' Creates an object of class `sampler_iglm` (and `R6`) which holds all
+#' Creates an object of class `sampler.iglm` (and `R6`) which holds all
 #' parameters controlling the MCMC sampling process for `iglm` models.
 #' This includes global settings like the number of simulations and burn-in,
 #' as well as references to specific samplers for the network (`z`) and
@@ -445,12 +445,12 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
 #' This function provides a convenient way to specify these settings before
 #' passing them to the `iglm` constructor or simulation functions.
 #'
-#' @param sampler.x An object of class `sampler_net_attr` (created by
-#'   `sampler.net_attr()`) specifying how to sample the `x_attribute`.
-#'   If `NULL` (default), default `sampler.net_attr()` settings are used.
-#' @param sampler.y An object of class `sampler_net_attr` specifying how to
+#' @param sampler_x An object of class `sampler.net.attr` (created by
+#'   `sampler.net.attr()`) specifying how to sample the `x_attribute`.
+#'   If `NULL` (default), default `sampler.net.attr()` settings are used.
+#' @param sampler_y An object of class `sampler.net.attr` specifying how to
 #'   sample the `y_attribute`. If `NULL` (default), default settings are used.
-#' @param sampler.z An object of class `sampler_net_attr` specifying how to
+#' @param sampler_z An object of class `sampler.net.attr` specifying how to
 #'   sample the `z_network` ties *within* the defined neighborhood/overlap region.
 #'   If `NULL` (default), default settings are used.
 #' @param n_simulation (integer) The number of independent samples (networks/attributes)
@@ -468,29 +468,29 @@ sampler_iglm_generator <- R6::R6Class("sampler_iglm",
 #' @param file (character or `NULL`) If provided, loads the sampler state from
 #' the specified .rds file instead of initializing from parameters.
 #' 
-#' @return An object of class `sampler_iglm` (and `R6`).
+#' @return An object of class `sampler.iglm` (and `R6`).
 #' @export
-#' @seealso `sampler.net_attr`, `iglm`, `control.iglm`
+#' @seealso `sampler.net.attr`, `iglm`, `control.iglm`
 #' @examples
 #' n_actors <- 50
 #' sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-#'                                sampler.x = sampler.net_attr(n_proposals = n_actors * 10, seed = 13),
-#'                                sampler.y = sampler.net_attr(n_proposals = n_actors * 10, seed = 32),
-#'                                sampler.z = sampler.net_attr(n_proposals = n_actors^2, seed = 134),
+#'                                sampler_x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
+#'                                sampler_y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+#'                                sampler_z = sampler.net.attr(n_proposals = n_actors^2, seed = 134),
 #'                                init_empty = FALSE)
 #' sampler_new
 #' # Change some values of the  sampler 
 #' sampler_new$n_simulation                                
 #' sampler_new$set_n_simulation(100)
 #' sampler_new$n_simulation                                
-sampler.iglm <- function(sampler.x = NULL, sampler.y = NULL, sampler.z = NULL, 
+sampler.iglm <- function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL, 
                            n_simulation = 100, n_burn_in = 10, init_empty = TRUE, 
                            cluster = NULL, file = NULL ) {
   
-  sampler_iglm_generator$new(
-    sampler.x = sampler.x,
-    sampler.y = sampler.y,
-    sampler.z = sampler.z,
+  sampler.iglm.generator$new(
+    sampler_x = sampler_x,
+    sampler_y = sampler_y,
+    sampler_z = sampler_z,
     n_simulation = n_simulation,
     n_burn_in = n_burn_in,
     init_empty = init_empty,
