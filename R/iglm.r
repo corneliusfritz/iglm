@@ -238,10 +238,11 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                        #'   The terms should correspond to methods available in the \code{\link{iglm.data}} 
                                        #'   object that end with `distributions`. 
                                        #'   If the term mcmc_diagnostics is included, MCMC diagnostics will also be computed.
+                                       #' @param plot (logical) If `TRUE`, generates plots comparing observed and simulated statistics. Default is `TRUE`.
                                        #' @return An object of class `iglm_model_assessment` containing the
                                        #'   observed statistics and the distribution of simulated statistics.
                                        #'   The result is also stored internally.
-                                       model_assessment = function(formula){
+                                       model_assessment = function(formula, plot = TRUE){
                                          if(!private$.results$estimated){
                                            stop("Model has not been estimated yet, assessing the fit thus makes little sense.", call. = FALSE)
                                          }
@@ -279,6 +280,13 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                            }
                                          })
                                          names(ranges_tmp) <- rep("value_range", length(names_tmp))
+                                         # for(i in 1:length(private$.results$samples)){
+                                         #   cat(i," \n")
+                                         #   eval_change(formula = formula,object = private$.results$samples[[i]], additional_args = ranges_tmp)  
+                                         # }
+                                         # debugonce(private$.results$samples[[155]]$spillover_degree_distribution)
+                                         # private$.results$samples[[155]]$spillover_degree_distribution()
+                                         # 
                                          simulated <- lapply(private$.results$samples, 
                                                              function(object, info_tmp, names_tmp) {
                                                                res <- eval_change(formula = formula,object = object, additional_args = ranges_tmp)
@@ -286,6 +294,7 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                                return(res)
                                                              }, names_tmp = names_tmp, info_tmp = info_tmp
                                          )
+                                         
                                          
                                          res <- list(observed = observed, 
                                                      simulated = simulated, 
@@ -295,6 +304,9 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                                      sufficient_statistics = sufficient_statistics)
                                          class(res) <- "iglm_model_assessment"
                                          private$.results$set_model_assessment(res)
+                                         if(plot){
+                                           private$.results$plot(model_assessment = TRUE)
+                                         }
                                          invisible(res)
                                        }, 
                                        #' @description
@@ -755,6 +767,36 @@ iglm_object_generator <- R6::R6Class("iglm_object",
                                          class(res) <- "iglm.prediction"
                                          private$.results$set_prediction(res)
                                          invisible(res)
+                                       },
+                                       #' @description
+                                       #' Manually set the model coefficients to new values.
+                                       #' This is useful for sensitivity analyses or
+                                       #' applying the model to different scenarios.
+                                       #' @param coef A numeric vector of new coefficient values for the non-popularity terms.
+                                       #' @param coef_popularity A numeric vector of new coefficient values for the popularity terms,
+                                       #'   if applicable. Must be provided if the model includes popularity effects.
+                                       #' @return The \code{\link{iglm_object}} itself, invisibly.
+                                       set_coefficients = function(coef, coef_popularity = NULL) {
+                                         if(length(coef) != length(private$.coef)) {
+                                           stop(paste0("Length of `coef` (", length(coef), 
+                                                       ") does not match the number of model coefficients (", 
+                                                       length(private$.coef), ")."), call. = FALSE)
+                                         }
+                                         private$.coef <- coef
+                                         if(private$.preprocess$includes_popularity) {
+                                           if(is.null(coef_popularity)) {
+                                             stop("Model includes popularity effects; `coef_popularity` must be provided.", call. = FALSE)
+                                           }
+                                           if(length(coef_popularity) != length(private$.coef_popularity)) {
+                                             stop(paste0("Length of `coef_popularity` (", length(coef_popularity), 
+                                                         ") does not match the number of popularity coefficients (", 
+                                                         length(private$.coef_popularity), ")."), call. = FALSE)
+                                           }
+                                           private$.coef_popularity <- coef_popularity
+                                           private$.coef_popularity_internal <- coef_popularity
+                                         }
+                                         private$.validate()
+                                         invisible(self)
                                        },
                                        #' @description
                                        #' Retrieve the simulated networks stored in the object.

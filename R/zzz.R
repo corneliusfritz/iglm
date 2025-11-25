@@ -4,6 +4,35 @@
 .onUnload <- function (libpath) {
   library.dynam.unload("iglm", libpath)
 }
+# Small helper functions
+rowMins <- function(x){
+  apply(x, 1, min)
+}
+rowMaxs <- function(x){
+  apply(x, 1, max)
+}
+colMins <- function(x){
+  apply(x, 2, min)
+}
+colMaxs <- function(x){
+  apply(x, 2, max)
+}
+add_alpha <- function(color_code, alpha_level) {
+  if (alpha_level < 0 || alpha_level > 1) {
+    stop("Alpha level must be between 0 and 1.")
+  }
+  alpha_int <- round(alpha_level * 255) 
+  rgb_matrix <- col2rgb(color_code)
+  new_color <- rgb(
+    red = rgb_matrix[1,], 
+    green = rgb_matrix[2,], 
+    blue = rgb_matrix[3,], 
+    alpha = alpha_int, 
+    maxColorValue = 255
+  )
+  
+  return(new_color)
+}
 
 #' @title Model specification for a `iglm' object 
 #'

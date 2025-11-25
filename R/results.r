@@ -110,6 +110,7 @@ results_generator <- R6::R6Class("results",
                                        score_popularity = private$.score_popularity,
                                        score_nonpopularity = private$.score_nonpopularity,
                                        llh = private$.llh,
+                                       prediction = private$.prediction,
                                        model_assessment = private$.model_assessment,
                                        estimated = private$.estimated
                                      )
@@ -266,11 +267,16 @@ results_generator <- R6::R6Class("results",
                                    #'   stored in the `.model_assessment` field. Requires model assessment to
                                    #'   have been run and a suitable `plot` method for `iglm_model_assessment`
                                    #'   objects to exist. Default is `FALSE`.
-                                   #' @param stats (logical) If `TRUE`, plots the normalized statistics from simulations.
+                                   #' @param stats (logical) If `TRUE`, plots the normalized statistics from simulations. 
+                                   #'    Default is `FALSE`.
+                                   #' @param ... Additional outputs 
+                                   #' 
                                    #' @details Requires estimation results (`private$.estimated == TRUE`) to plot
                                    #'   convergence diagnostics. Requires model assessment results for the
                                    #'   model assessment plots. 
-                                   plot = function(trace = FALSE, stats = FALSE, model_assessment = FALSE){
+                                   plot = function(trace = FALSE, stats = FALSE, model_assessment = FALSE, ...){
+                                     
+                                     
                                      if(stats + trace + model_assessment == 0){
                                        stop("At least one of `stats`, `trace`, or `model_assessment` must be TRUE.", call. = FALSE)
                                      }
@@ -317,11 +323,47 @@ results_generator <- R6::R6Class("results",
                                        }
                                      }
                                      if(model_assessment){
+                                       # browser()
+                                       dot_list <- list(...)
+                                       # Check what parts of the dot_list are of class "iglm_model_assessment" and whose names conincide with the planned "model_assessment"
+                                       good_ind <- unlist(lapply(dot_list, function(x){
+                                         if(inherits(x, "iglm_model_assessment")){
+                                           return(TRUE)
+                                         } else {
+                                           return(FALSE)
+                                         }
+                                       }))
+                                       dot_list <- dot_list[good_ind]
+                                       good_ind <- unlist(lapply(dot_list, function(x){
+                                         if(identical(sort(x$names), sort(private$.model_assessment$names))){
+                                           return(TRUE)
+                                         } else {
+                                           return(FALSE)
+                                         }
+                                       }))
+                                       dot_list <- dot_list[good_ind]
+                                       if(length(dot_list) >0){
+                                         add <- TRUE
+                                         
+                                         
+                                         
+                                         colors_tmp <- 2:(length(dot_list) +2)
+                                         if(is.null(names(dot_list))){
+                                           names_tmp <- c("Current Model", paste0("Model ", 1:length(dot_list)))
+                                         } else {
+                                           names_tmp <- c("Current Model", names(dot_list))
+                                         }
+                                       } else {
+                                         add <- FALSE
+                                       }
                                        
                                        if(is.null(private$.model_assessment)){
                                          stop("No model assessment available to plot.", call. = FALSE)
                                        } else {
                                          if(private$.model_assessment$include_mcmc){
+                                           if(add){
+                                             stop("Adding model assessment plots when MCMC diagnostics are included is not supported.", call. = FALSE)
+                                           } 
                                            normalized <- private$.stats
                                            normalized <- sweep(normalized, 2, private$.model_assessment$sufficient_statistics, "/")
                                            for(i in 1:ncol(normalized)){
@@ -337,87 +379,257 @@ results_generator <- R6::R6Class("results",
                                            k <- k+1
                                            if(i == "degree_distribution"){
                                              # Degree -----
+                                             # Directed 
+                                             # In degree
                                              if(is.list(private$.model_assessment$observed$degree_distribution)){
-                                               # Directed 
-                                               # In degree
-                                               x_positions <- private$.model_assessment$observed$degree_distribution$in_degree
-                                               
-                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
-                                                 x$degree_distribution$in_degree
-                                               })
-                                               simulated <- do.call("rbind",simulated)
-                                               ylim <- range(c(simulated,
-                                                               private$.model_assessment$observed$degree_distribution$in_degree))
-                                               
-                                               plot(private$.model_assessment$observed$degree_distribution$in_degree, 
-                                                    xlab = "In-Degree",ylim=ylim, 
-                                                    xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
-                                                    ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
-                                               
-                                               axis(side = 1,              
-                                                    at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution$in_degree))),
-                                                                n = 10))
-                                               axis(side = 2)       
-                                               
-                                               
-                                               boxplot(simulated, at = as.numeric(names(private$.model_assessment$observed$degree_distribution$in_degree)),
-                                                       add = TRUE, col = "#87CEEB80", axes = FALSE)
-                                               lines(private$.model_assessment$observed$degree_distribution$in_degree, type = "l", 
-                                                     col = "#E3000F",lwd = 2)
-                                               
+                                              if(add){
+                                                x_positions <- private$.model_assessment$observed$degree_distribution$in_degree
+                                                
+                                                simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                  x$degree_distribution$in_degree
+                                                })
+                                                simulated <- do.call("rbind",simulated)
+                                                ylim <- range(c(simulated,
+                                                                private$.model_assessment$observed$degree_distribution$in_degree))
+                                                
+                                                plot(private$.model_assessment$observed$degree_distribution$in_degree, 
+                                                     xlab = "In-Degree",ylim=ylim, 
+                                                     xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
+                                                     ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
+                                                
+                                                axis(side = 1,              
+                                                     at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution$in_degree))),
+                                                                 n = 10))
+                                                axis(side = 2)       
+                                                x <- as.numeric(names(private$.model_assessment$observed$degree_distribution$in_degree))
+                                                x_polygon <- c(x, rev(x)) 
+                                                y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                polygon(x_polygon, y_polygon, 
+                                                        col = add_alpha(colors_tmp[1],alpha_level = 0.4),
+                                                        border = NA)    
+                                                lines(x, colMeans(simulated), type = "l", 
+                                                      col = colors_tmp[1],lwd = 2)
+                                                lines(x, colMins(simulated), type = "l", 
+                                                      col = colors_tmp[1],lwd = 1)
+                                                lines(x, colMaxs(simulated), type = "l", 
+                                                      col = colors_tmp[1],lwd = 1)
+                                                 for(j in 1:length(dot_list)){
+                                                   x_positions <- dot_list[[j]]$observed$degree_distribution$in_degree
+                                                   simulated <- lapply(dot_list[[j]]$simulated, function(x){
+                                                     x$degree_distribution$in_degree
+                                                   })
+                                                   simulated <- do.call("rbind",simulated)
+                                                   
+                                                   x <- as.numeric(names(dot_list[[j]]$observed$degree_distribution$in_degree))
+                                                   x_polygon <- c(x, rev(x)) 
+                                                   y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                   polygon(x_polygon, y_polygon, 
+                                                           col = add_alpha(colors_tmp[j+1],alpha_level = 0.4),
+                                                           border = NA)    
+                                                   lines(x, colMeans(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 2)
+                                                   lines(x, colMins(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 1)
+                                                   lines(x, colMaxs(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 1)
+                                                 }
+                                                lines(private$.model_assessment$observed$degree_distribution$in_degree, type = "l", 
+                                                      col = "black",lwd = 2)
+                                                legend("topright", legend = c("Observed",names_tmp),
+                                                       col = c("black",colors_tmp),
+                                                       lwd = 2, bty = "n")
+                                                
+                                               } else {
+                                                 
+                                                 x_positions <- private$.model_assessment$observed$degree_distribution$in_degree
+                                                 
+                                                 simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                   x$degree_distribution$in_degree
+                                                 })
+                                                 simulated <- do.call("rbind",simulated)
+                                                 ylim <- range(c(simulated,
+                                                                 private$.model_assessment$observed$degree_distribution$in_degree))
+                                                 
+                                                 plot(private$.model_assessment$observed$degree_distribution$in_degree, 
+                                                      xlab = "In-Degree",ylim=ylim, 
+                                                      xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
+                                                      ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
+                                                 
+                                                 axis(side = 1,              
+                                                      at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution$in_degree))),
+                                                                  n = 10))
+                                                 axis(side = 2)       
+                                                 boxplot(simulated, at = as.numeric(names(private$.model_assessment$observed$degree_distribution$in_degree)),
+                                                         add = TRUE, col = "#87CEEB80", axes = FALSE)
+                                                 lines(private$.model_assessment$observed$degree_distribution$in_degree, type = "l", 
+                                                       col = "#E3000F",lwd = 2)
+                                               }
                                                # Out degree 
+                                               if(add){
+                                                 x_positions <- private$.model_assessment$observed$degree_distribution$out_degree
+                                                 
+                                                 simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                   x$degree_distribution$out_degree
+                                                 })
+                                                 simulated <- do.call("rbind",simulated)
+                                                 ylim <- range(c(simulated,
+                                                                 private$.model_assessment$observed$degree_distribution$out_degree))
+                                                 
+                                                 plot(private$.model_assessment$observed$degree_distribution$out_degree, 
+                                                      xlab = "Out-Degree",ylim=ylim, 
+                                                      xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
+                                                      ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
+                                                 
+                                                 axis(side = 1,              
+                                                      at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution$out_degree))),
+                                                                  n = 10))
+                                                 axis(side = 2)       
+                                                 x <- as.numeric(names(private$.model_assessment$observed$degree_distribution$out_degree))
+                                                 x_polygon <- c(x, rev(x)) 
+                                                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                 polygon(x_polygon, y_polygon, 
+                                                         col = add_alpha(colors_tmp[1],alpha_level = 0.4),
+                                                         border = NA)    
+                                                 lines(x, colMeans(simulated), type = "l", 
+                                                       col = colors_tmp[1],lwd = 2)
+                                                 lines(x, colMins(simulated), type = "l", 
+                                                       col = colors_tmp[1],lwd = 1)
+                                                 lines(x, colMaxs(simulated), type = "l", 
+                                                       col = colors_tmp[1],lwd = 1)
+                                                 for(j in 1:length(dot_list)){
+                                                   x_positions <- dot_list[[j]]$observed$degree_distribution$out_degree
+                                                   simulated <- lapply(dot_list[[j]]$simulated, function(x){
+                                                     x$degree_distribution$out_degree
+                                                   })
+                                                   simulated <- do.call("rbind",simulated)
+                                                   
+                                                   x <- as.numeric(names(dot_list[[j]]$observed$degree_distribution$out_degree))
+                                                   x_polygon <- c(x, rev(x)) 
+                                                   y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                   polygon(x_polygon, y_polygon, 
+                                                           col = add_alpha(colors_tmp[j+1],alpha_level = 0.4),
+                                                           border = NA)    
+                                                   lines(x, colMeans(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 2)
+                                                   lines(x, colMins(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 1)
+                                                   lines(x, colMaxs(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 1)
+                                                 }
+                                                 lines(private$.model_assessment$observed$degree_distribution$out_degree, type = "l", 
+                                                       col = "black",lwd = 2)
+                                                 legend("topright", legend = c("Observed",names_tmp),
+                                                        col = c("black",colors_tmp),
+                                                        lwd = 2, bty = "n")
                                                
-                                               x_positions <- private$.model_assessment$observed$degree_distribution$out_degree
-                                               private$.model_assessment$simulated[[1]]
-                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
-                                                 x$degree_distribution$out_degree
-                                               })
-                                               simulated <- do.call("rbind",simulated)
-                                               ylim <- range(c(simulated,
-                                                               private$.model_assessment$observed$degree_distribution$out_degree))
-                                               
-                                               plot(private$.model_assessment$observed$degree_distribution$out_degree, 
-                                                    xlab = "Out-Degree",ylim=ylim, 
-                                                    xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
-                                                    ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
-                                               axis(side = 1,              
-                                                    at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution$out_degree))),
-                                                                n = 10))
-                                               axis(side = 2)     
-                                               
-                                               
-                                               
-                                               boxplot(simulated, at = as.numeric(names(private$.model_assessment$observed$degree_distribution$out_degree)),
-                                                       add = TRUE, col = "#87CEEB80", axes = FALSE)
-                                               lines(private$.model_assessment$observed$degree_distribution$out_degree, type = "l", 
-                                                     col = "#E3000F",lwd = 2)
-                                               
-                                               
+                                                } else {
+                                                 x_positions <- private$.model_assessment$observed$degree_distribution$out_degree
+                                                 simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                   x$degree_distribution$out_degree
+                                                 })
+                                                 simulated <- do.call("rbind",simulated)
+                                                 ylim <- range(c(simulated,
+                                                                 private$.model_assessment$observed$degree_distribution$out_degree))
+                                                 
+                                                 plot(private$.model_assessment$observed$degree_distribution$out_degree, 
+                                                      xlab = "Out-Degree",ylim=ylim, 
+                                                      xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
+                                                      ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
+                                                 axis(side = 1,              
+                                                      at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution$out_degree))),
+                                                                  n = 10))
+                                                 axis(side = 2)     
+                                                 boxplot(simulated, at = as.numeric(names(private$.model_assessment$observed$degree_distribution$out_degree)),
+                                                         add = TRUE, col = "#87CEEB80", axes = FALSE)
+                                                 lines(private$.model_assessment$observed$degree_distribution$out_degree, type = "l", 
+                                                       col = "#E3000F",lwd = 2)
+                                               }
                                              } else {
                                                # Undirected 
-                                               x_positions <- private$.model_assessment$observed$degree_distribution
-                                               
-                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
-                                                 x$degree_distribution
-                                               })
-                                               simulated <- do.call("rbind",simulated)
-                                               ylim <- range(c(simulated,
-                                                               private$.model_assessment$observed$degree_distribution))
-                                               
-                                               plot(private$.model_assessment$observed$degree_distribution, 
-                                                    xlab = "Degree",ylim=ylim, 
-                                                    xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
-                                                    ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
-                                               axis(side = 1,              
-                                                    at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution))),
-                                                                n = 10))
-                                               axis(side = 2)     
-                                               
-                                               
-                                               boxplot(simulated, at = as.numeric(names(private$.model_assessment$observed$degree_distribution)),
-                                                       add = TRUE, col = "#87CEEB80", axes = FALSE)
-                                               lines(private$.model_assessment$observed$degree_distribution, type = "l", 
-                                                     col = "#E3000F",lwd = 2)
+                                               if(add){
+                                                 x_positions <- private$.model_assessment$observed$degree_distribution
+                                                 
+                                                 simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                   x$degree_distribution
+                                                 })
+                                                 simulated <- do.call("rbind",simulated)
+                                                 ylim <- range(c(simulated,
+                                                                 private$.model_assessment$observed$degree_distribution))
+                                                 
+                                                 plot(private$.model_assessment$observed$degree_distribution, 
+                                                      xlab = "Out-Degree",ylim=ylim, 
+                                                      xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
+                                                      ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
+                                                 
+                                                 axis(side = 1,              
+                                                      at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution))),
+                                                                  n = 10))
+                                                 axis(side = 2)       
+                                                 x <- as.numeric(names(private$.model_assessment$observed$degree_distribution))
+                                                 x_polygon <- c(x, rev(x)) 
+                                                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                 polygon(x_polygon, y_polygon, 
+                                                         col = add_alpha(colors_tmp[1],alpha_level = 0.4),
+                                                         border = NA)    
+                                                 lines(x, colMeans(simulated), type = "l", 
+                                                       col = colors_tmp[1],lwd = 1)
+                                                 lines(x, colMins(simulated), type = "l", 
+                                                       col = colors_tmp[1],lwd = 1)
+                                                 lines(x, colMaxs(simulated), type = "l", 
+                                                       col = colors_tmp[1],lwd = 1)
+                                                 for(j in 1:length(dot_list)){
+                                                   x_positions <- dot_list[[j]]$observed$degree_distribution
+                                                   simulated <- lapply(dot_list[[j]]$simulated, function(x){
+                                                     x$degree_distribution
+                                                   })
+                                                   simulated <- do.call("rbind",simulated)
+                                                   
+                                                   x <- as.numeric(names(dot_list[[j]]$observed$degree_distribution))
+                                                   x_polygon <- c(x, rev(x)) 
+                                                   y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                   polygon(x_polygon, y_polygon, 
+                                                           col = add_alpha(colors_tmp[j+1],alpha_level = 0.4),
+                                                           border = NA)    
+                                                   lines(x, colMeans(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 1)
+                                                   lines(x, colMins(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 1)
+                                                   lines(x, colMaxs(simulated), type = "l", 
+                                                         col = colors_tmp[j+1],lwd = 1)
+                                                   
+                                                 }
+                                                 lines(private$.model_assessment$observed$degree_distribution, type = "l", 
+                                                       col = "black",lwd = 2)
+                                                 legend("topright", legend = c("Observed",names_tmp),
+                                                        col = c("black",colors_tmp),
+                                                        lwd = 2, bty = "n")
+                                                 
+                                               } else {
+                                                 x_positions <- private$.model_assessment$observed$degree_distribution
+                                                 
+                                                 simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                   x$degree_distribution
+                                                 })
+                                                 simulated <- do.call("rbind",simulated)
+                                                 ylim <- range(c(simulated,
+                                                                 private$.model_assessment$observed$degree_distribution))
+                                                 
+                                                 plot(private$.model_assessment$observed$degree_distribution, 
+                                                      xlab = "Degree",ylim=ylim, 
+                                                      xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3), 
+                                                      ylab = "Percentage",type = "n", bty ="l", axes = FALSE)
+                                                 axis(side = 1,              
+                                                      at = pretty(range(as.numeric(names(private$.model_assessment$observed$degree_distribution))),
+                                                                  n = 10))
+                                                 axis(side = 2)     
+                                                 
+                                                 
+                                                 boxplot(simulated, at = as.numeric(names(private$.model_assessment$observed$degree_distribution)),
+                                                         add = TRUE, col = "#87CEEB80", axes = FALSE)
+                                                 lines(private$.model_assessment$observed$degree_distribution, type = "l", 
+                                                       col = "#E3000F",lwd = 2)
+                                               }
+                                              
                                              }
                                              
                                              
@@ -432,107 +644,349 @@ results_generator <- R6::R6Class("results",
                                                xlab_tmp <- "Edgewise-shared Partner"
                                              }
                                              # ESP/DSP -----
-                                             x_positions <- eval(parse(text = paste0("private$.model_assessment$observed$",tmp_names[k])))
-                                             simulated <- lapply(private$.model_assessment$simulated, function(x){
-                                               # x$edgewise_shared_partner_distribution
-                                               eval(parse(text = paste0("x$",tmp_names[k])))
-                                             })
-                                             simulated <- do.call("rbind",simulated)
-                                             ylim <- range(c(simulated,
-                                                             x_positions))
-                                             plot(x_positions, 
-                                                  xlab = xlab_tmp,ylab = "Percentage",type = "n",
-                                                  ylim = ylim, axes = F,
-                                                  bty ="l",
-                                                  xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3))
+                                             if(add){
+                                               x_positions <- eval(parse(text = paste0("private$.model_assessment$observed$",tmp_names[k])))
+                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                 eval(parse(text = paste0("x$",tmp_names[k])))
+                                               })
+                                               simulated <- do.call("rbind",simulated)
+                                              
+                                               ylim <- range(c(simulated,
+                                                               x_positions))
+                                               plot(x_positions, 
+                                                    xlab = xlab_tmp,ylab = "Percentage",type = "n",
+                                                    ylim = ylim, axes = F,
+                                                    bty ="l",
+                                                    xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3))
+                                               
+                                               axis(side = 1,              
+                                                    at = pretty(range(as.numeric(names(x_positions))),
+                                                                n = 10))
+                                               axis(side = 2)        
+                                               
+                                               x <- as.numeric(names(x_positions))
+                                               x_polygon <- c(x, rev(x)) 
+                                               y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                               polygon(x_polygon, y_polygon, 
+                                                       col = add_alpha(colors_tmp[1],alpha_level = 0.4),
+                                                       border = NA)    
+                                               lines(x, colMeans(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 2)
+                                               lines(x, colMins(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 1)
+                                               lines(x, colMaxs(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 1)
+                                               
+                                               for(j in 1:length(dot_list)){
+                                                 
+                                                 x_positions <- eval(parse(text = paste0("dot_list[[j]]$observed$",tmp_names[k])))
+                                                 
+                                                 simulated <- lapply(dot_list[[j]]$simulated, function(x){
+                                                   eval(parse(text = paste0("x$",tmp_names[k])))
+                                                 })
+                                                 
+                                                 simulated <- do.call("rbind",simulated)
+                                                 
+                                                 x <-  as.numeric(names(x_positions))
+                                                 x_polygon <- c(x, rev(x)) 
+                                                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                 polygon(x_polygon, y_polygon, 
+                                                         col = add_alpha(colors_tmp[j+1],alpha_level = 0.4),
+                                                         border = NA)    
+                                                 lines(x, colMeans(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 2)
+                                                 lines(x, colMins(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 1)
+                                                 lines(x, colMaxs(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 1)
+                                               }
+                                               
+                                               lines(x_positions, type = "l", 
+                                                     col = "black",lwd = 2)
+                                               legend("topright", legend = c("Observed",names_tmp),
+                                                      col = c("black",colors_tmp),
+                                                      lwd = 2, bty = "n")
+                                             } else {
+                                               x_positions <- eval(parse(text = paste0("private$.model_assessment$observed$",tmp_names[k])))
+                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                 # x$edgewise_shared_partner_distribution
+                                                 eval(parse(text = paste0("x$",tmp_names[k])))
+                                               })
+                                               simulated <- do.call("rbind",simulated)
+                                               ylim <- range(c(simulated,
+                                                               x_positions))
+                                               plot(x_positions, 
+                                                    xlab = xlab_tmp,ylab = "Percentage",type = "n",
+                                                    ylim = ylim, axes = F,
+                                                    bty ="l",
+                                                    xlim = c(min(as.numeric(names(x_positions)))-0.3, max(as.numeric(names(x_positions)))+0.3))
+                                               
+                                               axis(side = 1,              
+                                                    at = pretty(range(as.numeric(names(x_positions))),
+                                                                n = 10))
+                                               axis(side = 2)          
+                                               
+                                               boxplot(simulated, at = as.numeric(names(x_positions)),
+                                                       add = TRUE, col = "#87CEEB80", axes = FALSE)
+                                               lines(x_positions, type = "l", 
+                                                     col = "#E3000F",lwd = 2)
+                                             }
                                              
-                                             axis(side = 1,              
-                                                  at = pretty(range(as.numeric(names(x_positions))),
-                                                              n = 10))
-                                             axis(side = 2)          
-                                             
-                                             boxplot(simulated, at = as.numeric(names(x_positions)),
-                                                     add = TRUE, col = "#87CEEB80", axes = FALSE)
-                                             lines(x_positions, type = "l", 
-                                                   col = "#E3000F",lwd = 2)
                                            } else if(i == "spillover_degree_distribution"){
                                              # Spillover degree -----
-                                             simulated <- lapply(private$.model_assessment$simulated, function(x){
-                                               x$spillover_degree_distribution$in_spillover_degree
-                                             })
-                                             simulated <- do.call("rbind",simulated)
-                                             
-                                             ylim <- range(c(simulated,
-                                                             private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree), na.rm = TRUE)
-                                             x_positions <- private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree
-                                             
-                                             plot(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree, 
-                                                  xlab = "Spillover Degree (x_i, y_j, z_i,j)",ylab = "Percentage",type = "n", 
-                                                  xlim = c(min(as.numeric(names(x_positions)))-0.5, max(as.numeric(names(x_positions)))+0.5),
-                                                  ylim = ylim, bty ="l", axes = FALSE)
-                                             
-                                             
-                                             axis(side = 1,              
-                                                  at = pretty(range(as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree))),
-                                                              n = 10))
-                                             axis(side = 2)    
-                                             
-                                             boxplot(simulated, 
-                                                     at = as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree)),
-                                                     add = TRUE, col = "#87CEEBA0", axes = FALSE)
-                                             lines(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree, type = "l", 
-                                                   col = "#E3000F",lwd = 2)
-                                             
-                                             simulated <- lapply(private$.model_assessment$simulated, function(x){
-                                               x$spillover_degree_distribution$out_spillover_degree
-                                             })
-                                             simulated <- do.call("rbind",simulated)
-                                             ylim <- range(c(simulated,
-                                                             private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree))
-                                             x_positions <- private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree
-                                             
-                                             plot(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree, 
-                                                  xlab = "Spillover Degree (x_j, y_i, z_i,j)",ylab = "Percentage",type = "n", 
-                                                  xlim = c(min(as.numeric(names(x_positions)))-0.5, max(as.numeric(names(x_positions)))+0.5),
-                                                  ylim = ylim, bty ="l", axes = FALSE)
-                                             
-                                             axis(side = 1,              
-                                                  at = pretty(range(as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree))),
-                                                              n = 10))
-                                             axis(side = 2)    
-                                             
-                                             boxplot(simulated, 
-                                                     at = as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree)),
-                                                     add = TRUE, col = "#87CEEBA0", axes = FALSE)
-                                             lines(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree, type = "l", 
-                                                   col = "#E3000F",lwd = 2)
+                                             if(add){
+                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                 x$spillover_degree_distribution$in_spillover_degree
+                                               })
+                                               simulated <- do.call("rbind",simulated)
+                                               
+                                               ylim <- range(c(simulated,
+                                                               private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree), na.rm = TRUE)
+                                               x_positions <- private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree
+                                               
+                                               plot(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree, 
+                                                    xlab = "Spillover Degree (x_i, y_j, z_i,j)",ylab = "Percentage",type = "n", 
+                                                    xlim = c(min(as.numeric(names(x_positions)))-0.5, max(as.numeric(names(x_positions)))+0.5),
+                                                    ylim = ylim, bty ="l", axes = FALSE)
+                                               
+                                               
+                                               axis(side = 1,              
+                                                    at = pretty(range(as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree))),
+                                                                n = 10))
+                                               axis(side = 2)    
+                                               x <- as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree))
+                                               x_polygon <- c(x, rev(x)) 
+                                               y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                               polygon(x_polygon, y_polygon, 
+                                                       col = add_alpha(colors_tmp[1],alpha_level = 0.4),
+                                                       border = NA)    
+                                               lines(x, colMeans(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 2)
+                                               lines(x, colMins(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 1)
+                                               lines(x, colMaxs(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 1)
+                                               
+                                               for(j in 1:length(dot_list)){
+                                                 x_positions <- dot_list[[j]]$observed$spillover_degree_distribution$in_spillover_degree
+                                                 simulated <- lapply(dot_list[[j]]$simulated, function(x){
+                                                   x$spillover_degree_distribution$in_spillover_degree
+                                                 })
+                                                 simulated <- do.call("rbind",simulated)
+                                                 
+                                                 x <- as.numeric(names(dot_list[[j]]$observed$spillover_degree_distribution$in_spillover_degree))
+                                                 x_polygon <- c(x, rev(x)) 
+                                                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                 polygon(x_polygon, y_polygon, 
+                                                         col = add_alpha(colors_tmp[j+1],alpha_level = 0.4),
+                                                         border = NA)    
+                                                 lines(x, colMeans(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 2)
+                                                 lines(x, colMins(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 1)
+                                                 lines(x, colMaxs(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 1)
+                                               }
+                                               lines(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree, type = "l", 
+                                                     col = "black",lwd = 2)
+                                               legend("topright", legend = c("Observed",names_tmp),
+                                                      col = c("black",colors_tmp),
+                                                      lwd = 2, bty = "n")
+                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                 x$spillover_degree_distribution$out_spillover_degree
+                                               })
+                                               simulated <- do.call("rbind",simulated)
+                                               
+                                               ylim <- range(c(simulated,
+                                                               private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree), na.rm = TRUE)
+                                               x_positions <- private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree
+                                               
+                                               
+                                               plot(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree, 
+                                                    xlab = "Spillover Degree (x_j, y_i, z_i,j)",ylab = "Percentage",type = "n", 
+                                                    xlim = c(min(as.numeric(names(x_positions)))-0.5, max(as.numeric(names(x_positions)))+0.5),
+                                                    ylim = ylim, bty ="l", axes = FALSE)
+                                               
+                                               axis(side = 1,              
+                                                    at = pretty(range(as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree))),
+                                                                n = 10))
+                                               axis(side = 2)    
+                                               x <- as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree))
+                                               x_polygon <- c(x, rev(x)) 
+                                               y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                               polygon(x_polygon, y_polygon, 
+                                                       col = add_alpha(colors_tmp[1],alpha_level = 0.4),
+                                                       border = NA)    
+                                               lines(x, colMeans(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 2)
+                                               lines(x, colMins(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 1)
+                                               lines(x, colMaxs(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 1)
+                                               
+                                               for(j in 1:length(dot_list)){
+                                                 x_positions <- dot_list[[j]]$observed$spillover_degree_distribution$out_spillover_degree
+                                                 simulated <- lapply(dot_list[[j]]$simulated, function(x){
+                                                   x$spillover_degree_distribution$out_spillover_degree
+                                                 })
+                                                 simulated <- do.call("rbind",simulated)
+                                                 
+                                                 x <- as.numeric(names(dot_list[[j]]$observed$spillover_degree_distribution$out_spillover_degree))
+                                                 x_polygon <- c(x, rev(x)) 
+                                                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                 polygon(x_polygon, y_polygon, 
+                                                         col = add_alpha(colors_tmp[j+1],alpha_level = 0.4),
+                                                         border = NA)    
+                                                 lines(x, colMeans(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 2)
+                                                 lines(x, colMins(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 1)
+                                                 lines(x, colMaxs(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 1)
+                                               }
+                                              } else {
+                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                 x$spillover_degree_distribution$in_spillover_degree
+                                               })
+                                               simulated <- do.call("rbind",simulated)
+                                               
+                                               ylim <- range(c(simulated,
+                                                               private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree), na.rm = TRUE)
+                                               x_positions <- private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree
+                                               
+                                               plot(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree, 
+                                                    xlab = "Spillover Degree (x_i, y_j, z_i,j)",ylab = "Percentage",type = "n", 
+                                                    xlim = c(min(as.numeric(names(x_positions)))-0.5, max(as.numeric(names(x_positions)))+0.5),
+                                                    ylim = ylim, bty ="l", axes = FALSE)
+                                               
+                                               
+                                               axis(side = 1,              
+                                                    at = pretty(range(as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree))),
+                                                                n = 10))
+                                               axis(side = 2)    
+                                               
+                                               boxplot(simulated, 
+                                                       at = as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree)),
+                                                       add = TRUE, col = "#87CEEBA0", axes = FALSE)
+                                               lines(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree, type = "l", 
+                                                     col = "#E3000F",lwd = 2)
+                                               
+                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                 x$spillover_degree_distribution$out_spillover_degree
+                                               })
+                                               simulated <- do.call("rbind",simulated)
+                                               ylim <- range(c(simulated,
+                                                               private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree))
+                                               x_positions <- private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree
+                                               
+                                               plot(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree, 
+                                                    xlab = "Spillover Degree (x_j, y_i, z_i,j)",ylab = "Percentage",type = "n", 
+                                                    xlim = c(min(as.numeric(names(x_positions)))-0.5, max(as.numeric(names(x_positions)))+0.5),
+                                                    ylim = ylim, bty ="l", axes = FALSE)
+                                               
+                                               axis(side = 1,              
+                                                    at = pretty(range(as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree))),
+                                                                n = 10))
+                                               axis(side = 2)    
+                                               
+                                               boxplot(simulated, 
+                                                       at = as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree)),
+                                                       add = TRUE, col = "#87CEEBA0", axes = FALSE)
+                                               lines(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree, type = "l", 
+                                                     col = "#E3000F",lwd = 2)
+                                               
+                                             }
                                              
                                              
                                              
                                            } else if (i == "geodesic_distances_distribution"){
-                                             simulated <- lapply(private$.model_assessment$simulated, function(x){
-                                               x$geodesic_distances_distribution
-                                             })
-                                             simulated <- do.call("rbind",simulated)
-                                             ylim <- range(c(simulated,
-                                                             private$.model_assessment$observed$geodesic_distances_distribution))
+                                             # Geodesic distances -----
+                                             if(add){
+                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                 x$geodesic_distances_distribution
+                                               })
+                                               simulated <- do.call("rbind",simulated)
+                                               ylim <- range(c(simulated,
+                                                               private$.model_assessment$observed$geodesic_distances_distribution))
+                                               
+                                               
+                                               x_positions <- 1:length(private$.model_assessment$observed$geodesic_distances_distribution)
+                                               plot(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution), 
+                                                    xlab = "Geodesic Distance",ylab = "Percentage",type = "n", xaxt = "n", ylim=ylim, 
+                                                    xlim = c(min(x_positions)-0.3, max(x_positions)+0.3), bty ="l")
+                                               
+                                               
+                                               colnames(simulated) <- x_positions
+                                               
+                                               lines(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
+                                                     type = "l", col = "black",lwd = 2)
+                                               axis(side = 1,
+                                                    at = x_positions,             
+                                                    labels = names(private$.model_assessment$observed$geodesic_distances_distribution)) 
+                                               x_polygon <- c(x_positions, rev(x_positions)) 
+                                               y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                               polygon(x_polygon, y_polygon, 
+                                                       col = add_alpha(colors_tmp[1],alpha_level = 0.4),
+                                                       border = NA)    
+                                               
+                                               lines(x_positions, colMeans(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 2)
+                                               lines(x_positions, colMins(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 1)
+                                               lines(x_positions, colMaxs(simulated), type = "l", 
+                                                     col = colors_tmp[1],lwd = 1)
+                                               
+                                               for(j in 1:length(dot_list)){
+                                                 x_positions <- 1:length(dot_list[[j]]$observed$geodesic_distances_distribution)
+                                                 
+                                                 simulated <- lapply(dot_list[[j]]$simulated, function(x){
+                                                   x$geodesic_distances_distribution
+                                                 })
+                                                 
+                                                 simulated <- do.call("rbind",simulated)
+                                                 x_polygon <- c(x_positions, rev(x_positions)) 
+                                                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated))) 
+                                                 polygon(x_polygon, y_polygon, 
+                                                         col = add_alpha(colors_tmp[j+1],alpha_level = 0.4),
+                                                         border = NA)    
+                                                 lines(x_positions, colMeans(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 2)
+                                                 lines(x_positions, colMins(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 1)
+                                                 lines(x_positions, colMaxs(simulated), type = "l", 
+                                                       col = colors_tmp[j+1],lwd = 1)
+                                               }
+                                               
+                                               legend("topright", legend = c("Observed",names_tmp),
+                                                      col = c("black",colors_tmp),
+                                                      lwd = 2, bty = "n")
+                                               
+                                             } else {
+                                               simulated <- lapply(private$.model_assessment$simulated, function(x){
+                                                 x$geodesic_distances_distribution
+                                               })
+                                               simulated <- do.call("rbind",simulated)
+                                               ylim <- range(c(simulated,
+                                                               private$.model_assessment$observed$geodesic_distances_distribution))
+                                               
+                                               
+                                               x_positions <- 1:length(private$.model_assessment$observed$geodesic_distances_distribution)
+                                               plot(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution), 
+                                                    xlab = "Geodesic Distance",ylab = "Percentage",type = "n", xaxt = "n", ylim=ylim, 
+                                                    xlim = c(min(x_positions)-0.3, max(x_positions)+0.3), bty ="l")
+                                               
+                                               
+                                               colnames(simulated) <- x_positions
+                                               boxplot(simulated, at = x_positions,
+                                                       add = TRUE, col = "#87CEEBA0", axes = FALSE)
+                                               
+                                               lines(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
+                                                     type = "l", col = "#E3000F",lwd = 2)
+                                               axis(side = 1,
+                                                    at = x_positions,             
+                                                    labels = names(private$.model_assessment$observed$geodesic_distances_distribution)) 
+                                             }
                                              
-                                             
-                                             x_positions <- 1:length(private$.model_assessment$observed$geodesic_distances_distribution)
-                                             plot(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution), 
-                                                  xlab = "Geodesic Distance",ylab = "Percentage",type = "n", xaxt = "n", ylim=ylim, 
-                                                  xlim = c(min(x_positions)-0.3, max(x_positions)+0.3), bty ="l")
-                                             
-                                             
-                                             colnames(simulated) <- x_positions
-                                             boxplot(simulated, at = x_positions,
-                                                     add = TRUE, col = "#87CEEBA0", axes = FALSE)
-                                             
-                                             lines(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
-                                                   type = "l", col = "#E3000F",lwd = 2)
-                                             axis(side = 1,
-                                                  at = x_positions,             
-                                                  labels = names(private$.model_assessment$observed$geodesic_distances_distribution)) 
                                            }
                                          }
                                        }

@@ -566,7 +566,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      info_factor <- factor(D_vec, 
                                                            levels = c(seq(from = value_range[1], to = value_range[2]), Inf))
                                      info <- table(info_factor)
-                                     info <- info/(sum(info)*prob + (!prob))
+                                     
+                                   
+                                     if(sum(info) > 0){
+                                       info <- info/(sum(info)*prob + (!prob))
+                                     }
                                      private$.descriptives$geodesic_distances_distribution <- info
                                      if(plot){
                                        barplot(info,
@@ -669,7 +673,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                     levels = seq(from = value_range[1], to = value_range[2]))
                                      info <- table(info)
                                      # Transform to probability from frequency 
-                                     info <- info/(sum(info)*prob + (!prob))
+                                     if(sum(info) > 0){
+                                       info <- info/(sum(info)*prob + (!prob))
+                                     }
                                      if(type  == "OTP"){
                                        private$.descriptives$edgewise_shared_partner_distribution$OTP <- info
                                      } else if(type  == "ITP"){
@@ -752,8 +758,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      info <- factor(as.numeric(info), 
                                                     levels = seq(from = value_range[1], to = value_range[2]))
                                      info <- table(info)
-                                     # Transform to probability from frequency 
-                                     info <- info/(sum(info)*prob + (!prob))
+                                     # Transform to probability from frequency
+                                     if(sum(info) > 0){
+                                       info <- info/(sum(info)*prob + (!prob))
+                                     }
+                                     
                                      if(type  == "OTP"){
                                        private$.descriptives$dyadwise_shared_partner_distribution$OTP <- info
                                      } else if(type  == "ITP"){
@@ -802,16 +811,25 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        info_in <- table(info_in)
                                        info_out <- table(info_out)
                                        
-                                       info_in <- info_in/(sum(info_in)*prob + (!prob))
-                                       info_out <- info_out/(sum(info_out)*prob + (!prob))
+                                       if(sum(info_in) > 0){
+                                         info_in <- info_in/(sum(info_in)*prob + (!prob))
+                                       } 
+                                       if(sum(info_out) > 0){
+                                         info_out <- info_out/(sum(info_out)*prob + (!prob))
+                                       }
                                        info <- list(in_degree = info_in,
                                                     out_degree = info_out)
                                        private$.descriptives$degree_distribution <- info
                                      } else {
                                        info <- factor(private$.descriptives$degree$degree_seq, 
                                                       levels = seq(from = value_range[1], to = value_range[2]))
+                                       if(is.null(value_range)){
+                                         value_range = range(as.numeric(info))
+                                       }
                                        info <-table(info)
-                                       info <- info/(sum(info)*prob + (!prob))
+                                       if(sum(info) > 0){
+                                         info <- info/(sum(info)*prob + (!prob))  
+                                       } 
                                        private$.descriptives$degree_distribution <- info
                                      }
                                      if(plot){
@@ -914,7 +932,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      adj_mat_x_y = matrix(data = 0, nrow = length(actors_x),
                                                           ncol = length(actors_y),
                                                           dimnames = list(actors_x, actors_y))
-                                     edges_x_y = private$.z_network[(private$.z_network[,1] %in% actors_x) & (private$.z_network[,2] %in% actors_y),]
+                                     edges_x_y = matrix(private$.z_network[(private$.z_network[,1] %in% actors_x) & (private$.z_network[,2] %in% actors_y),],
+                                                        ncol = 2)
                                      if(nrow(edges_x_y) > 0){
                                        edges_x_y[,1] = match(edges_x_y[,1], rownames(adj_mat_x_y))
                                        edges_x_y[,2] = match(edges_x_y[,2], colnames(adj_mat_x_y))
