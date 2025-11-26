@@ -700,8 +700,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                              res_z <- Reduce("+", matrices_list)/length(matrices_list)
                                              res_z <- as.matrix(res_z)
                                              rownames(res_z) <- colnames(res_z) <- paste0(1:private$.iglm.data$n_actor)
-                                             network_obs <- matrix(0, nrow = model_cov$iglm.data$n_actor, ncol = model_cov$iglm.data$n_actor)
-                                             network_obs[model_cov$iglm.data$z_network] <- 1
+                                             network_obs <- matrix(0, nrow = private$.iglm.data$n_actor, ncol = private$.iglm.data$n_actor)
+                                             network_obs[private$.iglm.data$z_network] <- 1
                                              res$z <- data.frame(
                                                sender = rownames(res_z)[row(res_z)],
                                                receiver = colnames(res_z)[row(res_z)],

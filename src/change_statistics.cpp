@@ -1095,10 +1095,10 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
       bool tie_exists = object.z_network.get_val(actor_i, actor_j);
       
       double Y_i = object.y_attribute.get_val(actor_i);
-      double X_i = object.x_attribute.get_val(actor_i); 
+      // double X_i = object.x_attribute.get_val(actor_i); 
       
       double Y_j = object.y_attribute.get_val(actor_j);
-      double X_j = object.x_attribute.get_val(actor_j); 
+      // double X_j = object.x_attribute.get_val(actor_j); 
       
       if (Y_i != 0) {
         double sum_y_neighbors_i = 0;

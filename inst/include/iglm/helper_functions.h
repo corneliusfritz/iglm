@@ -77,6 +77,9 @@ inline arma::mat map_to_mat(std::unordered_map< int, std::unordered_set<int>> &a
 inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
                        std::unordered_map< int, std::unordered_set<int>> &adj_list,
                        std::unordered_map< int, std::unordered_set<int>> &adj_list_in) {
+  if (mat.is_empty() || mat.n_elem == 0) {
+    return; 
+  }
   for (int i = 1; i <= n_actors; i++){ 
     adj_list[i] = std::unordered_set<int>();
   } 
@@ -87,11 +90,10 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
   }
   //  This checks whether an edge list or adjacency matrix is provided
   if(mat.n_cols==2){
-    // Rcout << "The undirected network has " << mat.n_rows << " edges." << std::endl;
     if(directed){
       arma::vec tmp_row1 = mat.col(0);
       arma::vec tmp_row2 = mat.col(1);
-      for (int i = 1; i <= n_actors; i++){
+      for (arma::uword i = 1; i <= n_actors; i++){
         arma::vec ids1 = tmp_row1.elem(find(mat.col(1) == i)); // Find indices
         arma::vec ids2 = tmp_row2.elem(find(mat.col(0) == i)); // Find indices
         adj_list.at(i)= std::unordered_set<int>(ids2.begin(), ids2.end());
@@ -102,7 +104,7 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
       arma::vec tmp_row2 = mat.col(1);
 
       // double u = 0.0;
-      for (int i = 1; i <= n_actors; i++){
+      for (arma::uword i = 1; i <= n_actors; i++){
         std::unordered_set<int> part1,part2, res;
         arma::vec ids1 = tmp_row1.elem(find(mat.col(1) == i)); // Find indices from
         arma::vec ids2 = tmp_row2.elem(find(mat.col(0) == i)); // Find indices to
@@ -119,7 +121,7 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
     } 
   } else {
     arma::rowvec tmp_row;
-    for (int i = 1; i <= n_actors; i++){
+    for (arma::uword i = 1; i <= n_actors; i++){
       tmp_row = mat.row(i-1);
       arma::uvec ids = find(tmp_row == 1) + 1; // Find indices
       // Rcout << ids << std::endl;
@@ -127,7 +129,7 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
     } 
     if(directed){
       // Rcout << "Starting with the in degree network" << std::endl;
-      for (int i = 1; i <= n_actors; i++){
+      for (arma::uword i = 1; i <= n_actors; i++){
         tmp_row = mat.col(i-1).as_row();
         // Rcout << tmp_col << std::endl;
         arma::uvec ids = find(tmp_row == 1) + 1; // Find indices
