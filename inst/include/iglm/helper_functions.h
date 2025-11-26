@@ -77,9 +77,7 @@ inline arma::mat map_to_mat(std::unordered_map< int, std::unordered_set<int>> &a
 inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
                        std::unordered_map< int, std::unordered_set<int>> &adj_list,
                        std::unordered_map< int, std::unordered_set<int>> &adj_list_in) {
-  if (mat.is_empty() || mat.n_elem == 0) {
-    return; 
-  }
+
   for (int i = 1; i <= n_actors; i++){ 
     adj_list[i] = std::unordered_set<int>();
   } 
@@ -87,6 +85,9 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
     for (int i = 1; i <= n_actors; i++){
       adj_list_in[i] = std::unordered_set<int>();
     }  
+  }
+  if (mat.is_empty() || mat.n_elem == 0) {
+    return;
   }
   //  This checks whether an edge list or adjacency matrix is provided
   if(mat.n_cols==2){
