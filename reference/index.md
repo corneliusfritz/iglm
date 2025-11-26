@@ -5,6 +5,9 @@
 - [`control.iglm()`](control.iglm.md) : Set Control Parameters for iglm
   Estimation
 - [`count_statistics()`](count_statistics.md) : Compute Statistics
+- [`create_userterms_skeleton()`](create_userterms_skeleton.md) :
+  Generate the Skeleton for an R package to implement additional iglm
+  terms
 - [`iglm()`](iglm.md) : Construct a iglm Model Specification Object
 - [`iglm.data()`](iglm.data.md) : Constructor for the iglm.data R6
   object
