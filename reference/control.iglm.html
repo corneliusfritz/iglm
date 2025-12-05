@@ -40,6 +40,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">control.iglm</span><span class="op">(</span></span>
 <span>  estimate_model <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  fix_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fix_z <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  display_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  return_samples <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  offset_nonoverlap <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -69,6 +70,11 @@ are estimated. If `FALSE`, estimation is skipped and only the preprocessing is d
 <dt id="arg-fix-x">fix_x<a class="anchor" aria-label="anchor" href="#arg-fix-x"></a></dt>
 <dd><p>(logical) If `TRUE`, the 'x' predictor is held fixed
 during estimation/simulation (fixed design in regression). Default is `FALSE`.</p></dd>
+
+
+<dt id="arg-fix-z">fix_z<a class="anchor" aria-label="anchor" href="#arg-fix-z"></a></dt>
+<dd><p>(logical) If `TRUE`, the 'z' network is held fixed
+during estimation/simulation (fixed network design). Default is `FALSE`. Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, which were introduced in binary settings in Daraganova, G., &amp; Robins, G. (2013).</p></dd>
 
 
 <dt id="arg-display-progress">display_progress<a class="anchor" aria-label="anchor" href="#arg-display-progress"></a></dt>
@@ -147,7 +153,8 @@ updated method for calculating uncertainty estimates (based on the mean-value th
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.</p>
+    <p>Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+Daraganova, G., and Robins, G. (2013). Exponential random graph models for social networks: Theory, methods and applications, 102-114. Cambridge University Press.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

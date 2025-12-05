@@ -9,6 +9,7 @@ algorithm.
 control.iglm(
   estimate_model = TRUE,
   fix_x = FALSE,
+  fix_z = FALSE,
   display_progress = FALSE,
   return_samples = TRUE,
   offset_nonoverlap = 0,
@@ -39,6 +40,14 @@ control.iglm(
   (logical) If \`TRUE\`, the 'x' predictor is held fixed during
   estimation/simulation (fixed design in regression). Default is
   \`FALSE\`.
+
+- fix_z:
+
+  (logical) If \`TRUE\`, the 'z' network is held fixed during
+  estimation/simulation (fixed network design). Default is \`FALSE\`.
+  Setting this to TRUE, allows practicioners to estimate autologistic
+  actor attribute models, which were introduced in binary settings in
+  Daraganova, G., & Robins, G. (2013).
 
 - display_progress:
 
@@ -129,4 +138,6 @@ control parameters.
 Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A
 Regression Framework for Studying Relationships among Attributes under
 Network Interference. Journal of the American Statistical Association,
-to appear.
+to appear. Daraganova, G., and Robins, G. (2013). Exponential random
+graph models for social networks: Theory, methods and applications,
+102-114. Cambridge University Press.

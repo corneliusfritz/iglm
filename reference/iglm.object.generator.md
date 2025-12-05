@@ -225,7 +225,7 @@ available, they are printed in a standard coefficient table format.
 
 #### Usage
 
-    iglm.object.generator$print(digits = 4, ...)
+    iglm.object.generator$print(digits = 4, rows = c(1, 2), ...)
 
 #### Arguments
 
@@ -233,11 +233,15 @@ available, they are printed in a standard coefficient table format.
 
   (integer) Number of digits for rounding numeric output.
 
+- `rows`:
+
+  numeric vector is provided with values between 1 and 4, only the
+  corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4:
+  Pr(\>\|t\|)).
+
 - `...`:
 
-  Additional arguments, if a numeric vector is provided with values
-  between 1 and 4, only the corresponding columns are printed (1:
-  Estimate, 2: SE, 3: t-value, 4: Pr(\>\|t\|)).
+  Additional arguments (currently unused).
 
 ------------------------------------------------------------------------
 

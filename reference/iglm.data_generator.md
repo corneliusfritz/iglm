@@ -446,7 +446,7 @@ Calculates the distribution of the \`x_attribute\`.
     iglm.data_generator$x_distribution(
       value_range = NULL,
       prob = TRUE,
-      plot = TRUE
+      plot = FALSE
     )
 
 #### Arguments
