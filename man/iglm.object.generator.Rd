@@ -23,9 +23,9 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 \describe{
 \item{\code{formula}}{(`formula`) Read-only. The model formula specifying terms and data object.}
 
-\item{\code{coef}}{(`numeric`) Read-only. The current vector of non-popularity coefficient estimates or initial values.}
+\item{\code{coef}}{(`numeric`) Read-only. The current vector of non-degrees coefficient estimates or initial values.}
 
-\item{\code{coef_popularity}}{(`numeric` or `NULL`) Read-only. The current vector of popularity coefficient estimates or initial values, or `NULL` if not applicable.}
+\item{\code{coef_degrees}}{(`numeric` or `NULL`) Read-only. The current vector of degrees coefficient estimates or initial values, or `NULL` if not applicable.}
 
 \item{\code{results}}{(`results`) Read-only. The \code{\link{results}} R6 object containing all estimation and simulation outputs.}
 
@@ -35,6 +35,8 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 
 \item{\code{sampler}}{(`sampler.iglm`) Read-only. The  \code{\link{sampler.iglm}} object specifying MCMC sampling parameters.}
 
+\item{\code{name}}{(`character`) Read-only. The name of the model.}
+
 \item{\code{sufficient_statistics}}{(`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.}
 }
 \if{html}{\out{</div>}}
@@ -43,10 +45,12 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-iglm.object-new}{\code{iglm.object.generator$new()}}
-\item \href{#method-iglm.object-model_assessment}{\code{iglm.object.generator$model_assessment()}}
+\item \href{#method-iglm.object-assess}{\code{iglm.object.generator$assess()}}
 \item \href{#method-iglm.object-print}{\code{iglm.object.generator$print()}}
 \item \href{#method-iglm.object-plot}{\code{iglm.object.generator$plot()}}
 \item \href{#method-iglm.object-gather}{\code{iglm.object.generator$gather()}}
+\item \href{#method-iglm.object-set_name}{\code{iglm.object.generator$set_name()}}
+\item \href{#method-iglm.object-set_control}{\code{iglm.object.generator$set_control()}}
 \item \href{#method-iglm.object-save}{\code{iglm.object.generator$save()}}
 \item \href{#method-iglm.object-estimate}{\code{iglm.object.generator$estimate()}}
 \item \href{#method-iglm.object-summary}{\code{iglm.object.generator$summary()}}
@@ -80,9 +84,10 @@ and control objects, calculating initial statistics, and validating.
 \if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$new(
   formula = NULL,
   coef = NULL,
-  coef_popularity = NULL,
+  coef_degrees = NULL,
   sampler = NULL,
   control = NULL,
+  name = NULL,
   file = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -95,18 +100,21 @@ name of a \code{\link{iglm.data}} object available in the calling environment.
 See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
 
 \item{\code{coef}}{A numeric vector of initial coefficients for the terms in
-the formula (excluding popularity). If `NULL`, coefficients are
+the formula (excluding degree coefficeints). If `NULL`, coefficients are
 initialized to zero.}
 
-\item{\code{coef_popularity}}{An optional numeric vector of initial popularity
+\item{\code{coef_degrees}}{An optional numeric vector of initial degree
 coefficients. Should be `NULL` if the formula does
-not include popularity terms.}
+not include degree-correcting terms.}
 
 \item{\code{sampler}}{A \code{\link{sampler.iglm}} object specifying the MCMC sampler
 settings. If `NULL`, default settings are used.}
 
 \item{\code{control}}{A \code{\link{control.iglm}} object specifying estimation control
 parameters. If `NULL`, default settings are used.}
+
+\item{\code{name}}{An optional character string specifying a name for the model, 
+would be used in plots and model assessment.}
 
 \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
 the specified .rds file instead of initializing from parameters.}
@@ -118,16 +126,16 @@ A new `iglm.object`.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-iglm.object-model_assessment"></a>}}
-\if{latex}{\out{\hypertarget{method-iglm.object-model_assessment}{}}}
-\subsection{Method \code{model_assessment()}}{
+\if{html}{\out{<a id="method-iglm.object-assess"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.object-assess}{}}}
+\subsection{Method \code{assess()}}{
 Performs model assessment by calculating specified network statistics
 on the observed network and comparing their distribution to the
 distribution obtained from simulated networks based on the current
 model parameters. Requires simulations to have been run first (via
  \code{iglm.object$simulate} or \code{iglm.object_generator$estimate}).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$model_assessment(formula, plot = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$assess(formula, plot = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -164,7 +172,8 @@ available, they are printed in a standard coefficient table format.
 \describe{
 \item{\code{digits}}{(integer) Number of digits for rounding numeric output.}
 
-\item{\code{...}}{Additional arguments (not used).}
+\item{\code{...}}{Additional arguments, if a numeric vector is provided with values between 1 and 4, 
+only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|)).}
 }
 \if{html}{\out{</div>}}
 }
@@ -213,6 +222,47 @@ A list containing all key components of the \code{\link{iglm.object}}.
   This includes the formula, coefficients, sampler, control settings,
   preprocessing info, time taken for estimation, count statistics,
   results, and the underlying \code{\link{iglm.data}} data object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.object-set_name"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.object-set_name}{}}}
+\subsection{Method \code{set_name()}}{
+Set the name of the \code{\link{iglm.object}}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$set_name(name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{(character) The name to assign to the object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The name of the object as a character string.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.object-set_control"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.object-set_control}{}}}
+\subsection{Method \code{set_control()}}{
+Set control parameters for model estimation.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$set_control(control)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{control}}{A \code{\link{control.iglm}} object specifying new
+control settings.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Invisibly returns `NULL`.
 }
 }
 \if{html}{\out{<hr>}}
@@ -342,7 +392,7 @@ Must be one of:
   This represents the expectation integrated over the uncertainty of the latent process.
   \item \code{"conditional"}: Computes predictions using the systematic component of the 
   Generalized Linear Model (GLM). It calculates the linear predictor \eqn{\eta = X\beta} 
-  (plus offset and popularity terms for the network) and applies the inverse link function 
+  (plus offset and degrees terms for the network) and applies the inverse link function 
   \eqn{\mu = g^{-1}(\eta)}.
 }
 Defaults to \code{c("conditional", "marginal")}.}
@@ -373,7 +423,7 @@ estimated coefficients \eqn{\hat{\theta}}:
   \item For \strong{Gaussian} families: \eqn{\mu = \eta} (Identity).
 }
 For the network component \code{z}, the linear predictor includes dyadic covariates, 
-popularity effects (sender/receiver variances), and structural offsets.
+degrees effects (sender/receiver variances), and structural offsets.
 }
 
 \subsection{Returns}{
@@ -395,16 +445,16 @@ Manually set the model coefficients to new values.
 This is useful for sensitivity analyses or
 applying the model to different scenarios.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$set_coefficients(coef, coef_popularity = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$set_coefficients(coef, coef_degrees = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{coef}}{A numeric vector of new coefficient values for the non-popularity terms.}
+\item{\code{coef}}{A numeric vector of new coefficient values for the non-degrees terms.}
 
-\item{\code{coef_popularity}}{A numeric vector of new coefficient values for the popularity terms,
-if applicable. Must be provided if the model includes popularity effects.}
+\item{\code{coef_degrees}}{A numeric vector of new coefficient values for the degrees terms,
+if applicable. Must be provided if the model includes degrees effects.}
 }
 \if{html}{\out{</div>}}
 }

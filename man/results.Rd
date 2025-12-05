@@ -4,13 +4,13 @@
 \alias{results}
 \title{Constructor for the results R6 Object}
 \usage{
-results(size_coef, size_coef_popularity, file = NULL)
+results(size_coef, size_coef_degrees, file = NULL)
 }
 \arguments{
-\item{size_coef}{(integer) The number of non-popularity coefficients the object
+\item{size_coef}{(integer) The number of non-degrees coefficients the object
 should be initialized to accommodate.}
 
-\item{size_coef_popularity}{(integer) The number of popularity coefficients
+\item{size_coef_degrees}{(integer) The number of degrees coefficients
 the object should be initialized to accommodate.}
 
 \item{file}{(character or NULL) Optional file path to load a previously saved

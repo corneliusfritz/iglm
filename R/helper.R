@@ -17,6 +17,19 @@
   out
 }
 
+find_ranks <- function(x){
+  match(x, sort(unique(x)))  
+}
+
+get_rank <- function(new_vals, ref_data) {
+  ref_sorted <- sort(ref_data)
+  n_less <- findInterval(new_vals, ref_sorted, left.open = TRUE)
+  n_less_equal <- findInterval(new_vals, ref_sorted)
+  avg_rank <- ( (n_less + 1) + (n_less_equal + 1) ) / 2
+  
+  return(avg_rank)
+}
+
 update_formula_remove_terms <- function(formula, terms_to_remove){
   rhs_terms <- attr(terms(formula), "term.labels")
   rhs_terms_updated <- rhs_terms[!rhs_terms %in% terms_to_remove]
@@ -370,8 +383,8 @@ print.iglm.data.list <- function(x, ...) {
 
 formula_preprocess = function(formula){
   data_object = eval(formula[[2]],envir = environment(formula))
-  includes_popularity <- "popularity" %in% all.vars(formula)
-  formula <- stats::update(formula, .~ .-popularity)
+  includes_degrees <- "degrees" %in% all.vars(formula)
+  formula <- stats::update(formula, .~ .-degrees)
   # debugonce(rhs_terms_as_list)
   formula_info <- rhs_terms_as_list(formula)
   
@@ -420,7 +433,7 @@ formula_preprocess = function(formula){
               type_list = type_per_term,
               coef_names = name_per_term,
               term_names = term_per_term, 
-              includes_popularity = includes_popularity))
+              includes_degrees = includes_degrees))
   
 }
 

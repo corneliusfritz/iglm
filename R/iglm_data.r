@@ -388,7 +388,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @description
                                    #' Calculates the density of the `z_network`.
                                    #' @return A numeric value for the network density.
-                                   density_z = function(){
+                                   mean_z = function(){
                                      m = nrow(private$.z_network)/(private$.n_actor*(private$.n_actor-1)/(2 - private$.directed))
                                      private$.descriptives$density_z <- m
                                      invisible(m)
@@ -396,7 +396,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @description
                                    #' Calculates the mean of the `x_attribute`.
                                    #' @return A numeric value for the mean of `x_attribute`.
-                                   density_x = function(){
+                                   mean_x = function(){
                                      m = mean(private$.x_attribute)
                                      private$.descriptives$density_x <- m
                                      invisible(m)
@@ -404,10 +404,78 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @description
                                    #' Calculates the mean of the `y_attribute`.
                                    #' @return A numeric value for the mean of `y_attribute`.
-                                   density_y = function(){
+                                   mean_y = function(){
                                      m = mean(private$.y_attribute)
                                      private$.descriptives$density_y <- m
                                      invisible(m)
+                                   },
+                                   #' @description
+                                   #' Calculates the distribution of the `x_attribute`.
+                                   #' @param value_range (numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.
+                                   #' @param prob (logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.
+                                   #' @param plot (logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.
+                                   #' @return A numeric vector representing the distribution of `x_attribute` (invisible).
+                                   x_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE){
+                                     if(private$.type_x == "gaussian"){
+                                       tmp_density <- density(private$.x_attribute, from = value_range[1], to = value_range[2])
+                                       names(tmp_density$y) <- tmp_density$x
+                                       
+                                       if(plot){
+                                         plot(tmp_density, main = "Density of x_attribute", 
+                                              xlab = "x_attribute values", ylab = "Density")
+                                       }
+                                       private$.descriptives$x_distribution <- tmp_density$y
+                                     } else {
+                                       if(is.null(value_range)){
+                                         value_range <- range(private$.x_attribute)
+                                       }
+                                       info <- factor(as.numeric(private$.x_attribute), 
+                                                      levels = seq(from = value_range[1], to = value_range[2]))
+                                       info <- table(info)
+                                       if(sum(info) > 0){
+                                         info <- info/(sum(info)*prob + (!prob))
+                                       }
+                                       private$.descriptives$y_distribution <- info
+                                       if(plot){
+                                         barplot(info, main = "Distribution of x_attribute", 
+                                                 xlab = "x_attribute values", ylab = ifelse(prob, "Probability", "Frequency"))
+                                       }
+                                     }
+                                     invisible(private$.descriptives$x_distribution)
+                                   },
+                                   #' @description
+                                   #' Calculates the distribution of the `y_attribute`.
+                                   #' @param value_range (numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.
+                                   #' @param prob (logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.
+                                   #' @param plot (logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.
+                                   #' @return A numeric vector representing the distribution of `y_attribute` (invisible).
+                                   y_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE){
+                                     if(private$.type_y == "gaussian"){
+                                       tmp_density <- density(private$.y_attribute, from = value_range[1], to = value_range[2])
+                                       names(tmp_density$y) <- tmp_density$x
+                                       
+                                       if(plot){
+                                         plot(tmp_density, main = "Density of y_attribute", 
+                                              xlab = "y_attribute values", ylab = "Density")
+                                       }
+                                       private$.descriptives$y_distribution <- tmp_density$y
+                                      } else {
+                                        if(is.null(value_range)){
+                                          value_range <- range(private$.y_attribute)
+                                        }
+                                        info <- factor(as.numeric(private$.y_attribute), 
+                                                      levels = seq(from = value_range[1], to = value_range[2]))
+                                        info <- table(info)
+                                        if(sum(info) > 0){
+                                          info <- info/(sum(info)*prob + (!prob))
+                                        }
+                                        private$.descriptives$y_distribution <- info
+                                        if(plot){
+                                          barplot(info, main = "Distribution of y_attribute", 
+                                                  xlab = "y_attribute values", ylab = ifelse(prob, "Probability", "Frequency"))
+                                        }
+                                      }
+                                     invisible(private$.descriptives$y_distribution)
                                    },
                                    #' @description
                                    #' Calculates the matrix of edgewise shared partners.
@@ -1003,6 +1071,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @param vertex.frame.width (numeric) Width of the vertex frame.
                                    #' @param edge.arrow.size (numeric) Size of the arrowheads for directed edges.
                                    #' @param coords (matrix) Optional matrix of x-y coordinates for node layout.
+                                   #' @param legend_size (numeric) Scaling factor for the size legend.
                                    #' @param ... Additional arguments passed to `plot.igraph`.
                                    #' @return A list containing the `igraph` object (`graph`) and the
                                    #'   layout coordinates (`coords`), invisibly.
@@ -1020,7 +1089,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                    edge.width = 1, 
                                                    edge.arrow.size = 1, 
                                                    vertex.frame.width = 0.5,
-                                                   coords = NULL, ...) {
+                                                   coords = NULL, legend_size = 0.5,
+                                                   ...) {
                                      # browser()
                                      if(is.null(legend_col_n_levels)){
                                        if(node_color == "x"){
@@ -1074,16 +1144,19 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      ya <- private$.y_attribute
                                      
                                      # normalize attributes for visual mapping
-                                     norm <- function(v) (v - min(v, na.rm = TRUE)) / (max(v, na.rm = TRUE) - min(v, na.rm = TRUE) + 1e-9)
-                                     xa_n <- norm(xa)
-                                     ya_n <- norm(ya)
+                                     # norm <- function(v) (v - min(v, na.rm = TRUE)) / (max(v, na.rm = TRUE) - min(v, na.rm = TRUE) + 1e-9)
+                                     xa_n <- find_ranks(xa)
+                                     xa_n <- xa_n/max(xa_n)
+                                     ya_n <- find_ranks(ya)
+                                     ya_n <- ya_n/max(ya_n)
+                                     
                                      
                                      # node color
                                      if (node_color == "x") {
                                        pal <-  grDevices::colorRampPalette(c("#313695", "#74add1", "#ffffbf", "#f46d43", "#a50026"))(100)
                                        node_cols <- pal[as.numeric(cut(xa_n, 100))]
                                        color_attr <- xa
-                                       color_lab  <- "x"
+                                       color_lab  <-  "x"
                                      } else if (node_color == "y") {
                                        pal <-  grDevices::colorRampPalette(c("#313695", "#74add1", "#ffffbf", "#f46d43", "#a50026"))(100)
                                        node_cols <- pal[as.numeric(cut(ya_n, 100))]
@@ -1096,13 +1169,15 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      }
                                      
                                      if (node_size == "x") {
-                                       node_sizes <- 1+ 10 * xa_n
+                                       node_sizes <- xa_n
                                        size_attr <- xa
+                                       
                                        size_lab  <- "x"
                                      } else if (node_size == "y") {
-                                       node_sizes <- 1+ 10 * ya_n
+                                       node_sizes <- ya_n
                                        size_attr <- ya
-                                       size_lab  <- "y"
+                                       
+                                       size_lab  <-"y"
                                      } else {
                                        node_sizes <- rep(6, n)
                                        size_attr <- NULL
@@ -1140,7 +1215,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        g,
                                        vertex.frame.width =vertex.frame.width,
                                        vertex.color = node_cols,
-                                       vertex.size  = node_sizes,
+                                       vertex.size  = log(node_sizes+1)*10+2,
                                        vertex.label = NA,
                                        edge.color   = network_edges_col,
                                        edge.width = edge.width, 
@@ -1161,9 +1236,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          color_vals <- NULL
                                        }
                                        if (!is.null(size_attr)) {
-                                         vals <- quantile(size_attr, na.rm = TRUE, 
-                                                          probs = seq(from = 0, to = 1, length.out = legend_size_n_levels))
-                                         sizes <- 5 + 10 * norm(vals)
+                                         
+                                         vals <- sort(unique(size_attr))[findInterval(vec = sort(unique(node_sizes)),
+                                                                              x = seq(from = 0, to = 0.99, length.out = legend_size_n_levels))+1]
+                                         sizes <- sort(unique(node_sizes))[findInterval(vec = sort(unique(node_sizes)),
+                                                                                      x = seq(from = 0, to = 0.99, length.out = legend_size_n_levels))+1]
+                                         sizes <- log(sizes+1)*10+2
                                        } else {
                                          sizes <- NULL
                                          vals <- NULL
@@ -1177,6 +1255,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        }
                                        if(length_b > 0 ){
                                          labels_b <- paste(size_lab, "=", round(vals, 2))
+                                         
                                          color_cols_b <- rep("grey70", times = length_b)
                                        } else {
                                          labels_b <- c()
@@ -1193,7 +1272,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                               border = "black",
                                               pch = 21,
                                               pt.cex = sizes,
-                                              cex    = 0.8)
+                                              cex    = legend_size )
                                      }
                                      
                                      invisible(list(graph = g, coords = coords))
@@ -1397,8 +1476,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'                        type_x = "binomial",
 #'                        type_y = "binomial")
 #' 
-#' tmp_edgelist$density_z()
-#' tmp_adjacency$density_z()
+#' tmp_edgelist$mean_z()
+#' tmp_adjacency$mean_z()
 #' @export
 iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     neighborhood = NULL, directed = TRUE, n_actor = NA, 

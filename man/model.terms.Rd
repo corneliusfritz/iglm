@@ -5,44 +5,37 @@
 \alias{terms}
 \title{Model specification for a `iglm' object}
 \description{
-\code{R} package \code{iglm} implements generalized linear models (GLMs) 
-for studying relationships among attributes in connected populations, 
-where responses of connected units can be dependent.
-It extends GLMs for independent responses to dependent responses and can 
-be used for studying spillover in connected populations and other network-mediated phenomena.
-It is based on a joint probability model for dependent 
-responses (\eqn{Y}) and connections \eqn{(Z)} conditional on 
-predictors (X).
-
-The joint probability density is specified as
-\deqn{f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_y(y_i) \exp(\theta_g^T g_i(x_i, y_i^*)) \Big] \times  
-\Big[\prod_{i \ne j} a_z(z_{i,j}) \exp(\theta_h^T h_{i,j}(x, y_i^*, y_j^*, z)) \Big],}
-which is defined by two distinct sets of user-specified features:
+The help pages of \code{\link{iglm}} describe the model with details on model fitting
+and estimation.
+Generally, a model is specified via it's sufficient statistics, 
+that can be further decomposed into two parts: 
 \itemize{
-  \item \strong{\eqn{g_i(x,y,z)}}: A vector of unit-level functions (or "g-terms")
+  \item \strong{\eqn{\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))}}: A vector of unit-level functions (or "g-terms")
     that describe the relationship between an individual actor \eqn{i}'s
     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
-  \item \strong{\eqn{h_{i,j}(x,y,z)}}: A vector of pair-level functions (or "h-terms")
+  \item \strong{\eqn{\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z) = \mathbf{h}_{i,j}(x,y,z)= (h_{i,j}(x,y,z))}}: A vector of pair-level functions (or "h-terms")
     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})
     of a pair of units \eqn{\{i,j\}} depend on each other and the wider 
     network structure.
 }
-This separation allows the model to simultaneously capture individual-level
-behavior (via \eqn{g_i}) and dyadic, network-based dependencies (via \eqn{h_{i,j}}), 
-including local dependence limited to overlapping neighborhoods.
-This help page documents the various statistics available in 'iglm',
-corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
-components of the joint model.
-In the formula interface, these terms can be specified by adding them in the 
-right-hand side of a model formula, e.g.,
-\code{iglm.data ~ attribute_x + edges(mode = "local") + popularity, ...}.
-See the documentation for \code{\link{iglm}} for details on model fitting
-and estimation.
-}
-\details{
 Each term defines a component for the model's features, which
-are a sum of unit-level components, \eqn{\sum_i g_i(x,y,z)}, and/or
+are a sum of unit-level components, \eqn{\sum_i g_i(x_i,y_i)}, and/or
 pair-level components, \eqn{\sum_{i \ne j} h_{i,j}(x,y,z)}.
+The implemented terms are grouped into three categories:
+\enumerate{
+\item  \eqn{{g}_i} terms for attribute dependence,
+\item \eqn{{h}_{i,j}} terms for network dependence,
+\item \eqn{{h}_{i,j}} Terms for joint attribute/network dependence.
+}
+Below is a detailed description of each term that can be specified in the model formula (see, \code{\link{iglm}}):
+\code{iglm.data ~ <term_1> + <term_2> + ... }, where the left-hand side of the formula has to be a \code{\link{iglm.data}} object,
+and the right-hand side lists some of the terms from the list below, which should be included in the model.
+Setting, e.g., \code{<term_1>} to  \code{attribute_x} includes the term \eqn{g_i(x,y,z) = x_i} in \eqn{g_i}. 
+Note that the function \code{\link{create_userterms_skeleton}} can be used to create custom terms.
+}
+\section{Notation}{
+ 
+
 Here, \eqn{x_i} and \eqn{y_i} are the attributes for actor \eqn{i},
 and \eqn{z_{i,j}} indicates the presence (1) or absence (0) of a tie
 from actor \eqn{i} to actor \eqn{j}.
@@ -50,49 +43,61 @@ The local neighborhood of actor \eqn{i} is denoted \eqn{\mathcal{N}_i},
 and the indicator for whether actors \eqn{i} and \eqn{j} share a local
 neighborhood is given by
 \eqn{c_{i,j} = \mathbb{I}(\mathcal{N}_i \cap \mathcal{N}_j \neq \emptyset)}.
-The functions below specify the forms of \eqn{g_i(x,y,z)} and \eqn{h_{i,j}(x,y,z)}
+The functions below specify the forms of \eqn{g_i(x_i,y_i)} and \eqn{h_{i,j}(x,y,z)}
 for each term.
 Some terms also depend on other covariates, which are denoted by
 \eqn{v = (v_1, ..., v_N)} (unit-level) and \eqn{w = (w_{i,j}) \in \mathbb{R}^{N \times N}}(dyadic). 
-These covariates must be provided by the user via the \code{data} argument. 
-The implemented terms are grouped into three categories:
-\enumerate{
-\item  \eqn{g_i} terms for attribute dependence,
-\item \eqn{h_{i,j}} terms for network dependence,
-\item \eqn{h_{i,j}} Terms for joint attribute/network dependence.
+These covariates must be provided by the user via the \code{data} argument of the terms. 
+Assuming that the matriv \code{x} exists in the environment associated with the 
+used formula, \code{cov_z(data = v)} includes the dyadic covariable \eqn{v = (v_{i,j})} in the model. 
+Some terms also have a \code{mode} argument, which can take values
+\code{"global"}, \code{"local"}, or \code{"alocal"}.
+The \code{"global"} mode indicates that the statistic is computed
+over the entire network, while \code{"local"} restricts the statistic
+to local neighborhoods only (i.e., edges where \eqn{c_{i,j} = 1}).
+The \code{"alocal"} mode restricts the statistic to non-local edges
+only (i.e., edges where \eqn{c_{i,j} = 0}).
+For instance, \code{edges(mode = "local")} counts the number of edges
+that connect actors with overlapping neighborhoods. 
+See underneath for which options are implemented for each term.
+See the documentation for \code{\link{iglm}} for details on model fitting
+and estimation.
 }
+
+\section{List of Terms}{
+
 
 \describe{
    \item{\strong{1. \eqn{g_i} Terms for Attribute Dependence}}{}
   \item{\code{attribute_x}}{
     \strong{Attribute (X) [g-term]:} Intercept for attribute 'x'.
-    \eqn{g_i(x,y,z) = x_i}
+    \eqn{g_i(x_i,y_i) = x_i}
   }
   \item{\code{attribute_y}}{
     \strong{Attribute (Y) [g-term]:} Intercept for attribute 'y'.
-    \eqn{g_i(x,y,z) = y_i}
+    \eqn{g_i(x_i,y_i) = y_i}
   }
   \item{\code{cov_x}}{
     \strong{Nodal Covariate (X) [g-term]:} Effect of a unit-level covariate \eqn{v_i} on attribute \eqn{x_i}.
-    \eqn{g_i(x,y,z) = v_i x_i}
+    \eqn{g_i(x_i,y_i) = v_i x_i}
   }
   \item{\code{cov_y(data = v)}}{
     \strong{Nodal Covariate (Y) [g-term]:} Effect of a unit-level covariate \eqn{v_i} on attribute \eqn{y_i}.
-    \eqn{g_i(x,y,z) = v_i y_i}
+    \eqn{g_i(x_i,y_i) = v_i y_i}
   }
    \item{\code{attribute_xy(mode = "global")}}{
     \strong{Nodal Attribute Interaction (X-Y) [g-term]:} Interaction of attributes \eqn{x_i} and \eqn{y_i} on the same node. For mode different from "global", we count interactions of an actor's attributes with their local neighbors' attributes.
     \itemize{
-      \item \code{global}: \eqn{g_i(x,y,z) = x_i y_i}
-      \item \code{local}: \eqn{g_i(x,y,z) = x_i \sum_{j \in \mathcal{N}_i} y_j + y_i \sum_{j \in \mathcal{N}_i} x_j}
-      \item \code{alocal}: \eqn{g_i(x,y,z) = x_i \sum_{j \notin \mathcal{N}_i} y_j + y_i \sum_{j \notin \mathcal{N}_i} x_j}
+      \item \code{global}: \eqn{g_i(x_i,y_i) = x_i y_i}
+      \item \code{local}: \eqn{g_i(x_i,y_i) = x_i \sum_{j \in \mathcal{N}_i} y_j + y_i \sum_{j \in \mathcal{N}_i} x_j}
+      \item \code{alocal}: \eqn{g_i(x_i,y_i) = x_i \sum_{j \notin \mathcal{N}_i} y_j + y_i \sum_{j \notin \mathcal{N}_i} x_j}
     }
   }
   \item{\strong{2. \eqn{h_{i,j}} Terms for Network Dependence}}{}
-  \item{\code{popularity}}{
-    \strong{Popularity [h-term]:} Adds fixed effects for all actors in the network. Estimation of popularity effects is carried out using a MM algorithm.
+  \item{\code{degrees}}{
+    \strong{degrees [h-term]:} Adds fixed effects for all actors in the network. Estimation of degrees effects is carried out using a MM algorithm.
      For directed networks, each actors has a sender and receiver effect (we assume that the out effect of actor N is 0 for identifiability).
-     For undirected networks, each actor has a single popularity effect.
+     For undirected networks, each actor has a single degrees effect.
   } 
   \item{\code{edges(mode = "global")}}{
     \strong{Edges [h-term]:} Counts different types of edges.
@@ -256,6 +261,7 @@ The implemented terms are grouped into three categories:
   }
   }
 }
+
 \references{
 Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
 

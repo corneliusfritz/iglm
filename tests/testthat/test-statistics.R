@@ -28,8 +28,8 @@ test_that('Test some sufficient statistics for undirected networks', {
                              init_empty = F)
   
   
-  model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + popularity,
-                        coef = gt_coef,  coef_popularity = gt_coef_pop, sampler = sampler_new, 
+  model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + degrees,
+                        coef = gt_coef,  coef_degrees = gt_coef_pop, sampler = sampler_new, 
                         control = control.iglm(accelerated = F,max_it = 200, display_progress = F, var = T))
   # debugonce(model_tmp_new$simulate)
   model_tmp_new$simulate()
@@ -98,7 +98,7 @@ test_that('Test some sufficient statistics for directed networks', {
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x,
                         coef = gt_coef, sampler = sampler_new, 
                         control = control.iglm(accelerated = F,max_it = 200, display_progress = F, var = T))
-  
+  # debugonce(model_tmp_new$simulate)
   model_tmp_new$simulate()
   
   count_values_iglm <- count_statistics(model_tmp_new$results$samples[[1]] ~ 

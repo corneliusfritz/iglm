@@ -7,10 +7,10 @@
 #'   name of a `iglm.data` object available in the calling environment. 
 #'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
 #' @param coef Numeric vector containing the coefficient values for the structural
-#'   (non-popularity) terms defined in the `formula`.
-#' @param coef_popularity Numeric vector specifying the popularity coefficient
+#'   (non-degrees) terms defined in the `formula`.
+#' @param coef_degrees Numeric vector specifying the degrees coefficient
 #'   values (expansiveness/attractiveness). This is required \strong{only if} the
-#'   `formula` includes popularity terms. Its length must be `n_actor` (for
+#'   `formula` includes degrees terms. Its length must be `n_actor` (for
 #'   undirected networks) or `2 * n_actor` (for directed networks), where
 #'   `n_actor` is determined from the `iglm.data` object in the formula. 
 #' @param sampler An object of class `sampler.iglm` (created by
@@ -91,7 +91,7 @@
 #'
 #' @export
 #' @importFrom parallel parLapply
-simulate_iglm = function(formula,coef,coef_popularity = NULL, 
+simulate_iglm = function(formula,coef,coef_degrees = NULL, 
                         sampler = NULL, 
                         only_stats = TRUE, 
                         display_progress = FALSE, 
@@ -109,7 +109,7 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
   # Search for all things in the environment of the formula
   # attr(formula, ".Environment")
   preprocessed = formula_preprocess(formula) 
-  popularity <- preprocessed$includes_popularity
+  degrees <- preprocessed$includes_degrees
   n_actor = length(preprocessed$data_object$x_attribute)
   if(length(coef) != length(preprocessed$term_names)){
     return("Wrong number of coefficients for the wanted terms.")
@@ -119,7 +119,7 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
     cluster = NULL
   }
   if(is.null(cluster)){
-    res = xyz_simulate_cpp(coef = coef,coef_popularity = coef_popularity,
+    res = xyz_simulate_cpp(coef = coef,coef_degrees = coef_degrees,
                            terms= preprocessed$term_names,
                            n_actor = n_actor,
                            x_attribute=preprocessed$data_object$x_attribute,
@@ -145,7 +145,7 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                            n_simulation = sampler$n_simulation,
                            only_stats =only_stats,
                            display_progress = display_progress, 
-                           popularity = popularity, 
+                           degrees = degrees, 
                            offset_nonoverlap = offset_nonoverlap,
                            fix_x = fix_x)  
   } else {
@@ -154,7 +154,7 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
     }
     
     res_burn_in = xyz_simulate_cpp(coef = coef,
-                                   coef_popularity = coef_popularity,
+                                   coef_degrees = coef_degrees,
                                    terms= preprocessed$term_names,
                                    n_actor = n_actor,
                                    x_attribute=preprocessed$data_object$x_attribute,
@@ -180,7 +180,7 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                                    n_simulation = 1,
                                    only_stats =FALSE,
                                    display_progress = display_progress, 
-                                   popularity = popularity, 
+                                   degrees = degrees, 
                                    offset_nonoverlap = offset_nonoverlap, fix_x = fix_x)
     res_burnin = XYZ_to_R(x_attribute = res_burn_in$simulation_attributes_x[[1]], 
                           y_attribute = res_burn_in$simulation_attributes_y[[1]], 
@@ -194,9 +194,9 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
     }
     
     res_parallel = parLapply(cl = cluster, X = tmp_split, fun = function(x, preprocessed, n_actor, coef, 
-                                                                         coef_popularity, popularity, sampler, 
+                                                                         coef_degrees, degrees, sampler, 
                                                                          res_burnin, offset_nonoverlap){
-      xyz_simulate_cpp(coef = coef,coef_popularity = coef_popularity,
+      xyz_simulate_cpp(coef = coef,coef_degrees = coef_degrees,
                        terms= preprocessed$term_names,
                        n_actor = n_actor,
                        type_x = preprocessed$data_object$type_x, 
@@ -222,10 +222,10 @@ simulate_iglm = function(formula,coef,coef_popularity = NULL,
                        n_simulation = length(x),
                        only_stats =only_stats,
                        display_progress = FALSE, 
-                       popularity = popularity, fix_x = fix_x,
+                       degrees = degrees, fix_x = fix_x,
                        offset_nonoverlap = offset_nonoverlap)
     },preprocessed = preprocessed, n_actor = n_actor, coef = coef, 
-    coef_popularity = coef_popularity, popularity = popularity, 
+    coef_degrees = coef_degrees, degrees = degrees, 
     sampler = sampler, res_burnin = res_burnin, offset_nonoverlap = offset_nonoverlap)
     
     res = list()

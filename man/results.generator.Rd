@@ -20,15 +20,15 @@ bindings of the main `iglm_object`.
 
 \item{\code{stats}}{(`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` obect from `coda`.}
 
-\item{\code{var}}{(`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-popularity coefficients.}
+\item{\code{var}}{(`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-degrees coefficients.}
 
-\item{\code{fisher_popularity}}{(`matrix` or `NULL`) Read-only. Fisher information matrix for popularity coefficients.}
+\item{\code{fisher_degrees}}{(`matrix` or `NULL`) Read-only. Fisher information matrix for degrees coefficients.}
 
-\item{\code{fisher_nonpopularity}}{(`matrix` or `NULL`) Read-only. Fisher information matrix for non-popularity coefficients.}
+\item{\code{fisher_nondegrees}}{(`matrix` or `NULL`) Read-only. Fisher information matrix for non-degrees coefficients.}
 
-\item{\code{score_popularity}}{(`numeric` or `NULL`) Read-only. Score vector for popularity coefficients.}
+\item{\code{score_degrees}}{(`numeric` or `NULL`) Read-only. Score vector for degrees coefficients.}
 
-\item{\code{score_nonpopularity}}{(`numeric` or `NULL`) Read-only. Score vector for non-popularity coefficients.}
+\item{\code{score_nondegrees}}{(`numeric` or `NULL`) Read-only. Score vector for non-degrees coefficients.}
 
 \item{\code{llh}}{(`numeric` or `NULL`) Read-only. Vector of log-likelihood values recorded during estimation.}
 
@@ -62,16 +62,16 @@ Creates a new `results` object. Initializes internal fields, primarily
 setting up an empty matrix for the `coefficients_path` based on the
 expected number of coefficients.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{results.generator$new(size_coef, size_coef_popularity, file)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{results.generator$new(size_coef, size_coef_degrees, file)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{size_coef}}{(integer) The number of non-popularity (structural)
+\item{\code{size_coef}}{(integer) The number of non-degrees (structural)
 coefficients in the model.}
 
-\item{\code{size_coef_popularity}}{(integer) The number of popularity coefficients
+\item{\code{size_coef_degrees}}{(integer) The number of degrees coefficients
 in the model (0 if none).}
 
 \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
@@ -172,15 +172,15 @@ Resizes the internal storage for the coefficient paths to accommodate a
 different number of coefficients. This is useful if the model structure
 changes and the results object needs to be reset.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{results.generator$resize(size_coef, size_coef_popularity)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{results.generator$resize(size_coef, size_coef_degrees)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{size_coef}}{(integer) The new number of non-popularity coefficients.}
+\item{\code{size_coef}}{(integer) The new number of non-degrees coefficients.}
 
-\item{\code{size_coef_popularity}}{(integer) The new number of popularity
+\item{\code{size_coef_degrees}}{(integer) The new number of degrees
 coefficients.
 @return The `results` object itself (`self`), invisibly.}
 }
@@ -201,10 +201,10 @@ Replaces `samples` and `stats`.
   coefficients_path = NULL,
   samples = NULL,
   var = NULL,
-  fisher_popularity = NULL,
-  fisher_nonpopularity = NULL,
-  score_popularity = NULL,
-  score_nonpopularity = NULL,
+  fisher_degrees = NULL,
+  fisher_nondegrees = NULL,
+  score_degrees = NULL,
+  score_nondegrees = NULL,
   llh = NULL,
   stats = NULL,
   estimated = FALSE
@@ -215,7 +215,7 @@ Replaces `samples` and `stats`.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{coefficients_path}}{(matrix) A matrix where rows represent iterations
-and columns represent all coefficients (non-popularity then popularity),
+and columns represent all coefficients (non-degrees then degrees),
 showing their values during estimation. If provided, appends to any
 existing path.}
 
@@ -223,18 +223,18 @@ existing path.}
 If provided, replaces any existing samples.}
 
 \item{\code{var}}{(matrix) The estimated variance-covariance matrix for the
-non-popularity coefficients. Replaces existing matrix.}
+non-degrees coefficients. Replaces existing matrix.}
 
-\item{\code{fisher_popularity}}{(matrix) The Fisher information matrix for
-popularity coefficients. Replaces existing matrix.}
+\item{\code{fisher_degrees}}{(matrix) The Fisher information matrix for
+degrees coefficients. Replaces existing matrix.}
 
-\item{\code{fisher_nonpopularity}}{(matrix) The Fisher information matrix for
-non-popularity coefficients. Replaces existing matrix.}
+\item{\code{fisher_nondegrees}}{(matrix) The Fisher information matrix for
+non-degrees coefficients. Replaces existing matrix.}
 
-\item{\code{score_popularity}}{(numeric) The score vector for popularity coefficients.
+\item{\code{score_degrees}}{(numeric) The score vector for degrees coefficients.
 Replaces existing vector.}
 
-\item{\code{score_nonpopularity}}{(numeric) The score vector for non-popularity
+\item{\code{score_nondegrees}}{(numeric) The score vector for non-degrees
 coefficients. Replaces existing vector.}
 
 \item{\code{llh}}{(numeric) Log-likelihood value(s). If provided, appends to the
@@ -276,8 +276,8 @@ The `results` object itself (`self`), invisibly.
 Generates diagnostic plots for the estimation results. Currently plots:
 \itemize{
   \item The log-likelihood path across iterations.
-  \item The convergence paths for popularity coefficients (if present).
-  \item The convergence paths for non-popularity coefficients.
+  \item The convergence paths for degrees coefficients (if present).
+  \item The convergence paths for non-degrees coefficients.
 }
 Optionally, can also trigger plotting of model assessment results if available.
 \subsection{Usage}{
@@ -304,7 +304,8 @@ stored in the `.model_assessment` field. Requires model assessment to
 have been run and a suitable `plot` method for `iglm_model_assessment`
 objects to exist. Default is `FALSE`.}
 
-\item{\code{...}}{Additional outputs}
+\item{\code{...}}{Additional fits with identical model_assessment terms are currently identified from this argument. 
+The names of the arguments are shown as the legend in the model assessment plots.}
 }
 \if{html}{\out{</div>}}
 }

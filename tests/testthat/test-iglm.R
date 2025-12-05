@@ -30,12 +30,13 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   
   expect_equal(inherits(sampler_new,"sampler.iglm"),expected = TRUE)
   
-  model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + popularity,
-                          coef = gt_coef,  coef_popularity = gt_coef_pop, sampler = sampler_new, 
+  model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + degrees,
+                          coef = gt_coef,  coef_degrees = gt_coef_pop, sampler = sampler_new, 
                           control = control.iglm(accelerated = F,max_it = 200, display_progress = F, var = T))
 
   
   tmp_name <- paste0(tempfile(),".rds")
+  # debugonce(model_tmp_new$save)
   model_tmp_new$save(file = tmp_name)
   model_tmp_loaded <- iglm(file = tmp_name)
   
@@ -51,7 +52,7 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   
   expect_equal(length(model_tmp_new$results$samples),expected = 1)
   expect_equal(nrow(model_tmp_new$results$stats),expected = 1)
-  expect_equal(model_tmp_new$iglm.data$density_z(),expected = 0)
+  expect_equal(model_tmp_new$iglm.data$mean_z(),expected = 0)
   
   
   expect_equal(inherits(model_tmp_loaded,"iglm.object"),expected = TRUE)
@@ -60,7 +61,7 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   
   samples <- model_tmp_new$get_samples()
   model_tmp_new$set_target(samples[[1]])
-  expect_equal(model_tmp_new$iglm.data$density_z(),
+  expect_equal(model_tmp_new$iglm.data$mean_z(),
                          expected = nrow(samples[[1]]$z_network)/(n_actors *(n_actors-1)/2))
   # debugonce(model_tmp_new$estimate)
   expect_error(model_tmp_new$estimate())
@@ -73,18 +74,18 @@ test_that('Define a iglm object, simulate, estimate, assess', {
                                init_empty = F)
   
   model_tmp_new$set_sampler(sampler_est)
-  model_tmp_new$sampler
   expect_equal(model_tmp_new$sampler$n_burn_in, 1)
   # debugonce(model_tmp_new$estimate)
   model_tmp_new$estimate()
   expect_no_warning(model_tmp_new$estimate())
   # expect_equal(as.vector(round(model_tmp_new$coef)), round(gt_coef))
   expect_equal(length(model_tmp_new$results$model_assessment$observed), 0)
-  model_tmp_new$model_assessment(formula = ~  degree_distribution )
+  model_tmp_new$assess(formula = ~  degree_distribution, plot = FALSE)
   expect_equal(length(model_tmp_new$results$model_assessment$observed), 1)
   
   model_tmp_new$save(file = tmp_name)
   model_tmp_loaded <- iglm(file = tmp_name)
+  model_tmp_new$results$model_assessment$observed
   
   # expect_equal(as.vector(round(model_tmp_loaded$coef)), round(gt_coef))
   expect_equal(length(model_tmp_loaded$results$model_assessment$observed), 1)

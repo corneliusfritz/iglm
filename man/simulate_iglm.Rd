@@ -7,7 +7,7 @@
 simulate_iglm(
   formula,
   coef,
-  coef_popularity = NULL,
+  coef_degrees = NULL,
   sampler = NULL,
   only_stats = TRUE,
   display_progress = FALSE,
@@ -22,11 +22,11 @@ name of a `iglm.data` object available in the calling environment.
 See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
 
 \item{coef}{Numeric vector containing the coefficient values for the structural
-(non-popularity) terms defined in the `formula`.}
+(non-degrees) terms defined in the `formula`.}
 
-\item{coef_popularity}{Numeric vector specifying the popularity coefficient
+\item{coef_degrees}{Numeric vector specifying the degrees coefficient
 values (expansiveness/attractiveness). This is required \strong{only if} the
-`formula` includes popularity terms. Its length must be `n_actor` (for
+`formula` includes degrees terms. Its length must be `n_actor` (for
 undirected networks) or `2 * n_actor` (for directed networks), where
 `n_actor` is determined from the `iglm.data` object in the formula.}
 

@@ -48,9 +48,11 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \item \href{#method-iglm.data-set_y_attribute}{\code{iglm.data_generator$set_y_attribute()}}
 \item \href{#method-iglm.data-gather}{\code{iglm.data_generator$gather()}}
 \item \href{#method-iglm.data-save}{\code{iglm.data_generator$save()}}
-\item \href{#method-iglm.data-density_z}{\code{iglm.data_generator$density_z()}}
-\item \href{#method-iglm.data-density_x}{\code{iglm.data_generator$density_x()}}
-\item \href{#method-iglm.data-density_y}{\code{iglm.data_generator$density_y()}}
+\item \href{#method-iglm.data-mean_z}{\code{iglm.data_generator$mean_z()}}
+\item \href{#method-iglm.data-mean_x}{\code{iglm.data_generator$mean_x()}}
+\item \href{#method-iglm.data-mean_y}{\code{iglm.data_generator$mean_y()}}
+\item \href{#method-iglm.data-x_distribution}{\code{iglm.data_generator$x_distribution()}}
+\item \href{#method-iglm.data-y_distribution}{\code{iglm.data_generator$y_distribution()}}
 \item \href{#method-iglm.data-edgewise_shared_partner}{\code{iglm.data_generator$edgewise_shared_partner()}}
 \item \href{#method-iglm.data-set_neighborhood_overlap}{\code{iglm.data_generator$set_neighborhood_overlap()}}
 \item \href{#method-iglm.data-dyadwise_shared_partner}{\code{iglm.data_generator$dyadwise_shared_partner()}}
@@ -316,12 +318,12 @@ The `iglm.data` object itself (`self`), invisibly.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-iglm.data-density_z"></a>}}
-\if{latex}{\out{\hypertarget{method-iglm.data-density_z}{}}}
-\subsection{Method \code{density_z()}}{
+\if{html}{\out{<a id="method-iglm.data-mean_z"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-mean_z}{}}}
+\subsection{Method \code{mean_z()}}{
 Calculates the density of the `z_network`.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$density_z()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$mean_z()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -329,12 +331,12 @@ A numeric value for the network density.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-iglm.data-density_x"></a>}}
-\if{latex}{\out{\hypertarget{method-iglm.data-density_x}{}}}
-\subsection{Method \code{density_x()}}{
+\if{html}{\out{<a id="method-iglm.data-mean_x"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-mean_x}{}}}
+\subsection{Method \code{mean_x()}}{
 Calculates the mean of the `x_attribute`.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$density_x()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$mean_x()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -342,16 +344,72 @@ A numeric value for the mean of `x_attribute`.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-iglm.data-density_y"></a>}}
-\if{latex}{\out{\hypertarget{method-iglm.data-density_y}{}}}
-\subsection{Method \code{density_y()}}{
+\if{html}{\out{<a id="method-iglm.data-mean_y"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-mean_y}{}}}
+\subsection{Method \code{mean_y()}}{
 Calculates the mean of the `y_attribute`.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$density_y()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$mean_y()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
 A numeric value for the mean of `y_attribute`.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-x_distribution"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-x_distribution}{}}}
+\subsection{Method \code{x_distribution()}}{
+Calculates the distribution of the `x_attribute`.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$x_distribution(
+  value_range = NULL,
+  prob = TRUE,
+  plot = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value_range}}{(numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.}
+
+\item{\code{prob}}{(logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.}
+
+\item{\code{plot}}{(logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A numeric vector representing the distribution of `x_attribute` (invisible).
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-y_distribution"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-y_distribution}{}}}
+\subsection{Method \code{y_distribution()}}{
+Calculates the distribution of the `y_attribute`.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$y_distribution(
+  value_range = NULL,
+  prob = TRUE,
+  plot = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value_range}}{(numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.}
+
+\item{\code{prob}}{(logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.}
+
+\item{\code{plot}}{(logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A numeric vector representing the distribution of `y_attribute` (invisible).
 }
 }
 \if{html}{\out{<hr>}}
@@ -664,6 +722,7 @@ Nodes can be colored by `x_attribute` and sized by `y_attribute`.
   edge.arrow.size = 1,
   vertex.frame.width = 0.5,
   coords = NULL,
+  legend_size = 0.5,
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -703,6 +762,8 @@ One of `"y"` (default), `"x"`, or `"constant"`.}
 \item{\code{vertex.frame.width}}{(numeric) Width of the vertex frame.}
 
 \item{\code{coords}}{(matrix) Optional matrix of x-y coordinates for node layout.}
+
+\item{\code{legend_size}}{(numeric) Scaling factor for the size legend.}
 
 \item{\code{...}}{Additional arguments passed to `plot.igraph`.}
 }

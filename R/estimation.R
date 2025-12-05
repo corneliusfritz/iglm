@@ -30,6 +30,8 @@ is_cluster_active <- function(clust) {
 #'   are estimated. If `FALSE`, estimation is skipped and only the preprocessing is done.
 #' @param fix_x (logical) If `TRUE`, the 'x' predictor is held fixed
 #'   during estimation/simulation (fixed design in regression). Default is `FALSE`.
+#' @param fix_z (logical) If `TRUE`, the 'z' network is held fixed
+#'   during estimation/simulation (fixed network design). Default is `FALSE`.
 #' @param display_progress (logical) If `TRUE`, display progress messages or
 #'   a progress bar during estimation. Default is `FALSE`.
 #' @param return_samples (logical). If \code{TRUE} (default), return simulated network/attribute
@@ -62,7 +64,9 @@ is_cluster_active <- function(clust) {
 #' @return A list object of class `"control.iglm"` containing the specified
 #'   control parameters.
 #' @export
-control.iglm = function(estimate_model = TRUE, fix_x = FALSE, 
+control.iglm = function(estimate_model = TRUE, 
+                        fix_x = FALSE, 
+                        fix_z = FALSE, 
                        display_progress = FALSE, return_samples = TRUE, 
                        offset_nonoverlap = 0, var = FALSE,
                        non_stop = FALSE, 
@@ -76,7 +80,8 @@ control.iglm = function(estimate_model = TRUE, fix_x = FALSE,
                        exact = FALSE, 
                        updated_uncertainty = TRUE) {
   res = list(estimate_model = estimate_model, 
-             fix_x = fix_x, display_progress = display_progress,
+             fix_x = fix_x, fix_z = fix_z, 
+             display_progress = display_progress,
              offset_nonoverlap = offset_nonoverlap,  var = var,
              max_it = max_it, non_stop = non_stop, 
              tol = tol,return_samples = return_samples, 
@@ -100,6 +105,7 @@ print.control.iglm <- function(x, ...) {
   # to create an aligned "Key : Value" format.
   cat(sprintf("  %-22s: %s\n", "estimate_model", x$estimate_model))
   cat(sprintf("  %-22s: %s\n", "fix_x", x$fix_x))
+  cat(sprintf("  %-22s: %s\n", "fix_z", x$fix_z))
   cat(sprintf("  %-22s: %s\n", "var", x$var))
   cat(sprintf("  %-22s: %s\n", "updated_uncertainty", x$updated_uncertainty))
   cat(sprintf("  %-22s: %s\n", "exact", x$exact))
@@ -139,8 +145,8 @@ print.control.iglm <- function(x, ...) {
 # preprocess_xyz = function(formula, display_progress = F) {
   # vars <- all.vars(formula)
   # 
-  # # Check if 'popularity' is one of them
-  # "popularity" %in% vars
+  # # Check if 'degrees' is one of them
+  # "degrees" %in% vars
   # 
   # browser()
   # preprocessed = formula_preprocess(formula)
@@ -166,11 +172,17 @@ print.control.iglm <- function(x, ...) {
 estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                         sampler = sampler.iglm(),
                         beg_coef = NULL, 
-                        beg_coef_popularity = NULL, 
+                        beg_coef_degrees = NULL, 
                         data_object, 
                         start = 0) {
+  if(control$fix_z & preprocessed$includes_degrees){
+    warning("fix_z = TRUE is incompatible with models including degree parameters. 
+            Setting includes_degrees = FALSE.")
+    preprocessed$includes_degrees <- FALSE
+  }
+  
   return_preprocess <- control$return_x + control$return_y + control$return_z> 0
-  if(preprocessed$includes_popularity) {
+  if(preprocessed$includes_degrees) {
     n_actor = length(data_object$x_attribute)
     if(is.null(beg_coef)) {
       coef_tmp = rep(0,length(preprocessed$term_names) )  
@@ -178,18 +190,18 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
       coef_tmp = as.vector(beg_coef)
     }
     
-    if(is.null(beg_coef_popularity)) {
+    if(is.null(beg_coef_degrees)) {
       if(data_object$directed){
-        coef_tmp_popularity = rep(0,length(n_actor*2))  
+        coef_tmp_degrees = rep(0,length(n_actor*2))  
       } else {
-        coef_tmp_popularity = rep(0,length(n_actor))
+        coef_tmp_degrees = rep(0,length(n_actor))
       }
     } else {
-      coef_tmp_popularity = as.vector(beg_coef_popularity)
+      coef_tmp_degrees = as.vector(beg_coef_degrees)
     }
     if(control$estimate_model){
       # browser()
-      res = outerloop_estimation_pl(coef = coef_tmp,coef_popularity = coef_tmp_popularity,
+      res = outerloop_estimation_pl(coef = coef_tmp,coef_degrees = coef_tmp_degrees,
                                     data_object$z_network,
                                     data_object$x_attribute,
                                     data_object$y_attribute,
@@ -198,8 +210,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                     directed = data_object$directed,
                                     terms = preprocessed$term_names,
                                     max_iteration_outer = control$max_it,
-                                    max_iteration_inner_popularity = 1,
-                                    max_iteration_inner_nonpopularity = 1,
+                                    max_iteration_inner_degrees = 1,
+                                    max_iteration_inner_nondegrees = 1,
                                     data_list = preprocessed$data_list,
                                     type_list = preprocessed$type_list,
                                     display_progress =  control$display_progress,
@@ -240,8 +252,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
         }
         if(is.null(sampler$cluster)){
           # browser()
-          variability_simulations =xyz_approximate_variability(coef = res$coefficients_nonpopularity,
-                                                               coef_popularity = res$coefficients_popularity,
+          variability_simulations =xyz_approximate_variability(coef = res$coefficients_nondegrees,
+                                                               coef_degrees = res$coefficients_degrees,
                                                                terms = preprocessed$term_names,
                                                                n_actor =  n_actor,
                                                                z_network =  data_object$z_network,
@@ -262,10 +274,11 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                                                n_burn_in = sampler$n_burn_in,
                                                                n_simulation = sampler$n_simulation,
                                                                display_progress = control$display_progress,
-                                                               popularity = TRUE,
+                                                               degrees = TRUE,
                                                                offset_nonoverlap = control$offset_nonoverlap, 
                                                                return_samples = control$return_samples, 
                                                                fix_x = control$fix_x,
+                                                               fix_z = control$fix_z,
                                                                updated_uncertainty = control$updated_uncertainty, 
                                                                exact = control$exact,
                                                                type_x = data_object$type_x,
@@ -289,8 +302,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
           # browser()
           res_parallel = parLapply(cl = sampler$cluster, X = tmp_split, fun = function(x,preprocessed, 
                                                                                        n_actor, res, control, term_names){
-            xyz_approximate_variability(coef = res$coefficients_nonpopularity,
-                                        coef_popularity = res$coefficients_popularity,
+            xyz_approximate_variability(coef = res$coefficients_nondegrees,
+                                        coef_degrees = res$coefficients_degrees,
                                         terms = preprocessed$term_names,
                                         n_actor =  n_actor,
                                         z_network =  data_object$z_network,
@@ -312,7 +325,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                         n_burn_in = sampler$n_burn_in,
                                         n_simulation = length(x),
                                         display_progress = control$display_progress,
-                                        popularity = TRUE,
+                                        degrees = TRUE,
                                         offset_nonoverlap = control$offset_nonoverlap, 
                                         return_samples = control$return_samples, 
                                         fix_x = control$fix_x,
@@ -326,8 +339,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
           
           
           variability_simulations = list()
-          variability_simulations$gradients_nonpopularity = do.call(rbind,lapply(res_parallel, function(x){x$gradients_nonpopularity}))
-          variability_simulations$gradients_popularity = do.call(rbind,lapply(res_parallel, function(x){x$gradients_popularity}))
+          variability_simulations$gradients_nondegrees = do.call(rbind,lapply(res_parallel, function(x){x$gradients_nondegrees}))
+          variability_simulations$gradients_degrees = do.call(rbind,lapply(res_parallel, function(x){x$gradients_degrees}))
           
           if(control$return_samples){
             res$simulations = list(simulation_x_attributes = unlist(lapply(res_parallel, function(x){x$simulation_x_attributes}),recursive = F), 
@@ -339,22 +352,22 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
         }
         # browser()
         if(control$updated_uncertainty){
-          res$var = var(variability_simulations$gradients_nonpopularity)
+          res$var = var(variability_simulations$gradients_nondegrees)
         } else {
-          res$gradients_nonpopularity = variability_simulations$gradients_nonpopularity
-          res$gradients_popularity = variability_simulations$gradients_popularity
-          V_22 = var(variability_simulations$gradients_nonpopularity)
-          V_12 = var(variability_simulations$gradients_nonpopularity, variability_simulations$gradients_popularity)
+          res$gradients_nondegrees = variability_simulations$gradients_nondegrees
+          res$gradients_degrees = variability_simulations$gradients_degrees
+          V_22 = var(variability_simulations$gradients_nondegrees)
+          V_12 = var(variability_simulations$gradients_nondegrees, variability_simulations$gradients_degrees)
           if(control$exact ==  TRUE){
-            V_11 = var(variability_simulations$gradients_popularity)
+            V_11 = var(variability_simulations$gradients_degrees)
             inv_A <- MASS::ginv(res$exact_A)  
             tmp <- res$B_mat %*% inv_A
           } else {
             tmp = sweep(res$B_mat, 2, 1/res$A_diag, "*")  
-            V_11 = diag(apply(X = variability_simulations$gradients_popularity, FUN = var, MARGIN = 2))
+            V_11 = diag(apply(X = variability_simulations$gradients_degrees, FUN = var, MARGIN = 2))
           }
-          C_2 = res$fisher_nonpopularity - tmp%*%t(res$B_mat)
-          # print(solve(res$fisher_nonpopularity))
+          C_2 = res$fisher_nondegrees - tmp%*%t(res$B_mat)
+          # print(solve(res$fisher_nondegrees))
           C_2_inv =solve(C_2)
           Y = -t(tmp)%*%C_2_inv
           Z = t(Y)
@@ -374,7 +387,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
         # 
         # G = sweep(res$B_mat, 2, 1/res$A_diag, "*")
         # # cor(sweep(G, 2, diag(V_11), "*")[1,], (G%*%V_11_full)[1,])
-        # part_1 = solve(res$fisher_nonpopularity - res$B_mat%*%t(G))
+        # part_1 = solve(res$fisher_nondegrees - res$B_mat%*%t(G))
         # part_2 =  sweep(G, 2, diag(V_11), "*")%*%t(G) - 2*G%*%t(V_12) + V_22
         # part_2 =  G%*%V_11_full%*%t(G) - 2*G%*%t(V_12) + V_22
         # # Corrected variance
@@ -382,22 +395,22 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
       }
       
       if(data_object$directed){
-        rownames(res$coefficients_popularity) = c(paste(c("out-popularity"), 1:n_actor), paste(c("in-popularity"), 1:n_actor))
-        rownames(res$coefficients_nonpopularity) = preprocessed$coef_names
+        rownames(res$coefficients_degrees) = c(paste(c("out-degrees"), 1:n_actor), paste(c("in-degrees"), 1:n_actor))
+        rownames(res$coefficients_nondegrees) = preprocessed$coef_names
         if(control$var){
           colnames(res$var) = preprocessed$coef_names
           rownames(res$var) = preprocessed$coef_names  
         }
         
-        colnames(res$coefficients_path) = c(rownames(res$coefficients_nonpopularity), rownames(res$coefficients_popularity))
+        colnames(res$coefficients_path) = c(rownames(res$coefficients_nondegrees), rownames(res$coefficients_degrees))
       } else {
-        rownames(res$coefficients_popularity) = paste(c("popularity"), 1:n_actor)
-        rownames(res$coefficients_nonpopularity) = preprocessed$coef_names
+        rownames(res$coefficients_degrees) = paste(c("degrees"), 1:n_actor)
+        rownames(res$coefficients_nondegrees) = preprocessed$coef_names
         if(control$var){
           colnames(res$var) = preprocessed$coef_names
           rownames(res$var) = preprocessed$coef_names  
         }
-        colnames(res$coefficients_path) = c(rownames(res$coefficients_nonpopularity), rownames(res$coefficients_popularity))
+        colnames(res$coefficients_path) = c(rownames(res$coefficients_nondegrees), rownames(res$coefficients_degrees))
       }
       
     } else {
@@ -406,8 +419,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
     
     
   } else {
-    # Pseudo LH (Nonpopularity) ----
-    
+    # Pseudo LH (Nondegrees) ----
     n_actor = length(data_object$x_attribute)
     
     if(is.null(beg_coef)) {
@@ -433,6 +445,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                           offset_nonoverlap = control$offset_nonoverlap, 
                           non_stop = control$non_stop, 
                           fix_x = control$fix_x, 
+                          fix_z = control$fix_z, 
                             attr_x_type = data_object$type_x,
                           attr_y_type = data_object$type_y,
                           attr_x_scale =  data_object$scale_x, 
@@ -448,7 +461,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
       } 
       # names(res$coefficients2) = preprocessed$coef_names
       rownames(res$coefficients) = preprocessed$coef_names
-      colnames(res$coefficients_path) = c(rownames(res$coefficients_nonpopularity))
+      colnames(res$coefficients_path) = c(rownames(res$coefficients_nondegrees))
       
     
       if(control$var) {
@@ -469,7 +482,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
      
         if(is.null(control$cluster)){
           variability_simulations =xyz_approximate_variability(coef = res$coefficients,return_samples = control$return_samples,
-                                                               coef_popularity = 0,
+                                                               coef_degrees = 0,
                                                                terms = preprocessed$term_names,
                                                                n_actor =  data_object$n_actor,
                                                                z_network =  data_object$z_network,
@@ -483,7 +496,6 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                                                attr_y_scale = data_object$scale_y,
                                                                init_empty = sampler$init_empty,
                                                                exact = control$exact,
-                                                               
                                                                directed = data_object$directed,
                                                                data_list = preprocessed$data_list,
                                                                type_list = preprocessed$type_list,
@@ -496,10 +508,11 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                                                n_burn_in = sampler$n_burn_in,
                                                                n_simulation = sampler$n_simulation,
                                                                display_progress = control$display_progress,
-                                                               popularity = FALSE,
+                                                               degrees = FALSE,
                                                                updated_uncertainty = control$updated_uncertainty, 
                                                                offset_nonoverlap = control$offset_nonoverlap, 
-                                                               fix_x = control$fix_x)
+                                                               fix_x = control$fix_x, 
+                                                               fix_z = control$fix_z)
           
           res$simulations = list(simulation_x_attributes = variability_simulations$simulation_x_attributes, 
                                  simulation_y_attributes = variability_simulations$simulation_y_attributes, 
@@ -514,7 +527,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
           res_parallel = parLapply(cl = control$cluster, X = tmp_split, fun = function(x,preprocessed, 
                                                                                        n_actor, res, control){
             xyz_approximate_variability(coef = res$coefficients,
-                                        coef_popularity = 0,
+                                        coef_degrees = 0,
                                         terms = preprocessed$term_names,
                                         n_actor =  n_actor,
                                         z_network =  data_object$z_network,
@@ -541,10 +554,11 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                         exact = control$exact,
                                         updated_uncertainty = control$updated_uncertainty, 
                                         display_progress = control$display_progress,
-                                        popularity = FALSE,
+                                        degrees = FALSE,
                                         offset_nonoverlap = control$offset_nonoverlap, 
                                         return_samples = control$return_samples,
-                                        fix_x = control$fix_x)
+                                        fix_x = control$fix_x, 
+                                        fix_z = control$fix_z)
           },preprocessed = preprocessed, n_actor = n_actor, res =res, control = control) 
           
           
@@ -617,8 +631,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
     }
   # browser()
   # res$iglm.object <- iglm.object(formula=formula,
-  #                            coef = res$coefficients_nonpopularity,
-  #                            coef_popularity = res$coefficients_popularity,
+  #                            coef = res$coefficients_nondegrees,
+  #                            coef_degrees = res$coefficients_degrees,
                              # sampler = sampler)
   
   res$call <- sys.calls()[[1]]

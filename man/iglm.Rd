@@ -8,9 +8,10 @@
 iglm(
   formula = NULL,
   coef = NULL,
-  coef_popularity = NULL,
+  coef_degrees = NULL,
   sampler = NULL,
   control = NULL,
+  name = NULL,
   file = NULL
 )
 }
@@ -20,11 +21,11 @@ name of a `iglm.data` object available in the calling environment.
 See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
 
 \item{coef}{Optional numeric vector of initial coefficients for the structural
-(non-popularity) terms in `formula`. If `NULL`, coefficients are
+(non-degrees) terms in `formula`. If `NULL`, coefficients are
 initialized to zero. Length must match the number of terms.}
 
-\item{coef_popularity}{Optional numeric vector specifying the initial popularity
-coefficients. Required if `formula` includes popularity terms, otherwise
+\item{coef_degrees}{Optional numeric vector specifying the initial degrees
+coefficients. Required if `formula` includes degrees terms, otherwise
 should be `NULL`. Length must match `n_actor` (for undirected) or
 `2 * n_actor` (for directed).}
 
@@ -34,6 +35,8 @@ default sampler settings will be used.}
 \item{control}{An object of class \code{\link{control.iglm}}, specifying parameters for the estimation algorithm.
 If `NULL`, default control settings will be used.}
 
+\item{name}{Optional character string specifying a name for the model.}
+
 \item{file}{Optional character string specifying a file path to load a
 previously saved  \code{\link{iglm.object}} from disk (in RDS format). If provided,
 other arguments are ignored and the object is loaded from the file.}
@@ -42,43 +45,38 @@ other arguments are ignored and the object is loaded from the file.}
 An object of class \code{\link{iglm.object}}.
 }
 \description{
-The \code{iglm} package implements a comprehensive regression framework  introduced in Fritz et al. (2025) for 
-studying relationships among attributes \eqn{(X, Y)} under network interference \eqn{(Z)}. 
+\code{R} package \code{iglm} implements generalized linear models (GLMs) 
+for studying relationships among attributes in connected populations, 
+where responses of connected units can be dependent.
+It extends GLMs for independent responses to dependent responses and can 
+be used for studying spillover in connected populations and other network-mediated phenomena.
 It is based on a joint probability model for dependent 
-outcomes (\eqn{Y}) and network connections \eqn{(Z)}, conditional on a fixed set of 
-predictors (X). This approach generalizes standard 
-Generalized Linear Models (GLMs) to settings where the responses and 
-connections of units are interdependent. The framework is
-designed to be interpretable by representing conditional distributions 
-as GLMs, scalable to large networks via pseudo-likelihood 
-and convex optimization, and provides insight into 
-outcome-connection dependencies (i.e., spillover effects) that are 
-missed by conditional models.
+responses (\eqn{Y}) and connections \eqn{(Z)} conditional on 
+predictors (X).
 
-The joint probability density is specified as an exponential-family model
-of the form:
-\deqn{f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_y(y_i) \exp(\theta_g^T g_i(x_i, y_i^*)) \Big] \times  
-\Big[\prod_{i \ne j} a_z(z_{i,j}) \exp(\theta_h^T h_{i,j}(x, y_i^*, y_j^*, z)) \Big],}
+#' @section Model Formulation: 
+
+The joint probability density is specified as
+\deqn{f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_x(x_i)\, a_y(y_i) \exp(\theta_g^T \mathbf{g}_i(x_i^*, y_i^*)) \Big] \times  
+\Big[\prod_{i \ne j} a_z(z_{i,j}) \exp(\theta_h^T \mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)) \Big],}
 which is defined by two distinct sets of user-specified features:
 \itemize{
-  \item \strong{\eqn{g_i(x,y,z)}}: A vector of actor-level functions (or "g-terms")
+  \item \strong{\eqn{\mathbf{g}_i(x_i^*, y_i^*)= (g_i(x_i^*, y_i^*))}}: A vector of unit-level functions (or "g-terms")
     that describe the relationship between an individual actor \eqn{i}'s
     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
-  \item \strong{\eqn{h_{i,j}(x,y,z)}}: A vector of pair-level functions (or "h-terms")
+  \item \strong{\eqn{\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)= (h_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z))}}: A vector of pair-level functions (or "h-terms")
     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})
     of a pair of units \eqn{\{i,j\}} depend on each other and the wider 
     network structure.
 }
+
 This separation allows the model to simultaneously capture individual-level
 behavior (via \eqn{g_i}) and dyadic, network-based dependencies (via \eqn{h_{i,j}}), 
-including lo cal dependence limited to overlapping neighborhoods (see, Fritz et al., 2025). 
+including local dependence limited to overlapping neighborhoods.
 This help page documents the various statistics available in 'iglm',
 corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
-components of the joint model.
-This is a user-facing constructor for creating a \code{\link{iglm.object}}. This \code{R6} object 
-encompasses the complete model specification, linking the formula, data (\code{\link{iglm.data}} object), 
-initial coefficients, MCMC sampler settings, and estimation controls.
-It serves as the primary input for subsequent methods like \code{$estimate()} and \code{$simulate()}.
+components of the joint model. See \code{\link{model.terms}} for details on specifying 
+all model terms via the formula interface.
 }
 \examples{
 # Example usage:
@@ -100,9 +98,9 @@ sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
                                init_empty = FALSE)
 # Create iglm model specification
 model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
-                          attribute_y + attribute_x + popularity,
+                          attribute_y + attribute_x + degrees,
                           coef = gt_coef,
-                          coef_popularity = gt_coef_pop,
+                          coef_degrees = gt_coef_pop,
                           sampler = sampler_new,
                           control = control.iglm(accelerated = FALSE,
                           max_it = 200, display_progress = FALSE, var = TRUE))
@@ -114,8 +112,8 @@ model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])
 model_tmp_new$estimate()
 
 # Model Assessment
-model_tmp_new$model_assessment(formula = ~  degree_distribution )
-# model_tmp_new$results$plot(model_assessment = TRUE)
+model_tmp_new$assess(formula = ~  degree_distribution )
+# model_tmp_new$results$plot(assess = TRUE)
                                                    
 }
 \references{
