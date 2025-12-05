@@ -501,6 +501,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                              }
                                            }
                                            if(length(info$where_wrong)>0){
+                                             private$.sufficient_statistics <- private$.sufficient_statistics[-(info$where_wrong+1)]
                                              if(private$.preprocess$includes_degrees){
                                                private$.results$resize(size_coef = length(info$coefficients_nondegrees), 
                                                                        size_coef_degrees = 

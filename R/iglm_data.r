@@ -415,7 +415,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @param prob (logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.
                                    #' @param plot (logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.
                                    #' @return A numeric vector representing the distribution of `x_attribute` (invisible).
-                                   x_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE){
+                                   x_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE){
                                      if(private$.type_x == "gaussian"){
                                        tmp_density <- density(private$.x_attribute, from = value_range[1], to = value_range[2])
                                        names(tmp_density$y) <- tmp_density$x
@@ -435,7 +435,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        if(sum(info) > 0){
                                          info <- info/(sum(info)*prob + (!prob))
                                        }
-                                       private$.descriptives$y_distribution <- info
+                                       private$.descriptives$x_distribution <- info
                                        if(plot){
                                          barplot(info, main = "Distribution of x_attribute", 
                                                  xlab = "x_attribute values", ylab = ifelse(prob, "Probability", "Frequency"))

@@ -31,12 +31,13 @@ is_cluster_active <- function(clust) {
 #' @param fix_x (logical) If `TRUE`, the 'x' predictor is held fixed
 #'   during estimation/simulation (fixed design in regression). Default is `FALSE`.
 #' @param fix_z (logical) If `TRUE`, the 'z' network is held fixed
-#'   during estimation/simulation (fixed network design). Default is `FALSE`.
+#'   during estimation/simulation (fixed network design). Default is `FALSE`. Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).
+
 #' @param display_progress (logical) If `TRUE`, display progress messages or
 #'   a progress bar during estimation. Default is `FALSE`.
 #' @param return_samples (logical). If \code{TRUE} (default), return simulated network/attribute
 #'   samples (i.e., \code{iglm.data} objects) generated during estimation (if applicable).
-#' @param return_z (logical). If \code{TRUE}, return the change statistics for the \code{z} network. Default is \code{FALSE}.
+#' @param return_z (logical). If \code{TRUE}, return the change statistics for the \code{z} network. Default is \code{FALSE}. 
 #' @param offset_nonoverlap (numeric) A value added to the linear predictor for
 #'   dyads not in the 'overlap' set. Default is `0`.
 #' @param var (logical) If `TRUE`, attempt to calculate and return the
@@ -61,6 +62,7 @@ is_cluster_active <- function(clust) {
 #'   updated method for calculating uncertainty estimates (based on the mean-value theorem as opposed to the Godambe Information).
 #' @references 
 #' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+#' Daraganova, G., and Robins, G. (2013). Exponential random graph models for social networks: Theory, methods and applications, 102-114. Cambridge University Press.
 #' @return A list object of class `"control.iglm"` containing the specified
 #'   control parameters.
 #' @export

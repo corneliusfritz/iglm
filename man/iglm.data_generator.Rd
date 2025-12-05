@@ -365,7 +365,7 @@ Calculates the distribution of the `x_attribute`.
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$x_distribution(
   value_range = NULL,
   prob = TRUE,
-  plot = TRUE
+  plot = FALSE
 )}\if{html}{\out{</div>}}
 }
 

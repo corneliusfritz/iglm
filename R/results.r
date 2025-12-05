@@ -1061,7 +1061,7 @@ results.generator <- R6::R6Class("results",
                                              
                                              x_positions <- 1:length(private$.model_assessment$observed$y_distribution)
                                              plot(x_positions, as.vector(private$.model_assessment$observed$y_distribution), 
-                                                  xlab = "Geodesic Distance",ylab = "Percentage",type = "n", xaxt = "n", ylim=ylim, 
+                                                  xlab = "Distribution of Y",ylab = "Percentage",type = "n", xaxt = "n", ylim=ylim, 
                                                   xlim = c(min(x_positions)-0.3, max(x_positions)+0.3), bty ="l")
                                              
                                              
@@ -1149,7 +1149,7 @@ results.generator <- R6::R6Class("results",
                                              
                                              x_positions <- 1:length(private$.model_assessment$observed$x_distribution)
                                              plot(x_positions, as.vector(private$.model_assessment$observed$x_distribution), 
-                                                  xlab = "Geodesic Distance",ylab = "Percentage",type = "n", xaxt = "n", ylim=ylim, 
+                                                  xlab = "Distribution of X",ylab = "Percentage",type = "n", xaxt = "n", ylim=ylim, 
                                                   xlim = c(min(x_positions)-0.3, max(x_positions)+0.3), bty ="l")
                                              
                                              

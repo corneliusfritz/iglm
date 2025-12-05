@@ -164,7 +164,7 @@ An object of class `iglm_model_assessment` containing the
 Print a summary of the `iglm.object`. If estimation results are
 available, they are printed in a standard coefficient table format.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(digits = 4, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(digits = 4, rows = c(1, 2), ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -172,8 +172,10 @@ available, they are printed in a standard coefficient table format.
 \describe{
 \item{\code{digits}}{(integer) Number of digits for rounding numeric output.}
 
-\item{\code{...}}{Additional arguments, if a numeric vector is provided with values between 1 and 4, 
+\item{\code{rows}}{numeric vector is provided with values between 1 and 4, 
 only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|)).}
+
+\item{\code{...}}{Additional arguments (currently unused).}
 }
 \if{html}{\out{</div>}}
 }
