@@ -105,7 +105,7 @@
 </h2>
 <p>You can specify a model formula that includes various network statistics and attribute effects. For example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="va">object</span> <span class="op">~</span> <span class="va">edges</span> <span class="op">+</span> <span class="va">attribute_y</span> <span class="op">+</span> <span class="va">attribute_x</span> <span class="op">+</span> <span class="va">popularity</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="va">object</span> <span class="op">~</span> <span class="va">edges</span> <span class="op">+</span> <span class="va">attribute_y</span> <span class="op">+</span> <span class="va">attribute_x</span> <span class="op">+</span> <span class="va">degrees</span></span></code></pre></div>
 <p>To fully define the model, you need to set up a sampler for the MCMC estimation and set all necessary parameters:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Parameters of edges(mode = "local"), attribute_y, and attribute_x</span></span>

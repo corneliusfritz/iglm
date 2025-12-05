@@ -105,6 +105,7 @@ An object of class \`iglm.data\` (and \`R6\`).
 data(state_twitter)
 state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
 
+
 state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
 
 state_twitter$iglm.data$density_x()
@@ -127,6 +128,6 @@ tmp_edgelist <- iglm.data(z_network = tmp_adjacency$z_network,
                        type_x = "binomial",
                        type_y = "binomial")
 
-tmp_edgelist$density_z()
-tmp_adjacency$density_z()
+tmp_edgelist$mean_z()
+tmp_adjacency$mean_z()
 ```

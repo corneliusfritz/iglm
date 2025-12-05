@@ -8,19 +8,19 @@ directly; it is used internally by the \`iglm_object\`.
 ## Usage
 
 ``` r
-results(size_coef, size_coef_popularity, file = NULL)
+results(size_coef, size_coef_degrees, file = NULL)
 ```
 
 ## Arguments
 
 - size_coef:
 
-  (integer) The number of non-popularity coefficients the object should
-  be initialized to accommodate.
+  (integer) The number of non-degrees coefficients the object should be
+  initialized to accommodate.
 
-- size_coef_popularity:
+- size_coef_degrees:
 
-  (integer) The number of popularity coefficients the object should be
+  (integer) The number of degrees coefficients the object should be
   initialized to accommodate.
 
 - file:

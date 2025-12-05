@@ -40,7 +40,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simulate_iglm</span><span class="op">(</span></span>
 <span>  <span class="va">formula</span>,</span>
 <span>  <span class="va">coef</span>,</span>
-<span>  coef_popularity <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  coef_degrees <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sampler <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  only_stats <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  display_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -62,13 +62,13 @@ See <code><a href="model.terms.html">model.terms</a></code> for details on speci
 
 <dt id="arg-coef">coef<a class="anchor" aria-label="anchor" href="#arg-coef"></a></dt>
 <dd><p>Numeric vector containing the coefficient values for the structural
-(non-popularity) terms defined in the `formula`.</p></dd>
+(non-degrees) terms defined in the `formula`.</p></dd>
 
 
-<dt id="arg-coef-popularity">coef_popularity<a class="anchor" aria-label="anchor" href="#arg-coef-popularity"></a></dt>
-<dd><p>Numeric vector specifying the popularity coefficient
+<dt id="arg-coef-degrees">coef_degrees<a class="anchor" aria-label="anchor" href="#arg-coef-degrees"></a></dt>
+<dd><p>Numeric vector specifying the degrees coefficient
 values (expansiveness/attractiveness). This is required <strong>only if</strong> the
-`formula` includes popularity terms. Its length must be `n_actor` (for
+`formula` includes degrees terms. Its length must be `n_actor` (for
 undirected networks) or `2 * n_actor` (for directed networks), where
 `n_actor` is determined from the `iglm.data` object in the formula.</p></dd>
 

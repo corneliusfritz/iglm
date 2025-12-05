@@ -27,26 +27,26 @@ bindings of the main \`iglm_object\`.
 - `var`:
 
   (\`matrix\` or \`NULL\`) Read-only. Estimated variance-covariance
-  matrix for non-popularity coefficients.
+  matrix for non-degrees coefficients.
 
-- `fisher_popularity`:
-
-  (\`matrix\` or \`NULL\`) Read-only. Fisher information matrix for
-  popularity coefficients.
-
-- `fisher_nonpopularity`:
+- `fisher_degrees`:
 
   (\`matrix\` or \`NULL\`) Read-only. Fisher information matrix for
-  non-popularity coefficients.
+  degrees coefficients.
 
-- `score_popularity`:
+- `fisher_nondegrees`:
 
-  (\`numeric\` or \`NULL\`) Read-only. Score vector for popularity
+  (\`matrix\` or \`NULL\`) Read-only. Fisher information matrix for
+  non-degrees coefficients.
+
+- `score_degrees`:
+
+  (\`numeric\` or \`NULL\`) Read-only. Score vector for degrees
   coefficients.
 
-- `score_nonpopularity`:
+- `score_nondegrees`:
 
-  (\`numeric\` or \`NULL\`) Read-only. Score vector for non-popularity
+  (\`numeric\` or \`NULL\`) Read-only. Score vector for non-degrees
   coefficients.
 
 - `llh`:
@@ -100,19 +100,18 @@ expected number of coefficients.
 
 #### Usage
 
-    results.generator$new(size_coef, size_coef_popularity, file)
+    results.generator$new(size_coef, size_coef_degrees, file)
 
 #### Arguments
 
 - `size_coef`:
 
-  (integer) The number of non-popularity (structural) coefficients in
-  the model.
+  (integer) The number of non-degrees (structural) coefficients in the
+  model.
 
-- `size_coef_popularity`:
+- `size_coef_degrees`:
 
-  (integer) The number of popularity coefficients in the model (0 if
-  none).
+  (integer) The number of degrees coefficients in the model (0 if none).
 
 - `file`:
 
@@ -215,17 +214,17 @@ changes and the results object needs to be reset.
 
 #### Usage
 
-    results.generator$resize(size_coef, size_coef_popularity)
+    results.generator$resize(size_coef, size_coef_degrees)
 
 #### Arguments
 
 - `size_coef`:
 
-  (integer) The new number of non-popularity coefficients.
+  (integer) The new number of non-degrees coefficients.
 
-- `size_coef_popularity`:
+- `size_coef_degrees`:
 
-  (integer) The new number of popularity coefficients. @return The
+  (integer) The new number of degrees coefficients. @return The
   \`results\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
@@ -244,10 +243,10 @@ estimation. Replaces \`samples\` and \`stats\`.
       coefficients_path = NULL,
       samples = NULL,
       var = NULL,
-      fisher_popularity = NULL,
-      fisher_nonpopularity = NULL,
-      score_popularity = NULL,
-      score_nonpopularity = NULL,
+      fisher_degrees = NULL,
+      fisher_nondegrees = NULL,
+      score_degrees = NULL,
+      score_nondegrees = NULL,
       llh = NULL,
       stats = NULL,
       estimated = FALSE
@@ -258,9 +257,8 @@ estimation. Replaces \`samples\` and \`stats\`.
 - `coefficients_path`:
 
   (matrix) A matrix where rows represent iterations and columns
-  represent all coefficients (non-popularity then popularity), showing
-  their values during estimation. If provided, appends to any existing
-  path.
+  represent all coefficients (non-degrees then degrees), showing their
+  values during estimation. If provided, appends to any existing path.
 
 - `samples`:
 
@@ -269,27 +267,27 @@ estimation. Replaces \`samples\` and \`stats\`.
 
 - `var`:
 
-  (matrix) The estimated variance-covariance matrix for the
-  non-popularity coefficients. Replaces existing matrix.
-
-- `fisher_popularity`:
-
-  (matrix) The Fisher information matrix for popularity coefficients.
-  Replaces existing matrix.
-
-- `fisher_nonpopularity`:
-
-  (matrix) The Fisher information matrix for non-popularity
+  (matrix) The estimated variance-covariance matrix for the non-degrees
   coefficients. Replaces existing matrix.
 
-- `score_popularity`:
+- `fisher_degrees`:
 
-  (numeric) The score vector for popularity coefficients. Replaces
-  existing vector.
+  (matrix) The Fisher information matrix for degrees coefficients.
+  Replaces existing matrix.
 
-- `score_nonpopularity`:
+- `fisher_nondegrees`:
 
-  (numeric) The score vector for non-popularity coefficients. Replaces
+  (matrix) The Fisher information matrix for non-degrees coefficients.
+  Replaces existing matrix.
+
+- `score_degrees`:
+
+  (numeric) The score vector for degrees coefficients. Replaces existing
+  vector.
+
+- `score_nondegrees`:
+
+  (numeric) The score vector for non-degrees coefficients. Replaces
   existing vector.
 
 - `llh`:
@@ -338,9 +336,9 @@ Generates diagnostic plots for the estimation results. Currently plots:
 
 - The log-likelihood path across iterations.
 
-- The convergence paths for popularity coefficients (if present).
+- The convergence paths for degrees coefficients (if present).
 
-- The convergence paths for non-popularity coefficients.
+- The convergence paths for non-degrees coefficients.
 
 Optionally, can also trigger plotting of model assessment results if
 available.
@@ -376,7 +374,9 @@ available.
 
 - `...`:
 
-  Additional outputs
+  Additional fits with identical model_assessment terms are currently
+  identified from this argument. The names of the arguments are shown as
+  the legend in the model assessment plots.
 
 #### Details
 

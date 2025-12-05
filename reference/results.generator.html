@@ -60,23 +60,23 @@ bindings of the main `iglm_object`.</p>
 
 
 <dt><code>var</code></dt>
-<dd><p>(`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-popularity coefficients.</p></dd>
+<dd><p>(`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-degrees coefficients.</p></dd>
 
 
-<dt><code>fisher_popularity</code></dt>
-<dd><p>(`matrix` or `NULL`) Read-only. Fisher information matrix for popularity coefficients.</p></dd>
+<dt><code>fisher_degrees</code></dt>
+<dd><p>(`matrix` or `NULL`) Read-only. Fisher information matrix for degrees coefficients.</p></dd>
 
 
-<dt><code>fisher_nonpopularity</code></dt>
-<dd><p>(`matrix` or `NULL`) Read-only. Fisher information matrix for non-popularity coefficients.</p></dd>
+<dt><code>fisher_nondegrees</code></dt>
+<dd><p>(`matrix` or `NULL`) Read-only. Fisher information matrix for non-degrees coefficients.</p></dd>
 
 
-<dt><code>score_popularity</code></dt>
-<dd><p>(`numeric` or `NULL`) Read-only. Score vector for popularity coefficients.</p></dd>
+<dt><code>score_degrees</code></dt>
+<dd><p>(`numeric` or `NULL`) Read-only. Score vector for degrees coefficients.</p></dd>
 
 
-<dt><code>score_nonpopularity</code></dt>
-<dd><p>(`numeric` or `NULL`) Read-only. Score vector for non-popularity coefficients.</p></dd>
+<dt><code>score_nondegrees</code></dt>
+<dd><p>(`numeric` or `NULL`) Read-only. Score vector for non-degrees coefficients.</p></dd>
 
 
 <dt><code>llh</code></dt>
@@ -116,18 +116,18 @@ bindings of the main `iglm_object`.</p>
 setting up an empty matrix for the `coefficients_path` based on the
 expected number of coefficients.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/results.generator.html">results.generator</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">size_coef</span>, <span class="va">size_coef_popularity</span>, <span class="va">file</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/results.generator.html">results.generator</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">size_coef</span>, <span class="va">size_coef_degrees</span>, <span class="va">file</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>size_coef</code></dt>
-<dd><p>(integer) The number of non-popularity (structural)
+<dd><p>(integer) The number of non-degrees (structural)
 coefficients in the model.</p></dd>
 
 
-<dt><code>size_coef_popularity</code></dt>
-<dd><p>(integer) The number of popularity coefficients
+<dt><code>size_coef_degrees</code></dt>
+<dd><p>(integer) The number of degrees coefficients
 in the model (0 if none).</p></dd>
 
 
@@ -228,17 +228,17 @@ saved. Must be a valid character string.</p></dd>
 different number of coefficients. This is useful if the model structure
 changes and the results object needs to be reset.</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">results.generator</span><span class="op">$</span><span class="fu">resize</span><span class="op">(</span><span class="va">size_coef</span>, <span class="va">size_coef_popularity</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">results.generator</span><span class="op">$</span><span class="fu">resize</span><span class="op">(</span><span class="va">size_coef</span>, <span class="va">size_coef_degrees</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>size_coef</code></dt>
-<dd><p>(integer) The new number of non-popularity coefficients.</p></dd>
+<dd><p>(integer) The new number of non-degrees coefficients.</p></dd>
 
 
-<dt><code>size_coef_popularity</code></dt>
-<dd><p>(integer) The new number of popularity
+<dt><code>size_coef_degrees</code></dt>
+<dd><p>(integer) The new number of degrees
 coefficients.
 @return The `results` object itself (`self`), invisibly.</p></dd>
 
@@ -258,10 +258,10 @@ Replaces `samples` and `stats`.</p><div class="section">
 <span>  coefficients_path <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  samples <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  var <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fisher_popularity <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fisher_nonpopularity <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  score_popularity <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  score_nonpopularity <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fisher_degrees <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fisher_nondegrees <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  score_degrees <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  score_nondegrees <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  llh <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stats <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  estimated <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -272,7 +272,7 @@ Replaces `samples` and `stats`.</p><div class="section">
 <h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>coefficients_path</code></dt>
 <dd><p>(matrix) A matrix where rows represent iterations
-and columns represent all coefficients (non-popularity then popularity),
+and columns represent all coefficients (non-degrees then degrees),
 showing their values during estimation. If provided, appends to any
 existing path.</p></dd>
 
@@ -284,26 +284,26 @@ If provided, replaces any existing samples.</p></dd>
 
 <dt><code>var</code></dt>
 <dd><p>(matrix) The estimated variance-covariance matrix for the
-non-popularity coefficients. Replaces existing matrix.</p></dd>
+non-degrees coefficients. Replaces existing matrix.</p></dd>
 
 
-<dt><code>fisher_popularity</code></dt>
+<dt><code>fisher_degrees</code></dt>
 <dd><p>(matrix) The Fisher information matrix for
-popularity coefficients. Replaces existing matrix.</p></dd>
+degrees coefficients. Replaces existing matrix.</p></dd>
 
 
-<dt><code>fisher_nonpopularity</code></dt>
+<dt><code>fisher_nondegrees</code></dt>
 <dd><p>(matrix) The Fisher information matrix for
-non-popularity coefficients. Replaces existing matrix.</p></dd>
+non-degrees coefficients. Replaces existing matrix.</p></dd>
 
 
-<dt><code>score_popularity</code></dt>
-<dd><p>(numeric) The score vector for popularity coefficients.
+<dt><code>score_degrees</code></dt>
+<dd><p>(numeric) The score vector for degrees coefficients.
 Replaces existing vector.</p></dd>
 
 
-<dt><code>score_nonpopularity</code></dt>
-<dd><p>(numeric) The score vector for non-popularity
+<dt><code>score_nondegrees</code></dt>
+<dd><p>(numeric) The score vector for non-degrees
 coefficients. Replaces existing vector.</p></dd>
 
 
@@ -348,8 +348,8 @@ before running new simulations.</p><div class="section">
 </div><p></p><hr><a id="method-results-plot"></a><div class="section">
 <h3 id="method-plot-">Method <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code><a class="anchor" aria-label="anchor" href="#method-plot-"></a></h3>
 <p>Generates diagnostic plots for the estimation results. Currently plots:</p><ul><li><p>The log-likelihood path across iterations.</p></li>
-<li><p>The convergence paths for popularity coefficients (if present).</p></li>
-<li><p>The convergence paths for non-popularity coefficients.</p></li>
+<li><p>The convergence paths for degrees coefficients (if present).</p></li>
+<li><p>The convergence paths for non-degrees coefficients.</p></li>
 </ul><p>Optionally, can also trigger plotting of model assessment results if available.</p><div class="section">
 <h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">results.generator</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span></span>
@@ -381,7 +381,8 @@ objects to exist. Default is `FALSE`.</p></dd>
 
 
 <dt><code>...</code></dt>
-<dd><p>Additional outputs</p></dd>
+<dd><p>Additional fits with identical model_assessment terms are currently identified from this argument.
+The names of the arguments are shown as the legend in the model assessment plots.</p></dd>
 
 
 </dl><p></p></div>

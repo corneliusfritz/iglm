@@ -31,12 +31,12 @@ Methodology), 7, 647-676.
 
 - `coef`:
 
-  (\`numeric\`) Read-only. The current vector of non-popularity
-  coefficient estimates or initial values.
+  (\`numeric\`) Read-only. The current vector of non-degrees coefficient
+  estimates or initial values.
 
-- `coef_popularity`:
+- `coef_degrees`:
 
-  (\`numeric\` or \`NULL\`) Read-only. The current vector of popularity
+  (\`numeric\` or \`NULL\`) Read-only. The current vector of degrees
   coefficient estimates or initial values, or \`NULL\` if not
   applicable.
 
@@ -60,6 +60,10 @@ Methodology), 7, 647-676.
   (\`sampler.iglm\`) Read-only. The [`sampler.iglm`](sampler.iglm.md)
   object specifying MCMC sampling parameters.
 
+- `name`:
+
+  (\`character\`) Read-only. The name of the model.
+
 - `sufficient_statistics`:
 
   (\`numeric\`) Read-only. A named vector of the observed network
@@ -72,13 +76,17 @@ Methodology), 7, 647-676.
 
 - [`iglm.object.generator$new()`](#method-iglm.object-new)
 
-- [`iglm.object.generator$model_assessment()`](#method-iglm.object-model_assessment)
+- [`iglm.object.generator$assess()`](#method-iglm.object-assess)
 
 - [`iglm.object.generator$print()`](#method-iglm.object-print)
 
 - [`iglm.object.generator$plot()`](#method-iglm.object-plot)
 
 - [`iglm.object.generator$gather()`](#method-iglm.object-gather)
+
+- [`iglm.object.generator$set_name()`](#method-iglm.object-set_name)
+
+- [`iglm.object.generator$set_control()`](#method-iglm.object-set_control)
 
 - [`iglm.object.generator$save()`](#method-iglm.object-save)
 
@@ -121,9 +129,10 @@ and control objects, calculating initial statistics, and validating.
     iglm.object.generator$new(
       formula = NULL,
       coef = NULL,
-      coef_popularity = NULL,
+      coef_degrees = NULL,
       sampler = NULL,
       control = NULL,
+      name = NULL,
       file = NULL
     )
 
@@ -139,13 +148,13 @@ and control objects, calculating initial statistics, and validating.
 - `coef`:
 
   A numeric vector of initial coefficients for the terms in the formula
-  (excluding popularity). If \`NULL\`, coefficients are initialized to
-  zero.
+  (excluding degree coefficeints). If \`NULL\`, coefficients are
+  initialized to zero.
 
-- `coef_popularity`:
+- `coef_degrees`:
 
-  An optional numeric vector of initial popularity coefficients. Should
-  be \`NULL\` if the formula does not include popularity terms.
+  An optional numeric vector of initial degree coefficients. Should be
+  \`NULL\` if the formula does not include degree-correcting terms.
 
 - `sampler`:
 
@@ -156,6 +165,11 @@ and control objects, calculating initial statistics, and validating.
 
   A [`control.iglm`](control.iglm.md) object specifying estimation
   control parameters. If \`NULL\`, default settings are used.
+
+- `name`:
+
+  An optional character string specifying a name for the model, would be
+  used in plots and model assessment.
 
 - `file`:
 
@@ -168,7 +182,7 @@ A new \`iglm.object\`.
 
 ------------------------------------------------------------------------
 
-### Method `model_assessment()`
+### Method `assess()`
 
 Performs model assessment by calculating specified network statistics on
 the observed network and comparing their distribution to the
@@ -178,7 +192,7 @@ parameters. Requires simulations to have been run first (via
 
 #### Usage
 
-    iglm.object.generator$model_assessment(formula, plot = TRUE)
+    iglm.object.generator$assess(formula, plot = TRUE)
 
 #### Arguments
 
@@ -221,7 +235,9 @@ available, they are printed in a standard coefficient table format.
 
 - `...`:
 
-  Additional arguments (not used).
+  Additional arguments, if a numeric vector is provided with values
+  between 1 and 4, only the corresponding columns are printed (1:
+  Estimate, 2: SE, 3: t-value, 4: Pr(\>\|t\|)).
 
 ------------------------------------------------------------------------
 
@@ -272,6 +288,47 @@ A list containing all key components of the [`iglm.object`](iglm.md).
 This includes the formula, coefficients, sampler, control settings,
 preprocessing info, time taken for estimation, count statistics,
 results, and the underlying [`iglm.data`](iglm.data.md) data object.
+
+------------------------------------------------------------------------
+
+### Method `set_name()`
+
+Set the name of the [`iglm.object`](iglm.md).
+
+#### Usage
+
+    iglm.object.generator$set_name(name)
+
+#### Arguments
+
+- `name`:
+
+  (character) The name to assign to the object.
+
+#### Returns
+
+The name of the object as a character string.
+
+------------------------------------------------------------------------
+
+### Method `set_control()`
+
+Set control parameters for model estimation.
+
+#### Usage
+
+    iglm.object.generator$set_control(control)
+
+#### Arguments
+
+- `control`:
+
+  A [`control.iglm`](control.iglm.md) object specifying new control
+  settings.
+
+#### Returns
+
+Invisibly returns \`NULL\`.
 
 ------------------------------------------------------------------------
 
@@ -414,8 +471,8 @@ predictor and point estimates).
 
   - `"conditional"`: Computes predictions using the systematic component
     of the Generalized Linear Model (GLM). It calculates the linear
-    predictor \\\eta = X\beta\\ (plus offset and popularity terms for
-    the network) and applies the inverse link function \\\mu =
+    predictor \\\eta = X\beta\\ (plus offset and degrees terms for the
+    network) and applies the inverse link function \\\mu =
     g^{-1}(\eta)\\.
 
   Defaults to `c("conditional", "marginal")`.
@@ -454,8 +511,8 @@ coefficients \\\hat{\theta}\\:
 - For **Gaussian** families: \\\mu = \eta\\ (Identity).
 
 For the network component `z`, the linear predictor includes dyadic
-covariates, popularity effects (sender/receiver variances), and
-structural offsets.
+covariates, degrees effects (sender/receiver variances), and structural
+offsets.
 
 #### Returns
 
@@ -483,20 +540,18 @@ sensitivity analyses or applying the model to different scenarios.
 
 #### Usage
 
-    iglm.object.generator$set_coefficients(coef, coef_popularity = NULL)
+    iglm.object.generator$set_coefficients(coef, coef_degrees = NULL)
 
 #### Arguments
 
 - `coef`:
 
-  A numeric vector of new coefficient values for the non-popularity
-  terms.
+  A numeric vector of new coefficient values for the non-degrees terms.
 
-- `coef_popularity`:
+- `coef_degrees`:
 
-  A numeric vector of new coefficient values for the popularity terms,
-  if applicable. Must be provided if the model includes popularity
-  effects.
+  A numeric vector of new coefficient values for the degrees terms, if
+  applicable. Must be provided if the model includes degrees effects.
 
 #### Returns
 

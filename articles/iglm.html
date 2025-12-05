@@ -118,7 +118,7 @@ example:</p>
 <p>You can specify a model formula that includes various network
 statistics and attribute effects. For example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="va">object</span> <span class="op">~</span> <span class="va">edges</span> <span class="op">+</span> <span class="va">attribute_y</span> <span class="op">+</span> <span class="va">attribute_x</span> <span class="op">+</span> <span class="va">popularity</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="va">object</span> <span class="op">~</span> <span class="va">edges</span> <span class="op">+</span> <span class="va">attribute_y</span> <span class="op">+</span> <span class="va">attribute_x</span> <span class="op">+</span> <span class="va">degrees</span></span></code></pre></div>
 <p>To fully define the model, you need to set up a sampler for the MCMC
 estimation and set all necessary parameters:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -134,7 +134,7 @@ estimation and set all necessary parameters:</p>
 <span>                               init_empty <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model_tmp_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iglm.html">iglm</a></span><span class="op">(</span>formula <span class="op">=</span> <span class="va">formula</span>,</span>
-<span>                           coef <span class="op">=</span> <span class="va">gt_coef</span>,  coef_popularity <span class="op">=</span> <span class="va">gt_coef_pop</span>, sampler <span class="op">=</span> <span class="va">sampler_tmp</span>, </span>
+<span>                           coef <span class="op">=</span> <span class="va">gt_coef</span>,  coef_degrees <span class="op">=</span> <span class="va">gt_coef_pop</span>, sampler <span class="op">=</span> <span class="va">sampler_tmp</span>, </span>
 <span>                          control <span class="op">=</span> <span class="fu"><a href="../reference/control.iglm.html">control.iglm</a></span><span class="op">(</span>accelerated <span class="op">=</span> <span class="cn">F</span>,max_it <span class="op">=</span> <span class="fl">200</span>, display_progress <span class="op">=</span> <span class="cn">F</span>, var <span class="op">=</span> <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -166,7 +166,7 @@ method:</p>
 <p>After estimation, you can assess the model fit using various
 diagnostics:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">model_assessment</span><span class="op">(</span>formula <span class="op">=</span> <span class="op">~</span>  <span class="va">degree_distribution</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">assess</span><span class="op">(</span>formula <span class="op">=</span> <span class="op">~</span>  <span class="va">degree_distribution</span> <span class="op">+</span> </span>
 <span>                                 <span class="va">geodesic_distances_distribution</span> <span class="op">+</span> <span class="va">edgewise_shared_partner_distribution</span> <span class="op">+</span> <span class="va">mcmc_diagnostics</span><span class="op">)</span></span></code></pre></div>
 <p><img src="iglm_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-2.png" class="r-plt" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-3.png" class="r-plt" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-4.png" class="r-plt" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-5.png" class="r-plt" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-6.png" class="r-plt" width="100%"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">

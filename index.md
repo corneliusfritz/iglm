@@ -57,7 +57,7 @@ You can specify a model formula that includes various network statistics
 and attribute effects. For example:
 
 ``` r
-formula <- object ~ edges + attribute_y + attribute_x + popularity
+formula <- object ~ edges + attribute_y + attribute_x + degrees
 ```
 
 To fully define the model, you need to set up a sampler for the MCMC

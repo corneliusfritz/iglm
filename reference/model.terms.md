@@ -1,85 +1,91 @@
 # Model specification for a \`iglm' object
 
-`R` package `iglm` implements generalized linear models (GLMs) for
-studying relationships among attributes in connected populations, where
-responses of connected units can be dependent. It extends GLMs for
-independent responses to dependent responses and can be used for
-studying spillover in connected populations and other network-mediated
-phenomena. It is based on a joint probability model for dependent
-responses (\\Y\\) and connections \\(Z)\\ conditional on predictors (X).
+The help pages of [`iglm`](iglm.md) describe the model with details on
+model fitting and estimation. Generally, a model is specified via it's
+sufficient statistics, that can be further decomposed into two parts:
 
-The joint probability density is specified as \$\$f\_{\theta}(y,z,x)
-\propto \Big\[\prod\_{i=1}^{N} a_y(y_i) \exp(\theta_g^T g_i(x_i,
-y_i^\*)) \Big\] \times \Big\[\prod\_{i \ne j} a_z(z\_{i,j})
-\exp(\theta_h^T h\_{i,j}(x, y_i^\*, y_j^\*, z)) \Big\],\$\$ which is
-defined by two distinct sets of user-specified features:
-
-- **\\g_i(x,y,z)\\**: A vector of unit-level functions (or "g-terms")
+- **\\\mathbf{g}\_i(x_i^\*,y_i^\*) = \mathbf{g}\_i(x_i,y_i)=
+  (g_i(x_i,y_i))\\**: A vector of unit-level functions (or "g-terms")
   that describe the relationship between an individual actor \\i\\'s
   predictors (\\x_i\\) and their own response (\\y_i\\).
 
-- **\\h\_{i,j}(x,y,z)\\**: A vector of pair-level functions (or
-  "h-terms") that specify how the connections (\\z\\) and responses
-  (\\y_i, y_j\\) of a pair of units \\\\i,j\\\\ depend on each other and
-  the wider network structure.
-
-This separation allows the model to simultaneously capture
-individual-level behavior (via \\g_i\\) and dyadic, network-based
-dependencies (via \\h\_{i,j}\\), including local dependence limited to
-overlapping neighborhoods. This help page documents the various
-statistics available in 'iglm', corresponding to the \\g_i\\
-(attribute-level) and \\h\_{i,j}\\ (pair-level) components of the joint
-model. In the formula interface, these terms can be specified by adding
-them in the right-hand side of a model formula, e.g.,
-`iglm.data ~ attribute_x + edges(mode = "local") + popularity, ...`. See
-the documentation for [`iglm`](iglm.md) for details on model fitting and
-estimation.
-
-## Details
+- **\\\mathbf{h}\_{i,j}(x_i^\*,x_j^\*, y_i^\*, y_j^\*, z) =
+  \mathbf{h}\_{i,j}(x,y,z)= (h\_{i,j}(x,y,z))\\**: A vector of
+  pair-level functions (or "h-terms") that specify how the connections
+  (\\z\\) and responses (\\y_i, y_j\\) of a pair of units \\\\i,j\\\\
+  depend on each other and the wider network structure.
 
 Each term defines a component for the model's features, which are a sum
-of unit-level components, \\\sum_i g_i(x,y,z)\\, and/or pair-level
-components, \\\sum\_{i \ne j} h\_{i,j}(x,y,z)\\. Here, \\x_i\\ and
-\\y_i\\ are the attributes for actor \\i\\, and \\z\_{i,j}\\ indicates
-the presence (1) or absence (0) of a tie from actor \\i\\ to actor
-\\j\\. The local neighborhood of actor \\i\\ is denoted
-\\\mathcal{N}\_i\\, and the indicator for whether actors \\i\\ and \\j\\
-share a local neighborhood is given by \\c\_{i,j} =
+of unit-level components, \\\sum_i g_i(x_i,y_i)\\, and/or pair-level
+components, \\\sum\_{i \ne j} h\_{i,j}(x,y,z)\\. The implemented terms
+are grouped into three categories:
+
+1.  \\{g}\_i\\ terms for attribute dependence,
+
+2.  \\{h}\_{i,j}\\ terms for network dependence,
+
+3.  \\{h}\_{i,j}\\ Terms for joint attribute/network dependence.
+
+Below is a detailed description of each term that can be specified in
+the model formula (see, [`iglm`](iglm.md)):
+`iglm.data ~ <term_1> + <term_2> + ... `, where the left-hand side of
+the formula has to be a [`iglm.data`](iglm.data.md) object, and the
+right-hand side lists some of the terms from the list below, which
+should be included in the model. Setting, e.g., `<term_1>` to
+`attribute_x` includes the term \\g_i(x,y,z) = x_i\\ in \\g_i\\. Note
+that the function
+[`create_userterms_skeleton`](create_userterms_skeleton.md) can be used
+to create custom terms.
+
+## Notation
+
+Here, \\x_i\\ and \\y_i\\ are the attributes for actor \\i\\, and
+\\z\_{i,j}\\ indicates the presence (1) or absence (0) of a tie from
+actor \\i\\ to actor \\j\\. The local neighborhood of actor \\i\\ is
+denoted \\\mathcal{N}\_i\\, and the indicator for whether actors \\i\\
+and \\j\\ share a local neighborhood is given by \\c\_{i,j} =
 \mathbb{I}(\mathcal{N}\_i \cap \mathcal{N}\_j \neq \emptyset)\\. The
-functions below specify the forms of \\g_i(x,y,z)\\ and
+functions below specify the forms of \\g_i(x_i,y_i)\\ and
 \\h\_{i,j}(x,y,z)\\ for each term. Some terms also depend on other
 covariates, which are denoted by \\v = (v_1, ..., v_N)\\ (unit-level)
 and \\w = (w\_{i,j}) \in \mathbb{R}^{N \times N}\\(dyadic). These
-covariates must be provided by the user via the `data` argument. The
-implemented terms are grouped into three categories:
+covariates must be provided by the user via the `data` argument of the
+terms. Assuming that the matriv `x` exists in the environment associated
+with the used formula, `cov_z(data = v)` includes the dyadic covariable
+\\v = (v\_{i,j})\\ in the model. Some terms also have a `mode` argument,
+which can take values `"global"`, `"local"`, or `"alocal"`. The
+`"global"` mode indicates that the statistic is computed over the entire
+network, while `"local"` restricts the statistic to local neighborhoods
+only (i.e., edges where \\c\_{i,j} = 1\\). The `"alocal"` mode restricts
+the statistic to non-local edges only (i.e., edges where \\c\_{i,j} =
+0\\). For instance, `edges(mode = "local")` counts the number of edges
+that connect actors with overlapping neighborhoods. See underneath for
+which options are implemented for each term. See the documentation for
+[`iglm`](iglm.md) for details on model fitting and estimation.
 
-1.  \\g_i\\ terms for attribute dependence,
-
-2.  \\h\_{i,j}\\ terms for network dependence,
-
-3.  \\h\_{i,j}\\ Terms for joint attribute/network dependence.
+## List of Terms
 
 - **1. \\g_i\\ Terms for Attribute Dependence**:
 
 - `attribute_x`:
 
   **Attribute (X) \[g-term\]:** Intercept for attribute 'x'.
-  \\g_i(x,y,z) = x_i\\
+  \\g_i(x_i,y_i) = x_i\\
 
 - `attribute_y`:
 
   **Attribute (Y) \[g-term\]:** Intercept for attribute 'y'.
-  \\g_i(x,y,z) = y_i\\
+  \\g_i(x_i,y_i) = y_i\\
 
 - `cov_x`:
 
   **Nodal Covariate (X) \[g-term\]:** Effect of a unit-level covariate
-  \\v_i\\ on attribute \\x_i\\. \\g_i(x,y,z) = v_i x_i\\
+  \\v_i\\ on attribute \\x_i\\. \\g_i(x_i,y_i) = v_i x_i\\
 
 - `cov_y(data = v)`:
 
   **Nodal Covariate (Y) \[g-term\]:** Effect of a unit-level covariate
-  \\v_i\\ on attribute \\y_i\\. \\g_i(x,y,z) = v_i y_i\\
+  \\v_i\\ on attribute \\y_i\\. \\g_i(x_i,y_i) = v_i y_i\\
 
 - `attribute_xy(mode = "global")`:
 
@@ -88,24 +94,24 @@ implemented terms are grouped into three categories:
   from "global", we count interactions of an actor's attributes with
   their local neighbors' attributes.
 
-  - `global`: \\g_i(x,y,z) = x_i y_i\\
+  - `global`: \\g_i(x_i,y_i) = x_i y_i\\
 
-  - `local`: \\g_i(x,y,z) = x_i \sum\_{j \in \mathcal{N}\_i} y_j + y_i
+  - `local`: \\g_i(x_i,y_i) = x_i \sum\_{j \in \mathcal{N}\_i} y_j + y_i
     \sum\_{j \in \mathcal{N}\_i} x_j\\
 
-  - `alocal`: \\g_i(x,y,z) = x_i \sum\_{j \notin \mathcal{N}\_i} y_j +
+  - `alocal`: \\g_i(x_i,y_i) = x_i \sum\_{j \notin \mathcal{N}\_i} y_j +
     y_i \sum\_{j \notin \mathcal{N}\_i} x_j\\
 
 - **2. \\h\_{i,j}\\ Terms for Network Dependence**:
 
-- `popularity`:
+- `degrees`:
 
-  **Popularity \[h-term\]:** Adds fixed effects for all actors in the
-  network. Estimation of popularity effects is carried out using a MM
+  **degrees \[h-term\]:** Adds fixed effects for all actors in the
+  network. Estimation of degrees effects is carried out using a MM
   algorithm. For directed networks, each actors has a sender and
   receiver effect (we assume that the out effect of actor N is 0 for
   identifiability). For undirected networks, each actor has a single
-  popularity effect.
+  degrees effect.
 
 - `edges(mode = "global")`:
 

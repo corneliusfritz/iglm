@@ -57,7 +57,7 @@ You can specify a model formula that includes various network statistics
 and attribute effects. For example:
 
 ``` r
-formula <- object ~ edges + attribute_y + attribute_x + popularity
+formula <- object ~ edges + attribute_y + attribute_x + degrees
 ```
 
 To fully define the model, you need to set up a sampler for the MCMC
@@ -76,7 +76,7 @@ sampler_tmp = sampler.iglm(n_burn_in = 100, n_simulation = 10,
                                init_empty = F)
 
 model_tmp_new <- iglm(formula = formula,
-                           coef = gt_coef,  coef_popularity = gt_coef_pop, sampler = sampler_tmp, 
+                           coef = gt_coef,  coef_degrees = gt_coef_pop, sampler = sampler_tmp, 
                           control = control.iglm(accelerated = F,max_it = 200, display_progress = F, var = T))
 ```
 
@@ -111,7 +111,7 @@ After estimation, you can assess the model fit using various
 diagnostics:
 
 ``` r
-model_tmp_new$model_assessment(formula = ~  degree_distribution + 
+model_tmp_new$assess(formula = ~  degree_distribution + 
                                  geodesic_distances_distribution + edgewise_shared_partner_distribution + mcmc_diagnostics)
 ```
 

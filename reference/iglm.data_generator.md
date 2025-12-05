@@ -85,11 +85,15 @@ connections (z_network).
 
 - [`iglm.data_generator$save()`](#method-iglm.data-save)
 
-- [`iglm.data_generator$density_z()`](#method-iglm.data-density_z)
+- [`iglm.data_generator$mean_z()`](#method-iglm.data-mean_z)
 
-- [`iglm.data_generator$density_x()`](#method-iglm.data-density_x)
+- [`iglm.data_generator$mean_x()`](#method-iglm.data-mean_x)
 
-- [`iglm.data_generator$density_y()`](#method-iglm.data-density_y)
+- [`iglm.data_generator$mean_y()`](#method-iglm.data-mean_y)
+
+- [`iglm.data_generator$x_distribution()`](#method-iglm.data-x_distribution)
+
+- [`iglm.data_generator$y_distribution()`](#method-iglm.data-y_distribution)
 
 - [`iglm.data_generator$edgewise_shared_partner()`](#method-iglm.data-edgewise_shared_partner)
 
@@ -391,13 +395,13 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `density_z()`
+### Method `mean_z()`
 
 Calculates the density of the \`z_network\`.
 
 #### Usage
 
-    iglm.data_generator$density_z()
+    iglm.data_generator$mean_z()
 
 #### Returns
 
@@ -405,13 +409,13 @@ A numeric value for the network density.
 
 ------------------------------------------------------------------------
 
-### Method `density_x()`
+### Method `mean_x()`
 
 Calculates the mean of the \`x_attribute\`.
 
 #### Usage
 
-    iglm.data_generator$density_x()
+    iglm.data_generator$mean_x()
 
 #### Returns
 
@@ -419,17 +423,91 @@ A numeric value for the mean of \`x_attribute\`.
 
 ------------------------------------------------------------------------
 
-### Method `density_y()`
+### Method `mean_y()`
 
 Calculates the mean of the \`y_attribute\`.
 
 #### Usage
 
-    iglm.data_generator$density_y()
+    iglm.data_generator$mean_y()
 
 #### Returns
 
 A numeric value for the mean of \`y_attribute\`.
+
+------------------------------------------------------------------------
+
+### Method `x_distribution()`
+
+Calculates the distribution of the \`x_attribute\`.
+
+#### Usage
+
+    iglm.data_generator$x_distribution(
+      value_range = NULL,
+      prob = TRUE,
+      plot = TRUE
+    )
+
+#### Arguments
+
+- `value_range`:
+
+  (numeric vector) Optional range of values to consider for the
+  distribution. If \`NULL\` (default), the range is inferred from the
+  data.
+
+- `prob`:
+
+  (logical) If \`TRUE\` (default), returns probabilities; if \`FALSE\`,
+  returns frequencies.
+
+- `plot`:
+
+  (logical) If \`TRUE\` (default), plots the distribution using a
+  density plot for continuous data or a bar plot for discrete data.
+
+#### Returns
+
+A numeric vector representing the distribution of \`x_attribute\`
+(invisible).
+
+------------------------------------------------------------------------
+
+### Method `y_distribution()`
+
+Calculates the distribution of the \`y_attribute\`.
+
+#### Usage
+
+    iglm.data_generator$y_distribution(
+      value_range = NULL,
+      prob = TRUE,
+      plot = FALSE
+    )
+
+#### Arguments
+
+- `value_range`:
+
+  (numeric vector) Optional range of values to consider for the
+  distribution. If \`NULL\` (default), the range is inferred from the
+  data.
+
+- `prob`:
+
+  (logical) If \`TRUE\` (default), returns probabilities; if \`FALSE\`,
+  returns frequencies.
+
+- `plot`:
+
+  (logical) If \`TRUE\` (default), plots the distribution using a
+  density plot for continuous data or a bar plot for discrete data.
+
+#### Returns
+
+A numeric vector representing the distribution of \`y_attribute\`
+(invisible).
 
 ------------------------------------------------------------------------
 
@@ -762,6 +840,7 @@ colored by \`x_attribute\` and sized by \`y_attribute\`.
       edge.arrow.size = 1,
       vertex.frame.width = 0.5,
       coords = NULL,
+      legend_size = 0.5,
       ...
     )
 
@@ -829,6 +908,10 @@ colored by \`x_attribute\` and sized by \`y_attribute\`.
 - `coords`:
 
   (matrix) Optional matrix of x-y coordinates for node layout.
+
+- `legend_size`:
+
+  (numeric) Scaling factor for the size legend.
 
 - `...`:
 
