@@ -890,7 +890,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       }
     }
     if(type == "y"){
-      // Rcpp::Rcout << object.y_attribute.get_val(tmp_i) <<std::endl;
+      
       
       if(object.y_attribute.type == "binomial"){
         if(object.y_attribute.get_val(tmp_i)){
@@ -918,11 +918,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       }
       if(object.y_attribute.type == "poisson"){
         tmp = coef.t()*change_stat;
-        // Rcout << tmp << std::endl;
+        
         double safe_eta = std::min(tmp.at(0), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats +=  (tmp_val- object.y_attribute.get_val(tmp_i))*change_stat;
+        // Rcout << sum(object.y_attribute.attribute) << std::endl;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
+        // Rcpp::Rcout << change_stat <<std::endl;
       }
       if(object.y_attribute.type == "normal"){
         HR= coef.t()*change_stat;
@@ -975,7 +977,7 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
   for(int i = 1; i <=(n_simulation + n_burn_in);i ++) {
     // Simulate the network
     // Rcout << global_stats << std::endl;
-    
+    // Rcout << "Updated Global Statistics: " << global_stats.t() << std::endl;
     p.increment(); // update progress
     if(!fix_x){
       // Rcout << "Sampling X| Y,Z" << std::endl;
@@ -1116,7 +1118,7 @@ List xyz_simulate_cpp(arma::vec& coef,
                                                       type_x, type_y, 
                                                       attr_x_scale, 
                                                       attr_y_scale);
-  // Rcout << global_stats << std::endl;
+  Rcout << global_stats << std::endl;
   std::vector<arma::vec> res_x(n_simulation);
   std::vector<arma::vec> res_y(n_simulation);
   std::vector<std::unordered_map< int, std::unordered_set<int>>> res_z(n_simulation);
@@ -1998,9 +2000,9 @@ arma::mat get_C_new(
       arma::vec eta_x = X_x * coef;
       arma::vec mu = arma::exp(eta_x);
       var_x = mu;               // variance = mu
-    } else if (attr_x_type == "normal" || attr_x_type == "gaussian") { 
+    } else if (attr_x_type == "normal") { 
       // For normal, variance is constant = attr_x_scale
-      var_x = arma::vec(X_x.n_rows, arma::fill::value(attr_x_scale));
+      var_x = arma::vec(X_x.n_rows, arma::fill::value(1.0/attr_x_scale));
     } else { 
       Rcpp::stop("Unknown attr_x_type: must be 'binomial', 'poisson' or 'normal'.");
     } 
@@ -2020,8 +2022,8 @@ arma::mat get_C_new(
     arma::vec eta_y = X_y * coef;
     arma::vec mu = arma::exp(eta_y);
     var_y = mu;
-  } else if (attr_y_type == "normal" || attr_y_type == "gaussian") { 
-    var_y = arma::vec(X_y.n_rows, arma::fill::value(attr_y_scale));
+  } else if (attr_y_type == "normal") { 
+    var_y = arma::vec(X_y.n_rows, arma::fill::value(1.0/attr_y_scale));
   } else { 
     Rcpp::stop("Unknown attr_y_type: must be 'binomial', 'poisson' or 'normal'.");
   } 
@@ -2376,6 +2378,19 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
   
   return(std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> {coef,score, M_new, coefs.rows(0,k-1)});
 }
+
+// arma::uvec find_target_indices(const std::vector<std::string>& source) {
+//   // 1. Construct the target set for O(1) average lookup complexity
+//   const std::unordered_set<std::string> targets = {
+//     "edges", "attribute_x", "attribute_y"
+//   };
+//   arma::uvec indices(targets.size());
+//   for (size_t i = 0; i < source.size(); ++i) {
+//     indices.at(targets.find(source[i]))= i;
+//   }
+//   
+//   return indices;
+// }
 // [[Rcpp::export]]
 List pl_estimation(arma::vec coef,
                    arma::mat z_network ,
@@ -2427,13 +2442,57 @@ List pl_estimation(arma::vec coef,
   pseudo_lh = xyz_get_info_pl(object,terms,data_list,type_list, display_progress,
                               i_vec,j_vec, overlap_vec, n_actor, fix_x, fix_z);
   
-  arma::uvec where_wrong = find(arma::var(std::get<0>(pseudo_lh), 0) == 0);
-  if(where_wrong.size() >0){
-    Rcout << "Some statistics do not change over all paris/actors (they are excluded from the model since their MLE is negative infinity)" << std::endl;
-    arma::uvec where_right = find(arma::var(std::get<0>(pseudo_lh), 0) != 0);
+  // arma::uvec where_wrong = find(arma::var(std::get<0>(pseudo_lh), 0) == 0);
+  arma::rowvec variances = arma::var(std::get<0>(pseudo_lh), 0, 0);
+  
+  
+  
+  const std::unordered_set<std::string> protected_terms = {
+    "edges", "attribute_x", "attribute_y"
+  };
+   
+  std::vector<uint8_t> keep_flags(variances.n_elem);
+  bool exclusions_exist = false;
+  
+  for (size_t i = 0; i < variances.n_elem; ++i) {
+    bool is_constant = (variances[i] == 0);
+    bool is_protected = (protected_terms.count(terms[i]) > 0);
+    
+    if (!is_constant || is_protected) {
+      keep_flags[i] = 1;  
+    } else {
+      keep_flags[i] = 0;
+      exclusions_exist = true;
+    }
+  }
+  arma::uvec where_right = arma::find(arma::conv_to<arma::uvec>::from(keep_flags) == 1);
+  arma::uvec where_wrong = arma::find(arma::conv_to<arma::uvec>::from(keep_flags) == 0);
+  if (exclusions_exist) {
+    
+    Rcout << "Certain statistics strictly invariant across dyads have been identified.\n"
+          << "Excluding " << where_wrong.n_elem << " terms to ensure model identifiability.\n"
+          << std::endl;
+     
+    
     std::get<0>(pseudo_lh) = std::get<0>(pseudo_lh).cols(where_right);
     coef = coef.rows(where_right);
+     
+    // 6. Subset the terms vector safely
+    std::vector<std::string> new_terms;
+    new_terms.reserve(where_right.n_elem);
+    for (arma::uword idx : where_right) {
+      new_terms.push_back(terms[idx]);
+    } 
+    terms = new_terms;
   }
+  
+  // if(where_wrong.size() >0){
+  //   Rcout << "Some statistics (other than the intercept terms, edges, attribute_x, attribute_y) do not change over all paris/actors (they are excluded from the model since their MLE is negative infinity)" << std::endl;
+  //   arma::uvec where_right = find(arma::var(std::get<0>(pseudo_lh), 0) != 0);
+  //   // terms(where_right);
+  //   std::get<0>(pseudo_lh) = std::get<0>(pseudo_lh).cols(where_right);
+  //   coef = coef.rows(where_right);
+  // }
   int n_coef = coef.size();
   unsigned int n_net = i_vec.n_elem;
   
@@ -2444,14 +2503,8 @@ List pl_estimation(arma::vec coef,
   const arma::vec& Y_all = std::get<1>(pseudo_lh);
   
   // --- 1. Define subviews for each component ---
-  if(!fix_z){
-    const arma::mat X_net = X_all.rows(0, n_net - 1);
-    const arma::vec Y_net = Y_all.subvec(0, n_net - 1);  
-  }
-  
   arma::mat X_x, X_y, X_net;
   arma::vec Y_x, Y_y, Y_net;
-  
   if(fix_z == false){
     X_net = X_all.rows(0, n_net - 1);
     Y_net = Y_all.subvec(0, n_net - 1);  
@@ -3689,15 +3742,22 @@ List xyz_approximate_variability(arma::vec& coef,
   // Generate the class with the provided information
   XYZ_class object(n_actor,directed, neighborhood, overlap, type_x, type_y,attr_x_scale, attr_y_scale);
   if(!init_empty){
+    // Rcout << "Here" << std::endl;
     object.set_info_arma(x_attribute,y_attribute, z_network);
-  }
-  if(fix_x){
-    object.x_attribute.set_attr_from_armavec(x_attribute);  
+  } else{
+    if(fix_x){
+      object.x_attribute.set_attr_from_armavec(x_attribute);  
+    }
+    if(fix_z){
+      // Rcout << "Setting initial empty network" << std::endl;
+      object.set_network_from_mat(n_actor, directed, z_network);  
+    }  
   }
   
+  
   bool is_full_neighborhood = object.check_if_full_neighborhood();
-  // object.print();
-  // Rcout <<is_full_neighborhood<< std::endl;
+  
+
   
   // object.set_neighborhood_from_mat(neighborhood);
   // Generate change statistic function from the terms
@@ -3720,6 +3780,16 @@ List xyz_approximate_variability(arma::vec& coef,
                                                       type_x, type_y, 
                                                       attr_x_scale, 
                                                       attr_y_scale);
+  // Rcout << "Initial Global Statistics: " << global_stats.t() << std::endl;
+  // Rcpp::Rcout << "Edges count"<<std::endl;
+  // Rcout <<object.count_edges()<< std::endl;
+  // Rcpp::Rcout << "X count"<<std::endl;
+  // Rcout <<sum(object.x_attribute.attribute)<< std::endl;
+  // Rcpp::Rcout << "Y count"<<std::endl;
+  // Rcout <<sum(object.y_attribute.attribute)<< std::endl;
+  // Rcpp::Rcout << "Local Edges count"<<std::endl;
+  // Rcpp::Rcout << object.count_nb_edges() <<std::endl;
+  
   // Matrix of statistics that hold the simulated statistics
   // (we should probably return those as well, since they might be useful later on)
   arma::mat stats(n_simulation,functions.size());
@@ -3758,6 +3828,7 @@ List xyz_approximate_variability(arma::vec& coef,
   // arma::vec gradient_tmp;
   for(int i = 1; i <=(n_simulation+n_burn_in);i ++) {
     Rcpp::checkUserInterrupt();
+    // Rcout << "Updated Global Statistics: " << global_stats.t() << std::endl;
     if(display_progress) {
       Rcpp::Rcout.flush();
       Rcout << "Sample: " + std::to_string(i)  << "\r";

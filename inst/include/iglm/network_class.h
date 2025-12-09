@@ -19,20 +19,27 @@ public:
   std::unordered_map< int, std::unordered_set<int>> adj_list;
   std::unordered_map< int, std::unordered_set<int>> adj_list_in;
   // Constructors
-  Network (int n_actors_, bool directed_) {
-    n_actors = n_actors_;
+  Network (int n_actor_, bool directed_) {
+    n_actor = n_actor_;
     directed = directed_;
-    for (int i = 1; i <= n_actors; i++){
+    for (int i = 1; i <= n_actor; i++){
       adj_list[i] = std::unordered_set<int>();
       adj_list_in[i] = std::unordered_set<int>();
     }
     number_edges = 0;
   }
   
-  Network (int n_actors_, bool directed_, arma::mat mat) {
-    n_actors = n_actors_;
+  Network (int n_actor_, bool directed_, arma::mat mat) {
+    n_actor = n_actor_;
     directed = directed_;
-    mat_to_map(mat,n_actors, directed, adj_list,adj_list_in);
+    mat_to_map(mat,n_actor, directed, adj_list,adj_list_in);
+    number_edges = count_edges(); 
+  }
+  
+  void set_network_from_mat(int n_actor_, bool directed_, arma::mat mat){
+    n_actor = n_actor_;
+    directed = directed_;
+    mat_to_map(mat,n_actor, directed, adj_list,adj_list_in);
     number_edges = count_edges(); 
   }
   // This is a member function to change the state of a particular pair in the network
@@ -93,7 +100,7 @@ public:
   }
   double count_edges() const{
     double count = 0.0;
-    for(int i=1; i<=n_actors; i++){
+    for(int i=1; i<=n_actor; i++){
       count += adj_list.at(i).size();
     }
     return(count);
@@ -131,18 +138,18 @@ public:
   }
   // This is a member function to initialize the matrix
   // void initialize() {
-  //   for (int i = 1; i <= n_actors; i++){
+  //   for (int i = 1; i <= n_actor; i++){
   //     adj_list[i] = std::unordered_set<int>();
   //   }
   // }
   // This is a member function to add edges to a network through an adjacency matrix
   void add_edges_from_mat(arma::mat mat) {
-    mat_to_map(mat,n_actors, directed, adj_list,adj_list_in);
+    mat_to_map(mat,n_actor, directed, adj_list,adj_list_in);
   }
   
 private:
   // Private members
-  int n_actors;
+  int n_actor;
 };
 #endif
 

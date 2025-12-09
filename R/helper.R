@@ -220,33 +220,33 @@ print.iglm_formulainfo <- function(x, ..., max_items = 5) {
 
 
 
-map_to_mat = function(map,n_actors){
+map_to_mat = function(map,n_actor){
   # Generate empty network
-  mat = matrix(0,nrow = n_actors,ncol = n_actors)
-  for(i in 1:n_actors){
+  mat = matrix(0,nrow = n_actor,ncol = n_actor)
+  for(i in 1:n_actor){
     mat[as.numeric(names(map)[i]),map[[i]]] = 1
   }
   return(mat)
 }
 
-set_to_vec = function(set,n_actors){
+set_to_vec = function(set,n_actor){
   # Generate empty vector
-  vec = numeric(length = n_actors)
+  vec = numeric(length = n_actor)
   vec[set] = 1
   return(vec)
 }
 
-XZ_to_R = function(x_attribute,z_network, n_actors) {
-  x_attribute = set_to_vec(set = x_attribute,n_actors = n_actors)
-  z_network = map_to_mat(map = z_network,n_actors = n_actors)
+XZ_to_R = function(x_attribute,z_network, n_actor) {
+  x_attribute = set_to_vec(set = x_attribute,n_actor = n_actor)
+  z_network = map_to_mat(map = z_network,n_actor = n_actor)
   return(list(x_attribute = x_attribute, z_network = z_network))
 }
 
 XYZ_to_R = function(x_attribute,y_attribute ,z_network,n_actor, return_adj_mat) {
-  # x_attribute = set_to_vec(set = x_attribute,n_actors = n_actors)
-  # y_attribute = set_to_vec(set = y_attribute,n_actors = n_actors)
+  # x_attribute = set_to_vec(set = x_attribute,n_actor = n_actor)
+  # y_attribute = set_to_vec(set = y_attribute,n_actor = n_actor)
   if(return_adj_mat){
-    z_network_tmp = map_to_mat(map = z_network,n_actors = n_actor)  
+    z_network_tmp = map_to_mat(map = z_network,n_actor = n_actor)  
   } 
   else {
     z_network = z_network[order(as.numeric(names(z_network)))]

@@ -340,34 +340,16 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                          if(length(digits) != 1 || !is.numeric(digits) || digits < 0) {
                                            stop("`digits` must be a single non-negative integer.", call. = FALSE)
                                          }
-                                         if(all(sapply(rows, is.numeric)) && all(unlist(rows) %in% 1:4)) {
-                                             selected_cols <- sort(unique(unlist(rows)))
-                                             est = as.vector(private$.coef)
-                                             stderr <- sqrt(diag(private$.results$var))
-                                             tvalue <- est / stderr
-                                             pvalue <- 2 * pnorm(-abs(tvalue))
-                                             
-                                             coef_table <- cbind(est, stderr, tvalue, pvalue, private$.sufficient_statistics)
-                                             colnames(coef_table) <- c("Estimate", "SE", "t-value", "Pr(>|t|)", "Suff. Statistic")
-                                             rownames(coef_table) <- rownames(private$.coef)
-                                             coef_table <- round(coef_table, digits)
-                                             eps_threshold <- 10^(-digits)
-                                             which_wrong <- coef_table == 0
-                                             which_wrong[,4] <- FALSE
-                                             coef_table[coef_table == 0] <- 
-                                               paste0("< ", format(eps_threshold,scientific = FALSE))
-                                             coef_table <- coef_table[, selected_cols, drop = FALSE]
-                                             print(coef_table, quote = FALSE, right = TRUE)
-                                             return(invisible())
-                                           }
+                                        
+                                    
                                          # --- Display formula
                                          cat("Formula:\n  ", deparse(private$.formula), "\n", sep = "")
                                          # --- Results 
                                          if(nrow(private$.results$coefficients_path) >0){
                                            # cat("\n")
                                            cat("Results: \n\n")
-                                           names = rownames(private$.coef)
-                                           est = as.vector(private$.coef)
+                                           names <- rownames(private$.coef)
+                                           est <- as.vector(private$.coef)
                                            stderr <- sqrt(diag(private$.results$var))
                                            tvalue <- est / stderr
                                            pvalue <- 2 * pnorm(-abs(tvalue))
@@ -382,7 +364,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                            which_wrong[,4] <- FALSE
                                            coef_table[coef_table == 0] <- 
                                              paste0("< ", format(eps_threshold,scientific = FALSE))
-                                           print(coef_table, quote = FALSE, right = TRUE)
+                                           print(coef_table[,rows], quote = FALSE, right = TRUE)
                                            
                                            cat(paste("\nTime for estimation: ",
                                                      round(as.numeric(private$.time_estimation),3),
@@ -669,14 +651,23 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                        simulate = function (nsim = 1, only_stats = FALSE, display_progress=TRUE,
                                                             offset_nonoverlap= 0) {
                                          # debugonce(simulate_iglm)
+                                         # browser()
+                                         if(length(self$results$samples)>0){
+                                           basis <- self$results$samples[[length(self$results$samples)]]
+                                         } else {
+                                           basis <- self$iglm.data
+                                         }
+                                         
                                          info <- simulate_iglm(formula = private$.formula, coef = private$.coef, 
                                                                coef_degrees = private$.coef_degrees,
                                                                sampler = private$.sampler, 
                                                                only_stats = only_stats, 
                                                                fix_x = private$.control$fix_x,
+                                                               fix_z = private$.control$fix_z,
                                                                display_progress = display_progress, 
                                                                offset_nonoverlap = offset_nonoverlap, 
-                                                               cluster = private$.control$cluster)
+                                                               cluster = private$.control$cluster, 
+                                                               basis = basis)
                                          
                                          private$.results$update(samples = info$samples,
                                                                  stats = info$stats,
@@ -1012,17 +1003,17 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' # Example usage:
 #' library(iglm)
 #' # Create a iglm.data data object (example)
-#' n_actors <- 50
-#' neighborhood <- matrix(1, nrow = n_actors, ncol = n_actors)
+#' n_actor <- 50
+#' neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
 #' xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE,
 #'                    type_x = "binomial", type_y = "binomial")
 #' # Define ground truth coefficients
 #' gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
-#' gt_coef_pop <- rnorm(n = n_actors, -2, 1)
+#' gt_coef_pop <- rnorm(n = n_actor, -2, 1)
 #' # Define MCMC sampler
 #' sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-#'                                sampler_x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
-#'                                sampler_y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+#'                                sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
+#'                                sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
 #'                                sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0
 #'                                ) * 10, seed = 134),
 #'                                init_empty = FALSE)

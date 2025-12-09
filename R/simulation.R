@@ -27,6 +27,10 @@
 #' @param display_progress Logical. If `TRUE`, progress messages or a progress
 #'   bar (depending on the backend implementation) are displayed during simulation.
 #'   Default is `FALSE`.
+#' @param basis An optional `iglm.data` object to serve as the basis for the simulation.
+#'   If provided, the simulation starts from the state defined in this object.
+#'   If `NULL` (default), the initial state is taken from the `iglm.data` object
+#'   referenced in the `formula`.
 #' @param offset_nonoverlap Numeric scalar value passed to the C++ simulator.
 #'   This value is typically added to the linear predictor for dyads that are
 #'   \strong{not} part of the 'overlap' set defined in the `iglm.data` object, potentially
@@ -42,7 +46,9 @@
 #'   at its initial state (from the \code{\link{iglm.data}} object) and only simulates the
 #'   `y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
 #'   are simulated according to the model and sampler settings. 
-#'
+#' @param fix_z Logical. If `TRUE`, the simulation holds the `z_network` fixed
+#'  at its initial state (from the \code{\link{iglm.data}} object). If `FALSE` (default), the network component
+#'  is simulated according to the model and sampler settings.
 #' @details
 #'
 #' \strong{Parallel Execution:} When a `cluster` object is provided, the simulation
@@ -91,17 +97,21 @@
 #'
 #' @export
 #' @importFrom parallel parLapply
-simulate_iglm = function(formula,coef,coef_degrees = NULL, 
+simulate_iglm = function(formula,
+                         basis = NULL, 
+                         coef,coef_degrees = NULL, 
                         sampler = NULL, 
                         only_stats = TRUE, 
                         display_progress = FALSE, 
                         offset_nonoverlap = 0,
                         cluster = NULL, 
-                        fix_x = FALSE) {
+                        fix_x = FALSE, 
+                        fix_z = FALSE) {
   if(is.null(sampler)){
     sampler= sampler.iglm()
     # if no specifications of the sampler are provided use the default one
   }
+  
   
   if(!inherits(sampler, "sampler.iglm")){
     sampler= sampler.iglm()
@@ -109,6 +119,12 @@ simulate_iglm = function(formula,coef,coef_degrees = NULL,
   # Search for all things in the environment of the formula
   # attr(formula, ".Environment")
   preprocessed = formula_preprocess(formula) 
+  if(!is.null(basis)){
+    if(!inherits(basis, "iglm.data")){
+      stop("basis must be an object of class iglm.data")
+    }
+    preprocessed$data_object = basis
+  }
   degrees <- preprocessed$includes_degrees
   n_actor = length(preprocessed$data_object$x_attribute)
   if(length(coef) != length(preprocessed$term_names)){
@@ -147,7 +163,8 @@ simulate_iglm = function(formula,coef,coef_degrees = NULL,
                            display_progress = display_progress, 
                            degrees = degrees, 
                            offset_nonoverlap = offset_nonoverlap,
-                           fix_x = fix_x)  
+                           fix_x = fix_x, 
+                           fix_z = fix_z)  
   } else {
     if(display_progress){
       cat("Starting with burn-in\n")
@@ -181,7 +198,9 @@ simulate_iglm = function(formula,coef,coef_degrees = NULL,
                                    only_stats =FALSE,
                                    display_progress = display_progress, 
                                    degrees = degrees, 
-                                   offset_nonoverlap = offset_nonoverlap, fix_x = fix_x)
+                                   offset_nonoverlap = offset_nonoverlap,
+                                   fix_x = fix_x, 
+                                   fix_z = fix_z)
     res_burnin = XYZ_to_R(x_attribute = res_burn_in$simulation_attributes_x[[1]], 
                           y_attribute = res_burn_in$simulation_attributes_y[[1]], 
                           z_network = res_burn_in$simulation_networks_z[[1]],
@@ -222,7 +241,8 @@ simulate_iglm = function(formula,coef,coef_degrees = NULL,
                        n_simulation = length(x),
                        only_stats =only_stats,
                        display_progress = FALSE, 
-                       degrees = degrees, fix_x = fix_x,
+                       degrees = degrees, 
+                       fix_x = fix_x, fix_z = fix_z,
                        offset_nonoverlap = offset_nonoverlap)
     },preprocessed = preprocessed, n_actor = n_actor, coef = coef, 
     coef_degrees = coef_degrees, degrees = degrees, 

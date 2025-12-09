@@ -6,6 +6,7 @@
 \usage{
 simulate_iglm(
   formula,
+  basis = NULL,
   coef,
   coef_degrees = NULL,
   sampler = NULL,
@@ -13,13 +14,19 @@ simulate_iglm(
   display_progress = FALSE,
   offset_nonoverlap = 0,
   cluster = NULL,
-  fix_x = FALSE
+  fix_x = FALSE,
+  fix_z = FALSE
 )
 }
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment. 
 See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
+
+\item{basis}{An optional `iglm.data` object to serve as the basis for the simulation.
+If provided, the simulation starts from the state defined in this object.
+If `NULL` (default), the initial state is taken from the `iglm.data` object
+referenced in the `formula`.}
 
 \item{coef}{Numeric vector containing the coefficient values for the structural
 (non-degrees) terms defined in the `formula`.}
@@ -64,6 +71,10 @@ all simulations are run sequentially in the main R process.}
 at its initial state (from the \code{\link{iglm.data}} object) and only simulates the
 `y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
 are simulated according to the model and sampler settings.}
+
+\item{fix_z}{Logical. If `TRUE`, the simulation holds the `z_network` fixed
+at its initial state (from the \code{\link{iglm.data}} object). If `FALSE` (default), the network component
+is simulated according to the model and sampler settings.}
 }
 \value{
 A list containing two components:

@@ -994,8 +994,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      # in_degree_x_y = table(factor(colSums(adj_mat_x_y,na.rm = T), levels = 0:max_indegree_x_y))/ncol(adj_mat_x_y)
                                      # 
                                      # browser()
-                                     actors_x = which(private$.x_attribute == 1)
-                                     actors_y = which(private$.y_attribute == 1)
+                                     actors_x = which(private$.x_attribute > self$mean_x())
+                                     actors_y = which(private$.y_attribute > self$mean_y())
                                      
                                      adj_mat_x_y = matrix(data = 0, nrow = length(actors_x),
                                                           ncol = length(actors_y),
@@ -1043,7 +1043,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                xlab = "In-Spillover Degree", 
                                                ylab = ifelse(prob, "Proportion", "Count"), 
                                                las = 1)
-                                     }
+                                     
+                                       }
                                      invisible(res)
                                     },
                                    #' @description

@@ -62,6 +62,16 @@ public:
     x_attribute.attribute = x_attribute_;
     y_attribute.attribute = y_attribute_;
     mat_to_map(z_network_,n_actor, z_network.directed, z_network.adj_list,z_network.adj_list_in);
+    // Rcout << "B" << std::endl;
+    // Rcout << n_actor << std::endl;
+    for (int i = 1; i <= n_actor; i++){
+      // Rcout << "Updating adj_list_nb for actor " << i << std::endl;
+      adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
+      if(z_network.directed){
+        adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
+      } 
+    }
+    
   }
   
   

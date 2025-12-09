@@ -388,7 +388,7 @@ EFFECT_REGISTER("outedges_x_local", ::xyz_stat_edges_x_out_nb, "outedges_x_local
 
 auto xyz_stat_edges_x_out_nonb= CHANGESTAT{
   if(mode == "x"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
+    auto& connections_of_i_all =  object.z_network.adj_list.at(actor_i);
     std::unordered_set<int> connections_of_i;
     
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -432,7 +432,7 @@ EFFECT_REGISTER("inedges_x_local", ::xyz_stat_edges_x_in_nb, "inedges_x_local", 
 
 auto xyz_stat_edges_x_in_nonb= CHANGESTAT{
   if(mode == "x"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
+    auto& connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
     std::unordered_set<int> connections_of_i;
     
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -476,7 +476,7 @@ EFFECT_REGISTER("outedges_y_local", ::xyz_stat_edges_y_out_nb, "outedges_y_local
 
 auto xyz_stat_edges_y_out_nonb= CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
+    auto& connections_of_i_all =  object.z_network.adj_list.at(actor_i);
     std::unordered_set<int> connections_of_i;
     
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -520,7 +520,7 @@ EFFECT_REGISTER("inedges_y_local", ::xyz_stat_edges_y_in_nb, "inedges_y_local", 
 
 auto xyz_stat_edges_y_in_nonb= CHANGESTAT{
   if(mode == "y"){
-    std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
+    auto& connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
     std::unordered_set<int> connections_of_i;
     
     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -585,7 +585,7 @@ auto xyz_stat_interaction_edges= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       res+= object.y_attribute.get_val(*itr);
       // }
@@ -596,7 +596,7 @@ auto xyz_stat_interaction_edges= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
@@ -631,7 +631,7 @@ auto xyz_stat_interaction_edges_cov= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
@@ -658,7 +658,7 @@ auto xyz_stat_interaction_edges_xy= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       res+= object.y_attribute.get_val(*itr); 
@@ -669,7 +669,7 @@ auto xyz_stat_interaction_edges_xy= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
@@ -697,7 +697,7 @@ EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy",
 //     // What to do if the attribute change stat is wanted
 //     // y_i from k -> k + 1
 //     double res = 0;
-//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
+//     auto& connections_of_i_all =  object.z_network.adj_list.at(actor_i);
 //     std::unordered_set<int> connections_of_i;
 // 
 //     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -736,7 +736,7 @@ EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy",
 //     // What to do if the attribute change stat is wanted
 //     // y_i from k -> k + 1
 //     double res = 0;
-//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
+//     auto& connections_of_i_all =  object.z_network.adj_list.at(actor_i);
 //     std::unordered_set<int> connections_of_i;
 //     
 //     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -775,7 +775,7 @@ EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy",
 //     // What to do if the attribute change stat is wanted
 //     // x_i from 0 -> 1
 //     int res = 0;
-//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list.at(actor_i);
+//     auto& connections_of_i_all =  object.z_network.adj_list.at(actor_i);
 //     std::unordered_set<int> connections_of_i;
 //     
 //     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -793,7 +793,7 @@ EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy",
 //       res+= object.y_attribute.get_val(*itr); 
 //     }  
 //     
-//     std::unordered_set<int> connections_of_j_all =  object.z_network.adj_list.at(actor_j);
+//     auto& connections_of_j_all =  object.z_network.adj_list.at(actor_j);
 //     std::unordered_set<int> connections_of_j;
 //     
 //     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -815,7 +815,7 @@ EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy",
 //     // What to do if the attribute change stat is wanted
 //     // y_i from 0 -> 1
 //     int res = 0;
-//     std::unordered_set<int> connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
+//     auto& connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
 //     std::unordered_set<int> connections_of_i;
 //     
 //     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -834,7 +834,7 @@ EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy",
 //       // }
 //     }  
 //     
-//     std::unordered_set<int> connections_of_j_all =  object.z_network.adj_list_in.at(actor_j);
+//     auto& connections_of_j_all =  object.z_network.adj_list_in.at(actor_j);
 //     std::unordered_set<int> connections_of_j;
 //     
 //     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
@@ -876,7 +876,7 @@ auto xyz_stat_interaction_edges_y_cov= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
@@ -903,7 +903,7 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // Rcout << "Attribute of actor";
@@ -919,7 +919,7 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // if(*itr != actor_j){
@@ -968,7 +968,7 @@ auto xyz_stat_matching_edges_x= CHANGESTAT{
     // x_i from 0 -> 1
     // The change statistic will be sum_{h with h and i being in the same neighborhood}x_h z_{h,i} 
     int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
+    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
       // Rcout << "Attribute of actor";
@@ -979,7 +979,7 @@ auto xyz_stat_matching_edges_x= CHANGESTAT{
       // }
     }
     if(object.z_network.directed){
-      std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
+      auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
       
       for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
         // Rcout << "Attribute of actor";
@@ -1002,48 +1002,30 @@ EFFECT_REGISTER("spillover_xx", ::xyz_stat_matching_edges_x, "spillover_xx", 0);
 auto xyz_stat_matching_edges_y= CHANGESTAT{
   if(mode == "z"){
     // What to do if the network change stat is desired
-    // x_ij from 0 -> 1
-    bool same_group = object.get_val_overlap(actor_i, actor_j);
-    // If the neighborhood is a full graph all actors are within the same group
-    if(same_group) {
-      // Rcout << "Change of an network!" << std::endl;
-      // Rcout << actor_i << std::endl;
-      // Rcout << actor_j << std::endl;
-      // Rcout << object.attribute.get_val(actor_i)*object.attribute.get_val(actor_j) << std::endl;
-      return(object.y_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j));
-    } else {
-      return(0);
-    }
+    // z_ij from 0 -> 1
+    return(object.y_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)*object.get_val_overlap(actor_i, actor_j));
   } else if (mode == "y"){
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
-    int res = 0;
-    std::unordered_set<int> connections_of_i =  object.adj_list_nb.at(actor_i);
-    
+    double res = 0.0;
+    const auto& connections_of_i =  object.adj_list_nb.at(actor_i);
+    // Rcpp::Rcout << connections_of_i.size() <<std::endl;
     for ( auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-      // Rcout << "Attribute of actor";
-      // Rcout << *itr << std::endl;
-      // Rcout << object.attribute.get_val(*itr) << std::endl;
-      // if(*itr != actor_j){
       res+= object.y_attribute.get_val(*itr);
-      // }
-      
     }
     if(object.z_network.directed){
-      std::unordered_set<int> connections_of_i =  object.adj_list_in_nb.at(actor_i);
-      for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-        // Rcout << "Attribute of actor";
-        // Rcout << *itr << std::endl;
-        // Rcout << object.attribute.get_val(*itr) << std::endl;
-        // if(*itr != actor_j){
+      const auto& connections_in_of_i =  object.adj_list_in_nb.at(actor_i);
+      // Rcpp::Rcout << connections_in_of_i.size() <<std::endl;
+      for (auto itr = connections_in_of_i.begin(); itr != connections_in_of_i.end(); itr++) {
         res+= object.y_attribute.get_val(*itr);
-        // }
-        
       }
     }
+    // Rcpp::Rcout << "Edges count"<<std::endl;
+    // Rcpp::Rcout << object.count_edges() <<std::endl;
+    // Rcpp::Rcout << res <<std::endl;
     return(res);
   } else {
-    return(0);
+    return(0.0);
   }
 };
 EFFECT_REGISTER("spillover_yy", ::xyz_stat_matching_edges_y, "spillover_yy", 0);
@@ -1061,7 +1043,7 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
       double current_sum_x = 0;
       double current_deg = 0;
       
-      std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
       for (int l : out_neighbors) {
         if (object.get_val_overlap(actor_i, l)) {
           current_sum_x += object.x_attribute.get_val(l);
@@ -1102,7 +1084,7 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
       
       if (Y_i != 0) {
         double sum_y_neighbors_i = 0;
-        std::unordered_set<int> neighbors_i = object.adj_list_nb.at(actor_i);
+        auto& neighbors_i = object.adj_list_nb.at(actor_i);
         double deg_i = neighbors_i.size();
         
         for (int l : neighbors_i) {
@@ -1131,7 +1113,7 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
       
       if (Y_j != 0) {
         double sum_y_neighbors_j = 0;
-        std::unordered_set<int> neighbors_j = object.adj_list_nb.at(actor_j);
+        auto& neighbors_j = object.adj_list_nb.at(actor_j);
         double deg_j = neighbors_j.size();
         
         for (int l : neighbors_j) {
@@ -1163,7 +1145,7 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
   } else if (mode == "x"){
     if(object.z_network.directed){
       double res = 0;
-      std::unordered_set<int> in_neighbors = object.z_network.adj_list_in.at(actor_i);
+      auto& in_neighbors = object.z_network.adj_list_in.at(actor_i);
       
       for (int k : in_neighbors) {
         if (object.get_val_overlap(k, actor_i)) {
@@ -1182,8 +1164,8 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
       }
       return res;
     } else {
-      double res = 0;
-      std::unordered_set<int> neighbors = object.adj_list_nb.at(actor_i);
+      double res = 0.0;
+      auto& neighbors = object.adj_list_nb.at(actor_i);
       
       for (int k : neighbors) {
         double deg_k = object.adj_list_nb.at(k).size();
@@ -1197,7 +1179,7 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
     
   } else if (mode == "y"){
     if(object.z_network.directed){
-      std::unordered_set<int> out_neighbors = object.z_network.adj_list.at(actor_i);
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
       double S_i = 0;
       double deg_i = 0;
       
@@ -1210,7 +1192,7 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
       
       return (deg_i > 0.5) ? (S_i / deg_i) : 0;
     } else {
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double S_i = 0;
       double deg_i = out_neighbors.size();
       for (int j : out_neighbors) {
@@ -1236,7 +1218,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
       double Y_j = object.y_attribute.get_val(actor_j);
   
       double current_sum_y = 0;
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double current_deg = out_neighbors.size();
       for (int l : out_neighbors) {
         current_sum_y += object.y_attribute.get_val(l);
@@ -1275,7 +1257,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
       
       if (X_i != 0) {
         double sum_y_neighbors_i = 0;
-        std::unordered_set<int> neighbors_i = object.adj_list_nb.at(actor_i);
+        auto& neighbors_i = object.adj_list_nb.at(actor_i);
         double deg_i = neighbors_i.size();
         
         for (int l : neighbors_i) {
@@ -1304,7 +1286,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
       
       if (X_j != 0) {
         double sum_y_neighbors_j = 0;
-        std::unordered_set<int> neighbors_j = object.adj_list_nb.at(actor_j);
+        auto& neighbors_j = object.adj_list_nb.at(actor_j);
         double deg_j = neighbors_j.size();
         
         for (int l : neighbors_j) {
@@ -1337,7 +1319,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
   } else if (mode == "y"){
     if(object.z_network.directed){
       double res = 0;
-      std::unordered_set<int> in_neighbors = object.adj_list_in_nb.at(actor_i);
+      auto& in_neighbors = object.adj_list_in_nb.at(actor_i);
       
       for (int k : in_neighbors) {
         if (object.get_val_overlap(k, actor_i)) {
@@ -1351,7 +1333,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
       return res;
     } else{
       double res = 0;
-      std::unordered_set<int> neighbors = object.adj_list_nb.at(actor_i);
+      auto& neighbors = object.adj_list_nb.at(actor_i);
       
       for (int k : neighbors) {
         double deg_k = object.adj_list_nb.at(k).size();
@@ -1365,7 +1347,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
     
   } else if (mode == "x"){
     if(object.z_network.directed){
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double S_i = 0;
       double deg_i = out_neighbors.size();
       for (int j : out_neighbors) {
@@ -1374,7 +1356,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
       
       return (deg_i > 0.5) ? (S_i / deg_i) : 0;
     } else{
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double S_i = 0;
       double deg_i = out_neighbors.size();
       for (int j : out_neighbors) {
@@ -1400,7 +1382,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
       double Y_j = object.y_attribute.get_val(actor_j);
       
       double current_sum = 0;
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double current_deg = out_neighbors.size();
       for (int l : out_neighbors) {
         current_sum += object.y_attribute.get_val(l);
@@ -1431,7 +1413,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
       
       if (Y_i != 0) {
         double sum_i = 0;
-        std::unordered_set<int> neighbors_i = object.adj_list_nb.at(actor_i);
+        auto& neighbors_i = object.adj_list_nb.at(actor_i);
         double deg_i = neighbors_i.size();
         for (int l : neighbors_i) {
           sum_i += object.y_attribute.get_val(l);
@@ -1460,7 +1442,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
       
       if (Y_j != 0) { 
         double sum_j = 0;
-        std::unordered_set<int> neighbors_j = object.adj_list_nb.at(actor_j);
+        auto& neighbors_j = object.adj_list_nb.at(actor_j);
         double deg_j = neighbors_j.size();
         for (int l : neighbors_j) {
           sum_j += object.x_attribute.get_val(l);
@@ -1495,7 +1477,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
     if(object.z_network.directed){
       double total_diff = 0;
       // Part A: i's own average
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double sum_i = 0; 
       double deg_i = out_neighbors.size();
       for (int j : out_neighbors) {
@@ -1503,7 +1485,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
       } 
       if (deg_i > 0.5) total_diff += (sum_i / deg_i);
       
-      std::unordered_set<int> in_neighbors = object.adj_list_in_nb.at(actor_i);
+      auto& in_neighbors = object.adj_list_in_nb.at(actor_i);
       for (int k : in_neighbors) {
         double deg_k = object.adj_list_nb.at(k).size();
         if (deg_k > 0.5) {
@@ -1514,7 +1496,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
       return total_diff;
     } else {
       double total_diff = 0;
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double sum_i = 0; 
       double deg_i = out_neighbors.size();
       for (int j : out_neighbors) {
@@ -1544,7 +1526,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
       double X_j = object.x_attribute.get_val(actor_j);
       
       double current_sum = 0;
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double current_deg = out_neighbors.size();
       for (int l : out_neighbors) {
         current_sum += object.x_attribute.get_val(l);
@@ -1575,7 +1557,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
       
       if (X_i != 0) {
         double sum_i = 0;
-        std::unordered_set<int> neighbors_i = object.adj_list_nb.at(actor_i);
+        auto& neighbors_i = object.adj_list_nb.at(actor_i);
         double deg_i = neighbors_i.size();
         for (int l : neighbors_i) {
           sum_i += object.x_attribute.get_val(l);
@@ -1604,7 +1586,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
 
       if (X_j != 0) { 
         double sum_j = 0;
-        std::unordered_set<int> neighbors_j = object.adj_list_nb.at(actor_j);
+        auto& neighbors_j = object.adj_list_nb.at(actor_j);
         double deg_j = neighbors_j.size();
         for (int l : neighbors_j) {
           sum_j += object.x_attribute.get_val(l);
@@ -1637,7 +1619,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
     if(object.z_network.directed){
       double total_diff = 0;
       // Part A: i's own average
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double sum_i = 0; 
       double deg_i = out_neighbors.size();
       for (int j : out_neighbors) {
@@ -1645,7 +1627,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
       } 
       if (deg_i > 0.5) total_diff += (sum_i / deg_i);
       
-      std::unordered_set<int> in_neighbors = object.adj_list_in_nb.at(actor_i);
+      auto& in_neighbors = object.adj_list_in_nb.at(actor_i);
       for (int k : in_neighbors) {
         double deg_k = object.adj_list_nb.at(k).size();
         if (deg_k > 0.5) {
@@ -1656,7 +1638,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
       return total_diff;
     } else {
       double total_diff = 0;
-      std::unordered_set<int> out_neighbors = object.adj_list_nb.at(actor_i);
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double sum_i = 0; 
       double deg_i = out_neighbors.size();
       for (int j : out_neighbors) {
@@ -2194,7 +2176,7 @@ auto xyz_stat_gwdsp_ITP= CHANGESTAT{
     double res = 0.0;
     // 1. Step: 
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> out_j = object.z_network.adj_list.at(actor_j);
+    auto& out_j = object.z_network.adj_list.at(actor_j);
     bool edge_exists = object.z_network.get_val(actor_i, actor_j);
     int tmp_count;
     for (itr = out_j.begin(); itr != out_j.end(); itr++) {
@@ -2203,7 +2185,7 @@ auto xyz_stat_gwdsp_ITP= CHANGESTAT{
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     } 
     // 2. Step: 
-    std::unordered_set<int> in_i = object.z_network.adj_list_in.at(actor_i);
+    auto& in_i = object.z_network.adj_list_in.at(actor_i);
     for (itr = in_i.begin(); itr != in_i.end(); itr++) {
       if(actor_j == *itr) continue;
       tmp_count = object.count_common_partners(*itr, actor_j, "OTP");
@@ -2225,7 +2207,7 @@ auto xyz_stat_gwdsp_ISP= CHANGESTAT{
     int tmp_count;
     // 1. Step: 
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> out_i = object.z_network.adj_list.at(actor_i);
+    auto& out_i = object.z_network.adj_list.at(actor_i);
     for (itr = out_i.begin(); itr != out_i.end(); itr++) {
       if(actor_j == *itr) continue;
       tmp_count = object.count_common_partners(actor_j, *itr, "ISP");
@@ -2250,7 +2232,7 @@ auto xyz_stat_gwdsp_OSP= CHANGESTAT{
     int tmp_count;
     // 1. Step:
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> in_j = object.z_network.adj_list_in.at(actor_j);
+    auto& in_j = object.z_network.adj_list_in.at(actor_j);
     for (itr = in_j.begin(); itr != in_j.end(); itr++) {
       if(actor_i == *itr) continue;
       tmp_count = object.count_common_partners(actor_i, *itr, "OSP");
@@ -2277,7 +2259,7 @@ auto xyz_stat_gwdsp_ITP_local= CHANGESTAT{
       return(0);
     }
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> out_j = object.adj_list_nb.at(actor_j);
+    auto& out_j = object.adj_list_nb.at(actor_j);
     bool edge_exists = object.z_network.get_val(actor_i, actor_j);
     int tmp_count;
     for (itr = out_j.begin(); itr != out_j.end(); itr++) {
@@ -2286,7 +2268,7 @@ auto xyz_stat_gwdsp_ITP_local= CHANGESTAT{
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     } 
     // 2. Step: 
-    std::unordered_set<int> in_i = object.adj_list_in_nb.at(actor_i);
+    auto& in_i = object.adj_list_in_nb.at(actor_i);
     for (itr = in_i.begin(); itr != in_i.end(); itr++) {
       if(actor_j == *itr) continue;
       tmp_count = object.count_common_partners_nb(*itr, actor_j, "OTP");
@@ -2311,7 +2293,7 @@ auto xyz_stat_gwdsp_ISP_local= CHANGESTAT{
     int tmp_count;
     // 1. Step: 
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> out_i = object.adj_list_nb.at(actor_i);
+    auto& out_i = object.adj_list_nb.at(actor_i);
     for (itr = out_i.begin(); itr != out_i.end(); itr++) {
       if(actor_j == *itr) continue;
       tmp_count = object.count_common_partners_nb(actor_j, *itr, "ISP");
@@ -2338,7 +2320,7 @@ auto xyz_stat_gwdsp_OSP_local= CHANGESTAT{
     int tmp_count;
     // 1. Step:
     std::unordered_set<int>::iterator itr;
-    std::unordered_set<int> in_j = object.adj_list_in_nb.at(actor_j);
+    auto& in_j = object.adj_list_in_nb.at(actor_j);
     for (itr = in_j.begin(); itr != in_j.end(); itr++) {
       if(actor_i == *itr) continue;
       tmp_count = object.count_common_partners_nb(actor_i, *itr, "OSP");

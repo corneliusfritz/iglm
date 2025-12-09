@@ -24,7 +24,7 @@ struct IsMoreThan {
 class Attribute {
 public:
   Attribute (int a, std::string type_, double scale_) {
-    n_actors = a;
+    n_actor = a;
     scale = scale_;
     
     
@@ -41,7 +41,7 @@ public:
     // std::cout << attribute.size();
   }
   Attribute (int a, arma::vec attribute_tmp, std::string type_, double scale_) {
-    n_actors = a;
+    n_actor = a;
     scale = scale_;
     attribute = attribute_tmp;
     if(type_ == "binomial" || type_ == "poisson" || type_ == "normal"){
@@ -62,10 +62,10 @@ public:
   // This is just a function to check whether the attribute is in line with expectations (all entries should be below the number of actors)
   bool check () const {
     // int number_attribute = attribute.size();
-    // How many entries in the set are larger than n_actors?
+    // How many entries in the set are larger than n_actor?
     int mycount = std::count_if(attribute.begin(),
                                 attribute.end(),
-                                IsMoreThan(n_actors));
+                                IsMoreThan(n_actor));
     // If this count is larger than 0 return false else true
     return(mycount==0);
   }
@@ -76,7 +76,7 @@ public:
   }
   
   double get_val(int from) const {
-    if(from > n_actors) {
+    if(from > n_actor) {
       // std::cout << "Error: trying to access attribute of non-existing actor.\n";
       return(false);
     }
@@ -108,7 +108,7 @@ public:
 
 private:
   // Attributes (private)
-  int n_actors;
+  int n_actor;
 };
 
 #endif

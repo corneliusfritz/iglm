@@ -104,10 +104,6 @@ public:
                             overlap);
     overlap_mat = overlap_;
     for (int i = 1; i <= n_actor; i++){
-      // Rcout << i  << std::endl;
-      // Rcout << overlap.size()  << std::endl;
-      // Rcout << z_network.adj_list.size()  << std::endl;
-      // Rcout << z_network.adj_list_in.size()  << std::endl;
       adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
       if(z_network.directed){
         adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
@@ -116,6 +112,17 @@ public:
     }
   } 
   // Member functions
+  void set_network_from_mat(int n_actor_, bool directed_, arma::mat mat){
+    z_network.set_network_from_mat(n_actor_, directed_, mat); 
+    for (int i = 1; i <= n_actor; i++){
+      adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
+      if(z_network.directed){
+        adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
+      } 
+    }
+    
+  }
+  
   void add_edge(int from, int to) {
     if(z_network.directed){
       z_network.adj_list.at(from).insert(to);
@@ -161,6 +168,21 @@ public:
       return(false);
     }
   }
+  double count_edges() const{
+    double count = 0.0;
+    for(int i=1; i<=n_actor; i++){
+      count += z_network.adj_list.at(i).size();
+    }
+    return(count);
+  }
+  double count_nb_edges() const{
+    double count = 0.0;
+    for(int i=1; i<=n_actor; i++){
+      count += adj_list_nb.at(i).size();
+    }
+    return(count);
+  }
+  
   std::unordered_set<int> get_common_partners(unsigned int from,unsigned int to, std::string type = "OSP")const {
     return(z_network.get_common_partners(from,to,type));
   }
@@ -263,15 +285,33 @@ public:
   
   void assign_neighborhood(std::unordered_map< int, std::unordered_set<int>> new_neighborhood) {
     neighborhood = new_neighborhood;
+    
   }
   void set_info(arma::vec x_attribute_, std::unordered_map< int, std::unordered_set<int>> z_network_) {
     x_attribute.attribute = x_attribute_;
     z_network.adj_list = z_network_;
+    for (int i = 1; i <= n_actor; i++){
+      adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
+      if(z_network.directed){
+        adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
+      } 
+    }
+    
   }
   
   void set_info_arma(arma::vec x_attribute_, arma::mat z_network_) {
     x_attribute.attribute = x_attribute_;
     mat_to_map(z_network_,n_actor, z_network.directed, z_network.adj_list,z_network.adj_list_in);
+    // Rcout << "B" << std::endl;
+    // Rcout << n_actor << std::endl;
+    for (int i = 1; i <= n_actor; i++){
+      // Rcout << "Updating adj_list_nb for actor " << i << std::endl;
+      adj_list_nb[i] = get_intersection(z_network.adj_list.at(i),overlap.at(i));
+      if(z_network.directed){
+        adj_list_in_nb[i] = get_intersection(z_network.adj_list_in.at(i),overlap.at(i));
+      } 
+    }
+    
   }
   
   void change_neighborhood(int actor, std::unordered_set<int> new_neighborhood) {
