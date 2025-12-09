@@ -164,7 +164,7 @@ test_that('Test the spillover effects', {
                              init_empty = T)
   
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + spillover_yx +
-                          spillover_yy_scaled,
+                          spillover_yy,
                         coef = gt_coef, sampler = sampler_new, 
                         control = control.iglm(accelerated = FALSE,max_it = 200, display_progress = FALSE, var = TRUE))
   # debugonce(model_tmp_new$simulate)
