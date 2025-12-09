@@ -1118,7 +1118,7 @@ List xyz_simulate_cpp(arma::vec& coef,
                                                       type_x, type_y, 
                                                       attr_x_scale, 
                                                       attr_y_scale);
-  Rcout << global_stats << std::endl;
+  // Rcout << global_stats << std::endl;
   std::vector<arma::vec> res_x(n_simulation);
   std::vector<arma::vec> res_y(n_simulation);
   std::vector<std::unordered_map< int, std::unordered_set<int>>> res_z(n_simulation);
