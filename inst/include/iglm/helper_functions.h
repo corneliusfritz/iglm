@@ -55,12 +55,12 @@ inline void set_seed(int seed) {
 
 // This is a function to transform a map to one matrix
 inline arma::mat map_to_mat(std::unordered_map< int, std::unordered_set<int>> &adj_list,
-                     int & n_actors) {
-  arma::mat res(n_actors,n_actors);
+                     int & n_actor) {
+  arma::mat res(n_actor,n_actor);
   res.fill(0);
-  arma::mat tmp_row(n_actors,1);
-  NumericVector tmp_vec(n_actors);
-  for (int i = 1; i <= n_actors; i++){
+  arma::mat tmp_row(n_actor,1);
+  NumericVector tmp_vec(n_actor);
+  for (int i = 1; i <= n_actor; i++){
     // Set the vector to 0
     tmp_row.fill(0);
     tmp_vec = adj_list[i];
@@ -74,15 +74,15 @@ inline arma::mat map_to_mat(std::unordered_map< int, std::unordered_set<int>> &a
 }
 
 // This is a function to transform a matrix to a map
-inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
+inline void mat_to_map(arma::mat mat, int n_actor, bool directed,
                        std::unordered_map< int, std::unordered_set<int>> &adj_list,
                        std::unordered_map< int, std::unordered_set<int>> &adj_list_in) {
 
-  for (int i = 1; i <= n_actors; i++){ 
+  for (int i = 1; i <= n_actor; i++){ 
     adj_list[i] = std::unordered_set<int>();
   } 
   if(directed){
-    for (int i = 1; i <= n_actors; i++){
+    for (int i = 1; i <= n_actor; i++){
       adj_list_in[i] = std::unordered_set<int>();
     }  
   }
@@ -94,7 +94,7 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
     if(directed){
       arma::vec tmp_row1 = mat.col(0);
       arma::vec tmp_row2 = mat.col(1);
-      for (arma::uword i = 1; i <= n_actors; i++){
+      for (arma::uword i = 1; i <= n_actor; i++){
         arma::vec ids1 = tmp_row1.elem(find(mat.col(1) == i)); // Find indices
         arma::vec ids2 = tmp_row2.elem(find(mat.col(0) == i)); // Find indices
         adj_list.at(i)= std::unordered_set<int>(ids2.begin(), ids2.end());
@@ -105,7 +105,7 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
       arma::vec tmp_row2 = mat.col(1);
 
       // double u = 0.0;
-      for (arma::uword i = 1; i <= n_actors; i++){
+      for (arma::uword i = 1; i <= n_actor; i++){
         std::unordered_set<int> part1,part2, res;
         arma::vec ids1 = tmp_row1.elem(find(mat.col(1) == i)); // Find indices from
         arma::vec ids2 = tmp_row2.elem(find(mat.col(0) == i)); // Find indices to
@@ -122,7 +122,7 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
     } 
   } else {
     arma::rowvec tmp_row;
-    for (arma::uword i = 1; i <= n_actors; i++){
+    for (arma::uword i = 1; i <= n_actor; i++){
       tmp_row = mat.row(i-1);
       arma::uvec ids = find(tmp_row == 1) + 1; // Find indices
       // Rcout << ids << std::endl;
@@ -130,7 +130,7 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
     } 
     if(directed){
       // Rcout << "Starting with the in degree network" << std::endl;
-      for (arma::uword i = 1; i <= n_actors; i++){
+      for (arma::uword i = 1; i <= n_actor; i++){
         tmp_row = mat.col(i-1).as_row();
         // Rcout << tmp_col << std::endl;
         arma::uvec ids = find(tmp_row == 1) + 1; // Find indices
@@ -141,10 +141,10 @@ inline void mat_to_map(arma::mat mat, int n_actors, bool directed,
   }
 }
 
-inline void mat_to_map_neighborhood(arma::mat neighborhood_,arma::mat overlap_, int n_actors, bool directed,
+inline void mat_to_map_neighborhood(arma::mat neighborhood_,arma::mat overlap_, int n_actor, bool directed,
                        std::unordered_map< int, std::unordered_set<int>> &neighborhood,
                        std::unordered_map< int, std::unordered_set<int>> &overlap) {
-  for (int i = 1; i <= n_actors; i++){ 
+  for (int i = 1; i <= n_actor; i++){ 
     neighborhood[i] = std::unordered_set<int>();
     overlap[i] = std::unordered_set<int>();
   } 
@@ -154,7 +154,7 @@ inline void mat_to_map_neighborhood(arma::mat neighborhood_,arma::mat overlap_, 
     arma::vec tmp_row2 = neighborhood_.col(1);
     arma::vec tmp_row1_ov = overlap_.col(0);
     arma::vec tmp_row2_ov = overlap_.col(1);
-    for (int i = 1; i <= n_actors; i++){
+    for (int i = 1; i <= n_actor; i++){
       std::unordered_set<int> part1,part2, res;
       arma::vec ids1 = tmp_row1.elem(find(neighborhood_.col(1) == i)); // Find indices
       arma::vec ids2 = tmp_row2.elem(find(neighborhood_.col(0) == i)); // Find indices
@@ -178,7 +178,7 @@ inline void mat_to_map_neighborhood(arma::mat neighborhood_,arma::mat overlap_, 
   } else {
     arma::rowvec tmp_row;
     arma::uvec ids;
-    for (int i = 1; i <= n_actors; i++){
+    for (int i = 1; i <= n_actor; i++){
       tmp_row = neighborhood_.row(i-1);
       ids = find(tmp_row == 1) + 1; // Find indices
       neighborhood.at(i)= std::unordered_set<int>(ids.begin(),ids.end());
@@ -204,10 +204,10 @@ inline std::unordered_set< int> armavec_to_set(arma::vec vec, int type) {
 
 // This is a function to transform an arma::vec to a std::vector<int>
 inline std::vector< int> armavec_to_vector(arma::vec vec) {
-  int n_actors = vec.size();
+  int n_actor = vec.size();
   std::vector< int> res;
 
-  for (int i = 0; i < n_actors; i++){
+  for (int i = 0; i < n_actor; i++){
     res.push_back(vec.at(i));
   }
   // print_vector(res);
