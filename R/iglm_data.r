@@ -22,6 +22,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    .type_y = NULL,
                                    .scale_x = NULL,
                                    .scale_y = NULL,
+                                   .fix_x = NULL,
+                                   .fix_z = NULL,
                                    .descriptives = NULL,
                                    .validate = function() {
                                      errors <- character()
@@ -98,6 +100,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      if (!is.logical(private$.directed) || length(private$.directed) != 1) {
                                        errors <- c(errors, "'directed' must be a single logical value (TRUE or FALSE).")
                                      }
+                                     if (!is.logical(private$.fix_z) || length(private$.fix_z) != 1) {
+                                       errors <- c(errors, "'fix_z' must be a single logical value (TRUE or FALSE).")
+                                     }
+                                     if (!is.logical(private$.fix_x) || length(private$.fix_x) != 1) {
+                                       errors <- c(errors, "'fix_x' must be a single logical value (TRUE or FALSE).")
+                                     }
+                                     
                                      if (length(errors) > 0) stop(paste(errors, collapse = "\n"))
                                      
                                      invisible(self)
@@ -132,6 +141,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #'   for "normal" type). Default is 1.
                                    #' @param scale_y A positive numeric value for scaling (e.g., variance
                                    #'   for "normal" type). Default is 1.
+                                   #' @param fix_x Logical. If `TRUE`, the `x_attribute` is treated as fixed
+                                   #'   during model estimation and simulation. Default is `FALSE`. 
+                                   #' @param fix_z Logical. If `TRUE`, the `z_network` is treated as fixed
+                                   #'  during model estimation and simulation. Default is `FALSE`.
                                    #' @param return_neighborhood Logical. If `TRUE` (default) and
                                    #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
                                    #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
@@ -140,7 +153,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    initialize = function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                                                          neighborhood = NULL, directed = NA, n_actor = NA, 
                                                          type_x = "binomial", type_y = "binomial",
-                                                         scale_x = 1, scale_y = 1, return_neighborhood = TRUE, 
+                                                         scale_x = 1, scale_y = 1, 
+                                                         fix_x = FALSE, fix_z = FALSE, 
+                                                         return_neighborhood = TRUE, 
                                                          file = NULL) {
                                      if(!is.null(file)){
                                        if(!file.exists(file)){
@@ -149,7 +164,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        data_loaded <- readRDS(file)
                                        required_fields <- c("x_attribute", "y_attribute", "z_network",
                                                             "neighborhood", "directed", "n_actor",
-                                                            "type_x", "type_y", "scale_x", "scale_y")
+                                                            "type_x", "type_y", "scale_x",
+                                                            "scale_y", "fix_x", "fix_z")
                                        if (!is.list(data_loaded) || !all(required_fields %in% names(data_loaded))) {
                                          stop("File does not contain a valid iglm.data state.", call. = FALSE)
                                        }
@@ -163,11 +179,15 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        type_y = data_loaded$type_y
                                        scale_x = data_loaded$scale_x
                                        scale_y = data_loaded$scale_y
+                                       fix_x = data_loaded$fix_x
+                                       fix_z = data_loaded$fix_z
                                      } 
                                      private$.type_x <- type_x
                                      private$.type_y <- type_y
                                      private$.scale_x <- scale_x
                                      private$.scale_y <- scale_y
+                                     private$.fix_x <- fix_x
+                                     private$.fix_z <- fix_z
                                      private$.descriptives <- list()
                                    
                                      if(return_neighborhood){
@@ -219,6 +239,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      } else {
                                        private$.n_actor = n_actor
                                      }
+                                     private$.fix_x <- fix_x
+                                     private$.fix_z <- fix_z
+                                     
                                      if(is.na(private$.n_actor)){
                                        stop("n_actor could not be inferred. Please provide n_actor.")
                                      }
@@ -366,7 +389,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        type_x = private$.type_x,
                                        type_y = private$.type_y,
                                        scale_x = private$.scale_x,
-                                       scale_y = private$.scale_y
+                                       scale_y = private$.scale_y, 
+                                       fix_x = private$.fix_x,
+                                       fix_z = private$.fix_z
                                      )
                                      return(data_to_save)
                                    },
@@ -383,6 +408,24 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      data_to_save <- self$gather()
                                      saveRDS(data_to_save, file = file)
                                      message(paste("Object state saved to:", file))
+                                     invisible(self)
+                                   },
+                                   #' @description
+                                   #' Sets the `fix_x` of the `iglm.data` object.
+                                   #' @param fix_x A logical value indicating if `x_attribute` is fixed or random.
+                                   #' @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_fix_x = function(fix_x){
+                                     private$.fix_x <- fix_x
+                                     private$.validate()
+                                     invisible(self)
+                                   },
+                                   #' @description
+                                   #' Sets the `fix_z` of the `iglm.data` object.
+                                   #' @param fix_z A logical value indicating if `z_network` is fixed or random.
+                                   #' @return The `iglm.data` object itself (`self`), invisibly.
+                                   set_fix_z = function(fix_z){
+                                     private$.fix_z <- fix_z
+                                     private$.validate()
                                      invisible(self)
                                    },
                                    #' @description
@@ -484,11 +527,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @param type (character) The type of two-path to calculate for directed
                                    #'   networks. Ignored if network is undirected.
                                    #'   Must be one of:
-                                   #'   `"OTP"` (Outgoing Two-Path),
-                                   #'   `"ISP"` (In-Star),
-                                   #'   `"OSP"` (Out-Star),
-                                   #'   `"ITP"` (Incoming Two-Path),
-                                   #'   `"ALL"` (Symmetric all-partner).
+                                   #'   `"OTP"` (Outgoing Two-Path, \eqn{z_{i,j}\, z_{i,h} \, z_{j,h}} ),
+                                   #'   `"ISP"` (Ingoing Shared Partner, \eqn{z_{i,j}\, z_{h,i} \, z_{j,h}}),
+                                   #'   `"OSP"` (Outgoing Shared Partner, \eqn{z_{i,j}\, z_{i,h} \, z_{j,h}}),
+                                   #'   `"ITP"` (Incoming Two-Path, \eqn{z_{i,j}\, z_{h,i} \, z_{j,h}}),
+                                   #'   `"ALL"` (Any one of the above).
                                    #'   Default is `"ALL"`.
                                    #' @return A sparse matrix (`dgCMatrix`) of shared partner counts.
                                    edgewise_shared_partner = function(type = "ALL"){
@@ -556,17 +599,16 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      
                                    },
                                    #' @description
-                                   #' Calculates the matrix of edgewise shared partners.
-                                   #' This is a two-path matrix (e.g., $A A^T$ or $A^T A$).
+                                   #' Calculates the matrix of dyadwise shared partners.
                                    #'
                                    #' @param type (character) The type of two-path to calculate for directed
                                    #'   networks. Ignored if network is undirected.
                                    #'   Must be one of:
-                                   #'   `"OTP"` (Outgoing Two-Path, z_i,j*z_j,h ),
-                                   #'   `"ISP"` (In-Star),
-                                   #'   `"OSP"` (Out-Star),
-                                   #'   `"ITP"` (Incoming Two-Path),
-                                   #'   `"ALL"` (Symmetric all-partner).
+                                   #'   `"OTP"` (Outgoing Two-Path, \eqn{z_{i,h} \, z_{j,h}} ),
+                                   #'   `"ISP"` (Ingoing Shared Partner, \eqn{z_{h,i} \, z_{j,h}}),
+                                   #'   `"OSP"` (Outgoing Shared Partner, \eqn{z_{i,h} \, z_{j,h}}),
+                                   #'   `"ITP"` (Incoming Two-Path, \eqn{z_{h,i} \, z_{j,h}}),
+                                   #'   `"ALL"` (Any one of the above).
                                    #'   Default is `"ALL"`.
                                    #' @return A sparse matrix (`dgCMatrix`) of shared partner counts.
                                    dyadwise_shared_partner = function(type = "ALL"){
@@ -764,10 +806,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      invisible(info)
                                    },
                                    #' @description
-                                   #' Calculates the distribution of edgewise shared partners.
+                                   #' Calculates the distribution of dyadwise shared partners.
                                    #'
                                    #' @param type (character) The type of shared partner matrix to use.
-                                   #'   See `edgewise_shared_partner` for details. Default is `"ALL"`.
+                                   #'   See `dyadwise_shared_partner` for details. Default is `"ALL"`.
                                    #' @param value_range (numeric vector) A vector `c(min, max)` specifying
                                    #'   the range of counts to tabulate. If `NULL` (default), the range
                                    #'   is inferred from the data.
@@ -1317,16 +1359,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      }
                                      
                                      m_z  <- count_edges(zE,  dir_flag)
-                                     m_nb <- count_edges(nbE, dir_flag)  # "neighborhood" may be a relation; still count pairs
+                                     m_nb <- count_edges(nbE, dir_flag) 
                                      
-                                     # --- density computed on z_network only (primary network)
+
                                      denom <- if (dir_flag) n * (n - 1) else n * (n - 1) / 2
-                                     dens  <- if (denom > 0) m_z / denom else NA_real_
-                                     
-                                     # --- quick attribute summaries based on declared types
+                                     # dens  <- if (denom > 0) m_z / denom else NA_real_
                                      numfmt <- function(v) format(round(v, digits), nsmall = digits, trim = TRUE)
                                      
-                                     summarize_attr <- function(v, type) {
+                                     summarize_attr <- function(v, type, scale) {
                                        v <- as.vector(v)
                                        if (type == "binomial") {
                                          n1 <- sum(v == 1, na.rm = TRUE)
@@ -1348,24 +1388,26 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                            "(normal): mean=", numfmt(mean(v, na.rm = TRUE)),
                                            ", sd=", numfmt(stats::sd(v, na.rm = TRUE)),
                                            ", min=", numfmt(min(v, na.rm = TRUE)),
-                                           ", max=", numfmt(max(v, na.rm = TRUE))
+                                           ", max=", numfmt(max(v, na.rm = TRUE)), 
+                                           ", scale= ", numfmt(scale)
                                          )
                                        } else {
                                          paste0("unknown type; length=", length(v))
                                        }
                                      }
                                      
-                                     x_sum <- summarize_attr(private$.x_attribute, private$.type_x)
-                                     y_sum <- summarize_attr(private$.y_attribute, private$.type_y)
+                                     x_sum <- summarize_attr(private$.x_attribute, 
+                                                             private$.type_x, 
+                                                             private$.scale_x)
+                                     y_sum <- summarize_attr(private$.y_attribute, 
+                                                             private$.type_y, 
+                                                             private$.scale_y)
                                      
                                      
                                      cat("iglm.data object\n")
-                                     cat("  vertices   :", n, "\n")
+                                     cat("  units   :", n, "\n")
                                      cat("  directed   :", if (dir_flag) "TRUE" else "FALSE", "\n")
-                                     cat("  scales     : scale_x=", numfmt(private$.scale_x),
-                                         ", scale_y=", numfmt(private$.scale_y), "\n", sep = "")
                                      cat("  edges (z)  :", m_z, "\n")
-                                     cat("  density (z):", if (is.na(dens)) "NA" else numfmt(dens), "\n")
                                      cat("  neighborhood edges :", m_nb, "\n")
                                      cat("\n")
                                      cat("Attribute summaries\n")
@@ -1409,7 +1451,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    scale_x = function(value) { if(missing(value)) private$.scale_x else stop("`scale_x` is read-only.", call. = FALSE) },
                                    
                                    #' @field scale_y (`numeric`) Read-only. The scale parameter associated with the `y_attribute`.
-                                   scale_y = function(value) { if(missing(value)) private$.scale_y else stop("`scale_y` is read-only.", call. = FALSE) }
+                                   scale_y = function(value) { if(missing(value)) private$.scale_y else stop("`scale_y` is read-only.", call. = FALSE) }, 
+                                   #' @field fix_x (`logical`) Read-only. Indicates if the `x_attribute` is fixed during estimation/simulation.
+                                   fix_x = function(value) { if(missing(value)) private$.fix_x else stop("`fix_x` is read-only.", call. = FALSE) }, 
+                                   #' @field fix_z (`logical`) Read-only. Indicates if the `z_network` is fixed during estimation/simulation.
+                                   fix_z = function(value) { if(missing(value)) private$.fix_z else stop("`fix_z` is read-only.", call. = FALSE) }, 
+                                   #' @field descriptives (`list`) Read-only. A list storing computed descriptive statistics for the network and attributes.
+                                   descriptives = function(value) { if(missing(value)) private$.descriptives else stop("`descriptives` is read-only.", call. = FALSE) }
                                  )
 )
 
@@ -1448,11 +1496,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   for "normal" type). Default is 1.
 #' @param scale_y A positive numeric value for scaling (e.g., variance
 #'   for "normal" type). Default is 1.
+#' @param fix_x (logical) If `TRUE`, the 'x' predictor is held fixed
+#'   during estimation/simulation (fixed design in regression). Default is `FALSE`.
+#' @param fix_z (logical) If `TRUE`, the 'z' network is held fixed
+#'   during estimation/simulation (fixed network design). Default is `FALSE`. 
+#'   Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, 
+#'   which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).
 #' @param return_neighborhood Logical. If `TRUE` (default) and
 #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
 #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
 #' @param file (character) Optional file path to load a saved `iglm.data` object state.   
 #' @return An object of class `iglm.data` (and `R6`).
+#' @references 
+#' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+#' Daraganova, G., and Robins, G. (2013). Exponential random graph models for social networks: Theory, methods and applications, 102-114. Cambridge University Press.
 #' @examples
 #' data(state_twitter)
 #' state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
@@ -1484,6 +1541,8 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     neighborhood = NULL, directed = TRUE, n_actor = NA, 
                     type_x = "binomial", type_y = "binomial",
                     scale_x = 1, scale_y = 1, 
+                    fix_x = FALSE,
+                    fix_z = FALSE,
                     return_neighborhood = TRUE, file = NULL) {
   
   iglm.data_generator$new(x_attribute = x_attribute,
@@ -1496,6 +1555,8 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                         type_y = type_y,
                         scale_x = scale_x,
                         scale_y = scale_y, 
+                        fix_x = fix_x,
+                        fix_z = fix_z,
                         return_neighborhood = return_neighborhood, 
                         file = file)
 }

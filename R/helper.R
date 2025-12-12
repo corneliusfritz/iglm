@@ -392,7 +392,9 @@ formula_preprocess = function(formula){
   formula_info <- rhs_terms_as_list(formula)
   
   term_per_term <-  unlist(lapply(formula_info, function(x) x$base_name))
-  special_terms <- c("gwdegree","gwdsp","gwesp", "edges", "mutual", "cov_z", "cov_z_out", "cov_z_in",
+  special_terms <- c("spillover_yy_scaled","spillover_xx_scaled","spillover_yx_scaled",
+                     "spillover_xy_scaled","gwdegree","gwdsp","gwesp", "edges", 
+                     "mutual", "cov_z", "cov_z_out", "cov_z_in",
                      "inedges_y", "outedges_y","attribute_xy", "inedges_x", "outedges_x")
   is_special <- term_per_term %in%special_terms
   
@@ -411,9 +413,6 @@ formula_preprocess = function(formula){
   for(m in which(is_very_special)){
     formula_info[[m]]$data <- matrix(formula_info[[m]]$decay)
   }
-  
-  # x <- formula_info[is_very_special][[2]]
-  
   variant_per_term <- lapply(formula_info, function(x) x$variant)
   variant_per_term <- unlist(lapply(variant_per_term, function(x){
     if(is.null(x)){"OSP"

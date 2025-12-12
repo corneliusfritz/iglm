@@ -1,5 +1,5 @@
 test_that('Define a iglm.data object and check all functions', {
-  
+  # debugonce(iglm.data)
   tmp <- iglm.data(neighborhood = matrix(c(0,1,1,0,
                                          1,0,0,1,
                                          1,0,0,1,

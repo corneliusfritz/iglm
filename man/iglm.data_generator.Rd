@@ -32,6 +32,12 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \item{\code{scale_x}}{(`numeric`) Read-only. The scale parameter associated with the `x_attribute`.}
 
 \item{\code{scale_y}}{(`numeric`) Read-only. The scale parameter associated with the `y_attribute`.}
+
+\item{\code{fix_x}}{(`logical`) Read-only. Indicates if the `x_attribute` is fixed during estimation/simulation.}
+
+\item{\code{fix_z}}{(`logical`) Read-only. Indicates if the `z_network` is fixed during estimation/simulation.}
+
+\item{\code{descriptives}}{(`list`) Read-only. A list storing computed descriptive statistics for the network and attributes.}
 }
 \if{html}{\out{</div>}}
 }
@@ -48,6 +54,8 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \item \href{#method-iglm.data-set_y_attribute}{\code{iglm.data_generator$set_y_attribute()}}
 \item \href{#method-iglm.data-gather}{\code{iglm.data_generator$gather()}}
 \item \href{#method-iglm.data-save}{\code{iglm.data_generator$save()}}
+\item \href{#method-iglm.data-set_fix_x}{\code{iglm.data_generator$set_fix_x()}}
+\item \href{#method-iglm.data-set_fix_z}{\code{iglm.data_generator$set_fix_z()}}
 \item \href{#method-iglm.data-mean_z}{\code{iglm.data_generator$mean_z()}}
 \item \href{#method-iglm.data-mean_x}{\code{iglm.data_generator$mean_x()}}
 \item \href{#method-iglm.data-mean_y}{\code{iglm.data_generator$mean_y()}}
@@ -85,6 +93,8 @@ Create a new `iglm.data` object, that includes data on two attributes and one ne
   type_y = "binomial",
   scale_x = 1,
   scale_y = 1,
+  fix_x = FALSE,
+  fix_z = FALSE,
   return_neighborhood = TRUE,
   file = NULL
 )}\if{html}{\out{</div>}}
@@ -126,6 +136,12 @@ for "normal" type). Default is 1.}
 
 \item{\code{scale_y}}{A positive numeric value for scaling (e.g., variance
 for "normal" type). Default is 1.}
+
+\item{\code{fix_x}}{Logical. If `TRUE`, the `x_attribute` is treated as fixed
+during model estimation and simulation. Default is `FALSE`.}
+
+\item{\code{fix_z}}{Logical. If `TRUE`, the `z_network` is treated as fixed
+during model estimation and simulation. Default is `FALSE`.}
 
 \item{\code{return_neighborhood}}{Logical. If `TRUE` (default) and
 `neighborhood` is `NULL`, a full neighborhood (all dyads) is
@@ -318,6 +334,46 @@ The `iglm.data` object itself (`self`), invisibly.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_fix_x"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_fix_x}{}}}
+\subsection{Method \code{set_fix_x()}}{
+Sets the `fix_x` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_fix_x(fix_x)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fix_x}}{A logical value indicating if `x_attribute` is fixed or random.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The `iglm.data` object itself (`self`), invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_fix_z"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_fix_z}{}}}
+\subsection{Method \code{set_fix_z()}}{
+Sets the `fix_z` of the `iglm.data` object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_fix_z(fix_z)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fix_z}}{A logical value indicating if `z_network` is fixed or random.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The `iglm.data` object itself (`self`), invisibly.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-mean_z"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-mean_z}{}}}
 \subsection{Method \code{mean_z()}}{
@@ -428,11 +484,11 @@ This is a two-path matrix (e.g., $A A^T$ or $A^T A$).
 \item{\code{type}}{(character) The type of two-path to calculate for directed
 networks. Ignored if network is undirected.
 Must be one of:
-`"OTP"` (Outgoing Two-Path),
-`"ISP"` (In-Star),
-`"OSP"` (Out-Star),
-`"ITP"` (Incoming Two-Path),
-`"ALL"` (Symmetric all-partner).
+`"OTP"` (Outgoing Two-Path, \eqn{z_{i,j}\, z_{i,h} \, z_{j,h}} ),
+`"ISP"` (Ingoing Shared Partner, \eqn{z_{i,j}\, z_{h,i} \, z_{j,h}}),
+`"OSP"` (Outgoing Shared Partner, \eqn{z_{i,j}\, z_{i,h} \, z_{j,h}}),
+`"ITP"` (Incoming Two-Path, \eqn{z_{i,j}\, z_{h,i} \, z_{j,h}}),
+`"ALL"` (Any one of the above).
 Default is `"ALL"`.}
 }
 \if{html}{\out{</div>}}
@@ -469,8 +525,7 @@ None. Updates the internal neighborhood and overlap matrices.
 \if{html}{\out{<a id="method-iglm.data-dyadwise_shared_partner"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-dyadwise_shared_partner}{}}}
 \subsection{Method \code{dyadwise_shared_partner()}}{
-Calculates the matrix of edgewise shared partners.
-This is a two-path matrix (e.g., $A A^T$ or $A^T A$).
+Calculates the matrix of dyadwise shared partners.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$dyadwise_shared_partner(type = "ALL")}\if{html}{\out{</div>}}
 }
@@ -481,11 +536,11 @@ This is a two-path matrix (e.g., $A A^T$ or $A^T A$).
 \item{\code{type}}{(character) The type of two-path to calculate for directed
 networks. Ignored if network is undirected.
 Must be one of:
-`"OTP"` (Outgoing Two-Path, z_i,j*z_j,h ),
-`"ISP"` (In-Star),
-`"OSP"` (Out-Star),
-`"ITP"` (Incoming Two-Path),
-`"ALL"` (Symmetric all-partner).
+`"OTP"` (Outgoing Two-Path, \eqn{z_{i,h} \, z_{j,h}} ),
+`"ISP"` (Ingoing Shared Partner, \eqn{z_{h,i} \, z_{j,h}}),
+`"OSP"` (Outgoing Shared Partner, \eqn{z_{i,h} \, z_{j,h}}),
+`"ITP"` (Incoming Two-Path, \eqn{z_{h,i} \, z_{j,h}}),
+`"ALL"` (Any one of the above).
 Default is `"ALL"`.}
 }
 \if{html}{\out{</div>}}
@@ -582,7 +637,7 @@ A named vector (a `table` object) with the distribution of
 \if{html}{\out{<a id="method-iglm.data-dyadwise_shared_partner_distribution"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-dyadwise_shared_partner_distribution}{}}}
 \subsection{Method \code{dyadwise_shared_partner_distribution()}}{
-Calculates the distribution of edgewise shared partners.
+Calculates the distribution of dyadwise shared partners.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$dyadwise_shared_partner_distribution(
   type = "ALL",
@@ -596,7 +651,7 @@ Calculates the distribution of edgewise shared partners.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{type}}{(character) The type of shared partner matrix to use.
-See `edgewise_shared_partner` for details. Default is `"ALL"`.}
+See `dyadwise_shared_partner` for details. Default is `"ALL"`.}
 
 \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of counts to tabulate. If `NULL` (default), the range

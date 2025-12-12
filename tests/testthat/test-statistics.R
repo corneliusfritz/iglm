@@ -31,13 +31,16 @@ test_that('Test some sufficient statistics for undirected networks', {
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + degrees,
                         coef = gt_coef,  coef_degrees = gt_coef_pop, sampler = sampler_new, 
                         control = control.iglm(accelerated = F,max_it = 200, display_progress = F, var = T))
-  # debugonce(model_tmp_new$print) 
+  # debugonce(model_tmp_new$simulate)
   model_tmp_new$print()
   model_tmp_new$simulate()
   
   
-  count_values_iglm <- count_statistics(model_tmp_new$results$samples[[1]] ~ spillover_xx_scaled+ spillover_yy_scaled +
-                                          spillover_xy_scaled + spillover_yx_scaled)
+  count_values_iglm <- count_statistics(model_tmp_new$results$samples[[1]] ~ 
+                                          spillover_xx_scaled(mode = "local")+ 
+                                        spillover_yy_scaled(mode = "local") +
+                                          spillover_xy_scaled(mode = "local") +
+                                          spillover_yx_scaled(mode = "local"))
   # Count the statistics by hand
   tmp <- model_tmp_new$get_samples()
   z_network <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
@@ -47,10 +50,10 @@ test_that('Test some sufficient statistics for undirected networks', {
   
   overlap <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
   overlap[tmp[[1]]$overlap] <- 1
-  val_xx <- c("spillover_xx_scaled" =0)
-  val_yy <- c("spillover_yy_scaled" =0)
-  val_xy <- c("spillover_xy_scaled" =0)
-  val_yx <- c("spillover_yx_scaled" =0)
+  val_xx <- c("spillover_xx_scaled(mode = 'local')" =0)
+  val_yy <- c("spillover_yy_scaled(mode = 'local')" =0)
+  val_xy <- c("spillover_xy_scaled(mode = 'local')" =0)
+  val_yx <- c("spillover_yx_scaled(mode = 'local')" =0)
   network_nb <- z_network*overlap
   for(i in 1:tmp[[1]]$n_actor){
     if(sum(network_nb[i,]) ==0){
@@ -104,7 +107,10 @@ test_that('Test some sufficient statistics for directed networks', {
   model_tmp_new$simulate()
   
   count_values_iglm <- count_statistics(model_tmp_new$results$samples[[1]] ~ 
-                                          spillover_xx_scaled+ spillover_yy_scaled +spillover_xy_scaled+spillover_yx_scaled )
+                                          spillover_xx_scaled(mode = "local") +
+                                          spillover_yy_scaled(mode = "local") +
+                                          spillover_xy_scaled(mode = "local")+
+                                          spillover_yx_scaled(mode = "local") )
   # Count the statistics by hand
   tmp <- model_tmp_new$get_samples()
   z_network <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
@@ -113,10 +119,10 @@ test_that('Test some sufficient statistics for directed networks', {
   
   overlap <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
   overlap[tmp[[1]]$overlap] <- 1
-  val_xx <- c("spillover_xx_scaled" =0)
-  val_yy <- c("spillover_yy_scaled" =0)
-  val_xy <- c("spillover_xy_scaled" =0)
-  val_yx <- c("spillover_yx_scaled" =0)
+  val_xx <- c("spillover_xx_scaled(mode = 'local')" =0)
+  val_yy <- c("spillover_yy_scaled(mode = 'local')" =0)
+  val_xy <- c("spillover_xy_scaled(mode = 'local')" =0)
+  val_yx <- c("spillover_yx_scaled(mode = 'local')" =0)
   network_nb <- z_network*overlap
   for(i in 1:tmp[[1]]$n_actor){
     if(sum(network_nb[i,]) ==0){

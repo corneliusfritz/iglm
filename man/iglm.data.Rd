@@ -15,6 +15,8 @@ iglm.data(
   type_y = "binomial",
   scale_x = 1,
   scale_y = 1,
+  fix_x = FALSE,
+  fix_z = FALSE,
   return_neighborhood = TRUE,
   file = NULL
 )
@@ -53,6 +55,14 @@ for "normal" type). Default is 1.}
 
 \item{scale_y}{A positive numeric value for scaling (e.g., variance
 for "normal" type). Default is 1.}
+
+\item{fix_x}{(logical) If `TRUE`, the 'x' predictor is held fixed
+during estimation/simulation (fixed design in regression). Default is `FALSE`.}
+
+\item{fix_z}{(logical) If `TRUE`, the 'z' network is held fixed
+during estimation/simulation (fixed network design). Default is `FALSE`. 
+Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, 
+which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).}
 
 \item{return_neighborhood}{Logical. If `TRUE` (default) and
 `neighborhood` is `NULL`, a full neighborhood (all dyads) is
@@ -98,4 +108,8 @@ tmp_edgelist <- iglm.data(z_network = tmp_adjacency$z_network,
 
 tmp_edgelist$mean_z()
 tmp_adjacency$mean_z()
+}
+\references{
+Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+Daraganova, G., and Robins, G. (2013). Exponential random graph models for social networks: Theory, methods and applications, 102-114. Cambridge University Press.
 }

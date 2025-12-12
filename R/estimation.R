@@ -28,11 +28,6 @@ is_cluster_active <- function(clust) {
 #'
 #' @param estimate_model (logical) If `TRUE` (default), the main model parameters
 #'   are estimated. If `FALSE`, estimation is skipped and only the preprocessing is done.
-#' @param fix_x (logical) If `TRUE`, the 'x' predictor is held fixed
-#'   during estimation/simulation (fixed design in regression). Default is `FALSE`.
-#' @param fix_z (logical) If `TRUE`, the 'z' network is held fixed
-#'   during estimation/simulation (fixed network design). Default is `FALSE`. Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).
-
 #' @param display_progress (logical) If `TRUE`, display progress messages or
 #'   a progress bar during estimation. Default is `FALSE`.
 #' @param return_samples (logical). If \code{TRUE} (default), return simulated network/attribute
@@ -60,15 +55,10 @@ is_cluster_active <- function(clust) {
 #'   of the pseudo Fisher information for assessing the uncertainty of the estimates. Default is `FALSE`.
 #' @param updated_uncertainty (logical) If `TRUE` (default), potentially use an
 #'   updated method for calculating uncertainty estimates (based on the mean-value theorem as opposed to the Godambe Information).
-#' @references 
-#' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
-#' Daraganova, G., and Robins, G. (2013). Exponential random graph models for social networks: Theory, methods and applications, 102-114. Cambridge University Press.
 #' @return A list object of class `"control.iglm"` containing the specified
 #'   control parameters.
 #' @export
 control.iglm = function(estimate_model = TRUE, 
-                        fix_x = FALSE, 
-                        fix_z = FALSE, 
                        display_progress = FALSE, return_samples = TRUE, 
                        offset_nonoverlap = 0, var = FALSE,
                        non_stop = FALSE, 
@@ -82,7 +72,6 @@ control.iglm = function(estimate_model = TRUE,
                        exact = FALSE, 
                        updated_uncertainty = TRUE) {
   res = list(estimate_model = estimate_model, 
-             fix_x = fix_x, fix_z = fix_z, 
              display_progress = display_progress,
              offset_nonoverlap = offset_nonoverlap,  var = var,
              max_it = max_it, non_stop = non_stop, 
@@ -106,8 +95,6 @@ print.control.iglm <- function(x, ...) {
   # We find the longest name ("updated_uncertainty", 20 chars) and pad to 22
   # to create an aligned "Key : Value" format.
   cat(sprintf("  %-22s: %s\n", "estimate_model", x$estimate_model))
-  cat(sprintf("  %-22s: %s\n", "fix_x", x$fix_x))
-  cat(sprintf("  %-22s: %s\n", "fix_z", x$fix_z))
   cat(sprintf("  %-22s: %s\n", "var", x$var))
   cat(sprintf("  %-22s: %s\n", "updated_uncertainty", x$updated_uncertainty))
   cat(sprintf("  %-22s: %s\n", "exact", x$exact))
@@ -131,17 +118,13 @@ print.control.iglm <- function(x, ...) {
   # --- Group 4: Parallelism ---
   cat("\n--- Parallelism ---\n")
   
-  # Special handling for 'cluster' object.
-  # Printing the object itself can be very verbose and is not useful.
   if (is.null(x$cluster)) {
     cluster_status <- "NULL (Sequential)"
   } else {
-    # If it's not NULL, just report its primary class
     cluster_status <- paste0("Active (class: '", class(x$cluster)[1], "')")
   }
   cat(sprintf("  %-22s: %s\n", "cluster", cluster_status))
   
-  # S3 print methods should always return the object invisibly
   invisible(x)
 }
 # preprocess_xyz = function(formula, display_progress = F) {
@@ -177,7 +160,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                         beg_coef_degrees = NULL, 
                         data_object, 
                         start = 0) {
-  if(control$fix_z & preprocessed$includes_degrees){
+  if(data_object$fix_z & preprocessed$includes_degrees){
     warning("fix_z = TRUE is incompatible with models including degree parameters. 
             Setting includes_degrees = FALSE.")
     preprocessed$includes_degrees <- FALSE
@@ -222,7 +205,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                     offset_nonoverlap = control$offset_nonoverlap, 
                                     var = control$var, 
                                     accelerated = control$accelerated, 
-                                    fix_x = control$fix_x,
+                                    fix_x = data_object$fix_x,
                                     type_x = data_object$type_x,
                                     type_y = data_object$type_y,
                                     attr_x_scale =  data_object$scale_x, 
@@ -279,8 +262,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                                                degrees = TRUE,
                                                                offset_nonoverlap = control$offset_nonoverlap, 
                                                                return_samples = control$return_samples, 
-                                                               fix_x = control$fix_x,
-                                                               fix_z = control$fix_z,
+                                                               fix_x = data_object$fix_x,
+                                                               fix_z = data_object$fix_z,
                                                                updated_uncertainty = control$updated_uncertainty, 
                                                                exact = control$exact,
                                                                type_x = data_object$type_x,
@@ -330,7 +313,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                         degrees = TRUE,
                                         offset_nonoverlap = control$offset_nonoverlap, 
                                         return_samples = control$return_samples, 
-                                        fix_x = control$fix_x,
+                                        fix_x = data_object$fix_x,
                                         updated_uncertainty = control$updated_uncertainty, 
                                         exact = control$exact,
                                         type_x = data_object$type_x,
@@ -446,8 +429,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                           tol = control$tol, 
                           offset_nonoverlap = control$offset_nonoverlap, 
                           non_stop = control$non_stop, 
-                          fix_x = control$fix_x, 
-                          fix_z = control$fix_z, 
+                          fix_x = data_object$fix_x, 
+                          fix_z = data_object$fix_z, 
                             attr_x_type = data_object$type_x,
                           attr_y_type = data_object$type_y,
                           attr_x_scale =  data_object$scale_x, 
@@ -513,8 +496,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                                                degrees = FALSE,
                                                                updated_uncertainty = control$updated_uncertainty, 
                                                                offset_nonoverlap = control$offset_nonoverlap, 
-                                                               fix_x = control$fix_x, 
-                                                               fix_z = control$fix_z)
+                                                               fix_x = data_object$fix_x, 
+                                                               fix_z = data_object$fix_z)
           
           res$simulations = list(simulation_x_attributes = variability_simulations$simulation_x_attributes, 
                                  simulation_y_attributes = variability_simulations$simulation_y_attributes, 
@@ -559,8 +542,8 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                         degrees = FALSE,
                                         offset_nonoverlap = control$offset_nonoverlap, 
                                         return_samples = control$return_samples,
-                                        fix_x = control$fix_x, 
-                                        fix_z = control$fix_z)
+                                        fix_x = data_object$fix_x, 
+                                        fix_z = data_object$fix_z)
           },preprocessed = preprocessed, n_actor = n_actor, res =res, control = control) 
           
           

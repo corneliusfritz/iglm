@@ -1029,7 +1029,7 @@ auto xyz_stat_matching_edges_y= CHANGESTAT{
   }
 };
 EFFECT_REGISTER("spillover_yy", ::xyz_stat_matching_edges_y, "spillover_yy", 0);
-auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
+auto xyz_stat_spillover_yx_scaled_global = CHANGESTAT{
   if(mode == "z"){
     if(object.z_network.directed){
       if (!object.get_val_overlap(actor_i, actor_j)) return 0.0; 
@@ -1045,10 +1045,179 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
       
       auto& out_neighbors = object.z_network.adj_list.at(actor_i);
       for (int l : out_neighbors) {
-        if (object.get_val_overlap(actor_i, l)) {
-          current_sum_x += object.x_attribute.get_val(l);
-          current_deg += 1.0;
+        current_sum_x += object.x_attribute.get_val(l);
+        current_deg += 1.0;
+      }
+      
+      double S_with, d_with, S_without, d_without;
+      bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+      
+      if (tie_exists) {
+        S_with = current_sum_x;
+        d_with = current_deg;
+        S_without = current_sum_x - X_j;
+        d_without = current_deg - 1.0;
+      } else {
+        S_without = current_sum_x;
+        d_without = current_deg;
+        S_with = current_sum_x + X_j;
+        d_with = current_deg + 1.0;
+      }
+      
+      double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+      double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+      
+      return Y_i * (A_with - A_without);
+    } else {
+      if (!object.get_val_overlap(actor_i, actor_j)) return 0.0;
+      
+      double delta_total = 0.0;
+      bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+      
+      double Y_i = object.y_attribute.get_val(actor_i);
+      // double X_i = object.x_attribute.get_val(actor_i); 
+      
+      double Y_j = object.y_attribute.get_val(actor_j);
+      // double X_j = object.x_attribute.get_val(actor_j); 
+      
+      if (Y_i != 0) {
+        double sum_y_neighbors_i = 0;
+        auto& neighbors_i = object.z_network.adj_list.at(actor_i);
+        double deg_i = neighbors_i.size();
+        
+        for (int l : neighbors_i) {
+          sum_y_neighbors_i += object.x_attribute.get_val(l);
+        } 
+        
+        double S_with, d_with, S_without, d_without;
+        
+        if (tie_exists) {
+          S_with = sum_y_neighbors_i;
+          d_with = deg_i;
+          S_without = sum_y_neighbors_i - Y_j;
+          d_without = deg_i - 1.0;
+        } else { 
+          S_without = sum_y_neighbors_i;
+          d_without = deg_i;
+          S_with = sum_y_neighbors_i + Y_j;    
+          d_with = deg_i + 1.0;
         }
+        
+        double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+        double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+        
+        delta_total += Y_i * (A_with - A_without);
+      } 
+      
+      if (Y_j != 0) {
+        double sum_y_neighbors_j = 0;
+        auto& neighbors_j = object.z_network.adj_list.at(actor_j);
+        double deg_j = neighbors_j.size();
+        
+        for (int l : neighbors_j) {
+          sum_y_neighbors_j += object.x_attribute.get_val(l);
+        }
+        
+        double S_with, d_with, S_without, d_without;
+        
+        if (tie_exists) {
+          S_with = sum_y_neighbors_j;
+          d_with = deg_j;
+          S_without = sum_y_neighbors_j - Y_i; 
+          d_without = deg_j - 1.0;
+        } else {
+          S_without = sum_y_neighbors_j;
+          d_without = deg_j;
+          S_with = sum_y_neighbors_j + Y_i;   
+          d_with = deg_j + 1.0;
+        }
+        
+        double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+        double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+        
+        delta_total += Y_j * (A_with - A_without);
+      }
+      
+      return delta_total;
+    }
+  } else if (mode == "x"){
+    if(object.z_network.directed){
+      double res = 0;
+      auto& in_neighbors = object.z_network.adj_list_in.at(actor_i);
+      
+      for (int k : in_neighbors) {
+        // Correctly calculate valid degree for k
+        double deg_k = 0;
+        for(int n_k : object.z_network.adj_list.at(k)){
+          if(object.get_val_overlap(k, n_k)) deg_k += 1.0;
+        }
+        
+        if (deg_k > 0.5) {
+          double Y_k = object.y_attribute.get_val(k);
+          res += Y_k * (1.0 / deg_k);
+        }
+      }
+      return res;
+    } else {
+      double res = 0.0;
+      auto& neighbors = object.z_network.adj_list.at(actor_i);
+      
+      for (int k : neighbors) {
+        double deg_k = object.z_network.adj_list.at(k).size();
+        if (deg_k > 0.5) {
+          double Y_k = object.y_attribute.get_val(k);
+          res += Y_k * (1.0 / deg_k);
+        } 
+      }
+      return res;
+    }
+    
+  } else if (mode == "y"){
+    if(object.z_network.directed){
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double S_i = 0;
+      double deg_i = 0;
+      
+      for (int j : out_neighbors) {
+        S_i += object.x_attribute.get_val(j);
+        deg_i += 1.0;
+      }
+      
+      return (deg_i > 0.5) ? (S_i / deg_i) : 0;
+    } else {
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double S_i = 0;
+      double deg_i = out_neighbors.size();
+      for (int j : out_neighbors) {
+        S_i += object.x_attribute.get_val(j);
+      } 
+      
+      return (deg_i > 0.5) ? (S_i / deg_i) : 0;
+    } 
+    
+  } 
+  return 0; 
+};
+EFFECT_REGISTER("spillover_yx_scaled_global", ::xyz_stat_spillover_yx_scaled_global, "spillover_yx_scaled_global", 0);
+
+auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
+  if(mode == "z"){
+    if(object.z_network.directed){
+      if (!object.get_val_overlap(actor_i, actor_j)) return 0.0; 
+      
+      double Y_i = object.y_attribute.get_val(actor_i);
+      if (Y_i == 0) return 0;
+      
+      double X_j = object.x_attribute.get_val(actor_j);
+      
+      // 1. Calculate Current State
+      double current_sum_x = 0;
+      double current_deg = 0;
+      
+      auto& out_neighbors = object.adj_list_nb.at(actor_i);
+      for (int l : out_neighbors) {
+        current_sum_x += object.x_attribute.get_val(l);
+        current_deg += 1.0;
       }
       
       double S_with, d_with, S_without, d_without;
@@ -1205,7 +1374,7 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
   }
   return 0; 
 };
-EFFECT_REGISTER("spillover_yx_scaled", ::xyz_stat_spillover_yx_scaled, "spillover_yx_scaled", 0);
+EFFECT_REGISTER("spillover_yx_scaled_local", ::xyz_stat_spillover_yx_scaled, "spillover_yx_scaled_local", 0);
 
 auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
   if(mode == "z"){
@@ -1369,7 +1538,167 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
   } 
   return 0; 
 };
-EFFECT_REGISTER("spillover_xy_scaled", ::xyz_stat_spillover_xy_scaled, "spillover_xy_scaled", 0);
+EFFECT_REGISTER("spillover_xy_scaled_local", ::xyz_stat_spillover_xy_scaled, "spillover_xy_scaled_local", 0);
+
+auto xyz_stat_spillover_xy_scaled_global = CHANGESTAT{
+  if(mode == "z"){
+    if(object.z_network.directed){
+      double X_i = object.x_attribute.get_val(actor_i);
+      if (X_i == 0) return 0;
+      
+      double Y_j = object.y_attribute.get_val(actor_j);
+      
+      double current_sum_y = 0;
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double current_deg = out_neighbors.size();
+      for (int l : out_neighbors) {
+        current_sum_y += object.y_attribute.get_val(l);
+      }
+      double S_with, d_with, S_without, d_without;
+      bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+      
+      // 2. Back-out / Add-in Logic
+      if (tie_exists) {
+        S_with = current_sum_y;
+        d_with = current_deg;
+        S_without = current_sum_y - Y_j;
+        d_without = current_deg - 1.0;
+      } else {
+        S_without = current_sum_y;
+        d_without = current_deg;
+        S_with = current_sum_y + Y_j;
+        d_with = current_deg + 1.0;
+      }
+      
+      double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+      double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+      
+      return X_i * (A_with - A_without);
+    } else{
+      double delta_total = 0.0;
+      bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+      
+      double X_i = object.x_attribute.get_val(actor_i);
+      double Y_i = object.y_attribute.get_val(actor_i); 
+      
+      double X_j = object.x_attribute.get_val(actor_j);
+      double Y_j = object.y_attribute.get_val(actor_j); 
+      
+      if (X_i != 0) {
+        double sum_y_neighbors_i = 0;
+        auto& neighbors_i = object.z_network.adj_list.at(actor_i);
+        double deg_i = neighbors_i.size();
+        
+        for (int l : neighbors_i) {
+          sum_y_neighbors_i += object.y_attribute.get_val(l);
+        } 
+        
+        double S_with, d_with, S_without, d_without;
+        
+        if (tie_exists) {
+          S_with = sum_y_neighbors_i;
+          d_with = deg_i;
+          S_without = sum_y_neighbors_i - Y_j;
+          d_without = deg_i - 1.0;
+        } else {
+          S_without = sum_y_neighbors_i;
+          d_without = deg_i;
+          S_with = sum_y_neighbors_i + Y_j;    
+          d_with = deg_i + 1.0;
+        }
+        
+        double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+        double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+        
+        delta_total += X_i * (A_with - A_without);
+      }
+      
+      if (X_j != 0) {
+        double sum_y_neighbors_j = 0;
+        auto& neighbors_j = object.z_network.adj_list.at(actor_j);
+        double deg_j = neighbors_j.size();
+        
+        for (int l : neighbors_j) {
+          sum_y_neighbors_j += object.y_attribute.get_val(l);
+        }
+        
+        double S_with, d_with, S_without, d_without;
+        
+        if (tie_exists) {
+          S_with = sum_y_neighbors_j;
+          d_with = deg_j;
+          S_without = sum_y_neighbors_j - Y_i; 
+          d_without = deg_j - 1.0;
+        } else {
+          S_without = sum_y_neighbors_j;
+          d_without = deg_j;
+          S_with = sum_y_neighbors_j + Y_i;   
+          d_with = deg_j + 1.0;
+        }
+        
+        double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+        double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+        
+        delta_total += X_j * (A_with - A_without);
+      }
+      
+      return delta_total;
+    }
+    
+  } else if (mode == "y"){
+    if(object.z_network.directed){
+      double res = 0;
+      auto& in_neighbors = object.z_network.adj_list_in.at(actor_i);
+      
+      for (int k : in_neighbors) {
+        if (object.get_val_overlap(k, actor_i)) {
+          double deg_k = object.z_network.adj_list.at(k).size();
+          if (deg_k > 0.5) {
+            double X_k = object.x_attribute.get_val(k);
+            res += X_k * (1.0 / deg_k);
+          } 
+        } 
+      }
+      return res;
+    } else{
+      double res = 0;
+      auto& neighbors = object.z_network.adj_list.at(actor_i);
+      
+      for (int k : neighbors) {
+        double deg_k = object.z_network.adj_list.at(k).size();
+        if (deg_k > 0.5) {
+          double X_k = object.x_attribute.get_val(k);
+          res += X_k * (1.0 / deg_k);
+        }
+      }
+      return res;
+    }
+    
+  } else if (mode == "x"){
+    if(object.z_network.directed){
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double S_i = 0;
+      double deg_i = out_neighbors.size();
+      for (int j : out_neighbors) {
+        S_i += object.y_attribute.get_val(j);
+      }
+      
+      return (deg_i > 0.5) ? (S_i / deg_i) : 0;
+    } else{
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double S_i = 0;
+      double deg_i = out_neighbors.size();
+      for (int j : out_neighbors) {
+        S_i += object.y_attribute.get_val(j);
+      } 
+      
+      return (deg_i > 0.5) ? (S_i / deg_i) : 0;
+    } 
+    
+  }  
+  return 0; 
+};
+EFFECT_REGISTER("spillover_xy_scaled_global", ::xyz_stat_spillover_xy_scaled_global, "spillover_xy_scaled_global", 0);
 
 auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
   // Statistic: y_i * Average(y_neighbors)
@@ -1511,7 +1840,147 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
   }  
   return 0;
 };
-EFFECT_REGISTER("spillover_yy_scaled", ::xyz_stat_spillover_yy_scaled, "spillover_yy_scaled", 0);
+EFFECT_REGISTER("spillover_yy_scaled_local", ::xyz_stat_spillover_yy_scaled, "spillover_yy_scaled_local", 0);
+
+auto xyz_stat_spillover_yy_scaled_global = CHANGESTAT{
+  // Statistic: y_i * Average(y_neighbors)
+  if (mode == "z") {
+    if(object.z_network.directed){
+      double Y_i = object.y_attribute.get_val(actor_i);
+      if (Y_i == 0) return 0; 
+      double Y_j = object.y_attribute.get_val(actor_j);
+      
+      double current_sum = 0;
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double current_deg = out_neighbors.size();
+      for (int l : out_neighbors) {
+        current_sum += object.y_attribute.get_val(l);
+      }
+      double S_with, d_with, S_without, d_without;
+      bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+      
+      if (tie_exists) {
+        S_with = current_sum;
+        d_with = current_deg;
+        S_without = current_sum - Y_j;
+        d_without = current_deg - 1.0;
+      } else {
+        S_without = current_sum;
+        d_without = current_deg;
+        S_with = current_sum + Y_j;
+        d_with = current_deg + 1.0;
+      }
+      
+      double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+      double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+      
+      return Y_i * (A_with - A_without);
+    } else {
+      double delta_total = 0.0;
+      double Y_i = object.y_attribute.get_val(actor_i);
+      double Y_j = object.y_attribute.get_val(actor_j);
+      
+      if (Y_i != 0) {
+        double sum_i = 0;
+        auto& neighbors_i = object.z_network.adj_list.at(actor_i);
+        double deg_i = neighbors_i.size();
+        for (int l : neighbors_i) {
+          sum_i += object.y_attribute.get_val(l);
+        }
+        
+        double S_with_i, d_with_i, S_without_i, d_without_i;
+        bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+        
+        if (tie_exists) {
+          S_with_i = sum_i;
+          d_with_i = deg_i;
+          S_without_i = sum_i - Y_j;
+          d_without_i = deg_i - 1.0;
+        } else { 
+          S_without_i = sum_i;
+          d_without_i = deg_i;
+          S_with_i = sum_i + Y_j;
+          d_with_i = deg_i + 1.0;
+        }  
+        
+        double A_without_i = (d_without_i > 0.5) ? (S_without_i / d_without_i) : 0;
+        double A_with_i    = (d_with_i > 0.5)    ? (S_with_i / d_with_i)    : 0;
+        
+        delta_total += Y_i * (A_with_i - A_without_i);
+      }
+      
+      if (Y_j != 0) { 
+        double sum_j = 0;
+        auto& neighbors_j = object.z_network.adj_list.at(actor_j);
+        double deg_j = neighbors_j.size();
+        for (int l : neighbors_j) {
+          sum_j += object.x_attribute.get_val(l);
+        }  
+        
+        double S_with_j, d_with_j, S_without_j, d_without_j;
+        bool tie_exists = object.z_network.get_val(actor_i, actor_j); 
+        
+        if (tie_exists) {
+          S_with_j = sum_j;
+          d_with_j = deg_j;
+          S_without_j = sum_j - Y_i; 
+          d_without_j = deg_j - 1.0;
+        } else { 
+          S_without_j = sum_j;
+          d_without_j = deg_j;
+          S_with_j = sum_j + Y_i; // j gains i
+          d_with_j = deg_j + 1.0;
+        }  
+        
+        double A_without_j = (d_without_j > 0.5) ? (S_without_j / d_without_j) : 0;
+        double A_with_j    = (d_with_j > 0.5)    ? (S_with_j / d_with_j)    : 0;
+        
+        delta_total += Y_j * (A_with_j - A_without_j);
+      }
+      
+      return delta_total; 
+    }
+    
+    
+  } else if (mode == "y") {
+    if(object.z_network.directed){
+      double total_diff = 0;
+      // Part A: i's own average
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double sum_i = 0; 
+      double deg_i = out_neighbors.size();
+      for (int j : out_neighbors) {
+        sum_i += object.y_attribute.get_val(j);
+      } 
+      if (deg_i > 0.5) total_diff += (sum_i / deg_i);
+      
+      auto& in_neighbors = object.adj_list_in_nb.at(actor_i);
+      for (int k : in_neighbors) {
+        double deg_k = object.z_network.adj_list.at(k).size();
+        if (deg_k > 0.5) {
+          double Y_k = object.y_attribute.get_val(k);
+          total_diff += Y_k * (1.0 / deg_k);
+        } 
+      }
+      return total_diff;
+    } else {
+      double total_diff = 0;
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double sum_i = 0; 
+      double deg_i = out_neighbors.size();
+      for (int j : out_neighbors) {
+        sum_i += object.y_attribute.get_val(j);
+        double deg_tmp =object.z_network.adj_list.at(j).size();
+        if (deg_tmp > 0.5) total_diff += (object.y_attribute.get_val(j) / deg_tmp);
+      } 
+      if (deg_i > 0.5) total_diff += (sum_i / deg_i);
+      return total_diff;
+    } 
+    
+  }   
+  return 0;
+}; 
+EFFECT_REGISTER("spillover_yy_scaled_global", ::xyz_stat_spillover_yy_scaled_global, "spillover_yy_scaled_global", 0);
 
 
 auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
@@ -1652,8 +2121,145 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
   }   
   return 0;
 };
-EFFECT_REGISTER("spillover_xx_scaled", ::xyz_stat_spillover_xx_scaled, "spillover_xx_scaled", 0);
+EFFECT_REGISTER("spillover_xx_scaled_local", ::xyz_stat_spillover_xx_scaled, "spillover_xx_scaled_local", 0);
 
+
+auto xyz_stat_spillover_xx_scaled_global = CHANGESTAT{
+  // Statistic: y_i * Average(y_neighbors)
+  if (mode == "z") {
+    if(object.z_network.directed){
+      double X_i = object.x_attribute.get_val(actor_i);
+      if (X_i == 0) return 0; 
+      double X_j = object.x_attribute.get_val(actor_j);
+      
+      double current_sum = 0;
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double current_deg = out_neighbors.size();
+      for (int l : out_neighbors) {
+        current_sum += object.x_attribute.get_val(l);
+      }
+      double S_with, d_with, S_without, d_without;
+      bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+      
+      if (tie_exists) {
+        S_with = current_sum;
+        d_with = current_deg;
+        S_without = current_sum - X_j;
+        d_without = current_deg - 1.0;
+      } else { 
+        S_without = current_sum;
+        d_without = current_deg;
+        S_with = current_sum + X_j;
+        d_with = current_deg + 1.0;
+      }
+      
+      double A_without = (d_without > 0.5) ? (S_without / d_without) : 0;
+      double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0;
+      
+      return X_i * (A_with - A_without);
+    } else {
+      double delta_total = 0.0;
+      double X_i = object.x_attribute.get_val(actor_i);
+      double X_j = object.x_attribute.get_val(actor_j);
+      
+      if (X_i != 0) {
+        double sum_i = 0;
+        auto& neighbors_i = object.z_network.adj_list.at(actor_i);
+        double deg_i = neighbors_i.size();
+        for (int l : neighbors_i) {
+          sum_i += object.x_attribute.get_val(l);
+        }
+        
+        double S_with_i, d_with_i, S_without_i, d_without_i;
+        bool tie_exists = object.z_network.get_val(actor_i, actor_j);
+        
+        if (tie_exists) {
+          S_with_i = sum_i;
+          d_with_i = deg_i;
+          S_without_i = sum_i - X_j;
+          d_without_i = deg_i - 1.0;
+        } else {
+          S_without_i = sum_i;
+          d_without_i = deg_i;
+          S_with_i = sum_i + X_j;
+          d_with_i = deg_i + 1.0;
+        } 
+        
+        double A_without_i = (d_without_i > 0.5) ? (S_without_i / d_without_i) : 0;
+        double A_with_i    = (d_with_i > 0.5)    ? (S_with_i / d_with_i)    : 0;
+        
+        delta_total += X_i * (A_with_i - A_without_i);
+      }
+      
+      if (X_j != 0) { 
+        double sum_j = 0;
+        auto& neighbors_j = object.z_network.adj_list.at(actor_j);
+        double deg_j = neighbors_j.size();
+        for (int l : neighbors_j) {
+          sum_j += object.x_attribute.get_val(l);
+        } 
+        
+        double S_with_j, d_with_j, S_without_j, d_without_j;
+        bool tie_exists = object.z_network.get_val(actor_i, actor_j); 
+        
+        if (tie_exists) {
+          S_with_j = sum_j;
+          d_with_j = deg_j;
+          S_without_j = sum_j - X_i; // j loses i
+          d_without_j = deg_j - 1.0;
+        } else {
+          S_without_j = sum_j;
+          d_without_j = deg_j;
+          S_with_j = sum_j + X_i; // j gains i
+          d_with_j = deg_j + 1.0;
+        } 
+        
+        double A_without_j = (d_without_j > 0.5) ? (S_without_j / d_without_j) : 0;
+        double A_with_j    = (d_with_j > 0.5)    ? (S_with_j / d_with_j)    : 0;
+        
+        delta_total += X_j * (A_with_j - A_without_j);
+      }
+      
+      return delta_total; 
+    }
+  } else if (mode == "x") {
+    if(object.z_network.directed){
+      double total_diff = 0;
+      // Part A: i's own average
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double sum_i = 0; 
+      double deg_i = out_neighbors.size();
+      for (int j : out_neighbors) {
+        sum_i += object.x_attribute.get_val(j);
+      } 
+      if (deg_i > 0.5) total_diff += (sum_i / deg_i);
+      
+      auto& in_neighbors = object.adj_list_in_nb.at(actor_i);
+      for (int k : in_neighbors) {
+        double deg_k = object.z_network.adj_list.at(k).size();
+        if (deg_k > 0.5) {
+          double X_k = object.x_attribute.get_val(k);
+          total_diff +=X_k * (1.0 / deg_k);
+        } 
+      }
+      return total_diff;
+    } else {
+      double total_diff = 0;
+      auto& out_neighbors = object.z_network.adj_list.at(actor_i);
+      double sum_i = 0; 
+      double deg_i = out_neighbors.size();
+      for (int j : out_neighbors) {
+        sum_i += object.x_attribute.get_val(j);
+        double deg_tmp =object.z_network.adj_list.at(j).size();
+        if (deg_tmp > 0.5) total_diff += (object.x_attribute.get_val(j) / deg_tmp);
+      } 
+      if (deg_i > 0.5) total_diff += (sum_i / deg_i);
+      return total_diff;
+    }
+  }   
+  return 0;
+};
+EFFECT_REGISTER("spillover_xx_scaled_global", ::xyz_stat_spillover_xx_scaled_global, "spillover_xx_scaled_global", 0);
 
 static inline bool has_alternative_h_to_j(
     int h, int excluded, int j,
