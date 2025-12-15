@@ -1509,6 +1509,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #' @return An object of class `iglm.data` (and `R6`).
 #' @references 
 #' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+#' 
 #' Daraganova, G., and Robins, G. (2013). Exponential random graph models for social networks: Theory, methods and applications, 102-114. Cambridge University Press.
 #' @examples
 #' data(state_twitter)

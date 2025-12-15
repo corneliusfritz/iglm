@@ -230,7 +230,18 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                            }
                                            # --- Handle sampler ---
                                            if (is.null(sampler)) {
-                                             private$.sampler <- sampler.iglm() 
+                                             sampler.x.obj <- sampler.net.attr(n_proposals = self$iglm.data$n_actor*10, 
+                                                                               seed = 1)
+                                             sampler.y.obj <- sampler.net.attr(n_proposals = self$iglm.data$n_actor*10, 
+                                                                               seed = 2)
+                                             sampler.z.obj <- sampler.net.attr(n_proposals = nrow(self$iglm.data$z_network)*10,
+                                                                               seed = 3)
+                                             private$.sampler <- sampler.iglm(n_simulation = 100, 
+                                                                         n_burn_in = 1, 
+                                                                         init_empty = FALSE,
+                                                                         sampler_x = sampler.x.obj,
+                                                                         sampler_y = sampler.y.obj,
+                                                                         sampler_z = sampler.z.obj)
                                            } else {
                                              if (!inherits(sampler, "sampler.iglm")) {
                                                stop("`sampler` must be a 'sampler.iglm' object created with sampler.iglm().")
