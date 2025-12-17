@@ -32,7 +32,7 @@ test_that('Define a iglm object, simulate, estimate, assess', {
   
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + degrees,
                           coef = gt_coef,  coef_degrees = gt_coef_pop, sampler = sampler_new, 
-                          control = control.iglm(accelerated = F,max_it = 200, display_progress = F, var = T))
+                          control = control.iglm(accelerated = F,max_it = 200, display_progress = F))
 
   
   tmp_name <- paste0(tempfile(),".rds")

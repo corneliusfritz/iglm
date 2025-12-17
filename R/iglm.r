@@ -136,8 +136,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                                              control = NULL, 
                                                              name = NULL,
                                                              file = NULL) {
+                                         # browser()
                                          if(!is.null(file)){
-                                           # browser()
+                                           
                                            if (missing(file) || !is.character(file) || length(file) != 1) {
                                              stop("A valid 'file' (character string) must be provided.", call. = FALSE)
                                            }
@@ -1035,7 +1036,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #'                           coef_degrees = gt_coef_pop,
 #'                           sampler = sampler_new,
 #'                           control = control.iglm(accelerated = FALSE,
-#'                           max_it = 200, display_progress = FALSE, var = TRUE))
+#'                           max_it = 200, display_progress = FALSE))
 #' # Simulate from the model
 #' model_tmp_new$simulate()
 #' model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])

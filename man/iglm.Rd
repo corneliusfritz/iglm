@@ -103,7 +103,7 @@ model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
                           coef_degrees = gt_coef_pop,
                           sampler = sampler_new,
                           control = control.iglm(accelerated = FALSE,
-                          max_it = 200, display_progress = FALSE, var = TRUE))
+                          max_it = 200, display_progress = FALSE))
 # Simulate from the model
 model_tmp_new$simulate()
 model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])

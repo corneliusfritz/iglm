@@ -35,8 +35,9 @@ is_cluster_active <- function(clust) {
 #' @param return_z (logical). If \code{TRUE}, return the change statistics for the \code{z} network. Default is \code{FALSE}. 
 #' @param offset_nonoverlap (numeric) A value added to the linear predictor for
 #'   dyads not in the 'overlap' set. Default is `0`.
-#' @param var (logical) If `TRUE`, attempt to calculate and return the
-#'   variance-covariance matrix of the estimated parameters. Default is `FALSE`.
+#' @param var_method (string) Method for variance estimation. Options are "Mean-value" (default), "Godambe", and "Hessian". 
+#'   The mean-value version is described in Section 3.3 of Fritz et al. (2025), the Godambe method is described in Schmid and Hunter (2023), and the "Hessian" option just assumes that the pseudo likelihood is the correct likelihood.
+#' @param exact (logical) If `TRUE`, the pseudo Fisher information is calculated exact for assessing the uncertainty of the estimates. Default is `FALSE`.
 #' @param non_stop (logical) If `TRUE`, the estimation algorithm continues until
 #'   `max_it` iterations, ignoring the `tol` convergence criterion. Default is `FALSE`.
 #' @param tol (numeric) The tolerance level for convergence. The estimation stops
@@ -48,19 +49,19 @@ is_cluster_active <- function(clust) {
 #' @param return_x (logical). If \code{TRUE}, return the change statistics for the \code{x} attribute Default is \code{FALSE}.
 #'   from samples. Default is `FALSE`. (Note: `return_samples=TRUE` likely implies this).
 #' @param accelerated (logical) If `TRUE` (default), an accelerated MM algorithm is used based on a Quasi Newton scheme described in the Supplemental Material of Fritz et al (2025). 
-#' @param cluster A parallel cluster object (e.g., from the `parallel` package)
-#'   to use for potentially parallelizing parts of the estimation or simulation.
-#'   Default is `NULL` (no parallelization).
-#' @param exact (logical) If `TRUE`, potentially use an exact calculation method
-#'   of the pseudo Fisher information for assessing the uncertainty of the estimates. Default is `FALSE`.
-#' @param updated_uncertainty (logical) If `TRUE` (default), potentially use an
-#'   updated method for calculating uncertainty estimates (based on the mean-value theorem as opposed to the Godambe Information).
+#' @references 
+#' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+#' 
+#' Schmid, C.S. and D. R. Hunter (2023). Computing Pseudolikelihood Estimators for Exponential-Family Random Graph Models. Journal of Data Science 
+#' 
 #' @return A list object of class `"control.iglm"` containing the specified
 #'   control parameters.
 #' @export
 control.iglm = function(estimate_model = TRUE, 
-                       display_progress = FALSE, return_samples = TRUE, 
-                       offset_nonoverlap = 0, var = FALSE,
+                       display_progress = FALSE, 
+                       return_samples = TRUE, 
+                       offset_nonoverlap = 0,
+                       var_method = "Mean-value",
                        non_stop = FALSE, 
                        tol = 0.001,
                        max_it = 100, 
@@ -68,18 +69,31 @@ control.iglm = function(estimate_model = TRUE,
                        return_y  = FALSE, 
                        return_z = FALSE, 
                        accelerated = TRUE, 
-                       cluster = NULL, 
-                       exact = FALSE, 
-                       updated_uncertainty = TRUE) {
+                       exact = FALSE) {
+  
+  if(!var_method %in% c("Godambe", "Mean-value", "Hessian")){
+    stop("var_method must be one of 'Godambe', 'Mean-value', or 'Hessian'")
+  }
+  if(var_method == "Mean-value"){
+    updated_uncertainty <- TRUE
+  } else {
+    updated_uncertainty <- FALSE
+  }
+  if(var_method == "Hessian"){
+    var <- FALSE
+  } else {
+    var <- TRUE
+  }
+  
   res = list(estimate_model = estimate_model, 
              display_progress = display_progress,
              offset_nonoverlap = offset_nonoverlap,  var = var,
              max_it = max_it, non_stop = non_stop, 
              tol = tol,return_samples = return_samples, 
              return_x = return_x, return_y  = return_y, return_z =return_z, 
-             accelerated = accelerated, 
-             cluster = cluster, exact = exact, 
-             updated_uncertainty = updated_uncertainty)
+             accelerated = accelerated, exact = exact, 
+             updated_uncertainty = updated_uncertainty, 
+             var_method = var_method)
   class(res) = "control.iglm"
   return(res)
 }
@@ -94,9 +108,8 @@ print.control.iglm <- function(x, ...) {
   cat("\n--- Model Estimation ---\n")
   # We find the longest name ("updated_uncertainty", 20 chars) and pad to 22
   # to create an aligned "Key : Value" format.
-  cat(sprintf("  %-22s: %s\n", "estimate_model", x$estimate_model))
-  cat(sprintf("  %-22s: %s\n", "var", x$var))
-  cat(sprintf("  %-22s: %s\n", "updated_uncertainty", x$updated_uncertainty))
+  cat(sprintf("  %-22s: %s\n", "estimate model", x$estimate_model))
+  cat(sprintf("  %-22s: %s\n", "variance method", x$var_method))
   cat(sprintf("  %-22s: %s\n", "exact", x$exact))
   
   # --- Group 2: Convergence Control ---
@@ -114,16 +127,7 @@ print.control.iglm <- function(x, ...) {
   cat(sprintf("  %-22s: %s\n", "return_x", x$return_x))
   cat(sprintf("  %-22s: %s\n", "return_y", x$return_y))
   cat(sprintf("  %-22s: %s\n", "return_z", x$return_z))
-  
-  # --- Group 4: Parallelism ---
-  cat("\n--- Parallelism ---\n")
-  
-  if (is.null(x$cluster)) {
-    cluster_status <- "NULL (Sequential)"
-  } else {
-    cluster_status <- paste0("Active (class: '", class(x$cluster)[1], "')")
-  }
-  cat(sprintf("  %-22s: %s\n", "cluster", cluster_status))
+
   
   invisible(x)
 }
@@ -280,7 +284,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
           res$stats <- variability_simulations$stats
           
         } else {
-          tmp_split = suppressWarnings(split(1:sampler$n_simulation, 1:length(control$cluster)))
+          tmp_split = suppressWarnings(split(1:sampler$n_simulation, 1:length(sampler$cluster)))
           if(control$display_progress){
             cat("Starting with parallel simulations")
           }
@@ -461,11 +465,11 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
           sampler= sampler.iglm()
           # if no specifications of the sampler are provided use the default one
         }
-        if(!is_cluster_active(control$cluster)){
-          control$cluster = NULL
+        if(!is_cluster_active(sampler$cluster)){
+          sampler$cluster = NULL
         }
      
-        if(is.null(control$cluster)){
+        if(is.null(sampler$cluster)){
           variability_simulations =xyz_approximate_variability(coef = res$coefficients,return_samples = control$return_samples,
                                                                coef_degrees = 0,
                                                                terms = preprocessed$term_names,
@@ -504,12 +508,12 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                  simulation_z_networks = variability_simulations$simulation_z_networks)
           
         } else {
-          tmp_split = split(1:(round(sampler$n_simulation/length(control$cluster))*length(control$cluster)), 1:length(control$cluster))
+          tmp_split = split(1:(round(sampler$n_simulation/length(sampler$cluster))*length(sampler$cluster)), 1:length(sampler$cluster))
           if(control$display_progress){
             cat("Starting with parallel simulations")
           }
           
-          res_parallel = parLapply(cl = control$cluster, X = tmp_split, fun = function(x,preprocessed, 
+          res_parallel = parLapply(cl = sampler$cluster, X = tmp_split, fun = function(x,preprocessed, 
                                                                                        n_actor, res, control){
             xyz_approximate_variability(coef = res$coefficients,
                                         coef_degrees = 0,

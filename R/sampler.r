@@ -464,6 +464,9 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #'   to enable parallel execution of simulations. If `NULL` (default), simulations
 #'   are run sequentially. Note: Cluster management (creation/stopping) is the
 #'   user's responsibility.
+#' @param cluster A parallel cluster object (e.g., from the `parallel` package)
+#'   to use for potentially parallelizing parts of the estimation or simulation.
+#'   Default is `NULL` (no parallelization).
 #' @param file (character or `NULL`) If provided, loads the sampler state from
 #' the specified .rds file instead of initializing from parameters.
 #' 

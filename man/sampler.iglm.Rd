@@ -38,10 +38,9 @@ Default: 10. Must be non-negative.}
 an empty state (e.g., empty network, attributes at zero or mean). If `FALSE`,
 the starting state might depend on the specific implementation.}
 
-\item{cluster}{A parallel cluster object (e.g., created with `parallel::makeCluster()`)
-to enable parallel execution of simulations. If `NULL` (default), simulations
-are run sequentially. Note: Cluster management (creation/stopping) is the
-user's responsibility.}
+\item{cluster}{A parallel cluster object (e.g., from the `parallel` package)
+to use for potentially parallelizing parts of the estimation or simulation.
+Default is `NULL` (no parallelization).}
 
 \item{file}{(character or `NULL`) If provided, loads the sampler state from
 the specified .rds file instead of initializing from parameters.}

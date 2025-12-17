@@ -386,6 +386,10 @@ print.iglm.data.list <- function(x, ...) {
 
 formula_preprocess = function(formula){
   data_object = eval(formula[[2]],envir = environment(formula))
+  if (!inherits(data_object, "iglm.data")) {
+    stop("The response in the formula must be an iglm.data object.")
+  }
+  
   includes_degrees <- "degrees" %in% all.vars(formula)
   formula <- stats::update(formula, .~ .-degrees)
   # debugonce(rhs_terms_as_list)
