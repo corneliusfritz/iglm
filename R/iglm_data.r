@@ -460,7 +460,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @param plot (logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.
                                    #' @return A numeric vector representing the distribution of `x_attribute` (invisible).
                                    x_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE){
-                                     if(private$.type_x == "gaussian"){
+                                     if(private$.type_x == "normal"){
                                        tmp_density <- density(private$.x_attribute, from = value_range[1], to = value_range[2])
                                        names(tmp_density$y) <- tmp_density$x
                                        
@@ -494,19 +494,19 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @param plot (logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.
                                    #' @return A numeric vector representing the distribution of `y_attribute` (invisible).
                                    y_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE){
-                                     if(private$.type_y == "gaussian"){
+                                     if(is.null(value_range)){
+                                       value_range <- range(private$.y_attribute)
+                                     }
+                                     if(private$.type_y == "normal"){
                                        tmp_density <- density(private$.y_attribute, from = value_range[1], to = value_range[2])
                                        names(tmp_density$y) <- tmp_density$x
-                                       
                                        if(plot){
                                          plot(tmp_density, main = "Density of y_attribute", 
                                               xlab = "y_attribute values", ylab = "Density")
                                        }
                                        private$.descriptives$y_distribution <- tmp_density$y
                                       } else {
-                                        if(is.null(value_range)){
-                                          value_range <- range(private$.y_attribute)
-                                        }
+                                      
                                         info <- factor(as.numeric(private$.y_attribute), 
                                                       levels = seq(from = value_range[1], to = value_range[2]))
                                         info <- table(info)
@@ -1259,7 +1259,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      if (show_overlap && !is.null(private$.neighborhood) && nrow(private$.neighborhood) > 0) {
                                        overlap_edges <- as.matrix(private$.neighborhood)
                                        overlap_edges <- overlap_edges[overlap_edges[, 1] != overlap_edges[, 2], , drop = FALSE]
-                                       g2 <- igraph::graph_from_edgelist(overlap_edges, directed = FALSE)
+                                       g2 <- igraph::graph_from_data_frame(d = overlap_edges, vertices = igraph::V(g)$name, directed = FALSE)
                                        igraph::V(g2)$name <- as.character(seq_len(igraph::vcount(g2)))
                                        igraph::plot.igraph(
                                          g2,
