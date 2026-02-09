@@ -17,7 +17,7 @@ test_that('Test some sufficient statistics for undirected networks', {
   type_x <- "poisson"
   type_y <- "poisson"
   
-  xyz_obj_new = iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
+  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
   gt_coef = c(3, -1,-1)
   gt_coef_pop =  c(rnorm(n = n_actor, -2, 1))
   
@@ -40,7 +40,8 @@ test_that('Test some sufficient statistics for undirected networks', {
                                           spillover_xx_scaled(mode = "local")+ 
                                         spillover_yy_scaled(mode = "local") +
                                           spillover_xy_scaled(mode = "local") +
-                                          spillover_yx_scaled(mode = "local"))
+                                          spillover_yx_scaled(mode = "local")+ 
+                                          spillover_xy_symm(mode = "local"))
   # Count the statistics by hand
   tmp <- model_tmp_new$get_samples()
   z_network <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)

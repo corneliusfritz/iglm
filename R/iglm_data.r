@@ -157,6 +157,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                          fix_x = FALSE, fix_z = FALSE, 
                                                          return_neighborhood = TRUE, 
                                                          file = NULL) {
+                                     # browser()
                                      if(!is.null(file)){
                                        if(!file.exists(file)){
                                          stop(paste("File",file,"does not exist."))
@@ -245,12 +246,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      if(is.na(private$.n_actor)){
                                        stop("n_actor could not be inferred. Please provide n_actor.")
                                      }
-                                     if(is.null(x_attribute)){
+                                     if(is.null(x_attribute) | (length(x_attribute) !=  private$.n_actor)){
                                        private$.x_attribute = numeric(length = private$.n_actor)
                                      } else {
                                        private$.x_attribute = x_attribute
                                      }
-                                     if(is.null(y_attribute)){
+                                     if(is.null(y_attribute)| (length(y_attribute) !=  private$.n_actor)){
                                        private$.y_attribute = numeric(length = private$.n_actor)
                                      } else {
                                        private$.y_attribute = y_attribute
@@ -1005,6 +1006,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      private$.descriptives$degree = res
                                      invisible(res)
                                    },
+                                   # spillover_degree_distribution_new = function( prob = TRUE, value_range = NULL, plot = FALSE){
+                                   #   browser()
+                                   #   actors_x = which(private$.x_attribute > self$mean_x())
+                                   #   actors_y = which(private$.y_attribute > self$mean_y())
+                                   #   private$.z_network
+                                   #   private$.overlap
+                                   #   
+                                   # },
                                    #' @description
                                    #' Calculates the spillover degree distribution between actors with
                                    #' `x_attribute == 1` and actors with `y_attribute == 1`.
@@ -1039,20 +1048,32 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      actors_x = which(private$.x_attribute > self$mean_x())
                                      actors_y = which(private$.y_attribute > self$mean_y())
                                      
-                                     adj_mat_x_y = matrix(data = 0, nrow = length(actors_x),
+                                     adj_mat_x_y = matrix(data = NA, nrow = length(actors_x),
                                                           ncol = length(actors_y),
                                                           dimnames = list(actors_x, actors_y))
+                                     
+                                     overlap_tmp <- private$.overlap[(private$.overlap[,1] %in% actors_x) & (private$.overlap[,2] %in% actors_y),]
+                                     overlap_tmp[,1] = match(overlap_tmp[,1], rownames(adj_mat_x_y))
+                                     overlap_tmp[,2] = match(overlap_tmp[,2], colnames(adj_mat_x_y))
+                                     adj_mat_x_y[overlap_tmp] = 0
+                                     # Exclude the units that do not have any overlaps so they cannot have spillover edges
+                                     has_valid_overlap_row = rowSums(!is.na(adj_mat_x_y)) > 0
+                                     has_valid_overlap_col = colSums(!is.na(adj_mat_x_y)) > 0
+                                     adj_mat_x_y = adj_mat_x_y[has_valid_overlap_row, has_valid_overlap_col, drop = FALSE] 
+                                     
                                      edges_x_y = matrix(private$.z_network[(private$.z_network[,1] %in% actors_x) & (private$.z_network[,2] %in% actors_y),],
                                                         ncol = 2)
                                      if(nrow(edges_x_y) > 0){
-                                       edges_x_y[,1] = match(edges_x_y[,1], rownames(adj_mat_x_y))
-                                       edges_x_y[,2] = match(edges_x_y[,2], colnames(adj_mat_x_y))
-                                       which_overlap <- check_overlap(edges_x_y,private$.neighborhood)
-                                       edges_x_y_overlap <- edges_x_y[which_overlap,]
-                                       edges_x_y_nonoverlap <- edges_x_y[!which_overlap,]
+                                       which_overlap <- check_overlap(edges_x_y,private$.overlap)
+                                       edges_x_y_overlap <- matrix(edges_x_y[which_overlap,],ncol = 2)
+                                       edges_x_y_overlap[,1] = match(edges_x_y_overlap[,1], rownames(adj_mat_x_y))
+                                       edges_x_y_overlap[,2] = match(edges_x_y_overlap[,2], colnames(adj_mat_x_y))
+                                       
+                                       
+                                       # edges_x_y_nonoverlap <- edges_x_y[!which_overlap,]
                                        
                                        adj_mat_x_y[edges_x_y_overlap] = 1
-                                       adj_mat_x_y[edges_x_y_nonoverlap] = NA
+                                       # adj_mat_x_y[edges_x_y_nonoverlap] = NA
                                        
                                        tmp1 <- rowSums(adj_mat_x_y,na.rm = T)
                                        tmp2 <- colSums(adj_mat_x_y,na.rm = T)
@@ -1170,7 +1191,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      # --- build igraph object from edge list
                                      
                                      if(!private$.directed){
-                                       g <- igraph::graph_from_edgelist(as.matrix(private$.z_network[private$.z_network[,1] > private$.z_network[,2],]),
+                                       g <- igraph::graph_from_edgelist(as.matrix(private$.z_network[private$.z_network[,1] < private$.z_network[,2],]),
                                                                         directed = private$.directed)
                                      }else {
                                        g <- igraph::graph_from_edgelist(as.matrix(private$.z_network), directed = private$.directed)
@@ -1372,11 +1393,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          n1 <- sum(v == 1, na.rm = TRUE)
                                          n0 <- sum(v == 0, na.rm = TRUE)
                                          p1 <- mean(v == 1, na.rm = TRUE)
-                                         paste0("(binomial): 1s=", n1, ", 0s=", n0, ", P(1)=", numfmt(p1))
+                                         paste0("binomial with 1s=", n1, ", 0s=", n0, ", P(1)=", numfmt(p1))
                                        } else if (type == "poisson") {
                                          qs <- stats::quantile(v, c(.00,.25,.50,.75,1), na.rm = TRUE, names = FALSE)
                                          paste0(
-                                           "(poisson): min=", numfmt(qs[1]),
+                                           "poisson with min=", numfmt(qs[1]),
                                            ", q1=", numfmt(qs[2]),
                                            ", med=", numfmt(qs[3]),
                                            ", q3=", numfmt(qs[4]),
@@ -1385,7 +1406,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          )
                                        } else if (type == "normal") {
                                          paste0(
-                                           "(normal): mean=", numfmt(mean(v, na.rm = TRUE)),
+                                           "normal with mean=", numfmt(mean(v, na.rm = TRUE)),
                                            ", sd=", numfmt(stats::sd(v, na.rm = TRUE)),
                                            ", min=", numfmt(min(v, na.rm = TRUE)),
                                            ", max=", numfmt(max(v, na.rm = TRUE)), 
@@ -1407,11 +1428,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      cat("iglm.data object\n")
                                      cat("  units   :", n, "\n")
                                      cat("  directed   :", if (dir_flag) "TRUE" else "FALSE", "\n")
-                                     cat("  edges (z)  :", m_z, "\n")
+                                     cat("  edges (fixed =",  private$.fix_z,"):", m_z, "\n")
                                      cat("  neighborhood edges :", m_nb, "\n")
                                      cat("\n")
                                      cat("Attribute summaries\n")
-                                     cat("  x_attribute ", x_sum, "\n", sep = "")
+                                     cat("  x_attribute (fixed =",  private$.fix_x,"):",x_sum, "\n", sep = "")
                                      cat("  y_attribute ", y_sum, "\n", sep = "")
                                      cat("\n")
                                      invisible(private)
@@ -1546,8 +1567,8 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     fix_z = FALSE,
                     return_neighborhood = TRUE, file = NULL) {
   
-  iglm.data_generator$new(x_attribute = x_attribute,
-                        y_attribute = y_attribute,
+  iglm.data_generator$new(x_attribute = as.numeric(x_attribute),
+                        y_attribute = as.numeric(y_attribute),
                         z_network = z_network,
                         neighborhood = neighborhood,
                         directed = directed,

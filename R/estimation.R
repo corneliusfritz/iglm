@@ -466,7 +466,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
           # if no specifications of the sampler are provided use the default one
         }
         if(!is_cluster_active(sampler$cluster)){
-          sampler$cluster = NULL
+          sampler$set_cluster(NULL) 
         }
      
         if(is.null(sampler$cluster)){

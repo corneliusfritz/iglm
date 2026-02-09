@@ -123,11 +123,16 @@ arma::vec xyz_count_global_statistic( XYZ_class &object,
   // arma::vec tmp_row;
   std::unordered_set<int> tmp_js;
   std::string z = "z", x = "x", y = "y";
+  // Rcpp::Rcout << object.z_network.count_edges() << std::endl;
+  // Rcpp::Rcout << object.z_network.directed << std::endl;
+  // Rcpp::Rcout << object.n_actor << std::endl;
+  // Rcpp::Rcout << object.z_network.adj_list.size() << std::endl;
   // Go through all actors i and switch them incrementally from 0 to 1
   for (int i = 1; i <= object.n_actor; i++){
     tmp_js = object.z_network.adj_list.at(i);
-    
+    // Rcpp::Rcout << i << std::endl;
     if(tmp_js.size()>0){
+      // Rcpp::Rcout << "Here a" << std::endl;
       std::unordered_set<int>::iterator it = tmp_js.begin();
       while (it != tmp_js.end()) {
         if(*it == i){ 
@@ -163,6 +168,7 @@ arma::vec xyz_count_global_statistic( XYZ_class &object,
     }
   }
   // Rcout << "X Attr" << std::endl;
+  // Rcout << object.x_attribute.attribute.size() << std::endl;
   for(int i = 1; i <= object.x_attribute.attribute.size(); i++){
     // Rcout << i << std::endl;
     xyz_calculate_change_stats(change_stat, i,
@@ -227,13 +233,11 @@ arma::vec xyz_count_global(arma::mat z_network,
   std::vector<xyz_ValidateFunction> functions, functions_new;
   // functions = xyz_change_statistics_generate(terms);
   functions = xyz_change_statistics_generate_new(terms);
-  
   arma::vec at_zero;
   at_zero = xyz_eval_at_empty_network_new(terms, object);
   // Rcout << xyz_change_statistics_generate_new(terms) << std::endl;
   // Rcout << functions << std::endl;
   // Rcout << at_zero << std::endl;
-  // Rcout <<at_zero_new << std::endl;
   
   arma::vec global_stats(xyz_count_global_statistic(object,
                                                     data_list,

@@ -420,6 +420,10 @@ auto xyz_stat_edges_x_out= CHANGESTAT{
 EFFECT_REGISTER("outedges_x_global", ::xyz_stat_edges_x_out, "outedges_x_global", 0);
 
 auto xyz_stat_edges_x_in_nb= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "x"){
     return(object.adj_list_in_nb.at(actor_i).size());
   } else if(mode == "z"){ 
@@ -431,6 +435,10 @@ auto xyz_stat_edges_x_in_nb= CHANGESTAT{
 EFFECT_REGISTER("inedges_x_local", ::xyz_stat_edges_x_in_nb, "inedges_x_local", 0);
 
 auto xyz_stat_edges_x_in_nonb= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "x"){
     auto& connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
     std::unordered_set<int> connections_of_i;
@@ -452,6 +460,10 @@ auto xyz_stat_edges_x_in_nonb= CHANGESTAT{
 EFFECT_REGISTER("inedges_x_alocal", ::xyz_stat_edges_x_in_nonb, "inedges_x_alocal", 0);
 
 auto xyz_stat_edges_x_in= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "x"){
     return(object.z_network.adj_list_in.at(actor_i).size());
   } else if(mode == "z"){ 
@@ -508,6 +520,10 @@ EFFECT_REGISTER("outedges_y_global", ::xyz_stat_edges_y_out, "outedges_y_global"
 
 
 auto xyz_stat_edges_y_in_nb= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "y"){
     return(object.adj_list_in_nb.at(actor_i).size());
   } else if(mode == "z"){ 
@@ -519,6 +535,10 @@ auto xyz_stat_edges_y_in_nb= CHANGESTAT{
 EFFECT_REGISTER("inedges_y_local", ::xyz_stat_edges_y_in_nb, "inedges_y_local", 0);
 
 auto xyz_stat_edges_y_in_nonb= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "y"){
     auto& connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
     std::unordered_set<int> connections_of_i;
@@ -540,6 +560,10 @@ auto xyz_stat_edges_y_in_nonb= CHANGESTAT{
 EFFECT_REGISTER("inedges_y_alocal", ::xyz_stat_edges_y_in_nonb, "inedges_y_alocal", 0);
 
 auto xyz_stat_edges_y_in= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "y"){
     return(object.z_network.adj_list_in.at(actor_i).size());
   } else if(mode == "z"){ 
@@ -644,7 +668,11 @@ auto xyz_stat_interaction_edges_cov= CHANGESTAT{
 };
 EFFECT_REGISTER("spillover_yc_symm", ::xyz_stat_interaction_edges_cov, "spillover_yc_symm", 0);
 
+
 auto xyz_stat_interaction_edges_xy= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks, use spillover_xy_symm");  
+  }
   if(mode == "z"){
     // What to do if the network change stat is desired
     // z_ij from 0 -> 1
@@ -890,6 +918,11 @@ auto xyz_stat_interaction_edges_y_cov= CHANGESTAT{
 EFFECT_REGISTER("spillover_yc", ::xyz_stat_interaction_edges_y_cov, "spillover_yc", 0);
 
 auto xyz_stat_interaction_edges_yx= CHANGESTAT{
+  
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     // What to do if the network change stat is desired
     // z_ij from 0 -> 1
@@ -903,11 +936,13 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
     int res = 0;
+    // Rcout << actor_i << std::endl;
+    // Rcout << object.adj_list_in_nb.size() << std::endl;
     auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-      // Rcout << "Attribute of actor";
-      // Rcout << *itr << std::endl;
+      Rcout << "Attribute of actor";
+      Rcout << *itr << std::endl;
       // Rcout << object.attribute.get_val(*itr) << std::endl;
       // if(*itr != actor_j){
       res+= object.y_attribute.get_val(*itr); 
@@ -2589,8 +2624,74 @@ auto xyz_stat_gwesp_local_ISP= CHANGESTAT{
   }
 }; 
 EFFECT_REGISTER("gwesp_local_ISP", ::xyz_stat_gwesp_local_ISP, "gwesp_local_ISP",0.0);
+auto xyz_stat_gwesp_local_symm= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    } 
+    // Check if the edge (i,j) currently exists physically in the object
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
+    
+    // 1. Step: For all OTP of i and j 
+    // 1. Step: 
+    std::unordered_set<int> osp_ij = object.get_common_partners_nb(actor_i, actor_j, "OSP");
+    double res = expo_pos*(1- pow(expo_min, osp_ij.size()));
+    
+    
+    std::unordered_set<int>::iterator itr;
+    for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
+      tmp_count = object.count_common_partners_nb(actor_i, *itr, "OSP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+      tmp_count = object.count_common_partners_nb(actor_j, *itr, "OSP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+    }
+    return(res);
+  }else { 
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_local_symm", ::xyz_stat_gwesp_local_symm, "gwesp_local_symm",0.0);
+
+auto xyz_stat_gwesp_global_symm= CHANGESTAT{
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double expo_pos = exp(data.at(0,0));
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    } 
+    // Check if the edge (i,j) currently exists physically in the object
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
+    
+    // 1. Step: For all OTP of i and j 
+    // 1. Step: 
+    std::unordered_set<int> osp_ij = object.get_common_partners(actor_i, actor_j, "OSP");
+    double res = expo_pos*(1- pow(expo_min, osp_ij.size()));
+    
+    
+    std::unordered_set<int>::iterator itr;
+    for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
+      tmp_count = object.count_common_partners(actor_i, *itr, "OSP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+      tmp_count = object.count_common_partners(actor_j, *itr, "OSP");
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+    }
+    return(res);
+  }else { 
+    return(0);
+  }
+}; 
+EFFECT_REGISTER("gwesp_global_symm", ::xyz_stat_gwesp_global_symm, "gwesp_global_symm",0.0);
+
+
 
 auto xyz_stat_gwesp_local_OTP= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
@@ -2626,6 +2727,9 @@ auto xyz_stat_gwesp_local_OTP= CHANGESTAT{
 EFFECT_REGISTER("gwesp_local_OTP", ::xyz_stat_gwesp_local_OTP, "gwesp_local_OTP",0.0);
 
 auto xyz_stat_gwesp_local_OSP= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
@@ -2660,6 +2764,10 @@ auto xyz_stat_gwesp_local_OSP= CHANGESTAT{
 EFFECT_REGISTER("gwesp_local_OSP", ::xyz_stat_gwesp_local_OSP, "gwesp_local_OSP",0.0);
 
 auto xyz_stat_gwesp_ITP = CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     
 
@@ -2688,6 +2796,10 @@ auto xyz_stat_gwesp_ITP = CHANGESTAT{
 EFFECT_REGISTER("gwesp_global_ITP", ::xyz_stat_gwesp_ITP, "gwesp_global_ITP", 0.0);
 
 auto xyz_stat_gwesp_ISP= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
@@ -2718,6 +2830,10 @@ auto xyz_stat_gwesp_ISP= CHANGESTAT{
 EFFECT_REGISTER("gwesp_global_ISP", ::xyz_stat_gwesp_ISP, "gwesp_global_ISP",0.0);
 
 auto xyz_stat_gwesp_OTP= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
@@ -2748,6 +2864,10 @@ auto xyz_stat_gwesp_OTP= CHANGESTAT{
 EFFECT_REGISTER("gwesp_global_OTP", ::xyz_stat_gwesp_OTP, "gwesp_global_OTP",0.0);
 
 auto xyz_stat_gwesp_OSP= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
@@ -2777,6 +2897,10 @@ auto xyz_stat_gwesp_OSP= CHANGESTAT{
 EFFECT_REGISTER("gwesp_global_OSP", ::xyz_stat_gwesp_OSP, "gwesp_global_OSP",0.0);
 
 auto xyz_stat_gwdsp_ITP= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double res = 0.0;
@@ -2806,6 +2930,10 @@ EFFECT_REGISTER("gwdsp_global_ITP", ::xyz_stat_gwdsp_ITP, "gwdsp_global_ITP",0.0
 EFFECT_REGISTER("gwdsp_global_OTP", ::xyz_stat_gwdsp_ITP, "gwdsp_global_OTP",0.0);
 
 auto xyz_stat_gwdsp_ISP= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double res = 0.0;
@@ -2831,6 +2959,12 @@ EFFECT_REGISTER("gwdsp_global_ISP", ::xyz_stat_gwdsp_ISP, "gwdsp_global_ISP",0.0
 
 
 auto xyz_stat_gwdsp_OSP= CHANGESTAT{
+
+  
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double res = 0.0;
@@ -2857,6 +2991,10 @@ EFFECT_REGISTER("gwdsp_global_OSP", ::xyz_stat_gwdsp_OSP, "gwdsp_global_OSP",0.0
 
 
 auto xyz_stat_gwdsp_ITP_local= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double res = 0.0;
@@ -2916,6 +3054,10 @@ auto xyz_stat_gwdsp_ISP_local= CHANGESTAT{
 EFFECT_REGISTER("gwdsp_local_ISP", ::xyz_stat_gwdsp_ISP_local, "gwdsp_local_ISP",0.0);
 
 auto xyz_stat_gwdsp_OSP_local= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     if(object.get_val_overlap(actor_i, actor_j) == false){
       return(0);
@@ -2944,6 +3086,10 @@ auto xyz_stat_gwdsp_OSP_local= CHANGESTAT{
 EFFECT_REGISTER("gwdsp_local_OSP", ::xyz_stat_gwdsp_OSP_local, "gwdsp_global_local_OSP",0.0);
 
 auto xyz_stat_gwidegree= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
+  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     bool edge_exists = object.z_network.get_val(actor_i, actor_j);
@@ -2975,6 +3121,9 @@ EFFECT_REGISTER("gwodegree_global", ::xyz_stat_gwodegree, "gwodegree_global",0.0
 EFFECT_REGISTER("gwdegree_global", ::xyz_stat_gwodegree, "gwdegree_global",0.0);
 
 auto xyz_stat_gwidegree_local= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     if(object.get_val_overlap(actor_i, actor_j) == false){

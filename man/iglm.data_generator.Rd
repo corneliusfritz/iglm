@@ -70,6 +70,7 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \item \href{#method-iglm.data-dyadwise_shared_partner_distribution}{\code{iglm.data_generator$dyadwise_shared_partner_distribution()}}
 \item \href{#method-iglm.data-degree_distribution}{\code{iglm.data_generator$degree_distribution()}}
 \item \href{#method-iglm.data-degree}{\code{iglm.data_generator$degree()}}
+\item \href{#method-iglm.data-spillover_degree_distribution_new}{\code{iglm.data_generator$spillover_degree_distribution_new()}}
 \item \href{#method-iglm.data-spillover_degree_distribution}{\code{iglm.data_generator$spillover_degree_distribution()}}
 \item \href{#method-iglm.data-plot}{\code{iglm.data_generator$plot()}}
 \item \href{#method-iglm.data-print}{\code{iglm.data_generator$print()}}
@@ -716,6 +717,19 @@ If the network is directed, a list containing two vectors:
   `in_degree_seq` and `out_degree_seq`. If undirected, a single
   list containing the vector `degree_seq`.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-spillover_degree_distribution_new"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-spillover_degree_distribution_new}{}}}
+\subsection{Method \code{spillover_degree_distribution_new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$spillover_degree_distribution_new(
+  prob = TRUE,
+  value_range = NULL,
+  plot = FALSE
+)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-spillover_degree_distribution"></a>}}
