@@ -293,6 +293,16 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                          names_tmp <- gsub("\\)", "", names_tmp)
                                          names_tmp <- gsub("=", "_", names_tmp)
                                          names_tmp <- gsub(" ", "", names_tmp)
+                                         
+                                         if (any(!grepl("distribution", names_tmp))) {
+                                           bad_terms <- names_tmp[!grepl("distribution", names_tmp)]
+                                           warning(paste0("Unrecognized terms deleted: ", paste(bad_terms, collapse = ", ")))
+                                           formula <- update(formula, as.formula(paste(". ~ . -", paste(bad_terms, collapse = " - "))))
+                                           names_tmp <- names_tmp[grepl("distribution", names_tmp)]
+                                         }
+                                         
+                                         
+                                         
                                          observed <- eval_change(formula = formula,object = private$.iglm.data)
                                          names(observed) = names_tmp
                                          base_name <- unlist(lapply(rhs_terms_as_list(update(formula, a ~ .)), function(x){
