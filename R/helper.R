@@ -419,11 +419,26 @@ formula_preprocess = function(formula){
   }
   variant_per_term <- lapply(formula_info, function(x) x$variant)
   variant_per_term <- unlist(lapply(variant_per_term, function(x){
-    if(is.null(x)){"OSP"
+    if(is.null(x)){
+      if(data_object$directed){
+        "OSP"  
+      } else {
+        "symm"
+      }
     } else{
-      if(!x %in% c("ITP","ISP", "OTP", "OSP")){
-        stop(paste0("Mode '", x, "' not recognized. Please use 'ITP','ISP', 'OTP' or 'OSP'."))
-      } else x
+      if(data_object$directed){
+        if(!x %in% c("ITP","ISP", "OTP", "OSP")){
+          stop(paste0("Mode '", x, "' not recognized. Please use 'ITP','ISP', 'OTP' or 'OSP'."))
+        } else x
+      } else {
+        
+        if(!x %in% c("symm")){
+          stop(paste0("Mode '", x, "' not recognized. For directed networks, only 'symm' is implemented."))
+        } else x
+        
+      }
+      
+      
     }
   }))
   term_per_term[is_very_special] <- paste0(term_per_term[is_very_special], "_", variant_per_term[is_very_special], sep = "")

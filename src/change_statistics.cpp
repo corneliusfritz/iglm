@@ -2637,15 +2637,15 @@ auto xyz_stat_gwesp_local_symm= CHANGESTAT{
     
     // 1. Step: For all OTP of i and j 
     // 1. Step: 
-    std::unordered_set<int> osp_ij = object.get_common_partners_nb(actor_i, actor_j, "OSP");
+    std::unordered_set<int> osp_ij = object.get_common_partners_nb(actor_i, actor_j);
     double res = expo_pos*(1- pow(expo_min, osp_ij.size()));
     
     
     std::unordered_set<int>::iterator itr;
     for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
-      tmp_count = object.count_common_partners_nb(actor_i, *itr, "OSP");
+      tmp_count = object.count_common_partners_nb(actor_i, *itr);
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
-      tmp_count = object.count_common_partners_nb(actor_j, *itr, "OSP");
+      tmp_count = object.count_common_partners_nb(actor_j, *itr);
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
@@ -2659,24 +2659,20 @@ auto xyz_stat_gwesp_global_symm= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
-    if(object.get_val_overlap(actor_i, actor_j) == false){
-      return(0);
-    } 
     // Check if the edge (i,j) currently exists physically in the object
     bool edge_exists = object.z_network.get_val(actor_i, actor_j);
     int tmp_count;
     
-    // 1. Step: For all OTP of i and j 
-    // 1. Step: 
-    std::unordered_set<int> osp_ij = object.get_common_partners(actor_i, actor_j, "OSP");
+    // 1. Step: For all common partner of i and j 
+    std::unordered_set<int> osp_ij = object.get_common_partners(actor_i, actor_j);
     double res = expo_pos*(1- pow(expo_min, osp_ij.size()));
     
     
     std::unordered_set<int>::iterator itr;
     for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
-      tmp_count = object.count_common_partners(actor_i, *itr, "OSP");
+      tmp_count = object.count_common_partners(actor_i, *itr);
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
-      tmp_count = object.count_common_partners(actor_j, *itr, "OSP");
+      tmp_count = object.count_common_partners(actor_j, *itr);
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
@@ -2895,6 +2891,75 @@ auto xyz_stat_gwesp_OSP= CHANGESTAT{
   }
 }; 
 EFFECT_REGISTER("gwesp_global_OSP", ::xyz_stat_gwesp_OSP, "gwesp_global_OSP",0.0);
+
+auto xyz_stat_gwdsp_symm= CHANGESTAT{
+  if(object.z_network.directed){
+    Rcpp::stop("This statistic is only for undirected networks");  
+  }
+  
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    double res = 0.0;
+    // 1. Step: 
+    std::unordered_set<int>::iterator itr;
+    auto& out_j = object.z_network.adj_list.at(actor_j);
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
+    for (itr = out_j.begin(); itr != out_j.end(); itr++) {
+      if(actor_i == *itr) continue;
+      tmp_count = object.count_common_partners(actor_i, *itr);
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+    }  
+    // 2. Step: 
+    auto& out_i = object.z_network.adj_list.at(actor_i);
+    for (itr = out_i.begin(); itr != out_i.end(); itr++) {
+      if(actor_j == *itr) continue;
+      tmp_count = object.count_common_partners(*itr, actor_j);
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+    }  
+    return(res);
+  }else {     
+    return(0);
+  } 
+}; 
+EFFECT_REGISTER("gwdsp_global_symm", ::xyz_stat_gwdsp_symm, "gwdsp_global_symm",0.0);
+
+auto xyz_stat_gwdsp_local_symm= CHANGESTAT{
+  if(object.z_network.directed){
+    Rcpp::stop("This statistic is only for undirected networks");  
+  }
+  
+  if(mode == "z"){
+    double expo_min = (1-exp(-data.at(0,0)));  
+    if(object.get_val_overlap(actor_i, actor_j) == false){
+      return(0);
+    } 
+    
+    double res = 0.0;
+    // 1. Step: 
+    std::unordered_set<int>::iterator itr;
+    auto& out_j = object.adj_list_nb.at(actor_j);
+    bool edge_exists = object.z_network.get_val(actor_i, actor_j);
+    int tmp_count;
+    for (itr = out_j.begin(); itr != out_j.end(); itr++) {
+      if(actor_i == *itr) continue;
+      tmp_count = object.count_common_partners_nb(actor_i, *itr);
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+    }   
+    // 2. Step: 
+    auto& out_i = object.z_network.adj_list.at(actor_i);
+    for (itr = out_i.begin(); itr != out_i.end(); itr++) {
+      if(actor_j == *itr) continue;
+      tmp_count = object.count_common_partners_nb(*itr, actor_j);
+      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
+    }   
+    return(res);
+  }else {      
+    return(0);
+  } 
+}; 
+EFFECT_REGISTER("gwdsp_local_symm", ::xyz_stat_gwdsp_local_symm, "gwdsp_local_symm",0.0);
+
 
 auto xyz_stat_gwdsp_ITP= CHANGESTAT{
   if(!object.z_network.directed){
