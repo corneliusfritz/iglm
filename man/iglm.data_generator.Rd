@@ -53,6 +53,7 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \item \href{#method-iglm.data-set_x_attribute}{\code{iglm.data_generator$set_x_attribute()}}
 \item \href{#method-iglm.data-set_y_attribute}{\code{iglm.data_generator$set_y_attribute()}}
 \item \href{#method-iglm.data-gather}{\code{iglm.data_generator$gather()}}
+\item \href{#method-iglm.data-delete_isolates}{\code{iglm.data_generator$delete_isolates()}}
 \item \href{#method-iglm.data-save}{\code{iglm.data_generator$save()}}
 \item \href{#method-iglm.data-set_fix_x}{\code{iglm.data_generator$set_fix_x()}}
 \item \href{#method-iglm.data-set_fix_z}{\code{iglm.data_generator$set_fix_z()}}
@@ -70,7 +71,6 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \item \href{#method-iglm.data-dyadwise_shared_partner_distribution}{\code{iglm.data_generator$dyadwise_shared_partner_distribution()}}
 \item \href{#method-iglm.data-degree_distribution}{\code{iglm.data_generator$degree_distribution()}}
 \item \href{#method-iglm.data-degree}{\code{iglm.data_generator$degree()}}
-\item \href{#method-iglm.data-spillover_degree_distribution_new}{\code{iglm.data_generator$spillover_degree_distribution_new()}}
 \item \href{#method-iglm.data-spillover_degree_distribution}{\code{iglm.data_generator$spillover_degree_distribution()}}
 \item \href{#method-iglm.data-plot}{\code{iglm.data_generator$plot()}}
 \item \href{#method-iglm.data-print}{\code{iglm.data_generator$print()}}
@@ -310,6 +310,20 @@ details necessary to reconstruct the object later.
 
 \subsection{Returns}{
 A list containing the current state of the `iglm.data` object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-delete_isolates"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-delete_isolates}{}}}
+\subsection{Method \code{delete_isolates()}}{
+Deletes isolates from the `z_network` and updates the attributes and neighborhood accordingly.
+Isolates are actors that do not have any connections in the `z_network`. This method identifies such actors, removes them from the attributes and neighborhood, and updates the `z_network` to reflect the new actor indices.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$delete_isolates()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The `iglm.data` object itself (`self`), invisibly.
 }
 }
 \if{html}{\out{<hr>}}
@@ -717,19 +731,6 @@ If the network is directed, a list containing two vectors:
   `in_degree_seq` and `out_degree_seq`. If undirected, a single
   list containing the vector `degree_seq`.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-iglm.data-spillover_degree_distribution_new"></a>}}
-\if{latex}{\out{\hypertarget{method-iglm.data-spillover_degree_distribution_new}{}}}
-\subsection{Method \code{spillover_degree_distribution_new()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$spillover_degree_distribution_new(
-  prob = TRUE,
-  value_range = NULL,
-  plot = FALSE
-)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-spillover_degree_distribution"></a>}}

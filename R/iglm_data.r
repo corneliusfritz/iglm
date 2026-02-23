@@ -397,6 +397,38 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      return(data_to_save)
                                    },
                                    #' @description
+                                   #' Deletes isolates from the `z_network` and updates the attributes and neighborhood accordingly.
+                                   #' Isolates are actors that do not have any connections in the `z_network`. This method identifies such actors, removes them from the attributes and neighborhood, and updates the `z_network` to reflect the new actor indices.
+                                   #' @return The `iglm.data` object itself (`self`), invisibly.
+                                   delete_isolates = function(){
+                                     # browser()
+                                     if(ncol(private$.z_network) == 2){
+                                       actors_in_network <- unique(c(private$.z_network[,1], private$.z_network[,2]))
+                                       isolates <- setdiff(1:private$.n_actor, actors_in_network)
+                                       actor_df <- data.frame(id_old = 1:private$.n_actor,
+                                                              in_network = 1:private$.n_actor %in% actors_in_network)
+                                       actor_df$id_new <- NA
+                                       actor_df$id_new[actor_df$in_network] <- 1:sum(actor_df$in_network)
+                                       if(length(isolates) > 0){
+                                         private$.x_attribute <- private$.x_attribute[-isolates]
+                                         private$.y_attribute <- private$.y_attribute[-isolates]
+                                         private$.n_actor <- length(private$.x_attribute)
+                                         private$.z_network <- private$.z_network[!private$.z_network[,1] %in% isolates & !private$.z_network[,2] %in% isolates, , drop = FALSE]
+                                         private$.z_network[,1] <- actor_df$id_new[private$.z_network[,1]]
+                                         private$.z_network[,2] <- actor_df$id_new[private$.z_network[,2]]
+                                         if(!is.null(private$.neighborhood)){
+                                           private$.neighborhood <- private$.neighborhood[!private$.neighborhood[,1] %in% isolates & !private$.neighborhood[,2] %in% isolates, , drop = FALSE]
+                                           private$.neighborhood[,1] <- actor_df$id_new[private$.neighborhood[,1]]
+                                           private$.neighborhood[,2] <- actor_df$id_new[private$.neighborhood[,2]]
+                                           private$.overlap <- private$.overlap[!private$.overlap[,1] %in% isolates & !private$.overlap[,2] %in% isolates, , drop = FALSE]
+                                           private$.overlap[,1] <- actor_df$id_new[private$.overlap[,1]]
+                                           private$.overlap[,2] <- actor_df$id_new[private$.overlap[,2]]
+                                           }
+                                       }
+                                     }
+                                     invisible(self)
+                                   },
+                                   #' @description
                                    #' Saves the current state of the `iglm.data` object to a specified file path
                                    #' in RDS format. This includes all attributes, network, and configuration
                                    #' details necessary to reconstruct the object later.
@@ -482,7 +514,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        private$.descriptives$x_distribution <- info
                                        if(plot){
                                          barplot(info, main = "Distribution of x_attribute", 
-                                                 xlab = "x_attribute values", ylab = ifelse(prob, "Probability", "Frequency"))
+                                                 xlab = "x_attribute values", 
+                                                 ylim = c(0, max(info)*1.2),
+                                                 ylab = ifelse(prob, "Probability", "Frequency"))
                                        }
                                      }
                                      invisible(private$.descriptives$x_distribution)
@@ -515,7 +549,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                         }
                                         private$.descriptives$y_distribution <- info
                                         if(plot){
-                                          barplot(info, main = "Distribution of y_attribute", 
+                                          barplot(info, main = "Distribution of y_attribute",
+                                                  ylim = c(0, max(info)*1.2), 
                                                   xlab = "y_attribute values", ylab = ifelse(prob, "Probability", "Frequency"))
                                         }
                                       }
@@ -569,7 +604,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
                                        }
                                      }
-                                     invisible(res)
+                                     return(res)
                                    }
                                    ,
                                    #' @description
@@ -615,13 +650,17 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    dyadwise_shared_partner = function(type = "ALL"){
                                      
                                      adj_mat <- sparseMatrix(i = private$.z_network[,1],
-                                                             j = private$.z_network[,2],symmetric = !private$.directed,
+                                                             j = private$.z_network[,2],
+                                                             symmetric = !private$.directed,
                                                              dims = c(private$.n_actor, private$.n_actor))
                                      if(is.null(private$.descriptives$dyadwise_shared_partner)){
                                        private$.descriptives$dyadwise_shared_partner <- list()
                                      }
                                      if(!private$.directed){
+                                       # browser()
                                        res <- Matrix::t(adj_mat) %*% t(adj_mat)
+                                       diag(res) <- NA
+                                       res[lower.tri(res)] <- NA
                                        private$.descriptives$dyadwise_shared_partner$ALL<- res
                                      } else {
                                        if(type == "OTP"){
@@ -645,7 +684,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
                                        }
                                      }
-                                     invisible(res)
+                                     return(res)
                                    }
                                    ,
                                    #' @description
@@ -684,7 +723,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      }
                                      private$.descriptives$geodesic_distances_distribution <- info
                                      if(plot){
-                                       barplot(info,
+                                       barplot(info, ylim = c(0, max(info)*1.2),
                                                xlab = "Geodesic Distance", ylab = ifelse(prob,"Proportion","Count"), 
                                                las = 1 )
                                      }
@@ -717,7 +756,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        F_tmp <- F_new
                                      }
                                      private$.descriptives$geodesic_distances <- D
-                                     invisible(D)
+                                     return(D)
                                    },
                                    #' @description
                                    #' Calculates the distribution of edgewise shared partners.
@@ -799,10 +838,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        private$.descriptives$edgewise_shared_partner_distribution$ALL<- info
                                      }
                                      if(plot){
-                                       barplot(info, 
+                                       barplot(info, ylim = c(0, max(info)*1.2), 
                                                xlab = paste0("Number of ", type, "- Edgewise Shared Partners"),
                                                ylab = ifelse(prob, "Proportion", "Count"), 
-                                               las = 1 )
+                                               las = 1)
                                      }
                                      invisible(info)
                                    },
@@ -864,7 +903,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        info <- private$.descriptives$dyadwise_shared_partner$ALL
                                      }
                                      if(is.null(value_range)){
-                                       value_range = range(as.numeric(info))
+                                       value_range = range(as.numeric(info), na.rm = TRUE)
                                      }
                                      info <- factor(as.numeric(info), 
                                                     levels = seq(from = value_range[1], to = value_range[2]))
@@ -889,7 +928,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        barplot(info, 
                                                xlab = paste0("Number of ",type, "- Dyadwise Shared Partners"), 
                                                ylab = ifelse(prob, "Proportion", "Count"), 
-                                               las = 1 )
+                                               las = 1, ylim = c(0, max(info)*1.2) )
                                      }
                                      invisible(info)
                                    },
@@ -948,16 +987,16 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          barplot(info$in_degree, 
                                                  xlab = "In-Degree", 
                                                  ylab = ifelse(prob, "Proportion", "Count"), 
-                                                 las = 1 )
+                                                 las = 1, ylim = c(0, max(info)*1.2) )
                                          barplot(info$out_degree,
                                                  xlab = "Out-Degree", 
                                                  ylab = ifelse(prob, "Proportion", "Count"), 
-                                                 las = 1 )
+                                                 las = 1, ylim = c(0, max(info)*1.2) )
                                        } else {
                                          barplot(info, 
                                                  xlab = "Degree",
                                                  ylab = ifelse(prob, "Proportion", "Count"), 
-                                                 las = 1 )
+                                                 las = 1, ylim = c(0, max(info)*1.2) )
                                        }
                                      }
                                      invisible(info)
@@ -1004,7 +1043,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        res$degree_seq = degree_seq
                                      }
                                      private$.descriptives$degree = res
-                                     invisible(res)
+                                     return(res)
                                    },
                                    # spillover_degree_distribution_new = function( prob = TRUE, value_range = NULL, plot = FALSE){
                                    #   browser()
@@ -1099,13 +1138,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      private$.descriptives$spillover_degree_distribution <- res
                                      if(plot){
                                        barplot(out_degree_x_y, 
-                                               xlab = "Out-Spillover Degree", 
+                                               xlab = "Spillover Outdegree", 
                                                ylab = ifelse(prob, "Proportion", "Count"), 
-                                               las = 1 )
+                                               las = 1, ylim = c(0, max(out_degree_x_y)*1.2) )
                                        barplot(in_degree_x_y, 
-                                               xlab = "In-Spillover Degree", 
+                                               xlab = "Spillover Indegree", 
                                                ylab = ifelse(prob, "Proportion", "Count"), 
-                                               las = 1)
+                                               las = 1, ylim = c(0, max(in_degree_x_y)*1.2))
                                      
                                        }
                                      invisible(res)
@@ -1424,17 +1463,31 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                              private$.type_y, 
                                                              private$.scale_y)
                                      
+                                     w <- 28
                                      
                                      cat("iglm.data object\n")
-                                     cat("  units   :", n, "\n")
-                                     cat("  directed   :", if (dir_flag) "TRUE" else "FALSE", "\n")
-                                     cat("  edges (fixed =",  private$.fix_z,"):", m_z, "\n")
-                                     cat("  neighborhood edges :", m_nb, "\n")
-                                     cat("\n")
-                                     cat("Attribute summaries\n")
-                                     cat("  x_attribute (fixed =",  private$.fix_x,"):",x_sum, "\n", sep = "")
-                                     cat("  y_attribute ", y_sum, "\n", sep = "")
-                                     cat("\n")
+                                     cat(sprintf("  %-*s: %s\n", w, "units", n))
+                                     cat(sprintf("  %-*s: %s\n", w, "directed", if (dir_flag) "TRUE" else "FALSE"))
+                                     edge_label <- sprintf("edges (fixed = %s)", private$.fix_z)
+                                     cat(sprintf("  %-*s: %s\n", w, edge_label, m_z))
+                                     
+                                     cat(sprintf("  %-*s: %s\n", w, "neighborhood edges", m_nb))
+                                     cat("\nAttribute summaries\n")
+                                     
+                                     x_label <- sprintf("x_attribute (fixed = %s)", private$.fix_x)
+                                     cat(sprintf("  %-*s: %s\n", w, x_label, x_sum))
+                                     cat(sprintf("  %-*s: %s\n", w, "y_attribute", y_sum))
+                                     # 
+                                     # cat("iglm.data object\n")
+                                     # cat("  units              :", n, "\n")
+                                     # cat("  directed           :", if (dir_flag) "TRUE" else "FALSE", "\n")
+                                     # cat("  edges (fixed = ",  private$.fix_z,"):", m_z, "\n")
+                                     # cat("  neighborhood edges :", m_nb, "\n")
+                                     # cat("\n")
+                                     # cat("Attribute summaries\n")
+                                     # cat("  x_attribute (fixed =",  private$.fix_x,"):",x_sum, "\n", sep = "")
+                                     # cat("  y_attribute ", y_sum, "\n", sep = "")
+                                     # cat("\n")
                                      invisible(private)
                                    }
                                  ),
@@ -1569,16 +1622,16 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
   
   iglm.data_generator$new(x_attribute = as.numeric(x_attribute),
                         y_attribute = as.numeric(y_attribute),
-                        z_network = z_network,
-                        neighborhood = neighborhood,
-                        directed = directed,
+                        z_network = as.matrix(z_network),
+                        neighborhood = as.matrix(neighborhood),
+                        directed = as.logical(directed),
                         n_actor = n_actor,
-                        type_x = type_x,
-                        type_y = type_y,
-                        scale_x = scale_x,
-                        scale_y = scale_y, 
-                        fix_x = fix_x,
-                        fix_z = fix_z,
-                        return_neighborhood = return_neighborhood, 
+                        type_x = as.character(type_x),
+                        type_y = as.character(type_y),
+                        scale_x = as.numeric(scale_x),
+                        scale_y = as.numeric(scale_y), 
+                        fix_x = as.logical(fix_x),
+                        fix_z = as.logical(fix_z),
+                        return_neighborhood = as.logical(return_neighborhood), 
                         file = file)
 }

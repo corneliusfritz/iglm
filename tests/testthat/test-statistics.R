@@ -31,7 +31,6 @@ test_that('Test some sufficient statistics for undirected networks', {
   model_tmp_new <- iglm(formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x + degrees,
                         coef = gt_coef,  coef_degrees = gt_coef_pop, sampler = sampler_new, 
                         control = control.iglm(accelerated = F,max_it = 200, display_progress = F))
-  # debugonce(model_tmp_new$simulate)
   model_tmp_new$print()
   model_tmp_new$simulate()
   
@@ -40,8 +39,7 @@ test_that('Test some sufficient statistics for undirected networks', {
                                           spillover_xx_scaled(mode = "local")+ 
                                         spillover_yy_scaled(mode = "local") +
                                           spillover_xy_scaled(mode = "local") +
-                                          spillover_yx_scaled(mode = "local")+ 
-                                          spillover_xy_symm(mode = "local"))
+                                          spillover_yx_scaled(mode = "local"))
   # Count the statistics by hand
   tmp <- model_tmp_new$get_samples()
   z_network <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)

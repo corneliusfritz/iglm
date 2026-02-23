@@ -53,8 +53,9 @@ be used for studying spillover in connected populations and other network-mediat
 It is based on a joint probability model for dependent 
 responses (\eqn{Y}) and connections \eqn{(Z)} conditional on 
 predictors (X).
-
-#' @section Model Formulation: 
+}
+\section{Model Formulation}{
+ 
 
 The joint probability density is specified as
 \deqn{f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_x(x_i)\, a_y(y_i) \exp(\theta_g^T \mathbf{g}_i(x_i^*, y_i^*)) \Big] \times  
@@ -78,6 +79,7 @@ corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
 components of the joint model. See \code{\link{model.terms}} for details on specifying 
 all model terms via the formula interface.
 }
+
 \examples{
 # Example usage:
 library(iglm)

@@ -594,44 +594,44 @@ auto xyz_stat_attribute_y= CHANGESTAT{
 EFFECT_REGISTER("attribute_y", ::xyz_stat_attribute_y, "attribute_y", 0);
 
 
-auto xyz_stat_interaction_edges= CHANGESTAT{
-  if(mode == "z"){
-    // What to do if the network change stat is desired
-    // z_ij from 0 -> 1
-    if(object.get_val_overlap(actor_i, actor_j)){
-      return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)+
-             object.x_attribute.get_val(actor_j)*object.y_attribute.get_val(actor_i));  
-    } else {
-      return(0);
-    }
-    
-  } else if (mode == "x"){
-    // What to do if the attribute change stat is wanted
-    // x_i from 0 -> 1
-    int res = 0;
-    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
-    for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-      res+= object.y_attribute.get_val(*itr);
-      // }
-    } 
-    // Rcout << res << std::endl;
-    return(res);
-  } else{
-    // What to do if the attribute change stat is wanted
-    // y_i from 0 -> 1
-    int res = 0;
-    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
-    
-    for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-      // if(*itr != actor_j){
-      res+= object.x_attribute.get_val(*itr);  
-      // }
-    }
-    // Rcout << res << std::endl;
-    return(res);
-  }
-};
-EFFECT_REGISTER("spillover_xy_symm", ::xyz_stat_interaction_edges, "spillover_xy_symm", 0);
+// auto xyz_stat_interaction_edges= CHANGESTAT{
+//   if(mode == "z"){
+//     // What to do if the network change stat is desired
+//     // z_ij from 0 -> 1
+//     if(object.get_val_overlap(actor_i, actor_j)){
+//       return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)+
+//              object.x_attribute.get_val(actor_j)*object.y_attribute.get_val(actor_i));  
+//     } else {
+//       return(0);
+//     }
+//     
+//   } else if (mode == "x"){
+//     // What to do if the attribute change stat is wanted
+//     // x_i from 0 -> 1
+//     int res = 0;
+//     auto& connections_of_i =  object.adj_list_nb.at(actor_i);
+//     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+//       res+= object.y_attribute.get_val(*itr);
+//       // }
+//     } 
+//     // Rcout << res << std::endl;
+//     return(res);
+//   } else{
+//     // What to do if the attribute change stat is wanted
+//     // y_i from 0 -> 1
+//     int res = 0;
+//     auto& connections_of_i =  object.adj_list_nb.at(actor_i);
+//     
+//     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+//       // if(*itr != actor_j){
+//       res+= object.x_attribute.get_val(*itr);  
+//       // }
+//     }
+//     // Rcout << res << std::endl;
+//     return(res);
+//   }
+// };
+// EFFECT_REGISTER("spillover_xy_symm", ::xyz_stat_interaction_edges, "spillover_xy_symm", 0);
 
 // cov_i *cov_j * z_ij*c_ij
 auto xyz_stat_interaction_edges_cov= CHANGESTAT{
@@ -671,7 +671,41 @@ EFFECT_REGISTER("spillover_yc_symm", ::xyz_stat_interaction_edges_cov, "spillove
 
 auto xyz_stat_interaction_edges_xy= CHANGESTAT{
   if(!object.z_network.directed){
-    Rcpp::stop("This statistic is only for directed networks, use spillover_xy_symm");  
+    if(mode == "z"){
+      // What to do if the network change stat is desired
+      // z_ij from 0 -> 1
+      if(object.get_val_overlap(actor_i, actor_j)){
+        return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)+
+               object.x_attribute.get_val(actor_j)*object.y_attribute.get_val(actor_i));  
+      } else {
+        return(0);
+      }
+      
+    } else if (mode == "x"){
+      // What to do if the attribute change stat is wanted
+      // x_i from 0 -> 1
+      int res = 0;
+      auto& connections_of_i =  object.adj_list_nb.at(actor_i);
+      for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+        res+= object.y_attribute.get_val(*itr);
+        // }
+      } 
+      // Rcout << res << std::endl;
+      return(res);
+    } else{
+      // What to do if the attribute change stat is wanted
+      // y_i from 0 -> 1
+      int res = 0;
+      auto& connections_of_i =  object.adj_list_nb.at(actor_i);
+      
+      for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
+        // if(*itr != actor_j){
+        res+= object.x_attribute.get_val(*itr);  
+        // }
+      }
+      // Rcout << res << std::endl;
+      return(res);
+    }
   }
   if(mode == "z"){
     // What to do if the network change stat is desired
@@ -941,8 +975,8 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-      Rcout << "Attribute of actor";
-      Rcout << *itr << std::endl;
+      // Rcout << "Attribute of actor";
+      // Rcout << *itr << std::endl;
       // Rcout << object.attribute.get_val(*itr) << std::endl;
       // if(*itr != actor_j){
       res+= object.y_attribute.get_val(*itr); 
@@ -1006,10 +1040,6 @@ auto xyz_stat_matching_edges_x= CHANGESTAT{
     auto& connections_of_i =  object.adj_list_nb.at(actor_i);
     
     for (auto itr = connections_of_i.begin(); itr != connections_of_i.end(); itr++) {
-      // Rcout << "Attribute of actor";
-      // Rcout << *itr << std::endl;
-      // Rcout << object.attribute.get_val(*itr) << std::endl;
-      // if(*itr != actor_j){
       res+= object.x_attribute.get_val(*itr);
       // }
     }

@@ -164,11 +164,11 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                         beg_coef_degrees = NULL, 
                         data_object, 
                         start = 0) {
-  if(data_object$fix_z & preprocessed$includes_degrees){
-    warning("fix_z = TRUE is incompatible with models including degree parameters. 
-            Setting includes_degrees = FALSE.")
-    preprocessed$includes_degrees <- FALSE
-  }
+  # if(data_object$fix_z & preprocessed$includes_degrees){
+  #   warning("fix_z = TRUE is incompatible with models including degree parameters. 
+  #           Setting includes_degrees = FALSE.")
+  #   preprocessed$includes_degrees <- FALSE
+  # }
   
   return_preprocess <- control$return_x + control$return_y + control$return_z> 0
   if(preprocessed$includes_degrees) {

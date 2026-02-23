@@ -443,6 +443,12 @@ formula_preprocess = function(formula){
   }))
   term_per_term[is_very_special] <- paste0(term_per_term[is_very_special], "_", variant_per_term[is_very_special], sep = "")
   
+  is_cov_xy <- term_per_term %in%c("cov_x", "cov_y")
+  #   Make sure that the data is a matrix for all covariates for x and y 
+  for(m in which(is_cov_xy)){
+    formula_info[[m]]$data <- matrix(formula_info[[m]]$data, nrow = 1)
+  }
+  
   type_per_term <- lapply(formula_info, function(x) x$type)
   type_per_term <- unlist(lapply(type_per_term, function(x) if(is.null(x)){1} else{x}))
   

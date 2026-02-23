@@ -475,6 +475,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                          # private$.coef_degrees[is.na(private$.coef_degrees)] <- -50
                                          # browser()
                                          now <- Sys.time()
+                                         
+                                         if(private$.iglm.data$fix_z & private$.preprocess$includes_degrees){
+                                           warning("fix_z = TRUE is incompatible with models including degree parameters.
+                                                   Setting includes_degrees = FALSE.")
+                                           private$.preprocess$includes_degrees <- FALSE
+                                         }
+                                         
                                          info <-  estimate_xyz(formula = private$.formula,
                                                                preprocessed = private$.preprocess, 
                                                                control = private$.control,
@@ -483,6 +490,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                                                beg_coef_degrees = private$.coef_degrees_internal, 
                                                                data_object = private$.iglm.data, 
                                                                start = nrow(private$.results$coefficients_path))
+                                         private$.preprocess$includes_degrees
                                          
                                          private$.time_estimation <- Sys.time() - now
                                          if(private$.control$estimate_model){
@@ -974,7 +982,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' responses (\eqn{Y}) and connections \eqn{(Z)} conditional on 
 #' predictors (X).
 #'
-#'#' @section Model Formulation: 
+#' @section Model Formulation: 
 #'
 #' The joint probability density is specified as
 #' \deqn{f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_x(x_i)\, a_y(y_i) \exp(\theta_g^T \mathbf{g}_i(x_i^*, y_i^*)) \Big] \times  
