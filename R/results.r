@@ -666,9 +666,9 @@ results.generator <- R6::R6Class("results",
                                                              "edgewise_shared_partner_distribution")){
                                            
                                            if(i  == "dyadwise_shared_partner_distribution"){
-                                             xlab_tmp <- "Dyadwise-Shared Partner"
+                                             xlab_tmp <- "Dyadwise Shared Partner"
                                            } else{
-                                             xlab_tmp <- "Edgewise-Shared Partner"
+                                             xlab_tmp <- "Edgewise Shared Partner"
                                            }
                                            # ESP/DSP -----
                                            if(add){
@@ -1432,7 +1432,7 @@ results <- function(size_coef,size_coef_degrees, file = NULL) {
                         file = file)
 }
 
-
+#' @importFrom grDevices hcl
 generate_colors <- function(n, chroma = 35, luminance = 85, seed = 123) {
   if (!is.null(seed)) set.seed(seed)
   hues <- seq(15, 375, length.out = n + 1)[1:n]

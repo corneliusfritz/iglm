@@ -17,7 +17,8 @@ test_that('Test some sufficient statistics for undirected networks', {
   type_x <- "poisson"
   type_y <- "poisson"
   
-  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
+  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = FALSE, 
+                           type_x = type_x, type_y = type_y)
   gt_coef = c(3, -1,-1)
   gt_coef_pop =  c(rnorm(n = n_actor, -2, 1))
   

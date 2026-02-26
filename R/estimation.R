@@ -131,37 +131,12 @@ print.control.iglm <- function(x, ...) {
   
   invisible(x)
 }
-# preprocess_xyz = function(formula, display_progress = F) {
-  # vars <- all.vars(formula)
-  # 
-  # # Check if 'degrees' is one of them
-  # "degrees" %in% vars
-  # 
-  # browser()
-  # preprocessed = formula_preprocess(formula)
-  # pseudo_lh = xyz_prepare_pseudo_estimation(z_network = preprocessed$data_object$z_network,
-  #                                           x_attribute = preprocessed$data_object$x_attribute,
-  #                                           y_attribute = preprocessed$data_object$y_attribute,
-  #                                           neighborhood = preprocessed$data_object$neighborhood,
-  #                                           overlap = preprocessed$data_object$overlap,
-  #                                           directed = preprocessed$data_object$directed,
-  #                                           terms = preprocessed$term_names,
-  #                                           data_list = preprocessed$data_list,
-  #                                           type_list = preprocessed$type_list,
-  #                                           type_x = preprocessed$data_object$type_x,
-  #                                           type_y = preprocessed$data_object$type_y,
-  #                                           attr_x_scale =  preprocessed$data_object$scale_x, 
-  #                                           attr_y_scale = preprocessed$data_object$scale_y,
-  #                                           display_progress = display_progress)
-  # res = as.data.frame(pseudo_lh)
-  # names(res) = c("status",preprocessed$coef_names)
-  # return(res)
-# }  
 
 estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                         sampler = sampler.iglm(),
                         beg_coef = NULL, 
                         beg_coef_degrees = NULL, 
+                        nonoverlap_random = TRUE,
                         data_object, 
                         start = 0) {
   # if(data_object$fix_z & preprocessed$includes_degrees){
@@ -203,6 +178,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                     max_iteration_inner_nondegrees = 1,
                                     data_list = preprocessed$data_list,
                                     type_list = preprocessed$type_list,
+                                    nonoverlap_random = nonoverlap_random, 
                                     display_progress =  control$display_progress,
                                     tol = control$tol, 
                                     non_stop = control$non_stop, 
@@ -252,6 +228,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                                                y_attribute =  data_object$y_attribute,
                                                                init_empty = sampler$init_empty,
                                                                directed = data_object$directed,
+                                                               nonoverlap_random = nonoverlap_random,
                                                                data_list = preprocessed$data_list,
                                                                type_list = preprocessed$type_list,
                                                                n_proposals_x = sampler$sampler_x$n_proposals,
@@ -301,6 +278,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                         x_attribute =  data_object$x_attribute,
                                         y_attribute =  data_object$y_attribute,
                                         init_empty = sampler$init_empty,
+                                        nonoverlap_random = nonoverlap_random,
                                         directed = data_object$directed,
                                         data_list = preprocessed$data_list,
                                         type_list = preprocessed$type_list,
@@ -428,6 +406,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                           terms = preprocessed$term_names,
                           max_iteration = control$max_it,
                           data_list = preprocessed$data_list,
+                          nonoverlap_random = nonoverlap_random,
                           type_list = preprocessed$type_list,
                           display_progress =  control$display_progress,
                           tol = control$tol, 
@@ -481,6 +460,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                                                y_attribute =  data_object$y_attribute,
                                                                type_x = data_object$type_x,
                                                                type_y = data_object$type_y,
+                                                               nonoverlap_random = nonoverlap_random,
                                                                attr_x_scale =  data_object$scale_x, 
                                                                attr_y_scale = data_object$scale_y,
                                                                init_empty = sampler$init_empty,
@@ -527,6 +507,7 @@ estimate_xyz = function(formula,preprocessed,control = control.iglm(),
                                         init_empty = sampler$init_empty,
                                         type_x = data_object$type_x,
                                         type_y = data_object$type_y,
+                                        nonoverlap_random = nonoverlap_random,
                                         attr_x_scale =  data_object$scale_x, 
                                         attr_y_scale = data_object$scale_y,
                                         directed = data_object$directed,

@@ -1619,11 +1619,19 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     fix_x = FALSE,
                     fix_z = FALSE,
                     return_neighborhood = TRUE, file = NULL) {
+  # browser()
+  if(!is.null(z_network)){
+    z_network <- as.matrix(z_network)  
+  }
+  if(!is.null(neighborhood)){
+    neighborhood <- as.matrix(neighborhood)  
+  }
+  
   
   iglm.data_generator$new(x_attribute = as.numeric(x_attribute),
                         y_attribute = as.numeric(y_attribute),
-                        z_network = as.matrix(z_network),
-                        neighborhood = as.matrix(neighborhood),
+                        z_network = z_network,
+                        neighborhood = neighborhood,
                         directed = as.logical(directed),
                         n_actor = n_actor,
                         type_x = as.character(type_x),

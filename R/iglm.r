@@ -487,6 +487,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                                                control = private$.control,
                                                                sampler = private$.sampler,
                                                                beg_coef =  private$.coef,
+                                                               nonoverlap_random = private$.sampler$nonoverlap_random,
                                                                beg_coef_degrees = private$.coef_degrees_internal, 
                                                                data_object = private$.iglm.data, 
                                                                start = nrow(private$.results$coefficients_path))
@@ -651,8 +652,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                          coef_table <- round(coef_table, digits)
                                          eps_threshold <- 10^(-digits)
                                          which_wrong <- coef_table == 0
-                                         which_wrong[,4] <- FALSE
-                                         coef_table[coef_table == 0] <- 
+                                         which_wrong[,5] <- FALSE
+                                         coef_table[which_wrong] <- 
                                            paste0("< ", format(eps_threshold,scientific = FALSE))
                                          print(coef_table, quote = FALSE, right = TRUE)
                                          

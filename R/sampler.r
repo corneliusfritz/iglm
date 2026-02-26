@@ -166,6 +166,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                           .n_simulation = NULL,
                                           .n_burn_in = NULL,
                                           .init_empty = NULL,
+                                          .nonoverlap_random = NULL,
                                           .cluster = NULL, 
                                           .validate = function(){
                                             # Check if cluster is valid
@@ -191,6 +192,9 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                             }
                                             if (!inherits(private$.sampler_z, "sampler.net.attr")) {
                                               stop("`sampler_z` must be created with `sampler.net.attr()`.", call. = FALSE)
+                                            }
+                                            if(!is.logical(private$.nonoverlap_random)){
+                                              stop("`nonoverlap_random` must be a logical value (TRUE or FALSE).", call. = FALSE)
                                             }
                                             
                                           }
@@ -224,6 +228,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                           #' @return A new `sampler.iglm` object.
                                           initialize = function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL, 
                                                                 n_simulation = 100, n_burn_in = 10, init_empty = TRUE, 
+                                                                nonoverlap_random = TRUE, 
                                                                 cluster = NULL, file = NULL) {
                                             
                                             if(is.null(file)){
@@ -236,6 +241,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                               private$.n_simulation <- as.integer(n_simulation)
                                               private$.n_burn_in <- as.integer(n_burn_in)
                                               private$.init_empty <- as.logical(init_empty)
+                                              private$.nonoverlap_random <- as.logical(nonoverlap_random)
                                               private$.cluster <- cluster
                                               
                                               # Validate sub-samplers
@@ -256,7 +262,8 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                               required_fields <- c("sampler_x","sampler_y","sampler_z",
                                                                    "init_empty", 
                                                                    "n_simulation",
-                                                                   "n_burn_in")
+                                                                   "n_burn_in", 
+                                                                   "nonoverlap_random")
                                               if (!is.list(data) || !all(required_fields %in% names(data))) {
                                                 stop("File does not contain a valid sampler.iglm state.", call. = FALSE)
                                               }
@@ -264,6 +271,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                               private$.n_simulation <- data$n_simulation
                                               private$.n_burn_in <- data$n_burn_in
                                               private$.init_empty <- data$init_empty
+                                              private$.nonoverlap_random <- data$nonoverlap_random
                                               
                                               private$.sampler_x <- sampler.net.attr.generator$new(n_proposals = data$sampler_x$n_proposals,
                                                                                                   seed = data$sampler_x$seed)
@@ -274,6 +282,16 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                             }
                                             private$.validate()
                                             invisible(self)
+                                          },
+                                          #' @description
+                                          #' Sets the option whether nonoverlap edges are random or not. 
+                                          #' @param nonoverlap_random A logical value indicating whether nonoverlap edges should be treated as random.
+                                          set_nonoverlap_random = function(nonoverlap_random){
+                                            if(!is.logical(nonoverlap_random)){
+                                              stop("`nonoverlap_random` must be a logical value (TRUE or FALSE).", call. = FALSE)
+                                            }
+                                            private$.nonoverlap_random = nonoverlap_random
+                                            private$.validate()
                                           },
                                           #' @description
                                           #' Sets the parallel cluster object to be used for simulations.
@@ -386,6 +404,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                               sampler_x = private$.sampler_x$gather(),
                                               sampler_y = private$.sampler_y$gather(),
                                               sampler_z = private$.sampler_z$gather(),
+                                              nonoverlap_random = private$.nonoverlap_random,
                                               n_simulation = private$.n_simulation,
                                               n_burn_in = private$.n_burn_in,
                                               init_empty = private$.init_empty
@@ -424,6 +443,8 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
                                           n_simulation = function(value) { if(missing(value)) private$.n_simulation else stop("`n_simulation` is read-only.", call. = FALSE) },
                                           #' @field n_burn_in (`integer`) Read-only. The number of burn-in iterations.
                                           n_burn_in = function(value) { if(missing(value)) private$.n_burn_in else stop("`n_burn_in` is read-only.", call. = FALSE) },
+                                          #' @field nonoverlap_random (`logical`) Read-only. Flag indicating whether nonoverlap edges are treated as random.
+                                          nonoverlap_random = function(value) { if(missing(value)) private$.nonoverlap_random else stop("`nonoverlap_random` is read-only.", call. = FALSE) },
                                           #' @field init_empty (`logical`) Read-only. Flag indicating whether simulations start from an empty state.
                                           init_empty = function(value) { if(missing(value)) private$.init_empty else stop("`init_empty` is read-only.", call. = FALSE) },
                                           #' @field cluster (`cluster` object or `NULL`) Read-only. The parallel cluster object being used, or `NULL`.
@@ -460,6 +481,8 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #' @param init_empty (logical) If `TRUE` (default), initialize the MCMC chain from
 #'   an empty state (e.g., empty network, attributes at zero or mean). If `FALSE`,
 #'   the starting state might depend on the specific implementation.
+#' @param nonoverlap_random (logical) If `TRUE` (default), edges outside the overlap region
+#'   are treated as random and will be sampled during the MCMC process, else they are treated as fixed.  
 #' @param cluster A parallel cluster object (e.g., created with `parallel::makeCluster()`)
 #'   to enable parallel execution of simulations. If `NULL` (default), simulations
 #'   are run sequentially. Note: Cluster management (creation/stopping) is the
@@ -487,6 +510,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #' sampler_new$n_simulation                                
 sampler.iglm <- function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL, 
                            n_simulation = 100, n_burn_in = 10, init_empty = TRUE, 
+                         nonoverlap_random = TRUE,
                            cluster = NULL, file = NULL ) {
   
   sampler.iglm.generator$new(
@@ -496,6 +520,7 @@ sampler.iglm <- function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL,
     n_simulation = n_simulation,
     n_burn_in = n_burn_in,
     init_empty = init_empty,
+    nonoverlap_random = nonoverlap_random,
     file = file, 
     cluster = cluster
   )
