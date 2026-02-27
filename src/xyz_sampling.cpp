@@ -853,7 +853,6 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
                                              is_full_neighborhood,
                                              functions);
     // Rcpp::Rcout << tmp_stat << std::endl;
-    // Rcpp::Rcout << global_stats <<std::endl;
     if(type == "x"){
       if(object.x_attribute.type == "binomial"){
         if(object.x_attribute.get_val(tmp_i)){
@@ -888,14 +887,12 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       }
       if(object.x_attribute.type == "normal"){
         HR= coef.t()*change_stat;
-        double tmp_val = R::rnorm(HR.at(0), 1); 
-        global_stats += (tmp_val- object.x_attribute.get_val(tmp_i))*change_stat;
+        double tmp_val = R::rnorm(HR.at(0), object.x_attribute.scale); 
+        global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i))*change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
     }
     if(type == "y"){
-      
-      
       if(object.y_attribute.type == "binomial"){
         if(object.y_attribute.get_val(tmp_i)){
           proposed_change = 0;
@@ -904,11 +901,9 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
           proposed_change = 1;
           multiplier = 1;
         }
-        
         // 3. Step: Calculate the Hastings Ratios
         tmp_stat=change_stat*multiplier;
         HR= exp(coef.t()*tmp_stat);
-        
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(random_accept(a)<HR.at(0)){
           global_stats += tmp_stat;
@@ -932,9 +927,18 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       }
       if(object.y_attribute.type == "normal"){
         HR= coef.t()*change_stat;
-        double tmp_val = R::rnorm(HR.at(0), 1); 
-        global_stats += (tmp_val- object.y_attribute.get_val(tmp_i))*change_stat;
+        double tmp_val = R::rnorm(HR.at(0), object.y_attribute.scale); 
+        // Rcpp::Rcout << "Before Global" <<std::endl;
+        // Rcpp::Rcout << global_stats.at(0) <<std::endl;
+        // Rcpp::Rcout << tmp_val <<std::endl;
+        // Rcpp::Rcout << object.y_attribute.get_val(tmp_i) <<std::endl;
+        global_stats += (tmp_val- object.y_attribute.get_val_no_scale(tmp_i))*change_stat;
+        // Rcpp::Rcout << "Global" <<std::endl;
+        // Rcpp::Rcout << change_stat <<std::endl;
+        // Rcpp::Rcout << global_stats.at(0) <<std::endl;
+        // Rcpp::Rcout << "TRUE" <<std::endl;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
+        // Rcpp::Rcout << arma::sum(object.y_attribute.attribute) <<std::endl;
       }
       
     }
@@ -3545,13 +3549,7 @@ List xyz_approximate_variability(arma::vec& coef,
       object.set_network_from_mat(n_actor, directed, z_network);  
     }  
   }
-  
-  
   bool is_full_neighborhood = object.check_if_full_neighborhood();
-  
-
-  
-  // object.set_neighborhood_from_mat(neighborhood);
   // Generate change statistic function from the terms
   std::vector<xyz_ValidateFunction> functions;
   
@@ -3642,6 +3640,7 @@ List xyz_approximate_variability(arma::vec& coef,
                               data_list, type_list,
                               is_full_neighborhood, functions,
                               global_stats, "y");
+    Rcout << global_stats.at(0)  << std::endl;
     // Sample Z|X,Y
     if(!fix_z){
       if(degrees){

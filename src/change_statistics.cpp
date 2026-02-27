@@ -1768,6 +1768,7 @@ EFFECT_REGISTER("spillover_xy_scaled_global", ::xyz_stat_spillover_xy_scaled_glo
 auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
   // Statistic: y_i * Average(y_neighbors)
   if (mode == "z") {
+    bool tie_exists = object.z_network.get_val(actor_i, actor_j);
     if(object.z_network.directed){
       if (!object.get_val_overlap(actor_i, actor_j)) return 0.0;
       
@@ -1782,7 +1783,6 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
         current_sum += object.y_attribute.get_val(l);
       }
       double S_with, d_with, S_without, d_without;
-      bool tie_exists = object.z_network.get_val(actor_i, actor_j);
       
       if (tie_exists) {
         S_with = current_sum;
@@ -1801,6 +1801,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
       
       return Y_i * (A_with - A_without);
     } else {
+      if (!object.get_val_overlap(actor_i, actor_j)) return 0.0;
       double delta_total = 0.0;
       double Y_i = object.y_attribute.get_val(actor_i);
       double Y_j = object.y_attribute.get_val(actor_j);
@@ -1814,8 +1815,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
         }
         
         double S_with_i, d_with_i, S_without_i, d_without_i;
-        bool tie_exists = object.z_network.get_val(actor_i, actor_j);
-        
+        // bool tie_exists = object.z_network.get_val(actor_i, actor_j);
         if (tie_exists) {
           S_with_i = sum_i;
           d_with_i = deg_i;
@@ -1839,11 +1839,11 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
         auto& neighbors_j = object.adj_list_nb.at(actor_j);
         double deg_j = neighbors_j.size();
         for (int l : neighbors_j) {
-          sum_j += object.x_attribute.get_val(l);
+          sum_j += object.y_attribute.get_val(l);
         }  
         
         double S_with_j, d_with_j, S_without_j, d_without_j;
-        bool tie_exists = object.z_network.get_val(actor_i, actor_j); 
+        // bool tie_exists = object.z_network.get_val(actor_i, actor_j); 
          
         if (tie_exists) {
           S_with_j = sum_j;

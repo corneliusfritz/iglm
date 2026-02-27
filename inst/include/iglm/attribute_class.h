@@ -83,6 +83,15 @@ public:
     return(attribute.at(from-1)/scale);
   }
   
+  double get_val_no_scale(int from) const {
+    if(from > n_actor) {
+      // std::cout << "Error: trying to access attribute of non-existing actor.\n";
+      return(false);
+    }
+    return(attribute.at(from-1));
+  }
+  
+  
   void print() {
     attribute.print();
   }
