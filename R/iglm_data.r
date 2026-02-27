@@ -16,6 +16,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    .z_network = NULL,
                                    .neighborhood = NULL,
                                    .overlap = NULL,
+                                   .nonoverlap_random = NULL,
                                    .directed = NULL,
                                    .n_actor = NULL,
                                    .type_x = NULL,
@@ -66,7 +67,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      if (private$.type_y == "binomial" && !all(private$.y_attribute %in% c(0, 1))) {
                                        errors <- c(errors, "For 'binomial' type, 'y_attribute' must be a binary vector.")
                                      }
-                                     # browser()
+                                     
+                                     if(!is.logical(private$.nonoverlap_random)){
+                                       stop("`nonoverlap_random` must be a logical value (TRUE or FALSE).", call. = FALSE)
+                                     }
                                      if (private$.type_y == "poisson" && !all(floor(private$.y_attribute) == private$.y_attribute & private$.y_attribute >= 0)) {
                                        errors <- c(errors, "For 'poisson' type, 'y_attribute' must be a vector of non-negative integers.")
                                      }
@@ -75,6 +79,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        errors <- c(errors, "'z_network' must be a matrix or a sparse Matrix object.")
                                      } else {
                                        if (ncol(private$.z_network) == 2) {
+                                         if(sum(is.na(private$.z_network)) > 0){ 
+                                           errors <- c(errors, "'z_network' edge list contains NA values.")
+                                         }
                                          if (any(private$.z_network < 1) || any(private$.z_network > private$.n_actor)) {
                                            errors <- c(errors, "'z_network' edge list contains invalid actor indices.")
                                          }
@@ -87,6 +94,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        if (!is.matrix(private$.neighborhood) && !inherits(private$.neighborhood, "Matrix")) {
                                          errors <- c(errors, "'neighborhood' must be a matrix or a sparse Matrix object.")
                                        } else {
+                                         if(sum(is.na(private$.neighborhood)) > 0){ 
+                                           errors <- c(errors, "'neighborhood' edge list contains NA values.")
+                                         }
+                                         
                                          if (ncol(private$.neighborhood) == 2) {
                                            if (any(private$.neighborhood < 1) || any(private$.neighborhood > private$.n_actor)) {
                                              errors <- c(errors, "'neighborhood' edge list contains invalid actor indices.")
@@ -145,6 +156,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #'   during model estimation and simulation. Default is `FALSE`. 
                                    #' @param fix_z Logical. If `TRUE`, the `z_network` is treated as fixed
                                    #'  during model estimation and simulation. Default is `FALSE`.
+                                   #' @param nonoverlap_random Logical. If `TRUE` (default), non-overlapping dyads in the neighborhood are treated as random units, else they are not considered as random units. This can be relevant for certain model specifications and estimation procedures.
                                    #' @param return_neighborhood Logical. If `TRUE` (default) and
                                    #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
                                    #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
@@ -153,8 +165,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    initialize = function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                                                          neighborhood = NULL, directed = NA, n_actor = NA, 
                                                          type_x = "binomial", type_y = "binomial",
-                                                         scale_x = 1, scale_y = 1, 
-                                                         fix_x = FALSE, fix_z = FALSE, 
+                                                         scale_x = 1, 
+                                                         scale_y = 1, 
+                                                         fix_x = FALSE, 
+                                                         fix_z = FALSE, 
+                                                         nonoverlap_random = TRUE,
                                                          return_neighborhood = TRUE, 
                                                          file = NULL) {
                                      # browser()
@@ -166,7 +181,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        required_fields <- c("x_attribute", "y_attribute", "z_network",
                                                             "neighborhood", "directed", "n_actor",
                                                             "type_x", "type_y", "scale_x",
-                                                            "scale_y", "fix_x", "fix_z")
+                                                            "scale_y", "fix_x", "fix_z","nonoverlap_random")
                                        if (!is.list(data_loaded) || !all(required_fields %in% names(data_loaded))) {
                                          stop("File does not contain a valid iglm.data state.", call. = FALSE)
                                        }
@@ -182,6 +197,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        scale_y = data_loaded$scale_y
                                        fix_x = data_loaded$fix_x
                                        fix_z = data_loaded$fix_z
+                                       nonoverlap_random = data_loaded$nonoverlap_random
                                      } 
                                      private$.type_x <- type_x
                                      private$.type_y <- type_y
@@ -189,6 +205,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      private$.scale_y <- scale_y
                                      private$.fix_x <- fix_x
                                      private$.fix_z <- fix_z
+                                     private$.nonoverlap_random <- as.logical(nonoverlap_random)
+                                     
                                      private$.descriptives <- list()
                                    
                                      if(return_neighborhood){
@@ -218,7 +236,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        correct_tmp <- private$.z_network[,1] < private$.z_network[,2]
                                        private$.z_network <- rbind(private$.z_network[correct_tmp, c(1,2)], 
                                                                    private$.z_network[wrong_tmp, c(2,1)])
-                                       private$.z_network <- private$.z_network[!duplicated(private$.z_network), ]
+                                       private$.z_network <- private$.z_network[!duplicated(private$.z_network),]
+                                       private$.z_network <- matrix(private$.z_network, ncol = 2)
+                                     } else {
+                                       private$.z_network <- matrix(private$.z_network, ncol = 2)
                                      }
                                      
                                      if(is.na(n_actor)){
@@ -392,9 +413,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        scale_x = private$.scale_x,
                                        scale_y = private$.scale_y, 
                                        fix_x = private$.fix_x,
-                                       fix_z = private$.fix_z
+                                       fix_z = private$.fix_z, 
+                                       nonoverlap_random = private$.nonoverlap_random
                                      )
                                      return(data_to_save)
+                                   },
+                                   #' @description
+                                   #' Sets the option whether nonoverlap edges are random or not. 
+                                   #' @param nonoverlap_random A logical value indicating whether nonoverlap edges should be treated as random.
+                                   set_nonoverlap_random = function(nonoverlap_random){
+                                     if(!is.logical(nonoverlap_random)){
+                                       stop("`nonoverlap_random` must be a logical value (TRUE or FALSE).", call. = FALSE)
+                                     }
+                                     private$.nonoverlap_random = nonoverlap_random
+                                     private$.validate()
                                    },
                                    #' @description
                                    #' Deletes isolates from the `z_network` and updates the attributes and neighborhood accordingly.
@@ -1523,7 +1555,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    
                                    #' @field scale_x (`numeric`) Read-only. The scale parameter associated with the `x_attribute`.
                                    scale_x = function(value) { if(missing(value)) private$.scale_x else stop("`scale_x` is read-only.", call. = FALSE) },
-                                   
                                    #' @field scale_y (`numeric`) Read-only. The scale parameter associated with the `y_attribute`.
                                    scale_y = function(value) { if(missing(value)) private$.scale_y else stop("`scale_y` is read-only.", call. = FALSE) }, 
                                    #' @field fix_x (`logical`) Read-only. Indicates if the `x_attribute` is fixed during estimation/simulation.
@@ -1531,7 +1562,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #' @field fix_z (`logical`) Read-only. Indicates if the `z_network` is fixed during estimation/simulation.
                                    fix_z = function(value) { if(missing(value)) private$.fix_z else stop("`fix_z` is read-only.", call. = FALSE) }, 
                                    #' @field descriptives (`list`) Read-only. A list storing computed descriptive statistics for the network and attributes.
-                                   descriptives = function(value) { if(missing(value)) private$.descriptives else stop("`descriptives` is read-only.", call. = FALSE) }
+                                   descriptives = function(value) { if(missing(value)) private$.descriptives else stop("`descriptives` is read-only.", call. = FALSE) }, 
+                                   #' @field nonoverlap_random (`logical`) Read-only. Flag indicating whether nonoverlap edges are treated as random.
+                                   nonoverlap_random = function(value) { if(missing(value)) private$.nonoverlap_random else stop("`nonoverlap_random` is read-only.", call. = FALSE) }
                                  )
 )
 
@@ -1576,6 +1609,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   during estimation/simulation (fixed network design). Default is `FALSE`. 
 #'   Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, 
 #'   which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).
+#' @param nonoverlap_random (logical) If `TRUE` (default), edges outside the overlap region
+#'   are treated as random and will be sampled during the MCMC process, else they are treated as fixed.  
 #' @param return_neighborhood Logical. If `TRUE` (default) and
 #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
 #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
@@ -1618,6 +1653,7 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     scale_x = 1, scale_y = 1, 
                     fix_x = FALSE,
                     fix_z = FALSE,
+                    nonoverlap_random = TRUE,
                     return_neighborhood = TRUE, file = NULL) {
   # browser()
   if(!is.null(z_network)){
@@ -1640,6 +1676,7 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                         scale_y = as.numeric(scale_y), 
                         fix_x = as.logical(fix_x),
                         fix_z = as.logical(fix_z),
+                        nonoverlap_random = nonoverlap_random,
                         return_neighborhood = as.logical(return_neighborhood), 
                         file = file)
 }

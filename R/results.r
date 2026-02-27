@@ -301,8 +301,10 @@ results.generator <- R6::R6Class("results",
                                        plot(private$.llh, type = "l", xlab = "Iteration", ylab = "Log-likelihood", bty ="l")
                                        
                                        if(!is.null(private$.score_degrees)){
-                                         coefficients_path_np <- private$.coefficients_path[,1:nrow(private$.var)]
-                                         coefficients_path_p <- private$.coefficients_path[,(nrow(private$.var)+1):ncol(private$.coefficients_path)]
+                                         
+                                         coefficients_path_np <- matrix(private$.coefficients_path[,1:nrow(private$.var)], ncol = nrow(private$.var))
+                                         coefficients_path_p <- matrix(private$.coefficients_path[,(nrow(private$.var)+1):ncol(private$.coefficients_path)], 
+                                                                       ncol = nrow(private$.fisher_degrees))
                                          
                                          plot(NA, xlim=c(1,nrow(coefficients_path_p)), ylim=range(coefficients_path_p),
                                               xlab="Iteration", ylab="Degree Coefficients", bty ="l")

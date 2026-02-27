@@ -17,6 +17,7 @@ iglm.data(
   scale_y = 1,
   fix_x = FALSE,
   fix_z = FALSE,
+  nonoverlap_random = TRUE,
   return_neighborhood = TRUE,
   file = NULL
 )
@@ -63,6 +64,9 @@ during estimation/simulation (fixed design in regression). Default is `FALSE`.}
 during estimation/simulation (fixed network design). Default is `FALSE`. 
 Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, 
 which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).}
+
+\item{nonoverlap_random}{(logical) If `TRUE` (default), edges outside the overlap region
+are treated as random and will be sampled during the MCMC process, else they are treated as fixed.}
 
 \item{return_neighborhood}{Logical. If `TRUE` (default) and
 `neighborhood` is `NULL`, a full neighborhood (all dyads) is

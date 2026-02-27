@@ -2515,13 +2515,13 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
       std::unordered_set<int> connections_of_j_nb;
       connections_of_j_nb.reserve(out_j_all.size());
       for (int n : out_j_all) if (neighborhood_j.find(n) != neighborhood_j.end()) connections_of_j_nb.insert(n);
-      
+
       for (int h : common_neighbors) {
         // check object.get_val_neighborhood(h, actor_i)
         if (object.neighborhood.at(h).find(actor_i) != object.neighborhood.at(h).end()) {
           if (!has_alternative_h_to_j(h, actor_i, actor_j, object, connections_of_j_nb,
                                       object.neighborhood.at(h), neighborhood_j)) {
-            res += 1; 
+            res += 1;
           }
         }
         // now symmetric: check object.get_val_neighborhood(h, actor_j)

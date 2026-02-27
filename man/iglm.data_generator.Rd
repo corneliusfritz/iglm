@@ -38,6 +38,8 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \item{\code{fix_z}}{(`logical`) Read-only. Indicates if the `z_network` is fixed during estimation/simulation.}
 
 \item{\code{descriptives}}{(`list`) Read-only. A list storing computed descriptive statistics for the network and attributes.}
+
+\item{\code{nonoverlap_random}}{(`logical`) Read-only. Flag indicating whether nonoverlap edges are treated as random.}
 }
 \if{html}{\out{</div>}}
 }
@@ -53,6 +55,7 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 \item \href{#method-iglm.data-set_x_attribute}{\code{iglm.data_generator$set_x_attribute()}}
 \item \href{#method-iglm.data-set_y_attribute}{\code{iglm.data_generator$set_y_attribute()}}
 \item \href{#method-iglm.data-gather}{\code{iglm.data_generator$gather()}}
+\item \href{#method-iglm.data-set_nonoverlap_random}{\code{iglm.data_generator$set_nonoverlap_random()}}
 \item \href{#method-iglm.data-delete_isolates}{\code{iglm.data_generator$delete_isolates()}}
 \item \href{#method-iglm.data-save}{\code{iglm.data_generator$save()}}
 \item \href{#method-iglm.data-set_fix_x}{\code{iglm.data_generator$set_fix_x()}}
@@ -96,6 +99,7 @@ Create a new `iglm.data` object, that includes data on two attributes and one ne
   scale_y = 1,
   fix_x = FALSE,
   fix_z = FALSE,
+  nonoverlap_random = TRUE,
   return_neighborhood = TRUE,
   file = NULL
 )}\if{html}{\out{</div>}}
@@ -143,6 +147,8 @@ during model estimation and simulation. Default is `FALSE`.}
 
 \item{\code{fix_z}}{Logical. If `TRUE`, the `z_network` is treated as fixed
 during model estimation and simulation. Default is `FALSE`.}
+
+\item{\code{nonoverlap_random}}{Logical. If `TRUE` (default), non-overlapping dyads in the neighborhood are treated as random units, else they are not considered as random units. This can be relevant for certain model specifications and estimation procedures.}
 
 \item{\code{return_neighborhood}}{Logical. If `TRUE` (default) and
 `neighborhood` is `NULL`, a full neighborhood (all dyads) is
@@ -310,6 +316,23 @@ details necessary to reconstruct the object later.
 
 \subsection{Returns}{
 A list containing the current state of the `iglm.data` object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-set_nonoverlap_random"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_nonoverlap_random}{}}}
+\subsection{Method \code{set_nonoverlap_random()}}{
+Sets the option whether nonoverlap edges are random or not.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_nonoverlap_random(nonoverlap_random)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{nonoverlap_random}}{A logical value indicating whether nonoverlap edges should be treated as random.}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

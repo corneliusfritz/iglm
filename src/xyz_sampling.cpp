@@ -1175,7 +1175,7 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(XYZ_class object,
   arma::vec change_stat_network(functions.size()),
   // The same thing but for the attributes i and j
   change_stat_attribute_i(functions.size()), change_stat_attribute_j(functions.size());
-  int x_i, y_i, z_ij;
+  double x_i, y_i, z_ij;
   // int ncores = 5;
   arma::mat res_covs((!fix_z) * (n_actor* (n_actor - 1) * (object.z_network.directed + 1) / 2) + 
     n_actor * (!fix_x + 1), terms.size());
@@ -3787,6 +3787,9 @@ Rcpp::List xyz_prepare_pseudo_estimation(arma::mat z_network,
   int n_actor = y_attribute.size();
   // Rcout << "Read Data" << std::endl;
   XYZ_class object(n_actor,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  // Rcout << y_attribute  << std::endl;
+  // Rcout << "Done" << std::endl;
+  // Rcout << object.y_attribute.attribute  << std::endl;
   // Rcout << "Done" << std::endl;
   // object.x_attribute.print();
   // Check whether its a fully observed neighbhorhood (this means that everyone knows everyone)
@@ -3813,7 +3816,7 @@ Rcpp::List xyz_prepare_pseudo_estimation(arma::mat z_network,
   arma::vec change_stat_network(functions.size()),
   // The same thing but for the attributes i and j
   change_stat_attribute_i(functions.size());
-  int x_i, y_i, z_ij;
+  double x_i, y_i, z_ij;
   arma::mat res_covs, res_target;
   if(directed){
     res_covs = arma::mat(n_actor*(n_actor-1) + n_actor*2,terms.size());
@@ -3889,8 +3892,9 @@ Rcpp::List xyz_prepare_pseudo_estimation(arma::mat z_network,
   
   if(return_y){
     for(int i: seq(1,n_actor)){
-      // Rcout << i  << std::endl;
+      
       y_i = object.y_attribute.get_val(i);
+      
       xyz_calculate_change_stats(change_stat_attribute_i, i,
                                                            i,
                                                            object,

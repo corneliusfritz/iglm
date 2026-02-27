@@ -27,8 +27,6 @@ parallelization options. It also holds references to component samplers
 
 \item{\code{n_burn_in}}{(`integer`) Read-only. The number of burn-in iterations.}
 
-\item{\code{nonoverlap_random}}{(`logical`) Read-only. Flag indicating whether nonoverlap edges are treated as random.}
-
 \item{\code{init_empty}}{(`logical`) Read-only. Flag indicating whether simulations start from an empty state.}
 
 \item{\code{cluster}}{(`cluster` object or `NULL`) Read-only. The parallel cluster object being used, or `NULL`.}
@@ -39,7 +37,6 @@ parallelization options. It also holds references to component samplers
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-sampler.iglm-new}{\code{sampler.iglm.generator$new()}}
-\item \href{#method-sampler.iglm-set_nonoverlap_random}{\code{sampler.iglm.generator$set_nonoverlap_random()}}
 \item \href{#method-sampler.iglm-set_cluster}{\code{sampler.iglm.generator$set_cluster()}}
 \item \href{#method-sampler.iglm-deactive_cluster}{\code{sampler.iglm.generator$deactive_cluster()}}
 \item \href{#method-sampler.iglm-set_n_simulation}{\code{sampler.iglm.generator$set_n_simulation()}}
@@ -69,7 +66,6 @@ and validates inputs.
   n_simulation = 100,
   n_burn_in = 10,
   init_empty = TRUE,
-  nonoverlap_random = TRUE,
   cluster = NULL,
   file = NULL
 )}\if{html}{\out{</div>}}
@@ -110,23 +106,6 @@ the specified .rds file instead of initializing from parameters.}
 }
 \subsection{Returns}{
 A new `sampler.iglm` object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-sampler.iglm-set_nonoverlap_random"></a>}}
-\if{latex}{\out{\hypertarget{method-sampler.iglm-set_nonoverlap_random}{}}}
-\subsection{Method \code{set_nonoverlap_random()}}{
-Sets the option whether nonoverlap edges are random or not.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_nonoverlap_random(nonoverlap_random)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{nonoverlap_random}}{A logical value indicating whether nonoverlap edges should be treated as random.}
-}
-\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

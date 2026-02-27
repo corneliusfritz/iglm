@@ -45,17 +45,20 @@ count_statistics = function(formula) {
       count_statistics(x)
     })
     counts <- do.call(counts,what = "rbind")
+    return(counts)
   } else{
     preprocessed = formula_preprocess(formula)
     if(length(preprocessed$type_list) >0){
       counts = as.vector(xyz_count_statistics(preprocessed))
       names(counts) = preprocessed$coef_names  
+      return(counts)
     } else {
       warning("No valid terms specified in the formula. Returning an empty vector.")
+      return(c())
     }
     
   }
-  return(counts)
+
 }
 
 # xz_count_statistics = function(preprocessed, ...) {

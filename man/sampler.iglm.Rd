@@ -11,7 +11,6 @@ sampler.iglm(
   n_simulation = 100,
   n_burn_in = 10,
   init_empty = TRUE,
-  nonoverlap_random = TRUE,
   cluster = NULL,
   file = NULL
 )
@@ -38,9 +37,6 @@ Default: 10. Must be non-negative.}
 \item{init_empty}{(logical) If `TRUE` (default), initialize the MCMC chain from
 an empty state (e.g., empty network, attributes at zero or mean). If `FALSE`,
 the starting state might depend on the specific implementation.}
-
-\item{nonoverlap_random}{(logical) If `TRUE` (default), edges outside the overlap region
-are treated as random and will be sampled during the MCMC process, else they are treated as fixed.}
 
 \item{cluster}{A parallel cluster object (e.g., from the `parallel` package)
 to use for potentially parallelizing parts of the estimation or simulation.
