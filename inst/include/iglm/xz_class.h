@@ -238,7 +238,7 @@ public:
   // This function checks if the neighborhood is full or not
   bool check_if_full_neighborhood() {
     int sum_tmp= 0;
-    for(int i: seq(1,n_actor)){
+    for(int i = 1; i <= n_actor; ++i) {
       if((int) neighborhood.at(i).size() == n_actor){
         sum_tmp ++;
       }
@@ -283,11 +283,11 @@ public:
     }
   }
   
-  void assign_neighborhood(std::unordered_map< int, std::unordered_set<int>> new_neighborhood) {
+  void assign_neighborhood(const std::unordered_map< int, std::unordered_set<int>>& new_neighborhood) {
     neighborhood = new_neighborhood;
     
   }
-  void set_info(arma::vec x_attribute_, std::unordered_map< int, std::unordered_set<int>> z_network_) {
+  void set_info(const arma::vec x_attribute_, std::unordered_map< int, std::unordered_set<int>>& z_network_) {
     x_attribute.attribute = x_attribute_;
     z_network.adj_list = z_network_;
     for (int i = 1; i <= n_actor; i++){
@@ -315,6 +315,6 @@ public:
   }
   
   void change_neighborhood(int actor, std::unordered_set<int> new_neighborhood) {
-    neighborhood.at(actor -1 ) = new_neighborhood;
+    neighborhood.at(actor) = new_neighborhood;
   }
 };

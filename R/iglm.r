@@ -665,7 +665,6 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                        #' Simulate networks from the fitted model or a specified model. Stores
                                        #' the simulations and/or summary statistics internally. The simulation 
                                        #' is carried out using the internal MCMC sampler described in \code{\link{simulate_iglm}}.
-                                       #' @param nsim (integer) Number of networks to simulate. Default is 1.
                                        #' @param only_stats (logical) If `TRUE`, only calculate and store summary
                                        #'   statistics for each simulation, discarding the network object itself.
                                        #'   Default is `FALSE`.
@@ -679,7 +678,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                        #'   `iglm.data.list` if `only_stats = FALSE`) and/or their summary
                                        #'   statistics (`stats`), invisibly.
                                        #' @importFrom grDevices col2rgb rgb
-                                       simulate = function (nsim = 1, only_stats = FALSE, display_progress=TRUE,
+                                       simulate = function ( only_stats = FALSE, display_progress=TRUE,
                                                             offset_nonoverlap= 0) {
                                          # debugonce(simulate_iglm)
                                          # browser()
