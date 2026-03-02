@@ -27,9 +27,9 @@
 #' object = iglm.data(z_network = z_net_data, x_attribute = x_attr_data,
 #'  y_attribute = y_attr_data, neighborhood = neighborhood,
 #'  directed = FALSE,type_x = type_x,type_y = type_y)
-#' count_statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
+#' statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
 #' @export
-count_statistics = function(formula) {
+statistics = function(formula) {
   tmp_obj <- eval(formula[[2]],envir = environment(formula))
   if(inherits(tmp_obj, "iglm.data.list")) {
     k <- length(tmp_obj)
@@ -42,7 +42,7 @@ count_statistics = function(formula) {
       as.formula(new_formula_call, env = f_env)
     })
     counts <- lapply(formula_list, function(x){
-      count_statistics(x)
+      statistics(x)
     })
     counts <- do.call(counts,what = "rbind")
     return(counts)
@@ -61,21 +61,7 @@ count_statistics = function(formula) {
 
 }
 
-# xz_count_statistics = function(preprocessed, ...) {
-#   n_actor = length(preprocessed$data_object$x_attribute)
-#   xz_count_global(network = preprocessed$data_object$z_network,
-#                   attribute =preprocessed$data_object$x_attribute,
-#                   neighborhood = preprocessed$data_object$neighborhood,
-#                   overlap=preprocessed$data_object$overlap,
-#                   directed = preprocessed$data_object$directed,
-#                   terms = preprocessed$term_names,
-#                   type = preprocessed$data_object$type,
-#                   data_list = preprocessed$data_list,
-#                   type_list = preprocessed$type_list,
-#                   n_actor = n_actor)
-#   
-#   
-# }
+
 
 xyz_count_statistics = function(preprocessed, ...) {
   n_actor_tmp = length(preprocessed$data_object$x_attribute)

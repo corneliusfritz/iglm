@@ -487,7 +487,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                                                                control = private$.control,
                                                                sampler = private$.sampler,
                                                                beg_coef =  private$.coef,
-                                                               nonoverlap_random = private$.iglm.data$nonoverlap_random,
+                                                               nonoverlap_random = !private$.iglm.data$fix_z_alocal,
                                                                beg_coef_degrees = private$.coef_degrees_internal, 
                                                                data_object = private$.iglm.data, 
                                                                start = nrow(private$.results$coefficients_path))

@@ -16,7 +16,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    .z_network = NULL,
                                    .neighborhood = NULL,
                                    .overlap = NULL,
-                                   .nonoverlap_random = NULL,
+                                   .fix_z_alocal = NULL,
                                    .directed = NULL,
                                    .n_actor = NULL,
                                    .type_x = NULL,
@@ -68,8 +68,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        errors <- c(errors, "For 'binomial' type, 'y_attribute' must be a binary vector.")
                                      }
                                      
-                                     if(!is.logical(private$.nonoverlap_random)){
-                                       stop("`nonoverlap_random` must be a logical value (TRUE or FALSE).", call. = FALSE)
+                                     if(!is.logical(private$.fix_z_alocal)){
+                                       stop("`fix_z_alocal` must be a logical value (TRUE or FALSE).", call. = FALSE)
                                      }
                                      if (private$.type_y == "poisson" && !all(floor(private$.y_attribute) == private$.y_attribute & private$.y_attribute >= 0)) {
                                        errors <- c(errors, "For 'poisson' type, 'y_attribute' must be a vector of non-negative integers.")
@@ -156,7 +156,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    #'   during model estimation and simulation. Default is `FALSE`. 
                                    #' @param fix_z Logical. If `TRUE`, the `z_network` is treated as fixed
                                    #'  during model estimation and simulation. Default is `FALSE`.
-                                   #' @param nonoverlap_random Logical. If `TRUE` (default), non-overlapping dyads in the neighborhood are treated as random units, else they are not considered as random units. This can be relevant for certain model specifications and estimation procedures.
+                                   #' @param fix_z_alocal Logical. If `TRUE` (default), alocal dyads in the neighborhood are fixed.
                                    #' @param return_neighborhood Logical. If `TRUE` (default) and
                                    #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
                                    #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
@@ -169,7 +169,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                                          scale_y = 1, 
                                                          fix_x = FALSE, 
                                                          fix_z = FALSE, 
-                                                         nonoverlap_random = TRUE,
+                                                         fix_z_alocal = TRUE,
                                                          return_neighborhood = TRUE, 
                                                          file = NULL) {
                                      # browser()
@@ -181,7 +181,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        required_fields <- c("x_attribute", "y_attribute", "z_network",
                                                             "neighborhood", "directed", "n_actor",
                                                             "type_x", "type_y", "scale_x",
-                                                            "scale_y", "fix_x", "fix_z","nonoverlap_random")
+                                                            "scale_y", "fix_x", "fix_z","fix_z_alocal")
                                        if (!is.list(data_loaded) || !all(required_fields %in% names(data_loaded))) {
                                          stop("File does not contain a valid iglm.data state.", call. = FALSE)
                                        }
@@ -197,7 +197,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        scale_y = data_loaded$scale_y
                                        fix_x = data_loaded$fix_x
                                        fix_z = data_loaded$fix_z
-                                       nonoverlap_random = data_loaded$nonoverlap_random
+                                       fix_z_alocal = data_loaded$fix_z_alocal
                                      } 
                                      private$.type_x <- type_x
                                      private$.type_y <- type_y
@@ -205,7 +205,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                      private$.scale_y <- scale_y
                                      private$.fix_x <- fix_x
                                      private$.fix_z <- fix_z
-                                     private$.nonoverlap_random <- as.logical(nonoverlap_random)
+                                     private$.fix_z_alocal <- as.logical(fix_z_alocal)
                                      
                                      private$.descriptives <- list()
                                    
@@ -414,18 +414,18 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                        scale_y = private$.scale_y, 
                                        fix_x = private$.fix_x,
                                        fix_z = private$.fix_z, 
-                                       nonoverlap_random = private$.nonoverlap_random
+                                       fix_z_alocal = private$.fix_z_alocal
                                      )
                                      return(data_to_save)
                                    },
                                    #' @description
-                                   #' Sets the option whether nonoverlap edges are random or not. 
-                                   #' @param nonoverlap_random A logical value indicating whether nonoverlap edges should be treated as random.
-                                   set_nonoverlap_random = function(nonoverlap_random){
-                                     if(!is.logical(nonoverlap_random)){
-                                       stop("`nonoverlap_random` must be a logical value (TRUE or FALSE).", call. = FALSE)
+                                   #' Sets the option whether alocal edges are fixed or not. 
+                                   #' @param fix_z_alocal A logical value indicating whether alocal edges should be treated as fixed or not.
+                                   set_fix_z_alocal = function(fix_z_alocal){
+                                     if(!is.logical(fix_z_alocal)){
+                                       stop("`fix_z_alocal` must be a logical value (TRUE or FALSE).", call. = FALSE)
                                      }
-                                     private$.nonoverlap_random = nonoverlap_random
+                                     private$.fix_z_alocal = fix_z_alocal
                                      private$.validate()
                                    },
                                    #' @description
@@ -1563,8 +1563,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                    fix_z = function(value) { if(missing(value)) private$.fix_z else stop("`fix_z` is read-only.", call. = FALSE) }, 
                                    #' @field descriptives (`list`) Read-only. A list storing computed descriptive statistics for the network and attributes.
                                    descriptives = function(value) { if(missing(value)) private$.descriptives else stop("`descriptives` is read-only.", call. = FALSE) }, 
-                                   #' @field nonoverlap_random (`logical`) Read-only. Flag indicating whether nonoverlap edges are treated as random.
-                                   nonoverlap_random = function(value) { if(missing(value)) private$.nonoverlap_random else stop("`nonoverlap_random` is read-only.", call. = FALSE) }
+                                   #' @field fix_z_alocal (`logical`) Read-only. Flag indicating whether nonoverlap edges are treated as random.
+                                   fix_z_alocal = function(value) { if(missing(value)) private$.fix_z_alocal else stop("`fix_z_alocal` is read-only.", call. = FALSE) }
                                  )
 )
 
@@ -1609,7 +1609,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   during estimation/simulation (fixed network design). Default is `FALSE`. 
 #'   Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, 
 #'   which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).
-#' @param nonoverlap_random (logical) If `TRUE` (default), edges outside the overlap region
+#' @param fix_z_alocal (logical) If `TRUE` (default), edges outside the overlap region
 #'   are treated as random and will be sampled during the MCMC process, else they are treated as fixed.  
 #' @param return_neighborhood Logical. If `TRUE` (default) and
 #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
@@ -1653,7 +1653,7 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     scale_x = 1, scale_y = 1, 
                     fix_x = FALSE,
                     fix_z = FALSE,
-                    nonoverlap_random = TRUE,
+                    fix_z_alocal = TRUE,
                     return_neighborhood = TRUE, file = NULL) {
   # browser()
   if(!is.null(z_network)){
@@ -1676,7 +1676,7 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                         scale_y = as.numeric(scale_y), 
                         fix_x = as.logical(fix_x),
                         fix_z = as.logical(fix_z),
-                        nonoverlap_random = nonoverlap_random,
+                        fix_z_alocal = fix_z_alocal,
                         return_neighborhood = as.logical(return_neighborhood), 
                         file = file)
 }

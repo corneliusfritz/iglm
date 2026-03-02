@@ -1205,12 +1205,10 @@ auto xyz_stat_spillover_yx_scaled_global = CHANGESTAT{
       auto& in_neighbors = object.z_network.adj_list_in.at(actor_i);
       
       for (int k : in_neighbors) {
-        if (object.get_val_overlap(k, actor_i)) {
-          double deg_k = object.z_network.adj_list.at(k).size();
-          if (deg_k > 0.5) {
-            double Y_k = object.y_attribute.get_val(k);
-            res += Y_k * (1.0 / deg_k);
-          } 
+        double deg_k = object.z_network.adj_list.at(k).size();
+        if (deg_k > 0.5) {
+          double Y_k = object.y_attribute.get_val(k);
+          res += Y_k * (1.0 / deg_k);
         } 
       }
       return res;
@@ -1428,7 +1426,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
       if (X_i == 0) return 0.0;
       
       double Y_j = object.y_attribute.get_val(actor_j);
-  
+      
       double current_sum_y = 0;
       auto& out_neighbors = object.adj_list_nb.at(actor_i);
       double current_deg = out_neighbors.size();
@@ -1611,13 +1609,13 @@ auto xyz_stat_spillover_xy_scaled_global = CHANGESTAT{
         d_without = current_deg;
         S_with = current_sum_y + Y_j;
         d_with = current_deg + 1.0;
-      }
+      } 
       
       double A_without = (d_without > 0.5) ? (S_without / d_without) : 0.0;
       double A_with    = (d_with > 0.5)    ? (S_with / d_with)    : 0.0;
       
       return X_i * (A_with - A_without);
-    } else{
+    } else{ 
       double delta_total = 0.0;
       bool tie_exists = object.z_network.get_val(actor_i, actor_j);
       
@@ -1634,7 +1632,7 @@ auto xyz_stat_spillover_xy_scaled_global = CHANGESTAT{
         
         for (int l : neighbors_i) {
           sum_y_neighbors_i += object.y_attribute.get_val(l);
-        } 
+        }  
         
         double S_with, d_with, S_without, d_without;
         
@@ -1643,7 +1641,7 @@ auto xyz_stat_spillover_xy_scaled_global = CHANGESTAT{
           d_with = deg_i;
           S_without = sum_y_neighbors_i - Y_j;
           d_without = deg_i - 1.0;
-        } else {
+        } else { 
           S_without = sum_y_neighbors_i;
           d_without = deg_i;
           S_with = sum_y_neighbors_i + Y_j;    
@@ -1694,13 +1692,11 @@ auto xyz_stat_spillover_xy_scaled_global = CHANGESTAT{
       auto& in_neighbors = object.z_network.adj_list_in.at(actor_i);
       
       for (int k : in_neighbors) {
-        if (object.get_val_overlap(k, actor_i)) {
-          double deg_k = object.z_network.adj_list.at(k).size();
-          if (deg_k > 0.5) {
-            double X_k = object.x_attribute.get_val(k);
-            res += X_k * (1.0 / deg_k);
-          } 
-        } 
+        double deg_k = object.z_network.adj_list.at(k).size();
+        if (deg_k > 0.5) {
+          double X_k = object.x_attribute.get_val(k);
+          res += X_k * (1.0 / deg_k);
+        }
       }
       return res;
     } else{
@@ -1733,12 +1729,12 @@ auto xyz_stat_spillover_xy_scaled_global = CHANGESTAT{
       double deg_i = out_neighbors.size();
       for (int j : out_neighbors) {
         S_i += object.y_attribute.get_val(j);
-      } 
+      }
       
       return (deg_i > 0.5) ? (S_i / deg_i) : 0.0;
-    } 
+    }
     
-  }  
+  } 
   return 0.0; 
 };
 EFFECT_REGISTER("spillover_xy_scaled_global", ::xyz_stat_spillover_xy_scaled_global, "spillover_xy_scaled_global", 0);
@@ -1822,7 +1818,7 @@ auto xyz_stat_spillover_yy_scaled = CHANGESTAT{
         
         double S_with_j, d_with_j, S_without_j, d_without_j;
         // bool tie_exists = object.z_network.get_val(actor_i, actor_j); 
-         
+        
         if (tie_exists) {
           S_with_j = sum_j;
           d_with_j = deg_j;
@@ -2028,7 +2024,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
     if (!object.get_val_overlap(actor_i, actor_j)) return 0.0;
     
     if(object.z_network.directed){
-
+      
       double X_i = object.x_attribute.get_val(actor_i);
       if (X_i == 0) return 0.0; 
       double X_j = object.x_attribute.get_val(actor_j);
@@ -2070,7 +2066,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
         for (int l : neighbors_i) {
           sum_i += object.x_attribute.get_val(l);
         }
-         
+        
         double S_with_i, d_with_i, S_without_i, d_without_i;
         bool tie_exists = object.z_network.get_val(actor_i, actor_j);
         
@@ -2088,10 +2084,10 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
         
         double A_without_i = (d_without_i > 0.5) ? (S_without_i / d_without_i) : 0.0;
         double A_with_i    = (d_with_i > 0.5)    ? (S_with_i / d_with_i)    : 0.0;
-         
+        
         delta_total += X_i * (A_with_i - A_without_i);
       }
-
+      
       if (X_j != 0) { 
         double sum_j = 0;
         auto& neighbors_j = object.adj_list_nb.at(actor_j);
@@ -2102,7 +2098,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
         
         double S_with_j, d_with_j, S_without_j, d_without_j;
         bool tie_exists = object.z_network.get_val(actor_i, actor_j); 
-         
+        
         if (tie_exists) {
           S_with_j = sum_j;
           d_with_j = deg_j;
@@ -2117,7 +2113,7 @@ auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
         
         double A_without_j = (d_without_j > 0.5) ? (S_without_j / d_without_j) : 0.0;
         double A_with_j    = (d_with_j > 0.5)    ? (S_with_j / d_with_j)    : 0.0;
-         
+        
         delta_total += X_j * (A_with_j - A_without_j);
       }
       
@@ -2489,7 +2485,7 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
       std::unordered_set<int> connections_of_j_nb;
       connections_of_j_nb.reserve(out_j_all.size());
       for (int n : out_j_all) if (neighborhood_j.find(n) != neighborhood_j.end()) connections_of_j_nb.insert(n);
-
+      
       for (int h : common_neighbors) {
         // check object.get_val_neighborhood(h, actor_i)
         if (object.neighborhood.at(h).find(actor_i) != object.neighborhood.at(h).end()) {
@@ -2611,7 +2607,7 @@ auto xyz_stat_gwesp_local_ISP= CHANGESTAT{
     // 2. Step: For all h in OSP of i and j check their ISP between j and h 
     std::unordered_set<int> osp_ij = object.get_common_partners_nb(actor_i, actor_j, "OSP");
     std::unordered_set<int>::iterator itr;
-   
+    
     for (itr = osp_ij.begin(); itr != osp_ij.end(); itr++) {
       tmp_count = object.count_common_partners_nb(actor_j, *itr, "ISP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
@@ -2770,7 +2766,7 @@ auto xyz_stat_gwesp_ITP = CHANGESTAT{
   
   if(mode == "z"){
     
-
+    
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
     std::unordered_set<int> itp_ij = object.get_common_partners(actor_i, actor_j, "ITP");
@@ -3028,7 +3024,7 @@ EFFECT_REGISTER("gwdsp_global_ISP", ::xyz_stat_gwdsp_ISP, "gwdsp_global_ISP",0.0
 
 
 auto xyz_stat_gwdsp_OSP= CHANGESTAT{
-
+  
   
   if(!object.z_network.directed){
     Rcpp::stop("This statistic is only for directed networks");  

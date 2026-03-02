@@ -336,7 +336,6 @@ the simulations and/or summary statistics internally. The simulation
 is carried out using the internal MCMC sampler described in \code{\link{simulate_iglm}}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$simulate(
-  nsim = 1,
   only_stats = FALSE,
   display_progress = TRUE,
   offset_nonoverlap = 0
@@ -346,8 +345,6 @@ is carried out using the internal MCMC sampler described in \code{\link{simulate
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{nsim}}{(integer) Number of networks to simulate. Default is 1.}
-
 \item{\code{only_stats}}{(logical) If `TRUE`, only calculate and store summary
 statistics for each simulation, discarding the network object itself.
 Default is `FALSE`.}
