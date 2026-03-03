@@ -23,6 +23,9 @@ iglm.data(
   type_y = "binomial",
   scale_x = 1,
   scale_y = 1,
+  fix_x = FALSE,
+  fix_z = FALSE,
+  fix_z_alocal = FALSE,
   return_neighborhood = TRUE,
   file = NULL
 )
@@ -84,6 +87,25 @@ iglm.data(
   A positive numeric value for scaling (e.g., variance for "normal"
   type). Default is 1.
 
+- fix_x:
+
+  (logical) If \`TRUE\`, the 'x' predictor is held fixed during
+  estimation/simulation (fixed design in regression). Default is
+  \`FALSE\`.
+
+- fix_z:
+
+  (logical) If \`TRUE\`, the 'z' network is held fixed during
+  estimation/simulation (fixed network design). Default is \`FALSE\`.
+  Setting this to TRUE, allows practicioners to estimate autologistic
+  actor attribute models, which were introduced in binary settings in
+  Daraganova, G., & Robins, G. (2013).
+
+- fix_z_alocal:
+
+  (logical) If \`TRUE\`, edges outside the overlap region are fixed,
+  else they are random (default).
+
 - return_neighborhood:
 
   Logical. If \`TRUE\` (default) and \`neighborhood\` is \`NULL\`, a
@@ -99,6 +121,17 @@ iglm.data(
 
 An object of class \`iglm.data\` (and \`R6\`).
 
+## References
+
+Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A
+Regression Framework for Studying Relationships among Attributes under
+Network Interference. Journal of the American Statistical Association,
+to appear.
+
+Daraganova, G., and Robins, G. (2013). Exponential random graph models
+for social networks: Theory, methods and applications, 102-114.
+Cambridge University Press.
+
 ## Examples
 
 ``` r
@@ -108,8 +141,8 @@ state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
 
 state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
 
-state_twitter$iglm.data$density_x()
-state_twitter$iglm.data$density_y()
+state_twitter$iglm.data$mean_x()
+state_twitter$iglm.data$mean_y()
 
 # Generate a small iglm data object either via adjacency matrix or edgelist
 tmp_adjacency <- iglm.data(z_network = matrix(c(0,1,1,0,

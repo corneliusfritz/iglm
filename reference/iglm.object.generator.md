@@ -408,17 +408,12 @@ carried out using the internal MCMC sampler described in
 #### Usage
 
     iglm.object.generator$simulate(
-      nsim = 1,
       only_stats = FALSE,
       display_progress = TRUE,
       offset_nonoverlap = 0
     )
 
 #### Arguments
-
-- `nsim`:
-
-  (integer) Number of networks to simulate. Default is 1.
 
 - `only_stats`:
 

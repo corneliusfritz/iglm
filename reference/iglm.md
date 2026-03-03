@@ -8,35 +8,6 @@ studying spillover in connected populations and other network-mediated
 phenomena. It is based on a joint probability model for dependent
 responses (\\Y\\) and connections \\(Z)\\ conditional on predictors (X).
 
-\#' @section Model Formulation:
-
-The joint probability density is specified as \$\$f\_{\theta}(y,z,x)
-\propto \Big\[\prod\_{i=1}^{N} a_x(x_i)\\ a_y(y_i) \exp(\theta_g^T
-\mathbf{g}\_i(x_i^\*, y_i^\*)) \Big\] \times \Big\[\prod\_{i \ne j}
-a_z(z\_{i,j}) \exp(\theta_h^T \mathbf{h}\_{i,j}(x_i^\*,x_j^\*, y_i^\*,
-y_j^\*, z)) \Big\],\$\$ which is defined by two distinct sets of
-user-specified features:
-
-- **\\\mathbf{g}\_i(x_i^\*, y_i^\*)= (g_i(x_i^\*, y_i^\*))\\**: A vector
-  of unit-level functions (or "g-terms") that describe the relationship
-  between an individual actor \\i\\'s predictors (\\x_i\\) and their own
-  response (\\y_i\\).
-
-- **\\\mathbf{h}\_{i,j}(x_i^\*,x_j^\*, y_i^\*, y_j^\*, z)=
-  (h\_{i,j}(x_i^\*,x_j^\*, y_i^\*, y_j^\*, z))\\**: A vector of
-  pair-level functions (or "h-terms") that specify how the connections
-  (\\z\\) and responses (\\y_i, y_j\\) of a pair of units \\\\i,j\\\\
-  depend on each other and the wider network structure.
-
-This separation allows the model to simultaneously capture
-individual-level behavior (via \\g_i\\) and dyadic, network-based
-dependencies (via \\h\_{i,j}\\), including local dependence limited to
-overlapping neighborhoods. This help page documents the various
-statistics available in 'iglm', corresponding to the \\g_i\\
-(attribute-level) and \\h\_{i,j}\\ (pair-level) components of the joint
-model. See [`model.terms`](model.terms.md) for details on specifying all
-model terms via the formula interface.
-
 ## Usage
 
 ``` r
@@ -99,6 +70,35 @@ iglm(
 
 An object of class `iglm.object`.
 
+## Model Formulation
+
+The joint probability density is specified as \$\$f\_{\theta}(y,z,x)
+\propto \Big\[\prod\_{i=1}^{N} a_x(x_i)\\ a_y(y_i) \exp(\theta_g^T
+\mathbf{g}\_i(x_i^\*, y_i^\*)) \Big\] \times \Big\[\prod\_{i \ne j}
+a_z(z\_{i,j}) \exp(\theta_h^T \mathbf{h}\_{i,j}(x_i^\*,x_j^\*, y_i^\*,
+y_j^\*, z)) \Big\],\$\$ which is defined by two distinct sets of
+user-specified features:
+
+- **\\\mathbf{g}\_i(x_i^\*, y_i^\*)= (g_i(x_i^\*, y_i^\*))\\**: A vector
+  of unit-level functions (or "g-terms") that describe the relationship
+  between an individual actor \\i\\'s predictors (\\x_i\\) and their own
+  response (\\y_i\\).
+
+- **\\\mathbf{h}\_{i,j}(x_i^\*,x_j^\*, y_i^\*, y_j^\*, z)=
+  (h\_{i,j}(x_i^\*,x_j^\*, y_i^\*, y_j^\*, z))\\**: A vector of
+  pair-level functions (or "h-terms") that specify how the connections
+  (\\z\\) and responses (\\y_i, y_j\\) of a pair of units \\\\i,j\\\\
+  depend on each other and the wider network structure.
+
+This separation allows the model to simultaneously capture
+individual-level behavior (via \\g_i\\) and dyadic, network-based
+dependencies (via \\h\_{i,j}\\), including local dependence limited to
+overlapping neighborhoods. This help page documents the various
+statistics available in 'iglm', corresponding to the \\g_i\\
+(attribute-level) and \\h\_{i,j}\\ (pair-level) components of the joint
+model. See [`model.terms`](model.terms.md) for details on specifying all
+model terms via the formula interface.
+
 ## References
 
 Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A
@@ -125,17 +125,17 @@ of Increasing Dimension. The Annals of Statistics, to appear.
 # Example usage:
 library(iglm)
 # Create a iglm.data data object (example)
-n_actors <- 50
-neighborhood <- matrix(1, nrow = n_actors, ncol = n_actors)
+n_actor <- 50
+neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
 xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE,
                    type_x = "binomial", type_y = "binomial")
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
-gt_coef_pop <- rnorm(n = n_actors, -2, 1)
+gt_coef_pop <- rnorm(n = n_actor, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler_x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
-                               sampler_y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
+                               sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
+                               sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
                                sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0
                                ) * 10, seed = 134),
                                init_empty = FALSE)
@@ -146,7 +146,7 @@ model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
                           coef_degrees = gt_coef_pop,
                           sampler = sampler_new,
                           control = control.iglm(accelerated = FALSE,
-                          max_it = 200, display_progress = FALSE, var = TRUE))
+                          max_it = 200, display_progress = FALSE))
 # Simulate from the model
 model_tmp_new$simulate()
 model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])

@@ -61,6 +61,26 @@ connections (z_network).
   (\`numeric\`) Read-only. The scale parameter associated with the
   \`y_attribute\`.
 
+- `fix_x`:
+
+  (\`logical\`) Read-only. Indicates if the \`x_attribute\` is fixed
+  during estimation/simulation.
+
+- `fix_z`:
+
+  (\`logical\`) Read-only. Indicates if the \`z_network\` is fixed
+  during estimation/simulation.
+
+- `descriptives`:
+
+  (\`list\`) Read-only. A list storing computed descriptive statistics
+  for the network and attributes.
+
+- `fix_z_alocal`:
+
+  (\`logical\`) Read-only. Flag indicating whether nonoverlap edges are
+  treated as random.
+
 ## Methods
 
 ### Public methods
@@ -83,7 +103,15 @@ connections (z_network).
 
 - [`iglm.data_generator$gather()`](#method-iglm.data-gather)
 
+- [`iglm.data_generator$set_fix_z_alocal()`](#method-iglm.data-set_fix_z_alocal)
+
+- [`iglm.data_generator$delete_isolates()`](#method-iglm.data-delete_isolates)
+
 - [`iglm.data_generator$save()`](#method-iglm.data-save)
+
+- [`iglm.data_generator$set_fix_x()`](#method-iglm.data-set_fix_x)
+
+- [`iglm.data_generator$set_fix_z()`](#method-iglm.data-set_fix_z)
 
 - [`iglm.data_generator$mean_z()`](#method-iglm.data-mean_z)
 
@@ -141,6 +169,9 @@ and one network.
       type_y = "binomial",
       scale_x = 1,
       scale_y = 1,
+      fix_x = FALSE,
+      fix_z = FALSE,
+      fix_z_alocal = TRUE,
       return_neighborhood = TRUE,
       file = NULL
     )
@@ -200,6 +231,21 @@ and one network.
 
   A positive numeric value for scaling (e.g., variance for "normal"
   type). Default is 1.
+
+- `fix_x`:
+
+  Logical. If \`TRUE\`, the \`x_attribute\` is treated as fixed during
+  model estimation and simulation. Default is \`FALSE\`.
+
+- `fix_z`:
+
+  Logical. If \`TRUE\`, the \`z_network\` is treated as fixed during
+  model estimation and simulation. Default is \`FALSE\`.
+
+- `fix_z_alocal`:
+
+  Logical. If \`TRUE\` (default), alocal dyads in the neighborhood are
+  fixed.
 
 - `return_neighborhood`:
 
@@ -373,6 +419,41 @@ A list containing the current state of the \`iglm.data\` object.
 
 ------------------------------------------------------------------------
 
+### Method `set_fix_z_alocal()`
+
+Sets the option whether alocal edges are fixed or not.
+
+#### Usage
+
+    iglm.data_generator$set_fix_z_alocal(fix_z_alocal)
+
+#### Arguments
+
+- `fix_z_alocal`:
+
+  A logical value indicating whether alocal edges should be treated as
+  fixed or not.
+
+------------------------------------------------------------------------
+
+### Method `delete_isolates()`
+
+Deletes isolates from the \`z_network\` and updates the attributes and
+neighborhood accordingly. Isolates are actors that do not have any
+connections in the \`z_network\`. This method identifies such actors,
+removes them from the attributes and neighborhood, and updates the
+\`z_network\` to reflect the new actor indices.
+
+#### Usage
+
+    iglm.data_generator$delete_isolates()
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
 ### Method [`save()`](https://rdrr.io/r/base/save.html)
 
 Saves the current state of the \`iglm.data\` object to a specified file
@@ -388,6 +469,46 @@ configuration details necessary to reconstruct the object later.
 - `file`:
 
   (character) The file where the object state should be saved.
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### Method `set_fix_x()`
+
+Sets the \`fix_x\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_fix_x(fix_x)
+
+#### Arguments
+
+- `fix_x`:
+
+  A logical value indicating if \`x_attribute\` is fixed or random.
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### Method `set_fix_z()`
+
+Sets the \`fix_z\` of the \`iglm.data\` object.
+
+#### Usage
+
+    iglm.data_generator$set_fix_z(fix_z)
+
+#### Arguments
+
+- `fix_z`:
+
+  A logical value indicating if \`z_network\` is fixed or random.
 
 #### Returns
 
@@ -526,9 +647,11 @@ matrix (e.g., \$A A^T\$ or \$A^T A\$).
 
   (character) The type of two-path to calculate for directed networks.
   Ignored if network is undirected. Must be one of: \`"OTP"\` (Outgoing
-  Two-Path), \`"ISP"\` (In-Star), \`"OSP"\` (Out-Star), \`"ITP"\`
-  (Incoming Two-Path), \`"ALL"\` (Symmetric all-partner). Default is
-  \`"ALL"\`.
+  Two-Path, \\z\_{i,j}\\ z\_{i,h} \\ z\_{j,h}\\ ), \`"ISP"\` (Ingoing
+  Shared Partner, \\z\_{i,j}\\ z\_{h,i} \\ z\_{j,h}\\), \`"OSP"\`
+  (Outgoing Shared Partner, \\z\_{i,j}\\ z\_{i,h} \\ z\_{j,h}\\),
+  \`"ITP"\` (Incoming Two-Path, \\z\_{i,j}\\ z\_{h,i} \\ z\_{j,h}\\),
+  \`"ALL"\` (Any one of the above). Default is \`"ALL"\`.
 
 #### Returns
 
@@ -564,8 +687,7 @@ None. Updates the internal neighborhood and overlap matrices.
 
 ### Method `dyadwise_shared_partner()`
 
-Calculates the matrix of edgewise shared partners. This is a two-path
-matrix (e.g., \$A A^T\$ or \$A^T A\$).
+Calculates the matrix of dyadwise shared partners.
 
 #### Usage
 
@@ -577,9 +699,11 @@ matrix (e.g., \$A A^T\$ or \$A^T A\$).
 
   (character) The type of two-path to calculate for directed networks.
   Ignored if network is undirected. Must be one of: \`"OTP"\` (Outgoing
-  Two-Path, z_i,j\*z_j,h ), \`"ISP"\` (In-Star), \`"OSP"\` (Out-Star),
-  \`"ITP"\` (Incoming Two-Path), \`"ALL"\` (Symmetric all-partner).
-  Default is \`"ALL"\`.
+  Two-Path, \\z\_{i,h} \\ z\_{j,h}\\ ), \`"ISP"\` (Ingoing Shared
+  Partner, \\z\_{h,i} \\ z\_{j,h}\\), \`"OSP"\` (Outgoing Shared
+  Partner, \\z\_{i,h} \\ z\_{j,h}\\), \`"ITP"\` (Incoming Two-Path,
+  \\z\_{h,i} \\ z\_{j,h}\\), \`"ALL"\` (Any one of the above). Default
+  is \`"ALL"\`.
 
 #### Returns
 
@@ -684,7 +808,7 @@ partner counts.
 
 ### Method `dyadwise_shared_partner_distribution()`
 
-Calculates the distribution of edgewise shared partners.
+Calculates the distribution of dyadwise shared partners.
 
 #### Usage
 
@@ -700,7 +824,7 @@ Calculates the distribution of edgewise shared partners.
 - `type`:
 
   (character) The type of shared partner matrix to use. See
-  \`edgewise_shared_partner\` for details. Default is \`"ALL"\`.
+  \`dyadwise_shared_partner\` for details. Default is \`"ALL"\`.
 
 - `value_range`:
 

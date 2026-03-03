@@ -9,7 +9,7 @@ creating a \`sampler.iglm\` object.
 ## Usage
 
 ``` r
-sampler.net.attr(n_proposals = 10000, seed = NA, file = NULL)
+sampler.net.attr(n_proposals = 10000, seed = NA, file = NULL, tnt = TRUE)
 ```
 
 ## Arguments
@@ -30,6 +30,11 @@ sampler.net.attr(n_proposals = 10000, seed = NA, file = NULL)
   (character or \`NULL\`) If provided, loads the sampler state from '
   the specified .rds file instead of initializing from parameters.
 
+- tnt:
+
+  (logical) If \`TRUE\` (default), use Tie-No-Tie sampling (only if used
+  for networks).
+
 ## Value
 
 An object of class \`sampler_net_attr\` (and \`R6\`).
@@ -46,10 +51,12 @@ sampler_comp_default <- sampler.net.attr()
 sampler_comp_default
 #>   Number of proposals : 10000
 #>   Random seed         : 297839
+#>   TNT sampling        : TRUE
 
 # Custom settings
-sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, seed = 123)
+sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, seed = 123, tnt = FALSE)
 sampler_comp_custom
 #>   Number of proposals : 50000
 #>   Random seed         : 123
+#>   TNT sampling        : FALSE
 ```

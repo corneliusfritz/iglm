@@ -39,6 +39,7 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simulate_iglm</span><span class="op">(</span></span>
 <span>  <span class="va">formula</span>,</span>
+<span>  basis <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">coef</span>,</span>
 <span>  coef_degrees <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sampler <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -46,7 +47,8 @@
 <span>  display_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  offset_nonoverlap <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fix_x <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  fix_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fix_z <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -58,6 +60,13 @@
 <dd><p>A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment.
 See <code><a href="model.terms.html">model.terms</a></code> for details on specifying the right-hand side terms.</p></dd>
+
+
+<dt id="arg-basis">basis<a class="anchor" aria-label="anchor" href="#arg-basis"></a></dt>
+<dd><p>An optional `iglm.data` object to serve as the basis for the simulation.
+If provided, the simulation starts from the state defined in this object.
+If `NULL` (default), the initial state is taken from the `iglm.data` object
+referenced in the `formula`.</p></dd>
 
 
 <dt id="arg-coef">coef<a class="anchor" aria-label="anchor" href="#arg-coef"></a></dt>
@@ -118,6 +127,12 @@ all simulations are run sequentially in the main R process.</p></dd>
 at its initial state (from the <code><a href="iglm.data.html">iglm.data</a></code> object) and only simulates the
 `y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
 are simulated according to the model and sampler settings.</p></dd>
+
+
+<dt id="arg-fix-z">fix_z<a class="anchor" aria-label="anchor" href="#arg-fix-z"></a></dt>
+<dd><p>Logical. If `TRUE`, the simulation holds the `z_network` fixed
+at its initial state (from the <code><a href="iglm.data.html">iglm.data</a></code> object). If `FALSE` (default), the network component
+is simulated according to the model and sampler settings.</p></dd>
 
 </dl></div>
     <div class="section level2">

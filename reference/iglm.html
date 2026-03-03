@@ -6,56 +6,14 @@ It extends GLMs for independent responses to dependent responses and can
 be used for studying spillover in connected populations and other network-mediated phenomena.
 It is based on a joint probability model for dependent
 responses (\(Y\)) and connections \((Z)\) conditional on
-predictors (X).
-#' @section Model Formulation:
-The joint probability density is specified as
-$$f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_x(x_i)\, a_y(y_i) \exp(\theta_g^T \mathbf{g}_i(x_i^*, y_i^*)) \Big] \times
-\Big[\prod_{i \ne j} a_z(z_{i,j}) \exp(\theta_h^T \mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)) \Big],$$
-which is defined by two distinct sets of user-specified features:
-\(\mathbf{g}_i(x_i^*, y_i^*)= (g_i(x_i^*, y_i^*))\): A vector of unit-level functions (or &quot;g-terms&quot;)
-    that describe the relationship between an individual actor \(i\)'s
-    predictors (\(x_i\)) and their own response (\(y_i\)).
-\(\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)= (h_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z))\): A vector of pair-level functions (or &quot;h-terms&quot;)
-    that specify how the connections (\(z\)) and responses (\(y_i, y_j\))
-    of a pair of units \(\{i,j\}\) depend on each other and the wider
-    network structure.
-
-
-This separation allows the model to simultaneously capture individual-level
-behavior (via \(g_i\)) and dyadic, network-based dependencies (via \(h_{i,j}\)),
-including local dependence limited to overlapping neighborhoods.
-This help page documents the various statistics available in 'iglm',
-corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
-components of the joint model. See model.terms for details on specifying
-all model terms via the formula interface."><meta property="og:description" content="R package iglm implements generalized linear models (GLMs)
+predictors (X)."><meta property="og:description" content="R package iglm implements generalized linear models (GLMs)
 for studying relationships among attributes in connected populations,
 where responses of connected units can be dependent.
 It extends GLMs for independent responses to dependent responses and can
 be used for studying spillover in connected populations and other network-mediated phenomena.
 It is based on a joint probability model for dependent
 responses (\(Y\)) and connections \((Z)\) conditional on
-predictors (X).
-#' @section Model Formulation:
-The joint probability density is specified as
-$$f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_x(x_i)\, a_y(y_i) \exp(\theta_g^T \mathbf{g}_i(x_i^*, y_i^*)) \Big] \times
-\Big[\prod_{i \ne j} a_z(z_{i,j}) \exp(\theta_h^T \mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)) \Big],$$
-which is defined by two distinct sets of user-specified features:
-\(\mathbf{g}_i(x_i^*, y_i^*)= (g_i(x_i^*, y_i^*))\): A vector of unit-level functions (or &quot;g-terms&quot;)
-    that describe the relationship between an individual actor \(i\)'s
-    predictors (\(x_i\)) and their own response (\(y_i\)).
-\(\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)= (h_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z))\): A vector of pair-level functions (or &quot;h-terms&quot;)
-    that specify how the connections (\(z\)) and responses (\(y_i, y_j\))
-    of a pair of units \(\{i,j\}\) depend on each other and the wider
-    network structure.
-
-
-This separation allows the model to simultaneously capture individual-level
-behavior (via \(g_i\)) and dyadic, network-based dependencies (via \(h_{i,j}\)),
-including local dependence limited to overlapping neighborhoods.
-This help page documents the various statistics available in 'iglm',
-corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
-components of the joint model. See model.terms for details on specifying
-all model terms via the formula interface."><meta property="og:image" content="/logo.png"></head><body>
+predictors (X)."><meta property="og:image" content="/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -96,24 +54,6 @@ be used for studying spillover in connected populations and other network-mediat
 It is based on a joint probability model for dependent
 responses (\(Y\)) and connections \((Z)\) conditional on
 predictors (X).</p>
-<p>#' @section Model Formulation:</p>
-<p>The joint probability density is specified as
-$$f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_x(x_i)\, a_y(y_i) \exp(\theta_g^T \mathbf{g}_i(x_i^*, y_i^*)) \Big] \times
-\Big[\prod_{i \ne j} a_z(z_{i,j}) \exp(\theta_h^T \mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)) \Big],$$
-which is defined by two distinct sets of user-specified features:</p><ul><li><p><strong>\(\mathbf{g}_i(x_i^*, y_i^*)= (g_i(x_i^*, y_i^*))\)</strong>: A vector of unit-level functions (or "g-terms")
-    that describe the relationship between an individual actor \(i\)'s
-    predictors (\(x_i\)) and their own response (\(y_i\)).</p></li>
-<li><p><strong>\(\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)= (h_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z))\)</strong>: A vector of pair-level functions (or "h-terms")
-    that specify how the connections (\(z\)) and responses (\(y_i, y_j\))
-    of a pair of units \(\{i,j\}\) depend on each other and the wider
-    network structure.</p></li>
-</ul><p>This separation allows the model to simultaneously capture individual-level
-behavior (via \(g_i\)) and dyadic, network-based dependencies (via \(h_{i,j}\)),
-including local dependence limited to overlapping neighborhoods.
-This help page documents the various statistics available in 'iglm',
-corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
-components of the joint model. See <code><a href="model.terms.html">model.terms</a></code> for details on specifying
-all model terms via the formula interface.</p>
     </div>
 
     <div class="section level2">
@@ -177,6 +117,29 @@ other arguments are ignored and the object is loaded from the file.</p></dd>
     <p>An object of class <code>iglm.object</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="model-formulation">Model Formulation<a class="anchor" aria-label="anchor" href="#model-formulation"></a></h2>
+
+
+
+<p>The joint probability density is specified as
+$$f_{\theta}(y,z,x) \propto \Big[\prod_{i=1}^{N} a_x(x_i)\, a_y(y_i) \exp(\theta_g^T \mathbf{g}_i(x_i^*, y_i^*)) \Big] \times
+\Big[\prod_{i \ne j} a_z(z_{i,j}) \exp(\theta_h^T \mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)) \Big],$$
+which is defined by two distinct sets of user-specified features:</p><ul><li><p><strong>\(\mathbf{g}_i(x_i^*, y_i^*)= (g_i(x_i^*, y_i^*))\)</strong>: A vector of unit-level functions (or "g-terms")
+    that describe the relationship between an individual actor \(i\)'s
+    predictors (\(x_i\)) and their own response (\(y_i\)).</p></li>
+<li><p><strong>\(\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)= (h_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z))\)</strong>: A vector of pair-level functions (or "h-terms")
+    that specify how the connections (\(z\)) and responses (\(y_i, y_j\))
+    of a pair of units \(\{i,j\}\) depend on each other and the wider
+    network structure.</p></li>
+</ul><p>This separation allows the model to simultaneously capture individual-level
+behavior (via \(g_i\)) and dyadic, network-based dependencies (via \(h_{i,j}\)),
+including local dependence limited to overlapping neighborhoods.
+This help page documents the various statistics available in 'iglm',
+corresponding to the \(g_i\) (attribute-level) and \(h_{i,j}\) (pair-level)
+components of the joint model. See <code><a href="model.terms.html">model.terms</a></code> for details on specifying
+all model terms via the formula interface.</p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.</p>
 <p>Schweinberger, M. and M.S. Handcock (2015). Local Dependence in Random Graph Models: Characterization, Properties, and Statistical Inference. Journal of the Royal Statistical Society, Series B (Statistical Methodology), 7, 647-676.</p>
@@ -189,17 +152,17 @@ other arguments are ignored and the object is loaded from the file.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example usage:</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">iglm</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Create a iglm.data data object (example)</span></span></span>
-<span class="r-in"><span><span class="va">n_actors</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></span>
-<span class="r-in"><span><span class="va">neighborhood</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">n_actors</span>, ncol <span class="op">=</span> <span class="va">n_actors</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n_actor</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></span>
+<span class="r-in"><span><span class="va">neighborhood</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">n_actor</span>, ncol <span class="op">=</span> <span class="va">n_actor</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">xyz_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="iglm.data.html">iglm.data</a></span><span class="op">(</span>neighborhood <span class="op">=</span> <span class="va">neighborhood</span>, directed <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>                   type_x <span class="op">=</span> <span class="st">"binomial"</span>, type_y <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Define ground truth coefficients</span></span></span>
 <span class="r-in"><span><span class="va">gt_coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges_local"</span> <span class="op">=</span> <span class="fl">3</span>, <span class="st">"attribute_y"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, <span class="st">"attribute_x"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">gt_coef_pop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n_actors</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gt_coef_pop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n_actor</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Define MCMC sampler</span></span></span>
 <span class="r-in"><span><span class="va">sampler_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="sampler.iglm.html">sampler.iglm</a></span><span class="op">(</span>n_burn_in <span class="op">=</span> <span class="fl">100</span>, n_simulation <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>                               sampler_x <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actors</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                               sampler_y <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actors</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">32</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                               sampler_x <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                               sampler_y <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">32</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                               sampler_z <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">neighborhood</span> <span class="op">&gt;</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span>                               <span class="op">)</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">134</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                               init_empty <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
@@ -210,7 +173,7 @@ other arguments are ignored and the object is loaded from the file.</p></dd>
 <span class="r-in"><span>                          coef_degrees <span class="op">=</span> <span class="va">gt_coef_pop</span>,</span></span>
 <span class="r-in"><span>                          sampler <span class="op">=</span> <span class="va">sampler_new</span>,</span></span>
 <span class="r-in"><span>                          control <span class="op">=</span> <span class="fu"><a href="control.iglm.html">control.iglm</a></span><span class="op">(</span>accelerated <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>                          max_it <span class="op">=</span> <span class="fl">200</span>, display_progress <span class="op">=</span> <span class="cn">FALSE</span>, var <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                          max_it <span class="op">=</span> <span class="fl">200</span>, display_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Simulate from the model</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">simulate</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">set_target</span><span class="op">(</span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">get_samples</span><span class="op">(</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>

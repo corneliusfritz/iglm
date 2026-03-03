@@ -19,6 +19,10 @@ seed.
   (\`integer\`) Read-only. The random seed used for this component's
   sampler.
 
+- `tnt`:
+
+  (\`logical\`) Read-only. Flag indicating whether TNT sampling is used.
+
 ## Methods
 
 ### Public methods
@@ -33,6 +37,8 @@ seed.
 
 - [`sampler.net.attr.generator$set_seed()`](#method-sampler.net.attr-set_seed)
 
+- [`sampler.net.attr.generator$set_tnt()`](#method-sampler.net.attr-set_tnt)
+
 - [`sampler.net.attr.generator$save()`](#method-sampler.net.attr-save)
 
 - [`sampler.net.attr.generator$clone()`](#method-sampler.net.attr-clone)
@@ -46,7 +52,12 @@ random seed if none is provided.
 
 #### Usage
 
-    sampler.net.attr.generator$new(n_proposals = 10000, seed = NA, file = NULL)
+    sampler.net.attr.generator$new(
+      n_proposals = 10000,
+      seed = NA,
+      file = NULL,
+      tnt = TRUE
+    )
 
 #### Arguments
 
@@ -66,6 +77,11 @@ random seed if none is provided.
 
   (character or \`NULL\`) If provided, loads the sampler state from the
   specified .rds file instead of initializing from parameters.
+
+- `tnt`:
+
+  (logical) If \`TRUE\` (default), use Tie-No-Tie sampling (only if used
+  for networks).
 
 #### Returns
 
@@ -141,6 +157,26 @@ Sets the random seed for this component's sampler.
 - `seed`:
 
   (integer) The random seed to set.
+
+#### Returns
+
+None.
+
+------------------------------------------------------------------------
+
+### Method `set_tnt()`
+
+Sets whether to use TNT sampling for this component.
+
+#### Usage
+
+    sampler.net.attr.generator$set_tnt(tnt)
+
+#### Arguments
+
+- `tnt`:
+
+  (logical) \`TRUE\` to use TNT sampling, \`FALSE\` otherwise.
 
 #### Returns
 

@@ -4,7 +4,7 @@
 
 - [`control.iglm()`](control.iglm.md) : Set Control Parameters for iglm
   Estimation
-- [`count_statistics()`](count_statistics.md) : Compute Statistics
+- [`copenhagen`](copenhagen.md) : Copenhagen Network Study
 - [`create_userterms_skeleton()`](create_userterms_skeleton.md) :
   Generate the Skeleton for an R package to implement additional iglm
   terms
@@ -20,8 +20,7 @@
 - [`results()`](results.md) : Constructor for the results R6 Object
 - [`results.generator`](results.generator.md) : R6 Class for Storing
   iglm Estimation and Simulation Results
-- [`rice`](rice.md) : A network of friendships between students at Rice
-  University.
+- [`rice`](rice.md) : Information on students at Rice University.
 - [`sampler.iglm()`](sampler.iglm.md) : Constructor for a iglm Sampler
 - [`sampler.iglm.generator`](sampler.iglm.generator.md) : R6 Class for
   iglm Sampler Settings
@@ -33,3 +32,4 @@
   connections
 - [`state_twitter`](state_twitter.md) : Twitter (X) data list for U.S.
   state legislators (10-state subset)
+- [`statistics()`](statistics.md) : Compute Statistics

@@ -5,7 +5,7 @@
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
 <url><loc>/reference/control.iglm.html</loc></url>
-<url><loc>/reference/count_statistics.html</loc></url>
+<url><loc>/reference/copenhagen.html</loc></url>
 <url><loc>/reference/create_userterms_skeleton.html</loc></url>
 <url><loc>/reference/iglm.data.html</loc></url>
 <url><loc>/reference/iglm.data_generator.html</loc></url>
@@ -22,5 +22,6 @@
 <url><loc>/reference/sampler.net.attr.html</loc></url>
 <url><loc>/reference/simulate_iglm.html</loc></url>
 <url><loc>/reference/state_twitter.html</loc></url>
+<url><loc>/reference/statistics.html</loc></url>
 </urlset>
 

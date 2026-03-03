@@ -7,6 +7,7 @@ Simulate responses and connections.
 ``` r
 simulate_iglm(
   formula,
+  basis = NULL,
   coef,
   coef_degrees = NULL,
   sampler = NULL,
@@ -14,7 +15,8 @@ simulate_iglm(
   display_progress = FALSE,
   offset_nonoverlap = 0,
   cluster = NULL,
-  fix_x = FALSE
+  fix_x = FALSE,
+  fix_z = FALSE
 )
 ```
 
@@ -26,6 +28,13 @@ simulate_iglm(
   \`iglm.data\` object available in the calling environment. See
   [`model.terms`](model.terms.md) for details on specifying the
   right-hand side terms.
+
+- basis:
+
+  An optional \`iglm.data\` object to serve as the basis for the
+  simulation. If provided, the simulation starts from the state defined
+  in this object. If \`NULL\` (default), the initial state is taken from
+  the \`iglm.data\` object referenced in the \`formula\`.
 
 - coef:
 
@@ -90,6 +99,13 @@ simulate_iglm(
   only simulates the \`y_attribute\` and \`z_network\`. If \`FALSE\`
   (default), all components (x, y, z) are simulated according to the
   model and sampler settings.
+
+- fix_z:
+
+  Logical. If \`TRUE\`, the simulation holds the \`z_network\` fixed at
+  its initial state (from the [`iglm.data`](iglm.data.md) object). If
+  \`FALSE\` (default), the network component is simulated according to
+  the model and sampler settings.
 
 ## Value
 

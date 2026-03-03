@@ -8,12 +8,10 @@ algorithm.
 ``` r
 control.iglm(
   estimate_model = TRUE,
-  fix_x = FALSE,
-  fix_z = FALSE,
   display_progress = FALSE,
   return_samples = TRUE,
   offset_nonoverlap = 0,
-  var = FALSE,
+  var_method = "Mean-value",
   non_stop = FALSE,
   tol = 0.001,
   max_it = 100,
@@ -21,9 +19,7 @@ control.iglm(
   return_y = FALSE,
   return_z = FALSE,
   accelerated = TRUE,
-  cluster = NULL,
-  exact = FALSE,
-  updated_uncertainty = TRUE
+  exact = FALSE
 )
 ```
 
@@ -34,20 +30,6 @@ control.iglm(
   (logical) If \`TRUE\` (default), the main model parameters are
   estimated. If \`FALSE\`, estimation is skipped and only the
   preprocessing is done.
-
-- fix_x:
-
-  (logical) If \`TRUE\`, the 'x' predictor is held fixed during
-  estimation/simulation (fixed design in regression). Default is
-  \`FALSE\`.
-
-- fix_z:
-
-  (logical) If \`TRUE\`, the 'z' network is held fixed during
-  estimation/simulation (fixed network design). Default is \`FALSE\`.
-  Setting this to TRUE, allows practicioners to estimate autologistic
-  actor attribute models, which were introduced in binary settings in
-  Daraganova, G., & Robins, G. (2013).
 
 - display_progress:
 
@@ -65,11 +47,13 @@ control.iglm(
   (numeric) A value added to the linear predictor for dyads not in the
   'overlap' set. Default is \`0\`.
 
-- var:
+- var_method:
 
-  (logical) If \`TRUE\`, attempt to calculate and return the
-  variance-covariance matrix of the estimated parameters. Default is
-  \`FALSE\`.
+  (string) Method for variance estimation. Options are "Mean-value"
+  (default), "Godambe", and "Hessian". The mean-value version is
+  described in Section 3.3 of Fritz et al. (2025), the Godambe method is
+  described in Schmid and Hunter (2023), and the "Hessian" option just
+  assumes that the pseudo likelihood is the correct likelihood.
 
 - non_stop:
 
@@ -110,23 +94,11 @@ control.iglm(
   based on a Quasi Newton scheme described in the Supplemental Material
   of Fritz et al (2025).
 
-- cluster:
-
-  A parallel cluster object (e.g., from the \`parallel\` package) to use
-  for potentially parallelizing parts of the estimation or simulation.
-  Default is \`NULL\` (no parallelization).
-
 - exact:
 
-  (logical) If \`TRUE\`, potentially use an exact calculation method of
-  the pseudo Fisher information for assessing the uncertainty of the
-  estimates. Default is \`FALSE\`.
-
-- updated_uncertainty:
-
-  (logical) If \`TRUE\` (default), potentially use an updated method for
-  calculating uncertainty estimates (based on the mean-value theorem as
-  opposed to the Godambe Information).
+  (logical) If \`TRUE\`, the pseudo Fisher information is calculated
+  exact for assessing the uncertainty of the estimates. Default is
+  \`FALSE\`.
 
 ## Value
 
@@ -138,6 +110,8 @@ control parameters.
 Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A
 Regression Framework for Studying Relationships among Attributes under
 Network Interference. Journal of the American Statistical Association,
-to appear. Daraganova, G., and Robins, G. (2013). Exponential random
-graph models for social networks: Theory, methods and applications,
-102-114. Cambridge University Press.
+to appear.
+
+Schmid, C.S. and D. R. Hunter (2023). Computing Pseudolikelihood
+Estimators for Exponential-Family Random Graph Models. Journal of Data
+Science

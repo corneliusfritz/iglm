@@ -64,11 +64,9 @@ sampler.iglm(
 
 - cluster:
 
-  A parallel cluster object (e.g., created with
-  \`parallel::makeCluster()\`) to enable parallel execution of
-  simulations. If \`NULL\` (default), simulations are run sequentially.
-  Note: Cluster management (creation/stopping) is the user's
-  responsibility.
+  A parallel cluster object (e.g., from the \`parallel\` package) to use
+  for potentially parallelizing parts of the estimation or simulation.
+  Default is \`NULL\` (no parallelization).
 
 - file:
 
@@ -86,12 +84,14 @@ An object of class \`sampler.iglm\` (and \`R6\`).
 ## Examples
 
 ``` r
-n_actors <- 50
-sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler_x = sampler.net.attr(n_proposals = n_actors * 10, seed = 13),
-                               sampler_y = sampler.net.attr(n_proposals = n_actors * 10, seed = 32),
-                               sampler_z = sampler.net.attr(n_proposals = n_actors^2, seed = 134),
-                               init_empty = FALSE)
+n_actor <- 50
+sampler_new <- sampler.iglm(
+  n_burn_in = 100, n_simulation = 10,
+  sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
+  sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
+  sampler_z = sampler.net.attr(n_proposals = n_actor^2, seed = 134, tnt = TRUE),
+  init_empty = FALSE
+)
 sampler_new
 #> Sampler settings
 #> ------------------------------------------------------------
@@ -105,16 +105,19 @@ sampler_new
 #>   sampler_x:
 #>     Number of proposals : 500
 #>     Random seed         : 13
+#>     TNT sampling        : TRUE
 #>   sampler_y:
 #>     Number of proposals : 500
 #>     Random seed         : 32
+#>     TNT sampling        : TRUE
 #>   sampler_z:
 #>     Number of proposals : 2500
 #>     Random seed         : 134
-# Change some values of the  sampler 
-sampler_new$n_simulation                                
+#>     TNT sampling        : TRUE
+# Change some values of the  sampler
+sampler_new$n_simulation
 #> [1] 10
 sampler_new$set_n_simulation(100)
-sampler_new$n_simulation                                
+sampler_new$n_simulation
 #> [1] 100
 ```
