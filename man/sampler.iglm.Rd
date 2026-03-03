@@ -60,16 +60,18 @@ passing them to the `iglm` constructor or simulation functions.
 }
 \examples{
 n_actor <- 50
-sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-                               sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-                               sampler_z = sampler.net.attr(n_proposals = n_actor^2, seed = 134),
-                               init_empty = FALSE)
+sampler_new <- sampler.iglm(
+  n_burn_in = 100, n_simulation = 10,
+  sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
+  sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
+  sampler_z = sampler.net.attr(n_proposals = n_actor^2, seed = 134, tnt = TRUE),
+  init_empty = FALSE
+)
 sampler_new
-# Change some values of the  sampler 
-sampler_new$n_simulation                                
+# Change some values of the  sampler
+sampler_new$n_simulation
 sampler_new$set_n_simulation(100)
-sampler_new$n_simulation                                
+sampler_new$n_simulation
 }
 \seealso{
 `sampler.net.attr`, `iglm`, `control.iglm`

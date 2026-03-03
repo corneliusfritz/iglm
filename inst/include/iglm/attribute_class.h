@@ -80,7 +80,7 @@ public:
       // std::cout << "Error: trying to access attribute of non-existing actor.\n";
       return(false);
     }
-    return(attribute.at(from-1)/scale);
+    return(attribute(from-1)/scale);
   }
   
   double get_val_no_scale(int from) const {
@@ -88,7 +88,7 @@ public:
       // std::cout << "Error: trying to access attribute of non-existing actor.\n";
       return(false);
     }
-    return(attribute.at(from-1));
+    return(attribute(from-1));
   }
   
   

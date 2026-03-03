@@ -4,7 +4,7 @@
 \alias{sampler.net.attr}
 \title{Constructor for Single Component Sampler Settings}
 \usage{
-sampler.net.attr(n_proposals = 10000, seed = NA, file = NULL)
+sampler.net.attr(n_proposals = 10000, seed = NA, file = NULL, tnt = TRUE)
 }
 \arguments{
 \item{n_proposals}{(integer) The number of MCMC proposals (iterations) to
@@ -17,6 +17,8 @@ to ensure reproducibility for this component's sampling process. If `NA`
 
 \item{file}{(character or `NULL`) If provided, loads the sampler state from
 '  the specified .rds file instead of initializing from parameters.}
+
+\item{tnt}{(logical) If `TRUE` (default), use Tie-No-Tie sampling (only if used for networks).}
 }
 \value{
 An object of class `sampler_net_attr` (and `R6`).
@@ -34,7 +36,7 @@ sampler_comp_default <- sampler.net.attr()
 sampler_comp_default
 
 # Custom settings
-sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, seed = 123)
+sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, seed = 123, tnt = FALSE)
 sampler_comp_custom
 }
 \seealso{

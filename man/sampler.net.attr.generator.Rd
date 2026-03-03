@@ -17,6 +17,8 @@ the overlap). It primarily stores the number of proposals and a random seed.
 \item{\code{n_proposals}}{(`integer`) Read-only. The number of MCMC proposals per sampling step.}
 
 \item{\code{seed}}{(`integer`) Read-only. The random seed used for this component's sampler.}
+
+\item{\code{tnt}}{(`logical`) Read-only. Flag indicating whether TNT sampling is used.}
 }
 \if{html}{\out{</div>}}
 }
@@ -28,6 +30,7 @@ the overlap). It primarily stores the number of proposals and a random seed.
 \item \href{#method-sampler.net.attr-gather}{\code{sampler.net.attr.generator$gather()}}
 \item \href{#method-sampler.net.attr-set_n_proposals}{\code{sampler.net.attr.generator$set_n_proposals()}}
 \item \href{#method-sampler.net.attr-set_seed}{\code{sampler.net.attr.generator$set_seed()}}
+\item \href{#method-sampler.net.attr-set_tnt}{\code{sampler.net.attr.generator$set_tnt()}}
 \item \href{#method-sampler.net.attr-save}{\code{sampler.net.attr.generator$save()}}
 \item \href{#method-sampler.net.attr-clone}{\code{sampler.net.attr.generator$clone()}}
 }
@@ -39,7 +42,12 @@ the overlap). It primarily stores the number of proposals and a random seed.
 Create a new `sampler_net_attr` object. Validates inputs and sets
 a random seed if none is provided.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$new(n_proposals = 10000, seed = NA, file = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$new(
+  n_proposals = 10000,
+  seed = NA,
+  file = NULL,
+  tnt = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -55,6 +63,8 @@ If `NA` (default), a random seed is generated automatically.}
 
 \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
 the specified .rds file instead of initializing from parameters.}
+
+\item{\code{tnt}}{(logical) If `TRUE` (default), use Tie-No-Tie sampling (only if used for networks).}
 }
 \if{html}{\out{</div>}}
 }
@@ -129,6 +139,26 @@ Sets the random seed for this component's sampler.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{seed}}{(integer) The random seed to set.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-sampler.net.attr-set_tnt"></a>}}
+\if{latex}{\out{\hypertarget{method-sampler.net.attr-set_tnt}{}}}
+\subsection{Method \code{set_tnt()}}{
+Sets whether to use TNT sampling for this component.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$set_tnt(tnt)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{tnt}}{(logical) `TRUE` to use TNT sampling, `FALSE` otherwise.}
 }
 \if{html}{\out{</div>}}
 }

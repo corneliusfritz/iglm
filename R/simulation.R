@@ -4,7 +4,7 @@
 #' Simulate responses and connections.
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
-#'   name of a `iglm.data` object available in the calling environment. 
+#'   name of a `iglm.data` object available in the calling environment.
 #'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
 #' @param coef Numeric vector containing the coefficient values for the structural
 #'   (non-degrees) terms defined in the `formula`.
@@ -12,7 +12,7 @@
 #'   values (expansiveness/attractiveness). This is required \strong{only if} the
 #'   `formula` includes degrees terms. Its length must be `n_actor` (for
 #'   undirected networks) or `2 * n_actor` (for directed networks), where
-#'   `n_actor` is determined from the `iglm.data` object in the formula. 
+#'   `n_actor` is determined from the `iglm.data` object in the formula.
 #' @param sampler An object of class `sampler.iglm` (created by
 #'   `sampler.iglm()`) specifying the MCMC sampling parameters. This includes
 #'   the number of simulations (`n_simulation`), burn-in iterations (`n_burn_in`),
@@ -45,7 +45,7 @@
 #' @param fix_x Logical. If `TRUE`, the simulation holds the `x_attribute` fixed
 #'   at its initial state (from the \code{\link{iglm.data}} object) and only simulates the
 #'   `y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
-#'   are simulated according to the model and sampler settings. 
+#'   are simulated according to the model and sampler settings.
 #' @param fix_z Logical. If `TRUE`, the simulation holds the `z_network` fixed
 #'  at its initial state (from the \code{\link{iglm.data}} object). If `FALSE` (default), the network component
 #'  is simulated according to the model and sampler settings.
@@ -93,187 +93,230 @@
 #'
 #' @seealso \code{iglm} for creating the model object,
 #'   \code{sampler.iglm} for creating the sampler object,
-#'   \code{iglm.data} for the data object structure. 
+#'   \code{iglm.data} for the data object structure.
 #'
 #' @export
 #' @importFrom parallel parLapply
-simulate_iglm = function(formula,
-                         basis = NULL, 
-                         coef,coef_degrees = NULL, 
-                        sampler = NULL, 
-                        only_stats = TRUE, 
-                        display_progress = FALSE, 
-                        offset_nonoverlap = 0,
-                        cluster = NULL, 
-                        fix_x = FALSE, 
-                        fix_z = FALSE) {
-  if(is.null(sampler)){
-    sampler= sampler.iglm()
+simulate_iglm <- function(formula,
+                          basis = NULL,
+                          coef, coef_degrees = NULL,
+                          sampler = NULL,
+                          only_stats = TRUE,
+                          display_progress = FALSE,
+                          offset_nonoverlap = 0,
+                          cluster = NULL,
+                          fix_x = FALSE,
+                          fix_z = FALSE) {
+  if (is.null(sampler)) {
+    sampler <- sampler.iglm()
     # if no specifications of the sampler are provided use the default one
   }
-  
-  
-  if(!inherits(sampler, "sampler.iglm")){
-    sampler= sampler.iglm()
+
+
+  if (!inherits(sampler, "sampler.iglm")) {
+    sampler <- sampler.iglm()
   }
   # Search for all things in the environment of the formula
   # attr(formula, ".Environment")
-  preprocessed = formula_preprocess(formula) 
-  if(!is.null(basis)){
-    if(!inherits(basis, "iglm.data")){
+  preprocessed <- formula_preprocess(formula)
+  if (!is.null(basis)) {
+    if (!inherits(basis, "iglm.data")) {
       stop("basis must be an object of class iglm.data")
     }
-    preprocessed$data_object = basis
+    preprocessed$data_object <- basis
   }
   degrees <- preprocessed$includes_degrees
-  n_actor = length(preprocessed$data_object$x_attribute)
-  if(length(coef) != length(preprocessed$term_names)){
+  n_actor <- length(preprocessed$data_object$x_attribute)
+  if (length(coef) != length(preprocessed$term_names)) {
     return("Wrong number of coefficients for the wanted terms.")
   }
-  
-  if(!is_cluster_active(cluster)){
-    cluster = NULL
+
+  if (is.null(coef_degrees)) {
+    coef_degrees <- numeric(0)
   }
-  if(is.null(cluster)){
-    res = xyz_simulate_cpp(coef = coef,coef_degrees = coef_degrees,
-                           terms= preprocessed$term_names,
-                           n_actor = n_actor,
-                           x_attribute=preprocessed$data_object$x_attribute,
-                           y_attribute=preprocessed$data_object$y_attribute,
-                           z_network=preprocessed$data_object$z_network,
-                           type_x =  preprocessed$data_object$type_x,
-                           type_y =  preprocessed$data_object$type_y,
-                             attr_x_scale =  preprocessed$data_object$scale_x,
-                           attr_y_scale =  preprocessed$data_object$scale_y,
-                           init_empty = sampler$init_empty,
-                           nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
-                           neighborhood=preprocessed$data_object$neighborhood,
-                           overlap=preprocessed$data_object$overlap,
-                           directed =preprocessed$data_object$directed,
-                           data_list = preprocessed$data_list,
-                           type_list = preprocessed$type_list,
-                           n_burn_in = sampler$n_burn_in,
-                           seed_x = sampler$sampler_x$seed,
-                           n_proposals_x = sampler$sampler_x$n_proposals,
-                           seed_y = sampler$sampler_y$seed,
-                           n_proposals_y = sampler$sampler_y$n_proposals,
-                           seed_z = sampler$sampler_z$seed,
-                           n_proposals_z = sampler$sampler_z$n_proposals,
-                           n_simulation = sampler$n_simulation,
-                           only_stats =only_stats,
-                           display_progress = display_progress, 
-                           degrees = degrees, 
-                           offset_nonoverlap = offset_nonoverlap,
-                           fix_x = fix_x, 
-                           fix_z = fix_z)  
+
+  if (!is_cluster_active(cluster)) {
+    cluster <- NULL
+  }
+  if (is.null(cluster)) {
+    res <- xyz_simulate_cpp(
+      coef = coef, coef_degrees = coef_degrees,
+      terms = preprocessed$term_names,
+      n_actor = n_actor,
+      x_attribute = preprocessed$data_object$x_attribute,
+      y_attribute = preprocessed$data_object$y_attribute,
+      z_network = preprocessed$data_object$z_network,
+      type_x = preprocessed$data_object$type_x,
+      type_y = preprocessed$data_object$type_y,
+      attr_x_scale = preprocessed$data_object$scale_x,
+      attr_y_scale = preprocessed$data_object$scale_y,
+      init_empty = sampler$init_empty,
+      nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
+      neighborhood = preprocessed$data_object$neighborhood,
+      overlap = preprocessed$data_object$overlap,
+      directed = preprocessed$data_object$directed,
+      data_list = preprocessed$data_list,
+      type_list = preprocessed$type_list,
+      n_burn_in = sampler$n_burn_in,
+      seed_x = sampler$sampler_x$seed,
+      n_proposals_x = sampler$sampler_x$n_proposals,
+      seed_y = sampler$sampler_y$seed,
+      n_proposals_y = sampler$sampler_y$n_proposals,
+      seed_z = sampler$sampler_z$seed,
+      n_proposals_z = sampler$sampler_z$n_proposals,
+      n_simulation = sampler$n_simulation,
+      only_stats = only_stats,
+      display_progress = display_progress,
+      degrees = degrees,
+      offset_nonoverlap = offset_nonoverlap,
+      fix_x = fix_x,
+      fix_z = fix_z,
+      tnt = sampler$sampler_z$tnt
+    )
   } else {
-    if(display_progress){
+    if (display_progress) {
       cat("Starting with burn-in\n")
     }
-    
-    res_burn_in = xyz_simulate_cpp(coef = coef,
-                                   coef_degrees = coef_degrees,
-                                   terms= preprocessed$term_names,
-                                   n_actor = n_actor,
-                                   x_attribute=preprocessed$data_object$x_attribute,
-                                   y_attribute=preprocessed$data_object$y_attribute,
-                                   z_network=preprocessed$data_object$z_network,
-                                   init_empty = sampler$init_empty,
-                                   neighborhood= preprocessed$data_object$neighborhood,
-                                   type_x = preprocessed$data_object$type_x, 
-                                   type_y = preprocessed$data_object$type_y, 
-                                   attr_x_scale =  preprocessed$data_object$scale_x,
-                                   attr_y_scale =  preprocessed$data_object$scale_y,
-                                   overlap=preprocessed$data_object$overlap,
-                                   directed =preprocessed$data_object$directed,
-                                   data_list = preprocessed$data_list,
-                                   type_list = preprocessed$type_list,
-                                   n_burn_in = sampler$n_burn_in,
-                                   seed_x = sampler$sampler_x$seed,
-                                   n_proposals_x = sampler$sampler_x$n_proposals,
-                                   seed_y = sampler$sampler_y$seed,
-                                   n_proposals_y = sampler$sampler_y$n_proposals,
-                                   seed_z = sampler$sampler_z$seed,
-                                   n_proposals_z = sampler$sampler_z$n_proposals,
-                                   n_simulation = 1,
-                                   only_stats =FALSE,
-                                   nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
-                                   display_progress = display_progress, 
-                                   degrees = degrees, 
-                                   offset_nonoverlap = offset_nonoverlap,
-                                   fix_x = fix_x, 
-                                   fix_z = fix_z)
-    res_burnin = XYZ_to_R(x_attribute = res_burn_in$simulation_attributes_x[[1]], 
-                          y_attribute = res_burn_in$simulation_attributes_y[[1]], 
-                          z_network = res_burn_in$simulation_networks_z[[1]],
-                          n_actor = n_actor, return_adj_mat = FALSE)
+
+    res_burn_in <- xyz_simulate_cpp(
+      coef = coef,
+      coef_degrees = coef_degrees,
+      terms = preprocessed$term_names,
+      n_actor = n_actor,
+      x_attribute = preprocessed$data_object$x_attribute,
+      y_attribute = preprocessed$data_object$y_attribute,
+      z_network = preprocessed$data_object$z_network,
+      init_empty = sampler$init_empty,
+      neighborhood = preprocessed$data_object$neighborhood,
+      type_x = preprocessed$data_object$type_x,
+      type_y = preprocessed$data_object$type_y,
+      attr_x_scale = preprocessed$data_object$scale_x,
+      attr_y_scale = preprocessed$data_object$scale_y,
+      overlap = preprocessed$data_object$overlap,
+      directed = preprocessed$data_object$directed,
+      data_list = preprocessed$data_list,
+      type_list = preprocessed$type_list,
+      n_burn_in = sampler$n_burn_in,
+      seed_x = sampler$sampler_x$seed,
+      n_proposals_x = sampler$sampler_x$n_proposals,
+      seed_y = sampler$sampler_y$seed,
+      n_proposals_y = sampler$sampler_y$n_proposals,
+      seed_z = sampler$sampler_z$seed,
+      n_proposals_z = sampler$sampler_z$n_proposals,
+      n_simulation = 1,
+      only_stats = FALSE,
+      nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
+      display_progress = display_progress,
+      degrees = degrees,
+      offset_nonoverlap = offset_nonoverlap,
+      fix_x = fix_x,
+      fix_z = fix_z,
+      tnt = sampler$sampler_z$tnt
+    )
+    res_burnin <- XYZ_to_R(
+      x_attribute = res_burn_in$simulation_attributes_x[[1]],
+      y_attribute = res_burn_in$simulation_attributes_y[[1]],
+      z_network = res_burn_in$simulation_networks_z[[1]],
+      n_actor = n_actor, return_adj_mat = FALSE
+    )
     # tmp_split = split(1:(round(sampler$n_simulation/length(cluster))*length(cluster)), 1:length(cluster))
-    tmp_split = suppressWarnings(split(1:sampler$n_simulation, 1:length(cluster)))
-    
-    if(display_progress){
+    tmp_split <- suppressWarnings(split(1:sampler$n_simulation, seq_along(cluster)))
+
+    if (display_progress) {
       cat("Starting with parallel simulations")
     }
-    
-    res_parallel = parLapply(cl = cluster, X = tmp_split, fun = function(x, preprocessed, n_actor, coef, 
-                                                                         coef_degrees, degrees, sampler, 
-                                                                         res_burnin, offset_nonoverlap){
-      xyz_simulate_cpp(coef = coef,coef_degrees = coef_degrees,
-                       terms= preprocessed$term_names,
-                       n_actor = n_actor,
-                       type_x = preprocessed$data_object$type_x, 
-                       type_y = preprocessed$data_object$type_y, 
-                       attr_x_scale =  preprocessed$data_object$scale_x,
-                       attr_y_scale =  preprocessed$data_object$scale_y,
-                       x_attribute=res_burnin$x_attribute,
-                       y_attribute=res_burnin$y_attribute,
-                       z_network=res_burnin$z_network,
-                       init_empty = sampler$init_empty,
-                       neighborhood=preprocessed$data_object$neighborhood,
-                       overlap=preprocessed$data_object$overlap,
-                       nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
-                       directed =preprocessed$data_object$directed,
-                       data_list = preprocessed$data_list,
-                       type_list = preprocessed$type_list,
-                       n_burn_in = sampler$n_burn_in,
-                       seed_x = sampler$sampler_x$seed + min(x),
-                       n_proposals_x = sampler$sampler_x$n_proposals,
-                       seed_y = sampler$sampler_y$seed + 2*min(x),
-                       n_proposals_y = sampler$sampler_y$n_proposals,
-                       seed_z = sampler$sampler_z$seed +  3*min(x),
-                       n_proposals_z = sampler$sampler_z$n_proposals,
-                       n_simulation = length(x),
-                       only_stats =only_stats,
-                       display_progress = FALSE, 
-                       degrees = degrees, 
-                       fix_x = fix_x, fix_z = fix_z,
-                       offset_nonoverlap = offset_nonoverlap)
-    },preprocessed = preprocessed, n_actor = n_actor, coef = coef, 
-    coef_degrees = coef_degrees, degrees = degrees, 
-    sampler = sampler, res_burnin = res_burnin, offset_nonoverlap = offset_nonoverlap)
-    
-    res = list()
-    res$simulation_attributes_x = unlist(lapply(res_parallel, function(x){x$simulation_attributes_x}),recursive = F)
-    res$simulation_attributes_y = unlist(lapply(res_parallel, function(x){x$simulation_attributes_y}),recursive = F)
-    res$simulation_networks = unlist(lapply(res_parallel, function(x){x$simulation_networks}),recursive = F)
-    res$stats = do.call(rbind,lapply(res_parallel, function(x){x$stats}))
+
+    res_parallel <- parLapply(
+      cl = cluster, X = tmp_split, fun = function(x, preprocessed, n_actor, coef,
+                                                  coef_degrees, degrees, sampler,
+                                                  res_burnin, offset_nonoverlap) {
+        xyz_simulate_cpp(
+          coef = coef, coef_degrees = coef_degrees,
+          terms = preprocessed$term_names,
+          n_actor = n_actor,
+          type_x = preprocessed$data_object$type_x,
+          type_y = preprocessed$data_object$type_y,
+          attr_x_scale = preprocessed$data_object$scale_x,
+          attr_y_scale = preprocessed$data_object$scale_y,
+          x_attribute = res_burnin$x_attribute,
+          y_attribute = res_burnin$y_attribute,
+          z_network = res_burnin$z_network,
+          init_empty = sampler$init_empty,
+          neighborhood = preprocessed$data_object$neighborhood,
+          overlap = preprocessed$data_object$overlap,
+          nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
+          directed = preprocessed$data_object$directed,
+          data_list = preprocessed$data_list,
+          type_list = preprocessed$type_list,
+          n_burn_in = sampler$n_burn_in,
+          seed_x = sampler$sampler_x$seed + min(x),
+          n_proposals_x = sampler$sampler_x$n_proposals,
+          seed_y = sampler$sampler_y$seed + 2 * min(x),
+          n_proposals_y = sampler$sampler_y$n_proposals,
+          seed_z = sampler$sampler_z$seed + 3 * min(x),
+          n_proposals_z = sampler$sampler_z$n_proposals,
+          n_simulation = length(x),
+          only_stats = only_stats,
+          display_progress = FALSE,
+          degrees = degrees,
+          fix_x = fix_x, fix_z = fix_z,
+          offset_nonoverlap = offset_nonoverlap,
+          tnt = sampler$sampler_z$tnt
+        )
+      }, preprocessed = preprocessed, n_actor = n_actor, coef = coef,
+      coef_degrees = coef_degrees, degrees = degrees,
+      sampler = sampler, res_burnin = res_burnin, offset_nonoverlap = offset_nonoverlap
+    )
+
+    res <- list()
+    res$simulation_attributes_x <- unlist(lapply(res_parallel, function(x) {
+      x$simulation_attributes_x
+    }), recursive = F)
+    res$simulation_attributes_y <- unlist(lapply(res_parallel, function(x) {
+      x$simulation_attributes_y
+    }), recursive = F)
+    res$simulation_networks <- unlist(lapply(res_parallel, function(x) {
+      x$simulation_networks
+    }), recursive = F)
+    res$stats <- do.call(rbind, lapply(res_parallel, function(x) {
+      x$stats
+    }))
   }
-  tmp = lapply(1:length(res$simulation_networks),
-               function(x){XYZ_to_R(x_attribute = res$simulation_attributes_x[[x]], 
-                                    y_attribute = res$simulation_attributes_y[[x]],
-                                    z_network = res$simulation_networks[[x]],
-                                    n_actor = n_actor, return_adj_mat = FALSE)})
+
+  if (only_stats) {
+    colnames(res$stats) <- preprocessed$coef_names
+    return(list(stats = res$stats))
+  }
+
+  tmp <- lapply(
+    seq_along(res$simulation_networks),
+    function(x) {
+      XYZ_to_R(
+        x_attribute = res$simulation_attributes_x[[x]],
+        y_attribute = res$simulation_attributes_y[[x]],
+        z_network = res$simulation_networks[[x]],
+        n_actor = n_actor, return_adj_mat = FALSE
+      )
+    }
+  )
   # browser(  )
-  tmp = lapply(1:length(res$simulation_networks),
-               function(x){iglm.data(x_attribute = tmp[[x]]$x_attribute,
-                                   y_attribute = tmp[[x]]$y_attribute,
-                                   z_network = tmp[[x]]$z_network, 
-                                   directed = preprocessed$data_object$directed,
-                                   n_actor = length(tmp[[x]]$x_attribute),
-                                   type_x = preprocessed$data_object$type_x, 
-                                   type_y = preprocessed$data_object$type_y, 
-                                   scale_x = preprocessed$data_object$scale_x, 
-                                   scale_y = preprocessed$data_object$scale_y, 
-                                   return_neighborhood = FALSE)})
+  tmp <- lapply(
+    seq_along(res$simulation_networks),
+    function(x) {
+      iglm.data(
+        x_attribute = tmp[[x]]$x_attribute,
+        y_attribute = tmp[[x]]$y_attribute,
+        z_network = tmp[[x]]$z_network,
+        directed = preprocessed$data_object$directed,
+        n_actor = length(tmp[[x]]$x_attribute),
+        type_x = preprocessed$data_object$type_x,
+        type_y = preprocessed$data_object$type_y,
+        scale_x = preprocessed$data_object$scale_x,
+        scale_y = preprocessed$data_object$scale_y,
+        return_neighborhood = FALSE
+      )
+    }
+  )
   # browser()
   class(tmp) <- "iglm.data.list"
   attr(tmp, "neighborhood") <- iglm.data.neighborhood(preprocessed$data_object$neighborhood)

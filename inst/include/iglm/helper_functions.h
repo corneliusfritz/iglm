@@ -283,6 +283,110 @@ inline size_t count_intersection(
   return count;
 }
 
+// Vector implementations
+inline void mat_to_map_vec(arma::mat mat, int n_actor, bool directed,
+                    std::vector<std::vector<int>>& adj_list,
+                    std::vector<std::vector<int>>& adj_list_in,
+                    std::vector<char>& adj_mat) {
+
+  for (int i = 0; i <= n_actor; i++) { 
+    adj_list[i].clear();
+    if (directed) {
+      adj_list_in[i].clear();
+    }
+  } 
+  adj_mat.assign(n_actor * n_actor, 0);
+
+  if (mat.is_empty() || mat.n_elem == 0) {
+    return;
+  }
+
+  auto get_mat_idx = [n_actor](int r, int c) {
+    return (r - 1) * n_actor + (c - 1);
+  };
+
+  // Check whether an edge list or adjacency matrix is provided
+  if(mat.n_cols == 2) {
+    const arma::vec& tmp_row1 = mat.col(0);
+    const arma::vec& tmp_row2 = mat.col(1);
+    
+    for (arma::uword k = 0; k < mat.n_rows; ++k) {
+      int from = tmp_row1[k];
+      int to = tmp_row2[k];
+      
+      adj_mat[get_mat_idx(from, to)] = 1;
+      
+      if(directed) {
+        adj_list[from].push_back(to);
+        adj_list_in[to].push_back(from);
+      } else {
+        adj_mat[get_mat_idx(to, from)] = 1;
+        adj_list[from].push_back(to);
+        adj_list[to].push_back(from);
+      }
+    }
+    
+    if(!directed) {
+      for(int i = 1; i <= n_actor; ++i) {
+        std::sort(adj_list[i].begin(), adj_list[i].end());
+        adj_list[i].erase(std::unique(adj_list[i].begin(), adj_list[i].end()), adj_list[i].end());
+      }
+    }
+  } else {
+    for (arma::uword i = 1; i <= n_actor; i++) {
+      for(arma::uword j = 1; j <= n_actor; j++) {
+        if(mat(i-1, j-1) == 1) {
+          adj_list[i].push_back(j);
+          adj_mat[get_mat_idx(i, j)] = 1;
+          if(directed) {
+            adj_list_in[j].push_back(i);
+          }
+        }
+      }
+    } 
+  }
+}
+
+inline std::vector<int> get_intersection_vec(
+    const std::vector<int>& v1,
+    const std::vector<int>& v2)
+{
+  std::vector<int> intersection;
+  intersection.reserve(std::min(v1.size(), v2.size()));
+  std::set_intersection(v1.begin(), v1.end(), v2.begin(), v2.end(), std::back_inserter(intersection));
+  return intersection;
+}
+
+inline size_t count_intersection_vec(
+    const std::vector<int>& v1,
+    const std::vector<int>& v2)
+{ 
+  size_t count = 0;
+  auto it1 = v1.begin();
+  auto it2 = v2.begin();
+  while (it1 != v1.end() && it2 != v2.end()) {
+    if (*it1 < *it2) {
+      ++it1;
+    } else if (*it2 < *it1) {
+      ++it2;
+    } else {
+      ++count;
+      ++it1;
+      ++it2;
+    }
+  }
+  return count;
+}
+
+inline std::vector<int> get_difference_vec(
+    const std::vector<int>& v1,
+    const std::vector<int>& v2)
+{
+  std::vector<int> diff;
+  diff.reserve(v1.size());
+  std::set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(), std::back_inserter(diff));
+  return diff;
+}
 
 #endif
 
