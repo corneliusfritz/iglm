@@ -286,6 +286,7 @@ results.generator <- R6::R6Class("results",
                                          stop("No samples available to plot.", call. = FALSE)
                                        } else {
                                          normalized <- scale(private$.stats)
+                                         normalized[is.nan(normalized)] <- 0
                                          plot(NA, xlim=c(1,nrow(normalized)), ylim=range(normalized), xlab="Sample", ylab="Normalized Statistic", bty ="l")
                                          for (tmp in 1:ncol(normalized)){
                                            lines(y = normalized[,tmp], x = 1:nrow(normalized), col = tmp)

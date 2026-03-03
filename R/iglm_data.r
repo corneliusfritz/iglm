@@ -1019,11 +1019,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                                          barplot(info$in_degree, 
                                                  xlab = "In-Degree", 
                                                  ylab = ifelse(prob, "Proportion", "Count"), 
-                                                 las = 1, ylim = c(0, max(info)*1.2) )
+                                                 las = 1, ylim = c(0, max(info$in_degree)*1.2) )
                                          barplot(info$out_degree,
                                                  xlab = "Out-Degree", 
                                                  ylab = ifelse(prob, "Proportion", "Count"), 
-                                                 las = 1, ylim = c(0, max(info)*1.2) )
+                                                 las = 1, ylim = c(0, max(info$out_degree)*1.2) )
                                        } else {
                                          barplot(info, 
                                                  xlab = "Degree",
@@ -1609,8 +1609,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   during estimation/simulation (fixed network design). Default is `FALSE`. 
 #'   Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, 
 #'   which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).
-#' @param fix_z_alocal (logical) If `TRUE` (default), edges outside the overlap region
-#'   are treated as random and will be sampled during the MCMC process, else they are treated as fixed.  
+#' @param fix_z_alocal (logical) If `TRUE`, edges outside the overlap region
+#'   are fixed, else they are random (default).  
 #' @param return_neighborhood Logical. If `TRUE` (default) and
 #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
 #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
@@ -1653,7 +1653,7 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                     scale_x = 1, scale_y = 1, 
                     fix_x = FALSE,
                     fix_z = FALSE,
-                    fix_z_alocal = TRUE,
+                    fix_z_alocal = FALSE,
                     return_neighborhood = TRUE, file = NULL) {
   # browser()
   if(!is.null(z_network)){

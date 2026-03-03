@@ -17,7 +17,7 @@ iglm.data(
   scale_y = 1,
   fix_x = FALSE,
   fix_z = FALSE,
-  fix_z_alocal = TRUE,
+  fix_z_alocal = FALSE,
   return_neighborhood = TRUE,
   file = NULL
 )
@@ -65,8 +65,8 @@ during estimation/simulation (fixed network design). Default is `FALSE`.
 Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, 
 which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).}
 
-\item{fix_z_alocal}{(logical) If `TRUE` (default), edges outside the overlap region
-are treated as random and will be sampled during the MCMC process, else they are treated as fixed.}
+\item{fix_z_alocal}{(logical) If `TRUE`, edges outside the overlap region
+are fixed, else they are random (default).}
 
 \item{return_neighborhood}{Logical. If `TRUE` (default) and
 `neighborhood` is `NULL`, a full neighborhood (all dyads) is
