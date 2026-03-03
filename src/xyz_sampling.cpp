@@ -179,7 +179,7 @@ arma::vec xyz_count_global_statistic( XYZ_class &object,
     // Rcout << object.x_attribute.attribute(i-1) << std::endl;
     
     alt_object.x_attribute.set_attr_value(i, object.x_attribute.attribute.at(i-1));
-    res +=change_stat*object.x_attribute.get_val(i);
+    res +=change_stat*object.x_attribute.get_val_no_scale(i);
   }
   // Rcout << "Y Attr" << std::endl;
   
@@ -196,7 +196,7 @@ arma::vec xyz_count_global_statistic( XYZ_class &object,
     // Rcout << change_stat << std::endl;
     // Rcout << "Here" << std::endl;
     alt_object.y_attribute.set_attr_value(i, object.y_attribute.attribute.at(i-1));
-    res +=change_stat*object.y_attribute.get_val(i);
+    res +=change_stat*object.y_attribute.get_val_no_scale(i);
   }
   return(res);
 }
@@ -813,7 +813,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       }
       if(object.x_attribute.type == "normal"){
         HR= coef.t()*change_stat;
-        double tmp_val = R::rnorm(HR.at(0), object.x_attribute.scale); 
+        double tmp_val = R::rnorm(HR.at(0), sqrt(object.x_attribute.scale)); 
         global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i)) / object.x_attribute.scale * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
@@ -850,7 +850,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       }
       if(object.y_attribute.type == "normal"){
         HR= coef.t()*change_stat;
-        double tmp_val = R::rnorm(HR.at(0), object.y_attribute.scale); 
+        double tmp_val = R::rnorm(HR.at(0), sqrt(object.y_attribute.scale)); 
         global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) / object.y_attribute.scale * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
