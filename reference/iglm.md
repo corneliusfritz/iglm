@@ -127,26 +127,33 @@ library(iglm)
 # Create a iglm.data data object (example)
 n_actor <- 50
 neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE,
-                   type_x = "binomial", type_y = "binomial")
+xyz_obj <- iglm.data(
+  neighborhood = neighborhood, directed = FALSE,
+  type_x = "binomial", type_y = "binomial"
+)
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
 gt_coef_pop <- rnorm(n = n_actor, -2, 1)
 # Define MCMC sampler
-sampler_new <- sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-                               sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-                               sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0
-                               ) * 10, seed = 134),
-                               init_empty = FALSE)
+sampler_new <- sampler.iglm(
+  n_burn_in = 100, n_simulation = 10,
+  sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
+  sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
+  sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134),
+  init_empty = FALSE
+)
 # Create iglm model specification
-model_tmp_new <- iglm(formula = xyz_obj ~ edges(mode = "local") +
-                          attribute_y + attribute_x + degrees,
-                          coef = gt_coef,
-                          coef_degrees = gt_coef_pop,
-                          sampler = sampler_new,
-                          control = control.iglm(accelerated = FALSE,
-                          max_it = 200, display_progress = FALSE))
+model_tmp_new <- iglm(
+  formula = xyz_obj ~ edges(mode = "local") +
+    attribute_y + attribute_x + degrees,
+  coef = gt_coef,
+  coef_degrees = gt_coef_pop,
+  sampler = sampler_new,
+  control = control.iglm(
+    accelerated = FALSE,
+    max_it = 200, display_progress = FALSE
+  )
+)
 # Simulate from the model
 model_tmp_new$simulate()
 model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])
@@ -155,8 +162,7 @@ model_tmp_new$set_target(model_tmp_new$get_samples()[[1]])
 model_tmp_new$estimate()
 
 # Model Assessment
-model_tmp_new$assess(formula = ~  degree_distribution )
+model_tmp_new$assess(formula = ~degree_distribution)
 
 # model_tmp_new$results$plot(assess = TRUE)
-                                                   
 ```

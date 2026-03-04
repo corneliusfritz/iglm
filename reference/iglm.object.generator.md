@@ -76,6 +76,8 @@ Methodology), 7, 647-676.
 
 - [`iglm.object.generator$new()`](#method-iglm.object-new)
 
+- [`iglm.object.generator$is_equivalent()`](#method-iglm.object-is_equivalent)
+
 - [`iglm.object.generator$assess()`](#method-iglm.object-assess)
 
 - [`iglm.object.generator$print()`](#method-iglm.object-print)
@@ -179,6 +181,37 @@ and control objects, calculating initial statistics, and validating.
 #### Returns
 
 A new \`iglm.object\`.
+
+------------------------------------------------------------------------
+
+### Method `is_equivalent()`
+
+Check if this iglm object is equivalent to another iglm object by
+comparing their defining features, data, and parameters.
+
+#### Usage
+
+    iglm.object.generator$is_equivalent(other, tol = 1e-05, check_results = FALSE)
+
+#### Arguments
+
+- `other`:
+
+  Another object to compare against.
+
+- `tol`:
+
+  Tolerance for numeric comparisons (default is 1e-5).
+
+- `check_results`:
+
+  (logical) If \`TRUE\`, also requires the estimation results and MCMC
+  samples to match exactly. Default is \`FALSE\` (only compares model
+  specification, input data, and initial coefficients).
+
+#### Returns
+
+\`TRUE\` if the objects are equivalent, otherwise \`FALSE\`.
 
 ------------------------------------------------------------------------
 
