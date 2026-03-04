@@ -145,21 +145,27 @@ state_twitter$iglm.data$mean_x()
 state_twitter$iglm.data$mean_y()
 
 # Generate a small iglm data object either via adjacency matrix or edgelist
-tmp_adjacency <- iglm.data(z_network = matrix(c(0,1,1,0,
-                                                1,0,0,1,
-                                                1,0,0,1,
-                                                0,1,1,0), nrow=4, byrow=TRUE),
-                           directed = FALSE,
-                           n_actor = 4,
-                           type_x = "binomial",
-                           type_y = "binomial")
+tmp_adjacency <- iglm.data(
+  z_network = matrix(c(
+    0, 1, 1, 0,
+    1, 0, 0, 1,
+    1, 0, 0, 1,
+    0, 1, 1, 0
+  ), nrow = 4, byrow = TRUE),
+  directed = FALSE,
+  n_actor = 4,
+  type_x = "binomial",
+  type_y = "binomial"
+)
 
 
-tmp_edgelist <- iglm.data(z_network = tmp_adjacency$z_network, 
-                          directed = FALSE,
-                       n_actor = 4,
-                       type_x = "binomial",
-                       type_y = "binomial")
+tmp_edgelist <- iglm.data(
+  z_network = tmp_adjacency$z_network,
+  directed = FALSE,
+  n_actor = 4,
+  type_x = "binomial",
+  type_y = "binomial"
+)
 
 tmp_edgelist$mean_z()
 tmp_adjacency$mean_z()
