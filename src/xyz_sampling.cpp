@@ -520,27 +520,27 @@ void xyz_simulate_network_mh(const arma::vec coef,
   std::uniform_int_distribution<int> proposal_nnn(0, object.overlap_mat.n_rows - 1);
   std::uniform_real_distribution<double> unif_01(0.0, 1.0);
   
-  // Track strictly overlap dyads
-  int K = object.z_network.directed ? 1 : 2;
-  int N_total_overlap = object.overlap_mat.n_rows / K;
-  int N_1_overlap = 0;
-  
-  // Initialize N_1_overlap strictly from the overlap matrix
-  for (int idx = 0; idx < object.overlap_mat.n_rows; ++idx) {
-    if (object.z_network.get_val(object.overlap_mat(idx, 0), object.overlap_mat(idx, 1))) {
-      N_1_overlap++;
-    }
-  }
-  if (!object.z_network.directed) N_1_overlap /= 2;
+  // // Track strictly overlap dyads
+  // int K = object.z_network.directed ? 1 : 2;
+  // int N_total_overlap = object.overlap_mat.n_rows / K;
+  // int N_1_overlap = 0;
+  // 
+  // // Initialize N_1_overlap strictly from the overlap matrix
+  // for (int idx = 0; idx < object.overlap_mat.n_rows; ++idx) {
+  //   if (object.z_network.get_val(object.overlap_mat(idx, 0), object.overlap_mat(idx, 1))) {
+  //     N_1_overlap++;
+  //   }
+  // }
+  // if (!object.z_network.directed) N_1_overlap /= 2;
   
   // int accepted_proposals = 0;
   
   for (int a = 0; a < n_proposals; a++) {
     double hr_adj = 0.0;
-    int N_0_overlap = N_total_overlap - N_1_overlap;
+    int N_0_overlap = object.N_total_overlap - object.N_1_overlap;
     
     if (tnt) {
-      double p_drop_forward = (N_1_overlap == 0) ? 0.0 : ((N_0_overlap == 0) ? 1.0 : 0.5);
+      double p_drop_forward = (object.N_1_overlap == 0) ? 0.0 : ((N_0_overlap == 0) ? 1.0 : 0.5);
       bool propose_drop = unif_01(generator) < p_drop_forward;
       
       if (propose_drop) {
@@ -551,8 +551,8 @@ void xyz_simulate_network_mh(const arma::vec coef,
           tmp_j = object.overlap_mat(proposal_idx, 1);
         } while (!object.z_network.get_val(tmp_i, tmp_j));
         
-        double p_add_reverse = (N_1_overlap - 1 == 0) ? 1.0 : ((N_0_overlap + 1 == 0) ? 0.0 : 0.5);
-        hr_adj = std::log(p_add_reverse / p_drop_forward) + std::log((double)N_1_overlap / (double)(N_0_overlap + 1));
+        double p_add_reverse = (object.N_1_overlap - 1 == 0) ? 1.0 : ((N_0_overlap + 1 == 0) ? 0.0 : 0.5);
+        hr_adj = std::log(p_add_reverse / p_drop_forward) + std::log((double)object.N_1_overlap / (double)(N_0_overlap + 1));
         
       } else {
         // Rejection sample strictly a non-edge within the overlap
@@ -562,9 +562,9 @@ void xyz_simulate_network_mh(const arma::vec coef,
           tmp_j = object.overlap_mat(proposal_idx, 1);
         } while (object.z_network.get_val(tmp_i, tmp_j));
         
-        double p_drop_reverse = (N_1_overlap + 1 == 0) ? 0.0 : ((N_0_overlap - 1 == 0) ? 1.0 : 0.5);
+        double p_drop_reverse = (object.N_1_overlap + 1 == 0) ? 0.0 : ((N_0_overlap - 1 == 0) ? 1.0 : 0.5);
         double p_add_forward = 1.0 - p_drop_forward;
-        hr_adj = std::log(p_drop_reverse / p_add_forward) + std::log((double)N_0_overlap / (double)(N_1_overlap + 1));
+        hr_adj = std::log(p_drop_reverse / p_add_forward) + std::log((double)N_0_overlap / (double)(object.N_1_overlap + 1));
       }
     } else {
       proposal_idx = proposal_nnn(generator);
@@ -602,11 +602,9 @@ void xyz_simulate_network_mh(const arma::vec coef,
       global_stats += tmp_stat;
       if (proposed_change == 0) {
         object.delete_edge(tmp_i, tmp_j);
-        if (tnt) N_1_overlap--;
       } 
       if (proposed_change == 1) {
         object.add_edge(tmp_i, tmp_j);
-        if (tnt) N_1_overlap++;
       }
     }
   }
@@ -642,25 +640,25 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
   std::uniform_int_distribution<int> distr(0, object.overlap_mat.n_rows - 1);
   std::uniform_real_distribution<double> unif_01(0.0, 1.0);
   
-  int K = object.z_network.directed ? 1 : 2;
-  int N_total_overlap = object.overlap_mat.n_rows / K;
-  int N_1_overlap = 0;
-  
-  for (int idx = 0; idx < object.overlap_mat.n_rows; ++idx) {
-    if (object.z_network.get_val(object.overlap_mat(idx, 0), object.overlap_mat(idx, 1))) {
-      N_1_overlap++;
-    }
-  }
-  if (!object.z_network.directed) N_1_overlap /= 2;
+  // int K = object.z_network.directed ? 1 : 2;
+  // int N_total_overlap = object.overlap_mat.n_rows / K;
+  // int N_1_overlap = 0;
+  // 
+  // for (int idx = 0; idx < object.overlap_mat.n_rows; ++idx) {
+  //   if (object.z_network.get_val(object.overlap_mat(idx, 0), object.overlap_mat(idx, 1))) {
+  //     N_1_overlap++;
+  //   }
+  // }
+  // if (!object.z_network.directed) N_1_overlap /= 2;
   
   // int accepted_proposals = 0;
   
   for (int a = 0; a < n_proposals; a++) {
     double hr_adj = 0.0;
-    int N_0_overlap = N_total_overlap - N_1_overlap;
+    int N_0_overlap = object.N_total_overlap - object.N_1_overlap;
     
     if (tnt) {
-      double p_drop_forward = (N_1_overlap == 0) ? 0.0 : ((N_0_overlap == 0) ? 1.0 : 0.5);
+      double p_drop_forward = (object.N_1_overlap == 0) ? 0.0 : ((N_0_overlap == 0) ? 1.0 : 0.5);
       bool propose_drop = unif_01(generator) < p_drop_forward;
       
       if (propose_drop) {
@@ -670,8 +668,8 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
           tmp_j = object.overlap_mat(proposal_idx, 1);
         } while (!object.z_network.get_val(tmp_i, tmp_j));
         
-        double p_add_reverse = (N_1_overlap - 1 == 0) ? 1.0 : ((N_0_overlap + 1 == 0) ? 0.0 : 0.5);
-        hr_adj = std::log(p_add_reverse / p_drop_forward) + std::log((double)N_1_overlap / (double)(N_0_overlap + 1));
+        double p_add_reverse = (object.N_1_overlap - 1 == 0) ? 1.0 : ((N_0_overlap + 1 == 0) ? 0.0 : 0.5);
+        hr_adj = std::log(p_add_reverse / p_drop_forward) + std::log((double)object.N_1_overlap / (double)(N_0_overlap + 1));
         
       } else {
         do {
@@ -680,9 +678,9 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
           tmp_j = object.overlap_mat(proposal_idx, 1);
         } while (object.z_network.get_val(tmp_i, tmp_j));
         
-        double p_drop_reverse = (N_1_overlap + 1 == 0) ? 0.0 : ((N_0_overlap - 1 == 0) ? 1.0 : 0.5);
+        double p_drop_reverse = (object.N_1_overlap + 1 == 0) ? 0.0 : ((N_0_overlap - 1 == 0) ? 1.0 : 0.5);
         double p_add_forward = 1.0 - p_drop_forward;
-        hr_adj = std::log(p_drop_reverse / p_add_forward) + std::log((double)N_0_overlap / (double)(N_1_overlap + 1));
+        hr_adj = std::log(p_drop_reverse / p_add_forward) + std::log((double)N_0_overlap / (double)(object.N_1_overlap + 1));
       }
     } else {
       proposal_idx = distr(generator);
@@ -725,11 +723,9 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
       global_stats += tmp_stat;
       if (proposed_change == 0) {
         object.delete_edge(tmp_i, tmp_j);
-        if (tnt) N_1_overlap--;
       } 
       if (proposed_change == 1) {
         object.add_edge(tmp_i, tmp_j);
-        if (tnt) N_1_overlap++;
       }
     }
   }

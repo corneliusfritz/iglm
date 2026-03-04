@@ -53,19 +53,12 @@ public:
         adj_list_in_nb[i] = get_intersection_vec(z_network.adj_list_in[i], overlap[i]);
       } 
     }
+    initialize_overlap_counts();
   }
   
   void copy_from(XYZ_class obj) {
-    x_attribute = obj.x_attribute;
+    XZ_class::copy_from(obj);
     y_attribute = obj.y_attribute;
-    z_network = obj.z_network;
-    neighborhood = obj.neighborhood;
-    overlap = obj.overlap;
-    adj_list_nb = obj.adj_list_nb;
-    adj_list_in_nb = obj.adj_list_in_nb;
-    overlap_bool_mat = obj.overlap_bool_mat;
-    neighborhood_bool_mat = obj.neighborhood_bool_mat;
-    n_actor = obj.n_actor;
   }
   
 };

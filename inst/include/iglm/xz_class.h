@@ -23,6 +23,8 @@ public:
   arma::mat overlap_mat;
   std::vector<int> all_actors;
 
+  int N_total_overlap;
+  int N_1_overlap;
   inline size_t get_mat_idx(int from, int to) const {
     return (from - 1) * n_actor + (to - 1);
   }
@@ -40,11 +42,12 @@ public:
     adj_list_in_nb.resize(n_actor + 1);
     overlap_bool_mat.assign(n_actor * n_actor, 0);
     neighborhood_bool_mat.assign(n_actor * n_actor, 0);
-    overlap_mat = arma::zeros<arma::mat>(2, 0);
+    overlap_mat = arma::zeros<arma::mat>(0, 2);
     
     for (int i = 1; i <= n_actor; ++i) { 
       all_actors.push_back(i);
     } 
+    initialize_overlap_counts();
   }
   
   // Constructor 2
@@ -67,6 +70,7 @@ public:
     for (int i = 1; i <= n_actor; i++){
       all_actors.push_back(i);
     } 
+    initialize_overlap_counts();
   }
   
   // Constructor 3 
@@ -103,6 +107,7 @@ public:
       }
       all_actors.push_back(i);
     }
+    initialize_overlap_counts();
   }
   
   // Constructor 4 
@@ -129,6 +134,7 @@ public:
       }
       all_actors.push_back(i);
     }
+    initialize_overlap_counts();
   } 
   
   // Member functions
@@ -140,13 +146,32 @@ public:
         adj_list_in_nb[i] = get_intersection_vec(z_network.adj_list_in[i], overlap[i]);
       } 
     }
+    initialize_overlap_counts();
   }
   
+  void initialize_overlap_counts() {
+    if (overlap_mat.is_empty() || overlap_mat.n_cols < 2) {
+      N_total_overlap = 0;
+      N_1_overlap = 0;
+      return;
+    }
+    int K = z_network.directed ? 1 : 2;
+    N_total_overlap = overlap_mat.n_rows / K;
+    N_1_overlap = 0;
+    
+    for (int idx = 0; idx < overlap_mat.n_rows; ++idx) {
+      if (z_network.get_val(overlap_mat(idx, 0), overlap_mat(idx, 1))) {
+        N_1_overlap++;
+      }
+    }
+    if (!z_network.directed) N_1_overlap /= 2;
+  } 
   void add_edge(int from, int to) {
     if(z_network.directed){
       if(!z_network.get_val(from, to)){
         z_network.add_edge(from, to);
         if(overlap_bool_mat[get_mat_idx(from, to)]){
+          N_1_overlap++;
           auto& l_nb = adj_list_nb[from];
           l_nb.insert(std::lower_bound(l_nb.begin(), l_nb.end(), to), to);
           auto& li_nb = adj_list_in_nb[to];
@@ -157,6 +182,7 @@ public:
       if(!z_network.get_val(from, to)){
         z_network.add_edge(from, to);
         if(overlap_bool_mat[get_mat_idx(from, to)]){
+          N_1_overlap++;
           auto& l_f = adj_list_nb[from];
           l_f.insert(std::lower_bound(l_f.begin(), l_f.end(), to), to);
           auto& l_t = adj_list_nb[to];
@@ -171,6 +197,7 @@ public:
       if(z_network.get_val(from, to)){
         z_network.delete_edge(from, to);
         if(overlap_bool_mat[get_mat_idx(from, to)]){
+          N_1_overlap--;
           adj_list_nb[from].erase(std::remove(adj_list_nb[from].begin(), adj_list_nb[from].end(), to), adj_list_nb[from].end());
           adj_list_in_nb[to].erase(std::remove(adj_list_in_nb[to].begin(), adj_list_in_nb[to].end(), from), adj_list_in_nb[to].end());
         }
@@ -179,6 +206,7 @@ public:
       if(z_network.get_val(from, to)){
         z_network.delete_edge(from, to);
         if(overlap_bool_mat[get_mat_idx(from, to)]){
+          N_1_overlap--;
           adj_list_nb[from].erase(std::remove(adj_list_nb[from].begin(), adj_list_nb[from].end(), to), adj_list_nb[from].end());
           adj_list_nb[to].erase(std::remove(adj_list_nb[to].begin(), adj_list_nb[to].end(), from), adj_list_nb[to].end());
         }
@@ -263,18 +291,13 @@ public:
     return neighborhood_bool_mat[get_mat_idx(from, to)];
   }
   
-  bool check_if_full_neighborhood() {
-    int sum_tmp= 0;
+  bool check_if_full_neighborhood() const {
     for(int i = 1; i <= n_actor; ++i) {
-      if((int) neighborhood[i].size() == n_actor){
-        sum_tmp ++;
+      if(neighborhood[i].size() != static_cast<size_t>(n_actor)) {
+        return false; 
       }
     }
-    if(sum_tmp == n_actor){
-      return(true);
-    } else {
-      return(false);
-    }
+    return true;
   }
 
   void print() {
@@ -291,6 +314,10 @@ public:
     overlap_bool_mat = obj.overlap_bool_mat;
     neighborhood_bool_mat = obj.neighborhood_bool_mat;
     n_actor = obj.n_actor;
+    overlap_mat = obj.overlap_mat;
+    all_actors = obj.all_actors;
+    N_total_overlap = obj.N_total_overlap;
+    N_1_overlap = obj.N_1_overlap;
   }
   
   void set_neighborhood_from_mat(arma::mat mat) {

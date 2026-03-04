@@ -276,7 +276,7 @@ simulate_iglm <- function(formula,
       x$simulation_attributes_y
     }), recursive = F)
     res$simulation_networks <- unlist(lapply(res_parallel, function(x) {
-      x$simulation_networks
+      x$simulation_networks_z
     }), recursive = F)
     res$stats <- do.call(rbind, lapply(res_parallel, function(x) {
       x$stats

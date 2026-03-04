@@ -31,8 +31,8 @@ iglm.data(
 edgelist or a square adjacency matrix.}
 
 \item{neighborhood}{An optional matrix for the neighborhood representing local dependence.
-Can be a 2-column edgelist or a square adjacency matrix. 
-A tie in `neighborhood` between actor i and j indicates that j is in the neighborhood of i, 
+Can be a 2-column edgelist or a square adjacency matrix.
+A tie in `neighborhood` between actor i and j indicates that j is in the neighborhood of i,
 implying dependence between the respective actors.}
 
 \item{directed}{A logical value indicating if `z_network` is directed.
@@ -61,8 +61,8 @@ for "normal" type). Default is 1.}
 during estimation/simulation (fixed design in regression). Default is `FALSE`.}
 
 \item{fix_z}{(logical) If `TRUE`, the 'z' network is held fixed
-during estimation/simulation (fixed network design). Default is `FALSE`. 
-Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models, 
+during estimation/simulation (fixed network design). Default is `FALSE`.
+Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models,
 which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).}
 
 \item{fix_z_alocal}{(logical) If `TRUE`, edges outside the overlap region
@@ -94,21 +94,27 @@ state_twitter$iglm.data$mean_x()
 state_twitter$iglm.data$mean_y()
 
 # Generate a small iglm data object either via adjacency matrix or edgelist
-tmp_adjacency <- iglm.data(z_network = matrix(c(0,1,1,0,
-                                                1,0,0,1,
-                                                1,0,0,1,
-                                                0,1,1,0), nrow=4, byrow=TRUE),
-                           directed = FALSE,
-                           n_actor = 4,
-                           type_x = "binomial",
-                           type_y = "binomial")
+tmp_adjacency <- iglm.data(
+  z_network = matrix(c(
+    0, 1, 1, 0,
+    1, 0, 0, 1,
+    1, 0, 0, 1,
+    0, 1, 1, 0
+  ), nrow = 4, byrow = TRUE),
+  directed = FALSE,
+  n_actor = 4,
+  type_x = "binomial",
+  type_y = "binomial"
+)
 
 
-tmp_edgelist <- iglm.data(z_network = tmp_adjacency$z_network, 
-                          directed = FALSE,
-                       n_actor = 4,
-                       type_x = "binomial",
-                       type_y = "binomial")
+tmp_edgelist <- iglm.data(
+  z_network = tmp_adjacency$z_network,
+  directed = FALSE,
+  n_actor = 4,
+  type_x = "binomial",
+  type_y = "binomial"
+)
 
 tmp_edgelist$mean_z()
 tmp_adjacency$mean_z()

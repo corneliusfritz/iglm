@@ -80,3 +80,25 @@ test_that("TNT sampler preserves sorted adjacency lists and correct counts", {
     expect_equal(nrow(res$stats), 5)
     expect_false(any(is.na(res$stats)))
 })
+
+test_that("simulate_iglm returns networks when only_stats = FALSE", {
+    n_actor <- 10
+    adj <- matrix(0, n_actor, n_actor)
+    data_obj <- iglm.data(
+        x_attribute = rep(0, n_actor),
+        y_attribute = rep(0, n_actor),
+        z_network = adj,
+        directed = TRUE,
+        n_actor = n_actor
+    )
+
+    sampler <- sampler.iglm(n_simulation = 2, n_burn_in = 0)
+    formula <- data_obj ~ edges(mode = "local")
+
+    expect_no_error({
+        res <- simulate_iglm(formula = formula, coef = c(0), sampler = sampler, only_stats = FALSE)
+    })
+
+    expect_equal(length(res$samples), 2)
+    expect_true(inherits(res$samples[[1]], "iglm.data"))
+})

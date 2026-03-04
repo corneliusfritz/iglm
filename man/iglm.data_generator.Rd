@@ -116,8 +116,8 @@ Create a new `iglm.data` object, that includes data on two attributes and one ne
 edgelist or a square adjacency matrix.}
 
 \item{\code{neighborhood}}{An optional matrix for the neighborhood representing local dependence.
-Can be a 2-column edgelist or a square adjacency matrix. 
-A tie in `neighborhood` between actor i and j indicates that j is in the neighborhood of i, 
+Can be a 2-column edgelist or a square adjacency matrix.
+A tie in `neighborhood` between actor i and j indicates that j is in the neighborhood of i,
 implying dependence between the respective actors.}
 
 \item{\code{directed}}{A logical value indicating if `z_network` is directed.
