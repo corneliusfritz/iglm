@@ -56,7 +56,7 @@ public:
     initialize_overlap_counts();
   }
   
-  void copy_from(XYZ_class obj) {
+  void copy_from(const XYZ_class& obj) {
     XZ_class::copy_from(obj);
     y_attribute = obj.y_attribute;
   }

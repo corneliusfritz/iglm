@@ -102,7 +102,7 @@ inline void xyz_calculate_change_stats(arma::vec & change_stat,
 
 
 
-arma::vec xyz_count_global_statistic( XYZ_class &object,
+arma::vec xyz_count_global_statistic( const XYZ_class &object,
                                       std::vector<arma::mat> &data_list,
                                       std::vector<double> &type_list,
                                       std::vector<xyz_ValidateFunction> functions, 
@@ -204,11 +204,11 @@ arma::vec xyz_count_global_statistic( XYZ_class &object,
 
 
 // [[Rcpp::export]]
-arma::vec xyz_count_global(arma::mat z_network,
-                           arma::vec x_attribute,
-                           arma::vec y_attribute,
-                           arma::mat neighborhood,
-                           arma::mat overlap,
+arma::vec xyz_count_global(const arma::mat& z_network,
+                           const arma::vec& x_attribute,
+                           const arma::vec& y_attribute,
+                           const arma::mat& neighborhood,
+                           const arma::mat& overlap,
                            bool directed,
                            std::vector<std::string> terms,
                            int n_actor,
@@ -259,7 +259,7 @@ arma::vec xyz_count_global(arma::mat z_network,
   return(global_stats);
 }
 
-arma::vec xyz_count_global_internal(XYZ_class object,
+arma::vec xyz_count_global_internal(const XYZ_class& object,
                                     std::vector<std::string> terms,
                                     int n_actor,
                                     std::vector<arma::mat> &data_list,
@@ -1070,7 +1070,7 @@ List xyz_simulate_cpp(arma::vec& coef,
                         _["simulation_networks_z"] =res_z, _["stats"] = stats));  
   }
 }
-std::tuple<arma::mat, arma::vec> xyz_get_info_pl(XYZ_class object,
+std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
                                                  std::vector<std::string> terms,
                                                  std::vector<arma::mat> &data_list,
                                                  std::vector<double> &type_list, 
@@ -2326,11 +2326,11 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
 // }
 // [[Rcpp::export]]
 List pl_estimation(arma::vec coef,
-                   arma::mat z_network ,
-                   arma::vec x_attribute ,
-                   arma::vec y_attribute ,
-                   arma::mat neighborhood,
-                   arma::mat overlap,
+                   const arma::mat& z_network ,
+                   const arma::vec& x_attribute ,
+                   const arma::vec& y_attribute ,
+                   const arma::mat& neighborhood,
+                   const arma::mat& overlap,
                    bool directed,
                    std::vector<std::string> terms,
                    std::vector<arma::mat> &data_list,
@@ -2669,11 +2669,11 @@ arma::mat get_A_inv(double n_actor){
 // [[Rcpp::export]]
 List outerloop_estimation_pl(arma::vec coef,
                              arma::vec coef_degrees,
-                             arma::mat z_network ,
-                             arma::vec x_attribute ,
-                             arma::vec y_attribute ,
-                             arma::mat neighborhood,
-                             arma::mat overlap,
+                             const arma::mat& z_network ,
+                             const arma::vec& x_attribute ,
+                             const arma::vec& y_attribute ,
+                             const arma::mat& neighborhood,
+                             const arma::mat& overlap,
                              bool directed,
                              std::vector<std::string> terms,
                              std::vector<arma::mat> &data_list,
@@ -3592,11 +3592,11 @@ List xyz_approximate_variability(arma::vec& coef,
 
 
 // [[Rcpp::export]]
-Rcpp::List xyz_prepare_pseudo_estimation(arma::mat z_network,
-                                         arma::vec x_attribute,
-                                         arma::vec y_attribute ,
-                                         arma::mat neighborhood,
-                                         arma::mat overlap,
+Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
+                                         const arma::vec& x_attribute,
+                                         const arma::vec& y_attribute ,
+                                         const arma::mat& neighborhood,
+                                         const arma::mat& overlap,
                                          bool directed,
                                          std::vector<std::string> terms,
                                          std::vector<arma::mat> &data_list,

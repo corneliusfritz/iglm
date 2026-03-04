@@ -26,9 +26,7 @@ get_rank <- function(new_vals, ref_data) {
   ref_sorted <- sort(ref_data)
   n_less <- findInterval(new_vals, ref_sorted, left.open = TRUE)
   n_less_equal <- findInterval(new_vals, ref_sorted)
-  avg_rank <- ((n_less + 1) + (n_less_equal + 1)) / 2
-
-  return(avg_rank)
+  ((n_less + 1) + (n_less_equal + 1)) / 2
 }
 
 update_formula_remove_terms <- function(formula, terms_to_remove) {
@@ -39,7 +37,7 @@ update_formula_remove_terms <- function(formula, terms_to_remove) {
     paste(rhs_terms_updated, collapse = " + ")
   ))
   environment(new_formula) <- environment(formula)
-  return(new_formula)
+  new_formula
 }
 
 .make_unique_name <- function(nm, existing) {
@@ -74,7 +72,8 @@ eval_change <- function(formula, additional_args = NULL, object) {
     # The function/method to call is the named item inside the R6 object
     method_to_call <- object[[func_name]]
     if (is.function(method_to_call)) {
-      # Execute the function call using the iglm.data object's environment (self)
+      # Execute the function call using the
+      # iglm.data object's environment (self)
       result <- do.call(method_to_call, args)
 
       # Store the result
@@ -87,7 +86,6 @@ eval_change <- function(formula, additional_args = NULL, object) {
 }
 
 rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
-  # browser()
   formula <- as.formula(formula)
   if (is.null(env)) {
     env <- environment(formula)
@@ -101,7 +99,6 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
 
   for (term_expr in terms_exprs) {
     if (is.symbol(term_expr)) {
-      # cat("Symbol")
       base_name <- as.character(term_expr)
       if (base_name %in% taken_names) {
         next
@@ -113,7 +110,6 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
         base_name = base_name
       )
     } else if (is.call(term_expr)) {
-      # cat("call term")
       fun_sym <- term_expr[[1L]]
       base_name <- if (is.symbol(fun_sym)) as.character(fun_sym) else .deparse1(fun_sym)
 
@@ -124,7 +120,9 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
 
       # prepare container with named, evaluated arguments
       # unnamed arguments get positional names ..1, ..2, ...
-      pos_names <- ifelse(arg_names == "", paste0("..", seq_along(arg_exprs)), arg_names)
+      pos_names <- ifelse(arg_names == "", paste0("..", seq_along(arg_exprs)),
+        arg_names
+      )
       arg_vals <- vector("list", length(arg_exprs))
       names(arg_vals) <- pos_names
 

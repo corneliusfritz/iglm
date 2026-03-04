@@ -14,7 +14,7 @@ for results.
 \references{
 Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
 
-Stewart, J. R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. Annals of Statistics, to appear. 
+Stewart, J. R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. Annals of Statistics, to appear.
 
 Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph models: characterization, properties, and statistical inference. Journal of the Royal Statistical Society, Series B (Statistical Methodology), 7, 647-676.
 }
@@ -45,6 +45,7 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-iglm.object-new}{\code{iglm.object.generator$new()}}
+\item \href{#method-iglm.object-is_equivalent}{\code{iglm.object.generator$is_equivalent()}}
 \item \href{#method-iglm.object-assess}{\code{iglm.object.generator$assess()}}
 \item \href{#method-iglm.object-print}{\code{iglm.object.generator$print()}}
 \item \href{#method-iglm.object-plot}{\code{iglm.object.generator$plot()}}
@@ -96,7 +97,7 @@ and control objects, calculating initial statistics, and validating.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{formula}}{A model `formula` object. The left-hand side should be the
-name of a \code{\link{iglm.data}} object available in the calling environment. 
+name of a \code{\link{iglm.data}} object available in the calling environment.
 See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
 
 \item{\code{coef}}{A numeric vector of initial coefficients for the terms in
@@ -113,7 +114,7 @@ settings. If `NULL`, default settings are used.}
 \item{\code{control}}{A \code{\link{control.iglm}} object specifying estimation control
 parameters. If `NULL`, default settings are used.}
 
-\item{\code{name}}{An optional character string specifying a name for the model, 
+\item{\code{name}}{An optional character string specifying a name for the model,
 would be used in plots and model assessment.}
 
 \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
@@ -123,6 +124,33 @@ the specified .rds file instead of initializing from parameters.}
 }
 \subsection{Returns}{
 A new `iglm.object`.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.object-is_equivalent"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.object-is_equivalent}{}}}
+\subsection{Method \code{is_equivalent()}}{
+Check if this iglm object is equivalent to another iglm object by comparing
+their defining features, data, and parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$is_equivalent(other, tol = 1e-05, check_results = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{other}}{Another object to compare against.}
+
+\item{\code{tol}}{Tolerance for numeric comparisons (default is 1e-5).}
+
+\item{\code{check_results}}{(logical) If `TRUE`, also requires the estimation results
+and MCMC samples to match exactly. Default is `FALSE` (only compares model
+specification, input data, and initial coefficients).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+`TRUE` if the objects are equivalent, otherwise `FALSE`.
 }
 }
 \if{html}{\out{<hr>}}
@@ -143,8 +171,8 @@ model parameters. Requires simulations to have been run first (via
 \describe{
 \item{\code{formula}}{A formula specifying the network statistics to assess
 (e.g., `~ degree_distribution() + geodesic_distances_distribution()`).
-The terms should correspond to methods available in the \code{\link{iglm.data}} 
-object that end with `distributions`. 
+The terms should correspond to methods available in the \code{\link{iglm.data}}
+object that end with `distributions`.
 If the term mcmc_diagnostics is included, MCMC diagnostics will also be computed.}
 
 \item{\code{plot}}{(logical) If `TRUE`, generates plots comparing observed and simulated statistics. Default is `TRUE`.}
@@ -172,7 +200,7 @@ available, they are printed in a standard coefficient table format.
 \describe{
 \item{\code{digits}}{(integer) Number of digits for rounding numeric output.}
 
-\item{\code{rows}}{numeric vector is provided with values between 1 and 4, 
+\item{\code{rows}}{numeric vector is provided with values between 1 and 4,
 only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|)).}
 
 \item{\code{...}}{Additional arguments (currently unused).}
@@ -298,7 +326,7 @@ Stores the results internally and updates the coefficient fields.
 }
 
 \subsection{Returns}{
-If the no preprocessing should be returned 
+If the no preprocessing should be returned
   (as per control settings), this function returns a list containing detailed estimation results, invisibly.
   Includes final coefficients, variance-covariance matrix, convergence
   path, Fisher information, score vector, log-likelihood, and any
@@ -332,7 +360,7 @@ Prints the summary to the console and returns `NULL` invisibly.
 \if{latex}{\out{\hypertarget{method-iglm.object-simulate}{}}}
 \subsection{Method \code{simulate()}}{
 Simulate networks from the fitted model or a specified model. Stores
-the simulations and/or summary statistics internally. The simulation 
+the simulations and/or summary statistics internally. The simulation
 is carried out using the internal MCMC sampler described in \code{\link{simulate_iglm}}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$simulate(
@@ -353,8 +381,8 @@ Default is `FALSE`.}
 progress bar during simulation.}
 
 \item{\code{offset_nonoverlap}}{(numeric) Offset to apply for non-overlapping
-dyads during simulation (if applicable to the sampler). This option 
-is useful if the sparsity of edges of units with non-overlapping 
+dyads during simulation (if applicable to the sampler). This option
+is useful if the sparsity of edges of units with non-overlapping
 neighborhoods is known. Default is 0.}
 }
 \if{html}{\out{</div>}}
@@ -369,9 +397,9 @@ A list containing the simulated networks (`samples`, as a
 \if{html}{\out{<a id="method-iglm.object-predict"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.object-predict}{}}}
 \subsection{Method \code{predict()}}{
-Calculates predicted values for the nodal covariates (\code{x}), the outcome variable (\code{y}), 
-and the network structure (\code{z}). The function supports two prediction modes: 
-\emph{marginal} (based on Monte Carlo integration over simulated samples) and 
+Calculates predicted values for the nodal covariates (\code{x}), the outcome variable (\code{y}),
+and the network structure (\code{z}). The function supports two prediction modes:
+\emph{marginal} (based on Monte Carlo integration over simulated samples) and
 \emph{conditional} (based on the analytical linear predictor and point estimates).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$predict(
@@ -383,15 +411,15 @@ and the network structure (\code{z}). The function supports two prediction modes
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{variant}}{A character string specifying the type of prediction to generate. 
+\item{\code{variant}}{A character string specifying the type of prediction to generate.
 Must be one of:
 \itemize{
-  \item \code{"marginal"}: Computes predictions by aggregating over the MCMC samples stored 
-  in the internal results. If samples do not exist, \code{self$simulate()} is triggered automatically. 
+  \item \code{"marginal"}: Computes predictions by aggregating over the MCMC samples stored
+  in the internal results. If samples do not exist, \code{self$simulate()} is triggered automatically.
   This represents the expectation integrated over the uncertainty of the latent process.
-  \item \code{"conditional"}: Computes predictions using the systematic component of the 
-  Generalized Linear Model (GLM). It calculates the linear predictor \eqn{\eta = X\beta} 
-  (plus offset and degrees terms for the network) and applies the inverse link function 
+  \item \code{"conditional"}: Computes predictions using the systematic component of the
+  Generalized Linear Model (GLM). It calculates the linear predictor \eqn{\eta = X\beta}
+  (plus offset and degrees terms for the network) and applies the inverse link function
   \eqn{\mu = g^{-1}(\eta)}.
 }
 Defaults to \code{c("conditional", "marginal")}.}
@@ -410,27 +438,27 @@ Defaults to \code{c("x", "y", "z")}.}
 \strong{Marginal Predictions:}
 When \code{variant = "marginal"}, the function approximates the expected value via Monte Carlo integration:
 \deqn{\hat{\mu} = \frac{1}{S} \sum_{s=1}^{S} y^{(s)}}
-where \eqn{y^{(s)}} are the realized values from the \eqn{s}-th simulation sample. 
+where \eqn{y^{(s)}} are the realized values from the \eqn{s}-th simulation sample.
 For the network \code{z}, this results in an edge probability matrix averaged over all sampled networks.
 
 \strong{Conditional Predictions:}
-When \code{variant = "conditional"}, the function calculates the theoretical mean \eqn{\mu} based on the 
+When \code{variant = "conditional"}, the function calculates the theoretical mean \eqn{\mu} based on the
 estimated coefficients \eqn{\hat{\theta}}:
 \itemize{
   \item For \strong{Binomial} families: \eqn{\mu = (1 + \exp(-\eta))^{-1}} (Logistic).
   \item For \strong{Poisson} families: \eqn{\mu = \exp(\eta)} (Exponential).
   \item For \strong{Gaussian} families: \eqn{\mu = \eta} (Identity).
 }
-For the network component \code{z}, the linear predictor includes dyadic covariates, 
+For the network component \code{z}, the linear predictor includes dyadic covariates,
 degrees effects (sender/receiver variances), and structural offsets.
 }
 
 \subsection{Returns}{
 A list containing the requested predictions:
 \describe{
-  \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the actor ID and subsequent 
+  \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the actor ID and subsequent
   columns represent the predicted mean values.}
-  \item{\code{z}}{A data frame containing the edgelist with columns: \code{sender}, \code{receiver}, 
+  \item{\code{z}}{A data frame containing the edgelist with columns: \code{sender}, \code{receiver},
   and \code{prediction} (probability or intensity).}
 }
 The results are also invisibly stored in the internal state \code{private$.results}.
