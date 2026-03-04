@@ -106,9 +106,10 @@ the starting state might depend on the specific implementation.</p></dd>
 
 
 <dt id="arg-cluster">cluster<a class="anchor" aria-label="anchor" href="#arg-cluster"></a></dt>
-<dd><p>A parallel cluster object (e.g., from the `parallel` package)
-to use for potentially parallelizing parts of the estimation or simulation.
-Default is `NULL` (no parallelization).</p></dd>
+<dd><p>A parallel cluster object (e.g., created with `parallel::makeCluster()`)
+to enable parallel execution of simulations. If `NULL` (default), simulations
+are run sequentially. Note: Cluster management (creation/stopping) is the
+user's responsibility.</p></dd>
 
 
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>

@@ -109,15 +109,15 @@ simulate_iglm(
 
 ## Value
 
-A list containing two components:
+A list containing one or two components (depending on \`only_stats\`):
 
 - \`samples\`:
 
   If \`only_stats = FALSE\`, this is a list of length
   \`sampler\$n_simulation\` where each element is a \`iglm.data\` object
   representing one simulated draw from the model. The list has the S3
-  class \`"iglm.data.list"\`. If \`only_stats = TRUE\`, this is
-  typically an empty list.
+  class \`"iglm.data.list"\`. If \`only_stats = TRUE\`, this component
+  is omitted.
 
 - \`stats\`:
 

@@ -64,9 +64,11 @@ sampler.iglm(
 
 - cluster:
 
-  A parallel cluster object (e.g., from the \`parallel\` package) to use
-  for potentially parallelizing parts of the estimation or simulation.
-  Default is \`NULL\` (no parallelization).
+  A parallel cluster object (e.g., created with
+  \`parallel::makeCluster()\`) to enable parallel execution of
+  simulations. If \`NULL\` (default), simulations are run sequentially.
+  Note: Cluster management (creation/stopping) is the user's
+  responsibility.
 
 - file:
 
