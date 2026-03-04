@@ -326,7 +326,7 @@ Stores the results internally and updates the coefficient fields.
 }
 
 \subsection{Returns}{
-If the no preprocessing should be returned
+If no preprocessing should be returned
   (as per control settings), this function returns a list containing detailed estimation results, invisibly.
   Includes final coefficients, variance-covariance matrix, convergence
   path, Fisher information, score vector, log-likelihood, and any

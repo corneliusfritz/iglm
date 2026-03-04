@@ -552,12 +552,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @description
     #' Estimate the model parameters using the specified control settings.
     #' Stores the results internally and updates the coefficient fields.
-    #' @return If the no preprocessing should be returned
-    #'   (as per control settings), this function returns a list containing detailed estimation results, invisibly.
-    #'   Includes final coefficients, variance-covariance matrix, convergence
-    #'   path, Fisher information, score vector, log-likelihood, and any
-    #'   simulations performed during estimation.
-    #'   Else, the function returns a list of the desired preprocessed data (as a data.frame) and needed time.
+    #' @return If no preprocessing should be returned (as per control settings),
+    #'   this function returns a list containing detailed estimation results,
+    #'   invisibly. Includes final coefficients, variance-covariance matrix,
+    #'   convergence path, Fisher information, score vector, log-likelihood,
+    #'   and any simulations performed during estimation.
+    #'   Else, the function returns a list of the desired preprocessed data
+    #'   (as a data.frame) and needed time.
     estimate = function() {
       # private$.coef_degrees[is.na(private$.coef_degrees)] <- -50
       # browser()

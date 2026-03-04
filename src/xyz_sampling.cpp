@@ -2484,7 +2484,7 @@ List pl_estimation(arma::vec coef,
       arma::vec eta_net = X_net * coef + net_offsets;
       arma::vec exp_eta_net = arma::exp(eta_net);
       arma::vec prob_net = exp_eta_net / (1.0 + exp_eta_net);
-      if(nonoverlap_random){
+      if(!nonoverlap_random){
         prob_net = overlap_vec%prob_net;  
       }
       
@@ -2493,8 +2493,9 @@ List pl_estimation(arma::vec coef,
       score += X_net.t() * (Y_net - prob_net);
       fisher += X_net.t() * arma::diagmat(var_net) * X_net;
     }
-    
-    
+    // Rcout <<  fisher << std::endl;
+    // Rcout <<  arma::sum(X_net, 0) << std::endl;
+    // 
     // --- Component 2: Attribute 'x' ---
     if (fix_x == false) {
       if (attr_x_type == "binomial") {
@@ -2544,6 +2545,8 @@ List pl_estimation(arma::vec coef,
       fisher += (X_y.t() * X_y) / attr_y_scale;
     }
     // --- 4. Update and Check Convergence ---
+    // Rcout <<  fisher << std::endl;
+    // Rcout <<  arma::inv(fisher) << std::endl;
     coef += (arma::solve(fisher, score));
     // Rcout << coef <<  std::endl;
     // Rcout << coefs.n_rows <<  std::endl;

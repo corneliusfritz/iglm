@@ -77,12 +77,12 @@ at its initial state (from the \code{\link{iglm.data}} object). If `FALSE` (defa
 is simulated according to the model and sampler settings.}
 }
 \value{
-A list containing two components:
+A list containing one or two components (depending on `only_stats`):
 \describe{
   \item{`samples`}{If `only_stats = FALSE`, this is a list of length
     `sampler$n_simulation` where each element is a `iglm.data` object
     representing one simulated draw from the model. The list has the S3 class
-    `"iglm.data.list"`. If `only_stats = TRUE`, this is typically an empty list.}
+    `"iglm.data.list"`. If `only_stats = TRUE`, this component is omitted.}
   \item{`stats`}{A numeric matrix with `sampler$n_simulation` rows and
     `length(coef)` columns. Each row contains the features
     (corresponding to the model terms in `formula`) calculated for one
