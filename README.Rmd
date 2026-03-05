@@ -1,11 +1,12 @@
+<!-- badges: start -->
+  [![Codecov test coverage](https://codecov.io/gh/corneliusfritz/xyzmodeling_project/graph/badge.svg)](https://app.codecov.io/gh/corneliusfritz/xyzmodeling_project)
+<!-- badges: end -->
+  
+  
 @ -1,130 +0,0 @@
 An Introduction to Estimating Joint Probability Models with `iglm`
 ================
 
-<!-- badges: start -->
-  [![Codecov test coverage](https://codecov.io/gh/corneliusfritz/xyzmodeling_project/graph/badge.svg)](https://app.codecov.io/gh/corneliusfritz/xyzmodeling_project)
-  <!-- badges: end -->
-  
 
 ## Overview
 
