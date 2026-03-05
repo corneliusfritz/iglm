@@ -326,12 +326,13 @@ Stores the results internally and updates the coefficient fields.
 }
 
 \subsection{Returns}{
-If no preprocessing should be returned
-  (as per control settings), this function returns a list containing detailed estimation results, invisibly.
-  Includes final coefficients, variance-covariance matrix, convergence
-  path, Fisher information, score vector, log-likelihood, and any
-  simulations performed during estimation.
-  Else, the function returns a list of the desired preprocessed data (as a data.frame) and needed time.
+If no preprocessing should be returned (as per control settings),
+  this function returns a list containing detailed estimation results,
+  invisibly. Includes final coefficients, variance-covariance matrix,
+  convergence path, Fisher information, score vector, log-likelihood,
+  and any simulations performed during estimation.
+  Else, the function returns a list of the desired preprocessed data
+  (as a data.frame) and needed time.
 }
 }
 \if{html}{\out{<hr>}}

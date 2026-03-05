@@ -16,3 +16,4 @@ RoxygenNote: 7.3.3
 Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: true
+SystemRequirements: C++17
