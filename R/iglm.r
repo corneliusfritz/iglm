@@ -424,7 +424,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' available, they are printed in a standard coefficient table format.
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @param rows  numeric vector is provided with values between 1 and 4,
-    #'              only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|)).
+    #'              only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.
     #' @param ... Additional arguments (currently unused).
     print = function(digits = 4, rows = c(1, 2), ...) {
       cat("iglm object\n")
@@ -465,15 +465,16 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           attr(private$.time_estimation, "units"),
           "\n"
         ))
+        # browser()
         if (private$.preprocess$includes_degrees) {
           cat("\nDegree Parameters:\n")
           if (private$.iglm.data$directed) {
-            cat("  Out-degrees:\n")
+            cat("  Outdegrees:\n")
             print(summary(private$.coef_degrees[1:private$.iglm.data$n_actor]))
-            cat("\n  In-degrees:\n")
+            cat("\n  Indegrees:\n")
             print(summary(private$.coef_degrees[(private$.iglm.data$n_actor + 1):(2 * private$.iglm.data$n_actor)]))
           } else {
-            print(summary(private$.coef_degrees))
+            print(summary(private$.coef_degrees[[1]]))
           }
         }
       } else {
@@ -539,11 +540,15 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     },
     #' @description
     #' Save the \code{\link{iglm.object}} to a file in RDS format.
-    #' @param file (character) File path to save the object to.
+    #' @param file (character) File path to save the object to (has to be a RDS object).
     #' @return Invisibly returns `NULL`.
     save = function(file = NULL) {
       if (missing(file) || !is.character(file) || length(file) != 1) {
         stop("A valid 'file' (character string) must be provided.", call. = FALSE)
+      }
+      extension <- tools::file_ext(file)
+      if (tolower(extension) != "rds") {
+        stop("File extension must be .rds", call. = FALSE)
       }
       data_to_save <- self$gather()
       saveRDS(data_to_save, file = file)
@@ -724,55 +729,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       invisible(info)
     },
     #' @description
-    #' Provides a summary of the estimation results.
+    #' Provides a summary of the estimation results with the following columns: Estimate, SE,
+    #' t-value, and Pr(>|t|).
     #' Requires the model to have been estimated first.
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @return Prints the summary to the console and returns `NULL` invisibly.
     summary = function(digits = 3) {
-      if (nrow(private$.results$coefficients_path) == 0) {
-        stop("No estimation results available. Please run `estimate()` first.", call. = FALSE)
-      }
-      cat("Results: \n\n")
-      names <- rownames(private$.coef)
-      est <- as.vector(private$.coef)
-
-      if (is.null(private$.results$var)) {
-        stderr <- sqrt(diag(solve(private$.results$fisher_nondegrees)))
-      } else {
-        stderr <- sqrt(diag(private$.results$var))
-      }
-      tvalue <- est / stderr
-      pvalue <- 2 * pnorm(-abs(tvalue))
-
-      coef_table <- cbind(est, stderr, tvalue, pvalue, private$.sufficient_statistics)
-      # Check if we can add space between the columns
-      colnames(coef_table) <- c("Estimate", "SE", "t-value", "Pr(>|t|)", "Suff. Statistic")
-      rownames(coef_table) <- names
-      coef_table <- round(coef_table, digits)
-      eps_threshold <- 10^(-digits)
-      which_wrong <- coef_table == 0
-      which_wrong[, 5] <- FALSE
-      coef_table[which_wrong] <-
-        paste0("< ", format(eps_threshold, scientific = FALSE))
-      print(coef_table, quote = FALSE, right = TRUE)
-
-      cat(paste(
-        "\nTime for estimation: ",
-        round(as.numeric(private$.time_estimation), 3),
-        attr(private$.time_estimation, "units"),
-        "\n"
-      ))
-      if (private$.preprocess$includes_degrees) {
-        cat("\nDegree Parameters:\n")
-        if (private$.iglm.data$directed) {
-          cat("  Out-degrees:\n")
-          print(summary(private$.coef_degrees[1:private$.iglm.data$n_actor]))
-          cat("\n  In-degrees:\n")
-          print(summary(private$.coef_degrees[(private$.iglm.data$n_actor + 1):(2 * private$.iglm.data$n_actor)]))
-        } else {
-          print(summary(private$.coef_degrees))
-        }
-      }
+      self$print(digits = digits, rows = c(1, 2,3,4))
     },
     #' @description
     #' Simulate networks from the fitted model or a specified model. Stores

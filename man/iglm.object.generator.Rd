@@ -201,7 +201,7 @@ available, they are printed in a standard coefficient table format.
 \item{\code{digits}}{(integer) Number of digits for rounding numeric output.}
 
 \item{\code{rows}}{numeric vector is provided with values between 1 and 4,
-only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|)).}
+only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.}
 
 \item{\code{...}}{Additional arguments (currently unused).}
 }
@@ -307,7 +307,7 @@ Save the \code{\link{iglm.object}} to a file in RDS format.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{file}}{(character) File path to save the object to.}
+\item{\code{file}}{(character) File path to save the object to (has to be a RDS object).}
 }
 \if{html}{\out{</div>}}
 }
@@ -339,7 +339,8 @@ If no preprocessing should be returned (as per control settings),
 \if{html}{\out{<a id="method-iglm.object-summary"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.object-summary}{}}}
 \subsection{Method \code{summary()}}{
-Provides a summary of the estimation results.
+Provides a summary of the estimation results with the following columns: Estimate, SE,
+t-value, and Pr(>|t|).
 Requires the model to have been estimated first.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$summary(digits = 3)}\if{html}{\out{</div>}}

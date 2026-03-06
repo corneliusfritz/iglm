@@ -480,12 +480,17 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' Saves the current state of the `iglm.data` object to a specified file path
     #' in RDS format. This includes all attributes, network, and configuration
     #' details necessary to reconstruct the object later.
-    #' @param file (character) The file where the object state should be saved.
+    #' @param file (character) The file where the object state should be saved. Must have a .rds extension.
     #' @return The `iglm.data` object itself (`self`), invisibly.
     save = function(file) {
       if (missing(file) || !is.character(file) || length(file) != 1) {
         stop("A valid 'file' (character string) must be provided.", call. = FALSE)
       }
+      extension <- tools::file_ext(file)
+      if (tolower(extension) != "rds") {
+        stop("File extension must be .rds", call. = FALSE)
+      }
+      
       data_to_save <- self$gather()
       saveRDS(data_to_save, file = file)
       message(paste("Object state saved to:", file))
@@ -1706,7 +1711,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'
 #' Daraganova, G., and Robins, G. (2013). Exponential random graph models for social networks: Theory, methods and applications, 102-114. Cambridge University Press.
 #' @examples
-#' data(state_twitter)
+#' state_twitter
 #' state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
 #' state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
 #' state_twitter$iglm.data$mean_x()

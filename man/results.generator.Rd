@@ -156,7 +156,7 @@ retrieval and analysis.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{file}}{(character) The file path where the results state should be
-saved. Must be a valid character string.}
+saved. Must be a valid character string. The file will be saved in RDS format, so it should end with `.rds`.}
 }
 \if{html}{\out{</div>}}
 }

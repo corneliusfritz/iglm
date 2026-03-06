@@ -121,11 +121,15 @@ results.generator <- R6::R6Class("results",
                                    #' in RDS format. This allows for persisting the results for later
                                    #' retrieval and analysis.
                                    #' @param file (character) The file path where the results state should be
-                                   #'   saved. Must be a valid character string.
+                                   #'   saved. Must be a valid character string. The file will be saved in RDS format, so it should end with `.rds`.
                                    #' @return The `results` object itself (`self`), invisibly. 
                                    save = function(file){
                                      if (missing(file) || !is.character(file) || length(file) != 1) {
                                        stop("A valid 'file' (character string) must be provided.", call. = FALSE)
+                                     }
+                                     extension <- tools::file_ext(file)
+                                     if (tolower(extension) != "rds") {
+                                       stop("File extension must be .rds", call. = FALSE)
                                      }
                                      data_to_save <- self$gather()
                                      saveRDS(data_to_save, file = file)

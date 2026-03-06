@@ -15,5 +15,5 @@ LinkingTo: Rcpp, RcppProgress, RcppArmadillo, Matrix
 RoxygenNote: 7.3.3
 Encoding: UTF-8
 VignetteBuilder: knitr
-LazyData: true
+LazyData: false
 SystemRequirements: C++17

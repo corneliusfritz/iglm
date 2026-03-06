@@ -363,7 +363,7 @@ details necessary to reconstruct the object later.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{file}}{(character) The file where the object state should be saved.}
+\item{\code{file}}{(character) The file where the object state should be saved. Must have a .rds extension.}
 }
 \if{html}{\out{</div>}}
 }
