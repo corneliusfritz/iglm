@@ -34,4 +34,4 @@ if (exists("iglm.data", mode = "function")) {
 } else {
     state_twitter <- list() # Dummy object for roxygen2 parsing
 }
-rm(twit_raw)
+rm(twit_raw, path)

@@ -87,11 +87,14 @@ relation based on an optional neighborhood definition, and performs
 extensive validation of all inputs.
 }
 \examples{
+\donttest{
+data("state_twitter")
 state_twitter
 state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
 state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
 state_twitter$iglm.data$mean_x()
 state_twitter$iglm.data$mean_y()
+}
 
 # Generate a small iglm data object either via adjacency matrix or edgelist
 tmp_adjacency <- iglm.data(

@@ -27,4 +27,4 @@ if (exists("iglm.data", mode = "function")) {
 } else {
     copenhagen <- list() # Dummy object for roxygen2 parsing
 }
-rm(copen_raw)
+rm(copen_raw, path)

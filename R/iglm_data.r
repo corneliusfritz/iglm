@@ -490,7 +490,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (tolower(extension) != "rds") {
         stop("File extension must be .rds", call. = FALSE)
       }
-      
+
       data_to_save <- self$gather()
       saveRDS(data_to_save, file = file)
       message(paste("Object state saved to:", file))
@@ -1711,11 +1711,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'
 #' Daraganova, G., and Robins, G. (2013). Exponential random graph models for social networks: Theory, methods and applications, 102-114. Cambridge University Press.
 #' @examples
+#' \donttest{
+#' data("state_twitter")
 #' state_twitter
 #' state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
 #' state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
 #' state_twitter$iglm.data$mean_x()
 #' state_twitter$iglm.data$mean_y()
+#' }
 #'
 #' # Generate a small iglm data object either via adjacency matrix or edgelist
 #' tmp_adjacency <- iglm.data(
