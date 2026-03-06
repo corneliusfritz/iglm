@@ -287,8 +287,8 @@ results.generator <- R6::R6Class("results",
           normalized <- scale(private$.stats)
           normalized[is.nan(normalized)] <- 0
           plot(NA, xlim = c(1, nrow(normalized)), ylim = range(normalized), xlab = "Sample", ylab = "Normalized Statistic", bty = "l")
-          for (tmp in 1:ncol(normalized)) {
-            lines(y = normalized[, tmp], x = 1:nrow(normalized), col = tmp)
+          for (tmp in seq_len(ncol(normalized))) {
+            lines(y = normalized[, tmp], x = seq_len(nrow(normalized)), col = tmp)
           }
         }
       }
@@ -300,7 +300,7 @@ results.generator <- R6::R6Class("results",
         plot(private$.llh, type = "l", xlab = "Iteration", ylab = "Log-likelihood", bty = "l")
 
         if (!is.null(private$.score_degrees)) {
-          coefficients_path_np <- matrix(private$.coefficients_path[, 1:nrow(private$.var)], ncol = nrow(private$.var))
+          coefficients_path_np <- matrix(private$.coefficients_path[, seq_len(nrow(private$.var))], ncol = nrow(private$.var))
           coefficients_path_p <- matrix(private$.coefficients_path[, (nrow(private$.var) + 1):ncol(private$.coefficients_path)],
             ncol = nrow(private$.fisher_degrees)
           )
@@ -309,8 +309,8 @@ results.generator <- R6::R6Class("results",
             xlim = c(1, nrow(coefficients_path_p)), ylim = range(coefficients_path_p),
             xlab = "Iteration", ylab = "Degree Coefficients", bty = "l"
           )
-          for (tmp in 1:ncol(coefficients_path_p)) {
-            lines(y = coefficients_path_p[, tmp], x = 1:nrow(coefficients_path_p), col = tmp)
+          for (tmp in seq_len(ncol(coefficients_path_p))) {
+            lines(y = coefficients_path_p[, tmp], x = seq_len(nrow(coefficients_path_p)), col = tmp)
           }
 
           plot(NA,
@@ -318,13 +318,13 @@ results.generator <- R6::R6Class("results",
             ylim = range(coefficients_path_np),
             xlab = "Iteration", ylab = "Coefficients", bty = "l"
           )
-          for (tmp in 1:ncol(coefficients_path_np)) {
-            lines(y = coefficients_path_np[, tmp], x = 1:nrow(coefficients_path_np), col = tmp)
+          for (tmp in seq_len(ncol(coefficients_path_np))) {
+            lines(y = coefficients_path_np[, tmp], x = seq_len(nrow(coefficients_path_np)), col = tmp)
           }
         } else {
           plot(NA, xlim = c(1, nrow(private$.coefficients_path)), ylim = range(private$.coefficients_path), xlab = "Iteration", ylab = "Coefficients")
-          for (tmp in 1:ncol(private$.coefficients_path)) {
-            lines(y = private$.coefficients_path[, tmp], x = 1:nrow(private$.coefficients_path), col = tmp)
+          for (tmp in seq_len(ncol(private$.coefficients_path))) {
+            lines(y = private$.coefficients_path[, tmp], x = seq_len(nrow(private$.coefficients_path)), col = tmp)
           }
         }
       }
@@ -356,7 +356,7 @@ results.generator <- R6::R6Class("results",
           add <- TRUE
           colors_tmp <- generate_colors(length(dot_list) + 1)
           if (is.null(names(dot_list))) {
-            names_tmp <- c(private$.model_assessment$name, paste0("Model ", 1:length(dot_list)))
+            names_tmp <- c(private$.model_assessment$name, paste0("Model ", seq_along(dot_list)))
           } else {
             names_tmp <- c(private$.model_assessment$name, names(dot_list))
           }
@@ -370,7 +370,7 @@ results.generator <- R6::R6Class("results",
           }
           normalized <- private$.stats
           normalized <- sweep(normalized, 2, private$.model_assessment$sufficient_statistics, "/")
-          for (i in 1:ncol(normalized)) {
+          for (i in seq_len(ncol(normalized))) {
             plot(density(normalized[, i]),
               main = paste0(names(private$.model_assessment$sufficient_statistics)[i]),
               bty = "l", xlab = "Ratio between Simulated and Observed Sufficient Statistics"
@@ -397,7 +397,7 @@ results.generator <- R6::R6Class("results",
                 simulated <- do.call("rbind", simulated)
 
                 simulated_list <- list()
-                for (j in 1:length(dot_list)) {
+                for (j in seq_along(dot_list)) {
                   simulated_list[[j]] <- lapply(dot_list[[j]]$simulated, function(x) {
                     x$degree_distribution$in_degree
                   })
@@ -441,7 +441,7 @@ results.generator <- R6::R6Class("results",
                   type = "l",
                   col = colors_tmp[1], lwd = 1
                 )
-                for (j in 1:length(dot_list)) {
+                for (j in seq_along(dot_list)) {
                   x_positions <- dot_list[[j]]$observed$degree_distribution$in_degree
                   simulated <- lapply(dot_list[[j]]$simulated, function(x) {
                     x$degree_distribution$in_degree
@@ -521,7 +521,7 @@ results.generator <- R6::R6Class("results",
                 simulated <- do.call("rbind", simulated)
 
                 simulated_list <- list()
-                for (j in 1:length(dot_list)) {
+                for (j in seq_along(dot_list)) {
                   simulated_list[[j]] <- lapply(dot_list[[j]]$simulated, function(x) {
                     x$degree_distribution$out_degree
                   })
@@ -565,7 +565,7 @@ results.generator <- R6::R6Class("results",
                   type = "l",
                   col = colors_tmp[1], lwd = 1
                 )
-                for (j in 1:length(dot_list)) {
+                for (j in seq_along(dot_list)) {
                   x_positions <- dot_list[[j]]$observed$degree_distribution$out_degree
                   simulated <- lapply(dot_list[[j]]$simulated, function(x) {
                     x$degree_distribution$out_degree
@@ -644,7 +644,7 @@ results.generator <- R6::R6Class("results",
                 simulated <- do.call("rbind", simulated)
 
                 simulated_list <- list()
-                for (j in 1:length(dot_list)) {
+                for (j in seq_along(dot_list)) {
                   simulated_list[[j]] <- lapply(dot_list[[j]]$simulated, function(x) {
                     x$degree_distribution
                   })
@@ -689,7 +689,7 @@ results.generator <- R6::R6Class("results",
                   type = "l",
                   col = colors_tmp[1], lwd = 1
                 )
-                for (j in 1:length(dot_list)) {
+                for (j in seq_along(dot_list)) {
                   x_positions <- dot_list[[j]]$observed$degree_distribution
                   simulated <- lapply(dot_list[[j]]$simulated, function(x) {
                     x$degree_distribution
@@ -779,7 +779,7 @@ results.generator <- R6::R6Class("results",
               simulated <- do.call("rbind", simulated)
 
               simulated_list <- list()
-              for (j in 1:length(dot_list)) {
+              for (j in seq_along(dot_list)) {
                 simulated_list[[j]] <- lapply(dot_list[[j]]$simulated, function(x) {
                   eval(parse(text = paste0("x$", tmp_names[k])))
                 })
@@ -831,7 +831,7 @@ results.generator <- R6::R6Class("results",
                 col = colors_tmp[1], lwd = 1
               )
 
-              for (j in 1:length(dot_list)) {
+              for (j in seq_along(dot_list)) {
                 x_positions <- eval(parse(text = paste0("dot_list[[j]]$observed$", tmp_names[k])))
 
                 simulated <- lapply(dot_list[[j]]$simulated, function(x) {
@@ -915,7 +915,7 @@ results.generator <- R6::R6Class("results",
 
 
               simulated_list <- list()
-              for (j in 1:length(dot_list)) {
+              for (j in seq_along(dot_list)) {
                 simulated_list[[j]] <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$spillover_degree_distribution$in_spillover_degree
                 })
@@ -962,7 +962,7 @@ results.generator <- R6::R6Class("results",
                 col = colors_tmp[1], lwd = 1
               )
 
-              for (j in 1:length(dot_list)) {
+              for (j in seq_along(dot_list)) {
                 x_positions <- dot_list[[j]]$observed$spillover_degree_distribution$in_spillover_degree
                 simulated <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$spillover_degree_distribution$in_spillover_degree
@@ -1043,7 +1043,7 @@ results.generator <- R6::R6Class("results",
                 col = colors_tmp[1], lwd = 1
               )
 
-              for (j in 1:length(dot_list)) {
+              for (j in seq_along(dot_list)) {
                 x_positions <- dot_list[[j]]$observed$spillover_degree_distribution$out_spillover_degree
                 simulated <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$spillover_degree_distribution$out_spillover_degree
@@ -1158,7 +1158,7 @@ results.generator <- R6::R6Class("results",
               simulated <- do.call("rbind", simulated)
 
               simulated_list <- list()
-              for (j in 1:length(dot_list)) {
+              for (j in seq_along(dot_list)) {
                 simulated_list[[j]] <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$geodesic_distances_distribution
                 })
@@ -1171,7 +1171,7 @@ results.generator <- R6::R6Class("results",
               ))
 
 
-              x_positions <- 1:length(private$.model_assessment$observed$geodesic_distances_distribution)
+              x_positions <- seq_along(private$.model_assessment$observed$geodesic_distances_distribution)
               plot(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
                 xlab = "Geodesic Distance", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                 xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
@@ -1208,8 +1208,8 @@ results.generator <- R6::R6Class("results",
                 col = colors_tmp[1], lwd = 1
               )
 
-              for (j in 1:length(dot_list)) {
-                x_positions <- 1:length(dot_list[[j]]$observed$geodesic_distances_distribution)
+              for (j in seq_along(dot_list)) {
+                x_positions <- seq_along(dot_list[[j]]$observed$geodesic_distances_distribution)
 
                 simulated <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$geodesic_distances_distribution
@@ -1252,7 +1252,7 @@ results.generator <- R6::R6Class("results",
               ))
 
 
-              x_positions <- 1:length(private$.model_assessment$observed$geodesic_distances_distribution)
+              x_positions <- seq_along(private$.model_assessment$observed$geodesic_distances_distribution)
               plot(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
                 xlab = "Geodesic Distance", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                 xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
@@ -1282,7 +1282,7 @@ results.generator <- R6::R6Class("results",
               })
               simulated <- do.call("rbind", simulated)
               simulated_list <- list()
-              for (j in 1:length(dot_list)) {
+              for (j in seq_along(dot_list)) {
                 simulated_list[[j]] <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$y_distribution
                 })
@@ -1296,7 +1296,7 @@ results.generator <- R6::R6Class("results",
               ))
 
 
-              x_positions <- 1:length(private$.model_assessment$observed$y_distribution)
+              x_positions <- seq_along(private$.model_assessment$observed$y_distribution)
               plot(x_positions, as.vector(private$.model_assessment$observed$y_distribution),
                 xlab = "Distribution of Y", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                 xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
@@ -1333,8 +1333,8 @@ results.generator <- R6::R6Class("results",
                 col = colors_tmp[1], lwd = 1
               )
 
-              for (j in 1:length(dot_list)) {
-                x_positions <- 1:length(dot_list[[j]]$observed$y_distribution)
+              for (j in seq_along(dot_list)) {
+                x_positions <- seq_along(dot_list[[j]]$observed$y_distribution)
 
                 simulated <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$y_distribution
@@ -1431,7 +1431,7 @@ results.generator <- R6::R6Class("results",
                 ))
 
 
-                x_positions <- 1:length(private$.model_assessment$observed$y_distribution)
+                x_positions <- seq_along(private$.model_assessment$observed$y_distribution)
                 plot(x_positions, as.vector(private$.model_assessment$observed$y_distribution),
                   xlab = "Distribution of Y", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                   xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
@@ -1462,7 +1462,7 @@ results.generator <- R6::R6Class("results",
               })
               simulated <- do.call("rbind", simulated)
               simulated_list <- list()
-              for (j in 1:length(dot_list)) {
+              for (j in seq_along(dot_list)) {
                 simulated_list[[j]] <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$x_distribution
                 })
@@ -1475,7 +1475,7 @@ results.generator <- R6::R6Class("results",
                 private$.model_assessment$observed$x_distribution
               ))
 
-              x_positions <- 1:length(private$.model_assessment$observed$x_distribution)
+              x_positions <- seq_along(private$.model_assessment$observed$x_distribution)
               plot(x_positions, as.vector(private$.model_assessment$observed$x_distribution),
                 xlab = "Distribution of Y", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                 xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
@@ -1512,8 +1512,8 @@ results.generator <- R6::R6Class("results",
                 col = colors_tmp[1], lwd = 1
               )
 
-              for (j in 1:length(dot_list)) {
-                x_positions <- 1:length(dot_list[[j]]$observed$x_distribution)
+              for (j in seq_along(dot_list)) {
+                x_positions <- seq_along(dot_list[[j]]$observed$x_distribution)
 
                 simulated <- lapply(dot_list[[j]]$simulated, function(x) {
                   x$x_distribution
@@ -1608,7 +1608,7 @@ results.generator <- R6::R6Class("results",
                 ))
 
 
-                x_positions <- 1:length(private$.model_assessment$observed$x_distribution)
+                x_positions <- seq_along(private$.model_assessment$observed$x_distribution)
                 plot(x_positions, as.vector(private$.model_assessment$observed$x_distribution),
                   xlab = "Distribution of X", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                   xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"

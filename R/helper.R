@@ -275,7 +275,7 @@ XYZ_to_R <- function(x_attribute, y_attribute, z_network, n_actor, return_adj_ma
 check_overlap <- function(mat_1, mat_2) {
   colnames(mat_1) <- colnames(mat_2)
   combined <- rbind(mat_1, mat_2)
-  return(duplicated(combined, fromLast = TRUE)[1:nrow(mat_1)])
+  return(duplicated(combined, fromLast = TRUE)[seq_len(nrow(mat_1))])
 }
 
 iglm.data.neighborhood <- function(neighborhood, directed = NA, n_actor = NA) {

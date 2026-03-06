@@ -271,7 +271,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
           }
           res$stats <- variability_simulations$stats
         } else {
-          tmp_split <- suppressWarnings(split(1:sampler$n_simulation, 1:length(sampler$cluster)))
+          tmp_split <- suppressWarnings(split(1:sampler$n_simulation, seq_along(sampler$cluster)))
           if (control$display_progress) {
             cat("Starting with parallel simulations")
           }
@@ -369,7 +369,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
 
         if (control$return_samples) {
           res$simulations <- lapply(
-            1:length(res$simulations$simulation_x_attributes),
+            seq_along(res$simulations$simulation_x_attributes),
             function(x) {
               XYZ_to_R(
                 x_attribute = res$simulations$simulation_x_attributes[[x]],
@@ -521,7 +521,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
             simulation_z_networks = variability_simulations$simulation_z_networks
           )
         } else {
-          tmp_split <- split(1:(round(sampler$n_simulation / length(sampler$cluster)) * length(sampler$cluster)), 1:length(sampler$cluster))
+          tmp_split <- split(1:(round(sampler$n_simulation / length(sampler$cluster)) * length(sampler$cluster)), seq_along(sampler$cluster))
           if (control$display_progress) {
             cat("Starting with parallel simulations")
           }
@@ -592,7 +592,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
         res$var <- res$var %*% var(variability_simulations$gradients) %*% res$var
         if (control$return_samples) {
           res$simulations <- lapply(
-            1:length(res$simulations$simulation_x_attributes),
+            seq_along(res$simulations$simulation_x_attributes),
             function(x) {
               XYZ_to_R(
                 x_attribute = res$simulations$simulation_x_attributes[[x]],
