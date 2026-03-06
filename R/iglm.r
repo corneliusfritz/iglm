@@ -474,7 +474,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
             cat("\n  Indegrees:\n")
             print(summary(private$.coef_degrees[(private$.iglm.data$n_actor + 1):(2 * private$.iglm.data$n_actor)]))
           } else {
-            print(summary(private$.coef_degrees[[1]]))
+            print(summary(as.vector(private$.coef_degrees)))
           }
         }
       } else {
