@@ -270,7 +270,8 @@ available, they are printed in a standard coefficient table format.
 
   numeric vector is provided with values between 1 and 4, only the
   corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4:
-  Pr(\>\|t\|)).
+  Pr(\>\|t\|), 5: Global Count of Sufficient Statistic). Default is
+  \`c(1, 2)\` to show only estimates and standard errors.
 
 - `...`:
 
@@ -381,7 +382,7 @@ Save the [`iglm.object`](iglm.md) to a file in RDS format.
 
 - `file`:
 
-  (character) File path to save the object to.
+  (character) File path to save the object to (has to be a RDS object).
 
 #### Returns
 
@@ -412,8 +413,9 @@ time.
 
 ### Method [`summary()`](https://rdrr.io/r/base/summary.html)
 
-Provides a summary of the estimation results. Requires the model to have
-been estimated first.
+Provides a summary of the estimation results with the following columns:
+Estimate, SE, t-value, and Pr(\>\|t\|). Requires the model to have been
+estimated first.
 
 #### Usage
 

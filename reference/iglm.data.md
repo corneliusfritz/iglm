@@ -135,14 +135,16 @@ Cambridge University Press.
 ## Examples
 
 ``` r
-data(state_twitter)
+state_twitter
+#> Error: object 'state_twitter' not found
 state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
-
-
+#> Error: object 'state_twitter' not found
 state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
-
+#> Error: object 'state_twitter' not found
 state_twitter$iglm.data$mean_x()
+#> Error: object 'state_twitter' not found
 state_twitter$iglm.data$mean_y()
+#> Error: object 'state_twitter' not found
 
 # Generate a small iglm data object either via adjacency matrix or edgelist
 tmp_adjacency <- iglm.data(

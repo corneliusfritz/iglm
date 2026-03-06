@@ -468,7 +468,8 @@ configuration details necessary to reconstruct the object later.
 
 - `file`:
 
-  (character) The file where the object state should be saved.
+  (character) The file where the object state should be saved. Must have
+  a .rds extension.
 
 #### Returns
 

@@ -198,7 +198,8 @@ retrieval and analysis.
 - `file`:
 
   (character) The file path where the results state should be saved.
-  Must be a valid character string.
+  Must be a valid character string. The file will be saved in RDS
+  format, so it should end with \`.rds\`.
 
 #### Returns
 
