@@ -21,12 +21,12 @@ By compiling this package, users can link custom C++ implementations of change s
 directly with the \code{iglm} package, enabling seamless integration of new model terms.
 }
 \details{
-The function creates a directory with the name specified in \code{pkg_name}  
+The function creates a directory with the name specified in \code{pkg_name}
 at the specified location.
-As an example for a possible statistic, the statistic counting mutual 
-connections in the network is implemented. 
+As an example for a possible statistic, the statistic counting mutual
+connections in the network is implemented.
 After defining all possible change-statistics in the c++ function (this has to include a change for
-\code{z_ij} (network), \code{x_i} (attribute x), and \code{y_i} (attribute y) all toggling from 0 to 1), 
+\code{z_ij} (network), \code{x_i} (attribute x), and \code{y_i} (attribute y) all toggling from 0 to 1),
 the function has to be registered using the \code{EFFECT_REGISTER} macro.
 After compiling the package,
 users have to load the package using \code{library(pkg_name)} before using it in \code{iglm}.

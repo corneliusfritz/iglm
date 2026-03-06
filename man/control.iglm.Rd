@@ -33,7 +33,7 @@ samples (i.e., \code{iglm.data} objects) generated during estimation (if applica
 \item{offset_nonoverlap}{(numeric) A value added to the linear predictor for
 dyads not in the 'overlap' set. Default is `0`.}
 
-\item{var_method}{(string) Method for variance estimation. Options are "Mean-value" (default), "Godambe", and "Hessian". 
+\item{var_method}{(string) Method for variance estimation. Options are "Mean-value" (default), "Godambe", and "Hessian".
 The mean-value version is described in Section 3.3 of Fritz et al. (2025), the Godambe method is described in Schmid and Hunter (2023), and the "Hessian" option just assumes that the pseudo likelihood is the correct likelihood.}
 
 \item{non_stop}{(logical) If `TRUE`, the estimation algorithm continues until

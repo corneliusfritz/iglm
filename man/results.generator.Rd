@@ -296,7 +296,7 @@ Optionally, can also trigger plotting of model assessment results if available.
 (log-likelihood and coefficient paths). Requires
 model to be estimated.}
 
-\item{\code{stats}}{(logical) If `TRUE`, plots the normalized statistics from simulations. 
+\item{\code{stats}}{(logical) If `TRUE`, plots the normalized statistics from simulations.
 Default is `FALSE`.}
 
 \item{\code{model_assessment}}{(logical) If `TRUE`, attempts to plot the results
@@ -304,7 +304,7 @@ stored in the `.model_assessment` field. Requires model assessment to
 have been run and a suitable `plot` method for `iglm_model_assessment`
 objects to exist. Default is `FALSE`.}
 
-\item{\code{...}}{Additional fits with identical model_assessment terms are currently identified from this argument. 
+\item{\code{...}}{Additional fits with identical model_assessment terms are currently identified from this argument.
 The names of the arguments are shown as the legend in the model assessment plots.}
 }
 \if{html}{\out{</div>}}

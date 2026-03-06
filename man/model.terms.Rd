@@ -7,15 +7,15 @@
 \description{
 The help pages of \code{\link{iglm}} describe the model with details on model fitting
 and estimation.
-Generally, a model is specified via it's sufficient statistics, 
-that can be further decomposed into two parts: 
+Generally, a model is specified via it's sufficient statistics,
+that can be further decomposed into two parts:
 \itemize{
   \item \strong{\eqn{\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))}}: A vector of unit-level functions (or "g-terms")
     that describe the relationship between an individual actor \eqn{i}'s
     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
   \item \strong{\eqn{\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z) = \mathbf{h}_{i,j}(x,y,z)= (h_{i,j}(x,y,z))}}: A vector of pair-level functions (or "h-terms")
     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})
-    of a pair of units \eqn{\{i,j\}} depend on each other and the wider 
+    of a pair of units \eqn{\{i,j\}} depend on each other and the wider
     network structure.
 }
 Each term defines a component for the model's features, which
@@ -30,11 +30,11 @@ The implemented terms are grouped into three categories:
 Below is a detailed description of each term that can be specified in the model formula (see, \code{\link{iglm}}):
 \code{iglm.data ~ <term_1> + <term_2> + ... }, where the left-hand side of the formula has to be a \code{\link{iglm.data}} object,
 and the right-hand side lists some of the terms from the list below, which should be included in the model.
-Setting, e.g., \code{<term_1>} to  \code{attribute_x} includes the term \eqn{g_i(x,y,z) = x_i} in \eqn{g_i}. 
+Setting, e.g., \code{<term_1>} to  \code{attribute_x} includes the term \eqn{g_i(x,y,z) = x_i} in \eqn{g_i}.
 Note that the function \code{\link{create_userterms_skeleton}} can be used to create custom terms.
 }
 \section{Notation}{
- 
+
 
 Here, \eqn{x_i} and \eqn{y_i} are the attributes for actor \eqn{i},
 and \eqn{z_{i,j}} indicates the presence (1) or absence (0) of a tie
@@ -46,10 +46,10 @@ neighborhood is given by
 The functions below specify the forms of \eqn{g_i(x_i,y_i)} and \eqn{h_{i,j}(x,y,z)}
 for each term.
 Some terms also depend on other covariates, which are denoted by
-\eqn{v = (v_1, ..., v_N)} (unit-level) and \eqn{w = (w_{i,j}) \in \mathbb{R}^{N \times N}}(dyadic). 
-These covariates must be provided by the user via the \code{data} argument of the terms. 
-Assuming that the matriv \code{x} exists in the environment associated with the 
-used formula, \code{cov_z(data = v)} includes the dyadic covariable \eqn{v = (v_{i,j})} in the model. 
+\eqn{v = (v_1, ..., v_N)} (unit-level) and \eqn{w = (w_{i,j}) \in \mathbb{R}^{N \times N}}(dyadic).
+These covariates must be provided by the user via the \code{data} argument of the terms.
+Assuming that the matriv \code{x} exists in the environment associated with the
+used formula, \code{cov_z(data = v)} includes the dyadic covariable \eqn{v = (v_{i,j})} in the model.
 Some terms also have a \code{mode} argument, which can take values
 \code{"global"}, \code{"local"}, or \code{"alocal"}.
 The \code{"global"} mode indicates that the statistic is computed
@@ -58,7 +58,7 @@ to local neighborhoods only (i.e., edges where \eqn{c_{i,j} = 1}).
 The \code{"alocal"} mode restricts the statistic to non-local edges
 only (i.e., edges where \eqn{c_{i,j} = 0}).
 For instance, \code{edges(mode = "local")} counts the number of edges
-that connect actors with overlapping neighborhoods. 
+that connect actors with overlapping neighborhoods.
 See underneath for which options are implemented for each term.
 See the documentation for \code{\link{iglm}} for details on model fitting
 and estimation.
@@ -98,7 +98,7 @@ and estimation.
     \strong{degrees [h-term]:} Adds fixed effects for all actors in the network. Estimation of degrees effects is carried out using a MM algorithm.
      For directed networks, each actors has a sender and receiver effect (we assume that the out effect of actor N is 0 for identifiability).
      For undirected networks, each actor has a single degrees effect.
-  } 
+  }
   \item{\code{edges(mode = "global")}}{
     \strong{Edges [h-term]:} Counts different types of edges.
     \itemize{
@@ -125,7 +125,7 @@ and estimation.
   }
   \item{\code{isolates}}{
     \strong{Isolates [z-term]:}
-    Counts and accounts for the number of non-isolated nodes. 
+    Counts and accounts for the number of non-isolated nodes.
   }
   \item{\code{nonisolates}}{
     \strong{Non-Isolates [z-term]:}
@@ -134,15 +134,15 @@ and estimation.
   }
   \item{\code{gwodegree(decay)}}{
     \strong{Geometrically Weighted Out-Degree  [z-term]:}
-    The Geometrically Weighted Out-Degree statistic is implemented as in the `ergm` package. 
+    The Geometrically Weighted Out-Degree statistic is implemented as in the `ergm` package.
   }
   \item{\code{gwidegree(decay)}}{
     \strong{Geometrically Weighted In-Degree [z-term]:}
-    The Geometrically Weighted In-Degree (GWIDegree) statistic is implemented as in the `ergm` package. 
+    The Geometrically Weighted In-Degree (GWIDegree) statistic is implemented as in the `ergm` package.
   }
   \item{\code{gwesp(data, mode = "global", variant = "OTP")}}{
     \strong{Geometrically Weighted  Edegewise-Shared Partners [h-term]:} Geometrically weighted edgewise shared partners (GWESP) statistic for directed networks as implemented in the `ergm` package.
-    Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}\, z_{i,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}\, z_{i,j}}), 
+    Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}\, z_{i,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}\, z_{i,j}}),
     OSP (outgoing shared partners, \eqn{z_{i,h}\,z_{j,h}\, z_{i,j}}), ISP (incoming shared partners, \eqn{z_{h,i}\,z_{h,j}\, z_{i,j}}).
     \itemize{
       \item \code{global}: ESP counts are calculated over all edges in the network.
@@ -151,7 +151,7 @@ and estimation.
   }
   \item{\code{gwdsp(data, mode = "global", variant = "OTP")}}{
     \strong{Geometrically Weighted  Dyadwise-Shared Partners [h-term]:} Geometrically weighted dyadwise shared partners (GWDSP) statistic for directed networks as implemented in the `ergm` package.
-    Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}}), 
+    Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}}),
     OSP (outgoing shared partners, \eqn{z_{i,h}\,z_{j,h}}), ISP (incoming shared partners, \eqn{z_{h,i}\,z_{h,j}}).
     \itemize{
       \item \code{global}: ESP counts are calculated over all edges in the network.
@@ -175,7 +175,7 @@ and estimation.
     }
   }
   \item{\code{transitive}}{
-    \strong{Transitivity (Local) [Joint]:} A statistic checking whether the dyad is a local transitive edge, meaning that there exists an actor \eqn{h \neq i,j} 
+    \strong{Transitivity (Local) [Joint]:} A statistic checking whether the dyad is a local transitive edge, meaning that there exists an actor \eqn{h \neq i,j}
     such that \eqn{h\in \mathcal{N}_i, h\in \mathcal{N}_j} with \eqn{z_{i,j} = z_{i,h} = z_{h,j}}: \eqn{h_{i,j} = c_{i,j} z_{i,j} \mathbb{I}(\sum_{k} c_{i,k} c_{j,k} z_{i,k} z_{k,j}>1)}
   }
    \item{\strong{3. \eqn{h_{i,j}} Terms for Joint Attribute/Network Dependence}}{}
@@ -224,7 +224,7 @@ and estimation.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j} / \text{local\_degree(i)}}.
   }
   \item{\code{spillover_yy}}{
-    \strong{Symmetric Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood. 
+    \strong{Symmetric Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j}}.
   }
   \item{\code{spillover_yy_scaled}}{
@@ -232,7 +232,7 @@ and estimation.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j} / \text{local\_degree(i)}}.
   }
   \item{\code{spillover_xy}}{
-    \strong{Directed X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood. 
+    \strong{Directed X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j}}.
   }
   \item{\code{spillover_xy_scaled}}{
@@ -240,7 +240,7 @@ and estimation.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j} / \text{local\_degree(i)}}.
   }
   \item{\code{spillover_xy_symm}}{
-    \strong{Symmetric X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \leftrightarrow y_j} treatment spillover \strong{within} the local neighborhood. 
+    \strong{Symmetric X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \leftrightarrow y_j} treatment spillover \strong{within} the local neighborhood.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} (x_i y_j + x_j y_i) z_{i,j}}.
   }
   \item{\code{spillover_yx}}{
@@ -256,7 +256,7 @@ and estimation.
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i v_j z_{i,j}}.
   }
   \item{\code{spillover_yc_symm(data = v)}}{
-    \strong{Symmetric Treatment Spillover [h-term]:} Models the \eqn{v_i \leftrightarrow y_j } treatment spillover . 
+    \strong{Symmetric Treatment Spillover [h-term]:} Models the \eqn{v_i \leftrightarrow y_j } treatment spillover .
     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} (v_i y_j + v_j y_i) z_{i,j}}.
   }
   }

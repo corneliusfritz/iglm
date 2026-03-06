@@ -8,7 +8,7 @@ statistics(formula)
 }
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
-name of a \code{\link{iglm.data}} object available in the calling environment. 
+name of a \code{\link{iglm.data}} object available in the calling environment.
 Alternatively, the left-hand side can be a \code{iglm.data.list} object to compute statistics
 for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
 See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
@@ -24,15 +24,17 @@ Computes statistics.
 }
 \examples{
 # Create a iglm.data object
-n_actor = 10
-neighborhood = matrix(1, nrow = n_actor, ncol = n_actor)
+n_actor <- 10
+neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
 type_x <- "binomial"
 type_y <- "binomial"
 x_attr_data <- rbinom(n_actor, 1, 0.5)
 y_attr_data <- rbinom(n_actor, 1, 0.5)
-z_net_data  <- matrix(0, nrow = n_actor, ncol = n_actor) 
-object = iglm.data(z_network = z_net_data, x_attribute = x_attr_data,
- y_attribute = y_attr_data, neighborhood = neighborhood,
- directed = FALSE,type_x = type_x,type_y = type_y)
+z_net_data <- matrix(0, nrow = n_actor, ncol = n_actor)
+object <- iglm.data(
+  z_network = z_net_data, x_attribute = x_attr_data,
+  y_attribute = y_attr_data, neighborhood = neighborhood,
+  directed = FALSE, type_x = type_x, type_y = type_y
+)
 statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
 }

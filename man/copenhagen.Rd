@@ -7,17 +7,17 @@
 \format{
 The \code{iglm.data} provides the following information:
 \describe{
-  \item{z_network}{A \eqn{E \times 2} integer matrix representing the 
+  \item{z_network}{A \eqn{E \times 2} integer matrix representing the
     undirected friendship network ($Z$).}
-  \item{x_attribute}{A logical/binomial vector of length \eqn{N} indicating 
+  \item{x_attribute}{A logical/binomial vector of length \eqn{N} indicating
     gender (1 for female, 0 for male).}
-  \item{y_attribute}{A numeric vector of length \eqn{N} representing the 
-    log-transformed total call duration in minutes: 
+  \item{y_attribute}{A numeric vector of length \eqn{N} representing the
+    log-transformed total call duration in minutes:
     \eqn{y_i = \log(\frac{\text{seconds}}{60})}.}
-  \item{neighborhood}{A matrix defining the proximity-based constraint 
-    space. Pairs are included if their cumulative 
+  \item{neighborhood}{A matrix defining the proximity-based constraint
+    space. Pairs are included if their cumulative
     physical proximity exceeded 24 hours during the observation period.}
-  \item{fix_x}{Boolean \code{TRUE}, indicating that the \eqn{x} attribute 
+  \item{fix_x}{Boolean \code{TRUE}, indicating that the \eqn{x} attribute
     is treated as exogenous.}
 }
 }
@@ -25,24 +25,24 @@ The \code{iglm.data} provides the following information:
 data(copenhagen)
 }
 \description{
-A preprocessed dataset containing social ties, physical proximity, and nodal 
-attributes for a subset of participants in the Copenhagen Networks Study. 
+A preprocessed dataset containing social ties, physical proximity, and nodal
+attributes for a subset of participants in the Copenhagen Networks Study.
 The object is provided as an \code{iglm.data} class.
 }
 \details{
 The following preprocessing steps were carried out:
 
 \itemize{
-  \item \bold{Temporal Aggregation:} Proximity data (Bluetooth scans) 
-    were aggregated into sessions. A session break was defined by any 
+  \item \bold{Temporal Aggregation:} Proximity data (Bluetooth scans)
+    were aggregated into sessions. A session break was defined by any
     temporal gap exceeding 10 minutes.
-  \item \bold{Recursive Pruning:} A recursive filter removed actors with missing 
-    gender information or isolated actors in either the 
+  \item \bold{Recursive Pruning:} A recursive filter removed actors with missing
+    gender information or isolated actors in either the
     friendship (\code{z_network}) or proximity (\code{neighborhood}) networks,
 }
 }
 \references{
-Sapiezynski, P., Stopczynski, A., Lassen, D. D. and Lehmann, S. (2019), 
+Sapiezynski, P., Stopczynski, A., Lassen, D. D. and Lehmann, S. (2019),
 Interaction data from the Copenhagen Networks Study. Scientific Data 6(1), 315.
 }
 \keyword{datasets}
