@@ -1,54 +1,54 @@
 #' @useDynLib iglm, .registration=TRUE
 
 # Rcpp::loadModule("double_cpp", TRUE)
-.onUnload <- function (libpath) {
+.onUnload <- function(libpath) {
   library.dynam.unload("iglm", libpath)
 }
 # Small helper functions
-rowMins <- function(x){
+rowMins <- function(x) {
   apply(x, 1, min)
 }
-rowMaxs <- function(x){
+rowMaxs <- function(x) {
   apply(x, 1, max)
 }
-colMins <- function(x){
+colMins <- function(x) {
   apply(x, 2, min)
 }
-colMaxs <- function(x){
+colMaxs <- function(x) {
   apply(x, 2, max)
 }
 add_alpha <- function(color_code, alpha_level) {
   if (alpha_level < 0 || alpha_level > 1) {
     stop("Alpha level must be between 0 and 1.")
   }
-  alpha_int <- round(alpha_level * 255) 
+  alpha_int <- round(alpha_level * 255)
   rgb_matrix <- col2rgb(color_code)
   new_color <- rgb(
-    red = rgb_matrix[1,], 
-    green = rgb_matrix[2,], 
-    blue = rgb_matrix[3,], 
-    alpha = alpha_int, 
+    red = rgb_matrix[1, ],
+    green = rgb_matrix[2, ],
+    blue = rgb_matrix[3, ],
+    alpha = alpha_int,
     maxColorValue = 255
   )
-  
+
   return(new_color)
 }
 
-#' @title Model specification for a `iglm' object 
+#' @title Model specification for a `iglm' object
 #'
 #' @description
-#' 
+#'
 #' The help pages of \code{\link{iglm}} describe the model with details on model fitting
 #' and estimation.
-#' Generally, a model is specified via it's sufficient statistics, 
-#' that can be further decomposed into two parts: 
+#' Generally, a model is specified via it's sufficient statistics,
+#' that can be further decomposed into two parts:
 #' \itemize{
 #'   \item \strong{\eqn{\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))}}: A vector of unit-level functions (or "g-terms")
 #'     that describe the relationship between an individual actor \eqn{i}'s
 #'     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
 #'   \item \strong{\eqn{\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z) = \mathbf{h}_{i,j}(x,y,z)= (h_{i,j}(x,y,z))}}: A vector of pair-level functions (or "h-terms")
 #'     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})
-#'     of a pair of units \eqn{\{i,j\}} depend on each other and the wider 
+#'     of a pair of units \eqn{\{i,j\}} depend on each other and the wider
 #'     network structure.
 #' }
 #' Each term defines a component for the model's features, which
@@ -63,11 +63,11 @@ add_alpha <- function(color_code, alpha_level) {
 #' Below is a detailed description of each term that can be specified in the model formula (see, \code{\link{iglm}}):
 #' \code{iglm.data ~ <term_1> + <term_2> + ... }, where the left-hand side of the formula has to be a \code{\link{iglm.data}} object,
 #' and the right-hand side lists some of the terms from the list below, which should be included in the model.
-#' Setting, e.g., \code{<term_1>} to  \code{attribute_x} includes the term \eqn{g_i(x,y,z) = x_i} in \eqn{g_i}. 
+#' Setting, e.g., \code{<term_1>} to  \code{attribute_x} includes the term \eqn{g_i(x,y,z) = x_i} in \eqn{g_i}.
 #' Note that the function \code{\link{create_userterms_skeleton}} can be used to create custom terms.
-#' 
-#' @section Notation: 
-#' 
+#'
+#' @section Notation:
+#'
 #' Here, \eqn{x_i} and \eqn{y_i} are the attributes for actor \eqn{i},
 #' and \eqn{z_{i,j}} indicates the presence (1) or absence (0) of a tie
 #' from actor \eqn{i} to actor \eqn{j}.
@@ -78,10 +78,10 @@ add_alpha <- function(color_code, alpha_level) {
 #' The functions below specify the forms of \eqn{g_i(x_i,y_i)} and \eqn{h_{i,j}(x,y,z)}
 #' for each term.
 #' Some terms also depend on other covariates, which are denoted by
-#' \eqn{v = (v_1, ..., v_N)} (unit-level) and \eqn{w = (w_{i,j}) \in \mathbb{R}^{N \times N}}(dyadic). 
-#' These covariates must be provided by the user via the \code{data} argument of the terms. 
-#' Assuming that the matriv \code{x} exists in the environment associated with the 
-#' used formula, \code{cov_z(data = v)} includes the dyadic covariable \eqn{v = (v_{i,j})} in the model. 
+#' \eqn{v = (v_1, ..., v_N)} (unit-level) and \eqn{w = (w_{i,j}) \in \mathbb{R}^{N \times N}}(dyadic).
+#' These covariates must be provided by the user via the \code{data} argument of the terms.
+#' Assuming that the matriv \code{x} exists in the environment associated with the
+#' used formula, \code{cov_z(data = v)} includes the dyadic covariable \eqn{v = (v_{i,j})} in the model.
 #' Some terms also have a \code{mode} argument, which can take values
 #' \code{"global"}, \code{"local"}, or \code{"alocal"}.
 #' The \code{"global"} mode indicates that the statistic is computed
@@ -90,13 +90,13 @@ add_alpha <- function(color_code, alpha_level) {
 #' The \code{"alocal"} mode restricts the statistic to non-local edges
 #' only (i.e., edges where \eqn{c_{i,j} = 0}).
 #' For instance, \code{edges(mode = "local")} counts the number of edges
-#' that connect actors with overlapping neighborhoods. 
+#' that connect actors with overlapping neighborhoods.
 #' See underneath for which options are implemented for each term.
 #' See the documentation for \code{\link{iglm}} for details on model fitting
 #' and estimation.
-#' 
+#'
 #' @section List of Terms:
-#' 
+#'
 #' \describe{
 #'    \item{\strong{1. \eqn{g_i} Terms for Attribute Dependence}}{}
 #'   \item{\code{attribute_x}}{
@@ -128,7 +128,7 @@ add_alpha <- function(color_code, alpha_level) {
 #'     \strong{degrees [h-term]:} Adds fixed effects for all actors in the network. Estimation of degrees effects is carried out using a MM algorithm.
 #'      For directed networks, each actors has a sender and receiver effect (we assume that the out effect of actor N is 0 for identifiability).
 #'      For undirected networks, each actor has a single degrees effect.
-#'   } 
+#'   }
 #'   \item{\code{edges(mode = "global")}}{
 #'     \strong{Edges [h-term]:} Counts different types of edges.
 #'     \itemize{
@@ -155,7 +155,7 @@ add_alpha <- function(color_code, alpha_level) {
 #'   }
 #'   \item{\code{isolates}}{
 #'     \strong{Isolates [z-term]:}
-#'     Counts and accounts for the number of non-isolated nodes. 
+#'     Counts and accounts for the number of non-isolated nodes.
 #'   }
 #'   \item{\code{nonisolates}}{
 #'     \strong{Non-Isolates [z-term]:}
@@ -164,15 +164,15 @@ add_alpha <- function(color_code, alpha_level) {
 #'   }
 #'   \item{\code{gwodegree(decay)}}{
 #'     \strong{Geometrically Weighted Out-Degree  [z-term]:}
-#'     The Geometrically Weighted Out-Degree statistic is implemented as in the `ergm` package. 
+#'     The Geometrically Weighted Out-Degree statistic is implemented as in the `ergm` package.
 #'   }
 #'   \item{\code{gwidegree(decay)}}{
 #'     \strong{Geometrically Weighted In-Degree [z-term]:}
-#'     The Geometrically Weighted In-Degree (GWIDegree) statistic is implemented as in the `ergm` package. 
+#'     The Geometrically Weighted In-Degree (GWIDegree) statistic is implemented as in the `ergm` package.
 #'   }
 #'   \item{\code{gwesp(data, mode = "global", variant = "OTP")}}{
 #'     \strong{Geometrically Weighted  Edegewise-Shared Partners [h-term]:} Geometrically weighted edgewise shared partners (GWESP) statistic for directed networks as implemented in the `ergm` package.
-#'     Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}\, z_{i,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}\, z_{i,j}}), 
+#'     Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}\, z_{i,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}\, z_{i,j}}),
 #'     OSP (outgoing shared partners, \eqn{z_{i,h}\,z_{j,h}\, z_{i,j}}), ISP (incoming shared partners, \eqn{z_{h,i}\,z_{h,j}\, z_{i,j}}).
 #'     \itemize{
 #'       \item \code{global}: ESP counts are calculated over all edges in the network.
@@ -181,7 +181,7 @@ add_alpha <- function(color_code, alpha_level) {
 #'   }
 #'   \item{\code{gwdsp(data, mode = "global", variant = "OTP")}}{
 #'     \strong{Geometrically Weighted  Dyadwise-Shared Partners [h-term]:} Geometrically weighted dyadwise shared partners (GWDSP) statistic for directed networks as implemented in the `ergm` package.
-#'     Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}}), 
+#'     Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}}),
 #'     OSP (outgoing shared partners, \eqn{z_{i,h}\,z_{j,h}}), ISP (incoming shared partners, \eqn{z_{h,i}\,z_{h,j}}).
 #'     \itemize{
 #'       \item \code{global}: ESP counts are calculated over all edges in the network.
@@ -205,7 +205,7 @@ add_alpha <- function(color_code, alpha_level) {
 #'     }
 #'   }
 #'   \item{\code{transitive}}{
-#'     \strong{Transitivity (Local) [Joint]:} A statistic checking whether the dyad is a local transitive edge, meaning that there exists an actor \eqn{h \neq i,j} 
+#'     \strong{Transitivity (Local) [Joint]:} A statistic checking whether the dyad is a local transitive edge, meaning that there exists an actor \eqn{h \neq i,j}
 #'     such that \eqn{h\in \mathcal{N}_i, h\in \mathcal{N}_j} with \eqn{z_{i,j} = z_{i,h} = z_{h,j}}: \eqn{h_{i,j} = c_{i,j} z_{i,j} \mathbb{I}(\sum_{k} c_{i,k} c_{j,k} z_{i,k} z_{k,j}>1)}
 #'   }
 #'    \item{\strong{3. \eqn{h_{i,j}} Terms for Joint Attribute/Network Dependence}}{}
@@ -254,7 +254,7 @@ add_alpha <- function(color_code, alpha_level) {
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j} / \text{local\_degree(i)}}.
 #'   }
 #'   \item{\code{spillover_yy}}{
-#'     \strong{Symmetric Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood. 
+#'     \strong{Symmetric Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood.
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j}}.
 #'   }
 #'   \item{\code{spillover_yy_scaled}}{
@@ -262,7 +262,7 @@ add_alpha <- function(color_code, alpha_level) {
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j} / \text{local\_degree(i)}}.
 #'   }
 #'   \item{\code{spillover_xy}}{
-#'     \strong{Directed X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood. 
+#'     \strong{Directed X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood.
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j}}.
 #'   }
 #'   \item{\code{spillover_xy_scaled}}{
@@ -270,7 +270,7 @@ add_alpha <- function(color_code, alpha_level) {
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j} / \text{local\_degree(i)}}.
 #'   }
 #'   \item{\code{spillover_xy_symm}}{
-#'     \strong{Symmetric X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \leftrightarrow y_j} treatment spillover \strong{within} the local neighborhood. 
+#'     \strong{Symmetric X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \leftrightarrow y_j} treatment spillover \strong{within} the local neighborhood.
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} (x_i y_j + x_j y_i) z_{i,j}}.
 #'   }
 #'   \item{\code{spillover_yx}}{
@@ -286,20 +286,20 @@ add_alpha <- function(color_code, alpha_level) {
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i v_j z_{i,j}}.
 #'   }
 #'   \item{\code{spillover_yc_symm(data = v)}}{
-#'     \strong{Symmetric Treatment Spillover [h-term]:} Models the \eqn{v_i \leftrightarrow y_j } treatment spillover . 
+#'     \strong{Symmetric Treatment Spillover [h-term]:} Models the \eqn{v_i \leftrightarrow y_j } treatment spillover .
 #'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} (v_i y_j + v_j y_i) z_{i,j}}.
 #'   }
 #'   }
-#' @references 
-#' 
+#' @references
+#'
 #' Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
-#' 
+#'
 #' Schweinberger, M. and M.S. Handcock (2015). Local Dependence in Random Graph Models: Characterization, Properties, and Statistical Inference. Journal of the Royal Statistical Society, Series B (Statistical Methodology), 7, 647-676.
-#' 
+#'
 #' Schweinberger, M. and J.R. Stewart (2020). Concentration and Consistency Results for Canonical and Curved Exponential-Family Models of Random Graphs. The Annals of Statistics, 48, 374-396.
-#' 
-#' Stewart, J.R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. The Annals of Statistics, to appear. 
-#' 
+#'
+#' Stewart, J.R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. The Annals of Statistics, to appear.
+#'
 #' @aliases terms
 #' @name model.terms
 NULL
@@ -309,7 +309,7 @@ NULL
 #' @description
 #' This function generates the directory structure and source files for a new R package
 #' named \code{iglm.userterms} (or whatever name is provided in the parameter \code{pkg_name}).
-#'This auxiliary package serves as a template for extending the
+#' This auxiliary package serves as a template for extending the
 #' \code{iglm} framework to user-defined sufficient statistics.
 #' By compiling this package, users can link custom C++ implementations of change statistics
 #' directly with the \code{iglm} package, enabling seamless integration of new model terms.
@@ -319,37 +319,37 @@ NULL
 #' @param pkg_name A character string specifying the name of the package to be created.
 #'
 #' @details
-#' The function creates a directory with the name specified in \code{pkg_name}  
+#' The function creates a directory with the name specified in \code{pkg_name}
 #' at the specified location.
-#' As an example for a possible statistic, the statistic counting mutual 
-#' connections in the network is implemented. 
+#' As an example for a possible statistic, the statistic counting mutual
+#' connections in the network is implemented.
 #' After defining all possible change-statistics in the c++ function (this has to include a change for
-#' \code{z_ij} (network), \code{x_i} (attribute x), and \code{y_i} (attribute y) all toggling from 0 to 1), 
+#' \code{z_ij} (network), \code{x_i} (attribute x), and \code{y_i} (attribute y) all toggling from 0 to 1),
 #' the function has to be registered using the \code{EFFECT_REGISTER} macro.
 #' After compiling the package,
-#' users have to load the package using \code{library(pkg_name)} before using it in \code{iglm}. 
+#' users have to load the package using \code{library(pkg_name)} before using it in \code{iglm}.
 #'
 #' @export
 create_userterms_skeleton <- function(path = ".", pkg_name = "iglm.userterms") {
-  
-  
   pkg_path <- file.path(path, pkg_name)
-  
+
   if (dir.exists(pkg_path)) {
-    stop(paste("Directory", pkg_path, 
-               "already exists. Please remove it or choose a different location."))
+    stop(paste(
+      "Directory", pkg_path,
+      "already exists. Please remove it or choose a different location."
+    ))
   }
-  
+
   # 2. Create Directory Structure
   dir.create(pkg_path, recursive = TRUE)
   dir.create(file.path(pkg_path, "R"))
   dir.create(file.path(pkg_path, "src"))
-  
+
   # 3. Define File Contents based on your upload
-  
+
   # --- DESCRIPTION  ---
   desc_content <- c(
-    paste("Package: ",pkg_name),
+    paste("Package: ", pkg_name),
     "Type: Package",
     "Title: Userterms for Regression under Network Interference",
     "Version: 1.0",
@@ -363,31 +363,31 @@ create_userterms_skeleton <- function(path = ".", pkg_name = "iglm.userterms") {
     "NeedsCompilation: yes",
     "RoxygenNote: 7.3.3"
   )
-  
+
   # --- NAMESPACE ---
   ns_content <- c(
     "# Generated by roxygen2: do not edit by hand",
     "",
     "import(iglm)",
     "importFrom(Rcpp,evalCpp)",
-    paste0("useDynLib(",pkg_name,", .registration=TRUE)")
+    paste0("useDynLib(", pkg_name, ", .registration=TRUE)")
   )
-  
+
   zzz_content <- c(
-    paste("#' @useDynLib",pkg_name,", .registration=TRUE"),
+    paste("#' @useDynLib", pkg_name, ", .registration=TRUE"),
     "#' @import iglm",
     "#' @importFrom Rcpp evalCpp",
     "NULL"
   )
-  
-  
+
+
   # --- src/Makevars  ---
   makevars_content <- c(
     "IGLM_LIB_PATH = $(shell \"${R_HOME}/bin/Rscript\" -e \"cat(file.path(system.file(package='iglm'), 'libs'))\")",
     "IGLM_SO_PATH = $(shell \"${R_HOME}/bin/Rscript\" -e \"cat(file.path(system.file(package = 'iglm'), 'libs',paste0('iglm.so')))\")",
     "PKG_LIBS = $(IGLM_SO_PATH) -Wl,-rpath,$(IGLM_LIB_PATH) -lR $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)"
   )
-  
+
   # --- src/additional_cc.cpp ---
   cpp_content <- c(
     "#include <RcppArmadillo.h>",
@@ -416,13 +416,13 @@ create_userterms_skeleton <- function(path = ".", pkg_name = "iglm.userterms") {
     "// Register function",
     "EFFECT_REGISTER(\"my_mutual\", ::xyz_stat_my_mutual, \"my_mutual\", 0);"
   )
-  
+
   # 4. Write Files
   writeLines(desc_content, file.path(pkg_path, "DESCRIPTION"))
   writeLines(ns_content, file.path(pkg_path, "NAMESPACE"))
   writeLines(zzz_content, file.path(pkg_path, "R", "zzz.R"))
   writeLines(makevars_content, file.path(pkg_path, "src", "Makevars"))
   writeLines(cpp_content, file.path(pkg_path, "src", "additional_cc.cpp"))
-  
-  message(paste0("Package skeleton ",pkg_name," created at:", normalizePath(pkg_path)))
+
+  message(paste0("Package skeleton ", pkg_name, " created at:", normalizePath(pkg_path)))
 }

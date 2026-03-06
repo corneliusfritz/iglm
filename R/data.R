@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This data object is data derived from the Twitter
-#' (X) interactions between U.S. state legislators, which is a subset of the 
+#' (X) interactions between U.S. state legislators, which is a subset of the
 #' data analyzed in Fritz et al. (2025).'
 #' The data is filtered to include only legislators from 10 states (NY, CA, TX,
 #' FL, IL, PA, OH, GA, NC, MI) and is further subset to the largest
@@ -61,18 +61,18 @@
 #' }
 #'
 #' @references
-#' Gopal, Kim, Nakka, Boehmke, Harden, Desmarais. 
-#' The National Network of U.S. State Legislators on Twitter. 
+#' Gopal, Kim, Nakka, Boehmke, Harden, Desmarais.
+#' The National Network of U.S. State Legislators on Twitter.
 #' Political Science Research & Methods, Forthcoming.
-#' 
-#' Kim, Nakka, Gopal, Desmarais,Mancinelli, Harden, Ko, and Boehmke (2022). 
-#' Attention to the COVID-19 pandemic on Twitter: Partisan differences among 
+#'
+#' Kim, Nakka, Gopal, Desmarais,Mancinelli, Harden, Ko, and Boehmke (2022).
+#' Attention to the COVID-19 pandemic on Twitter: Partisan differences among
 #' U.S. state legislators. Legislative Studies Quarterly 47, 1023–1041.
 #'
-#' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). 
-#' A Regression Framework for Studying Relationships among Attributes under Network Interference. 
+#' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025).
+#' A Regression Framework for Studying Relationships among Attributes under Network Interference.
 #' Journal of the American Statistical Association, to appear.
-#' 
+#'
 #' @usage
 #' data(state_twitter)
 #'
@@ -83,8 +83,8 @@ NULL
 #' Copenhagen Network Study
 #'
 #' @description
-#' A preprocessed dataset containing social ties, physical proximity, and nodal 
-#' attributes for a subset of participants in the Copenhagen Networks Study. 
+#' A preprocessed dataset containing social ties, physical proximity, and nodal
+#' attributes for a subset of participants in the Copenhagen Networks Study.
 #' The object is provided as an \code{iglm.data} class.
 #'
 #' @docType data
@@ -93,37 +93,37 @@ NULL
 #'
 #' @format The \code{iglm.data} provides the following information:
 #' \describe{
-#'   \item{z_network}{A \eqn{E \times 2} integer matrix representing the 
+#'   \item{z_network}{A \eqn{E \times 2} integer matrix representing the
 #'     undirected friendship network ($Z$).}
-#'   \item{x_attribute}{A logical/binomial vector of length \eqn{N} indicating 
+#'   \item{x_attribute}{A logical/binomial vector of length \eqn{N} indicating
 #'     gender (1 for female, 0 for male).}
-#'   \item{y_attribute}{A numeric vector of length \eqn{N} representing the 
-#'     log-transformed total call duration in minutes: 
+#'   \item{y_attribute}{A numeric vector of length \eqn{N} representing the
+#'     log-transformed total call duration in minutes:
 #'     \eqn{y_i = \log(\frac{\text{seconds}}{60})}.}
-#'   \item{neighborhood}{A matrix defining the proximity-based constraint 
-#'     space. Pairs are included if their cumulative 
+#'   \item{neighborhood}{A matrix defining the proximity-based constraint
+#'     space. Pairs are included if their cumulative
 #'     physical proximity exceeded 24 hours during the observation period.}
-#'   \item{fix_x}{Boolean \code{TRUE}, indicating that the \eqn{x} attribute 
+#'   \item{fix_x}{Boolean \code{TRUE}, indicating that the \eqn{x} attribute
 #'     is treated as exogenous.}
 #' }
 #'
 #' @details
 #' The following preprocessing steps were carried out:
-#' 
+#'
 #' \itemize{
-#'   \item \bold{Temporal Aggregation:} Proximity data (Bluetooth scans) 
-#'     were aggregated into sessions. A session break was defined by any 
+#'   \item \bold{Temporal Aggregation:} Proximity data (Bluetooth scans)
+#'     were aggregated into sessions. A session break was defined by any
 #'     temporal gap exceeding 10 minutes.
-#'   \item \bold{Recursive Pruning:} A recursive filter removed actors with missing 
-#'     gender information or isolated actors in either the 
+#'   \item \bold{Recursive Pruning:} A recursive filter removed actors with missing
+#'     gender information or isolated actors in either the
 #'     friendship (\code{z_network}) or proximity (\code{neighborhood}) networks,
 #' }
 #'
 #' @references
 #'
-#' Sapiezynski, P., Stopczynski, A., Lassen, D. D. and Lehmann, S. (2019), 
+#' Sapiezynski, P., Stopczynski, A., Lassen, D. D. and Lehmann, S. (2019),
 #' Interaction data from the Copenhagen Networks Study. Scientific Data 6(1), 315.
-#' 
+#'
 #' @keywords datasets
 NULL
 
@@ -136,14 +136,13 @@ NULL
 #' @name rice
 #' @description
 #' The data was collected by Facebook and provided as part of Traud et al. (2012)
-#' @references 
-#' Traud, Mucha, Porter (2012). Social Structure of Facebook Network. 
+#' @references
+#' Traud, Mucha, Porter (2012). Social Structure of Facebook Network.
 #' Physica A: Statistical Mechanics and its Applications, 391, 4165-4180
-#' @format This data object is a pre-computed `iglm.data` object,  which encompassesa friendship network (`z_network`) 
+#' @format This data object is a pre-computed `iglm.data` object,  which encompassesa friendship network (`z_network`)
 #' with two binary covariates:
-#' gender (`x_attribute`) and whether the graduation year is 2008 (`y_attribute`). 
+#' gender (`x_attribute`) and whether the graduation year is 2008 (`y_attribute`).
 #' The "neighborhood" structure (`neighborhood`) is defined as students
 #' sharing the same dormitory.
 #' data(rice)
 NULL
-

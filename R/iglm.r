@@ -634,7 +634,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
         if (length(info$simulations) > 0) {
           tmp <- lapply(
-            1:length(info$simulations),
+            seq_along(info$simulations),
             function(x) {
               iglm.data(
                 x_attribute = info$simulations[[x]]$x_attribute,
@@ -735,7 +735,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @return Prints the summary to the console and returns `NULL` invisibly.
     summary = function(digits = 3) {
-      self$print(digits = digits, rows = c(1, 2,3,4))
+      self$print(digits = digits, rows = c(1, 2, 3, 4))
     },
     #' @description
     #' Simulate networks from the fitted model or a specified model. Stores

@@ -4,7 +4,7 @@
 #' Computes statistics.
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
-#'   name of a \code{\link{iglm.data}} object available in the calling environment. 
+#'   name of a \code{\link{iglm.data}} object available in the calling environment.
 #'   Alternatively, the left-hand side can be a \code{iglm.data.list} object to compute statistics
 #'   for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
 #'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
@@ -17,21 +17,23 @@
 #'
 #' @examples
 #' # Create a iglm.data object
-#' n_actor = 10
-#' neighborhood = matrix(1, nrow = n_actor, ncol = n_actor)
+#' n_actor <- 10
+#' neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
 #' type_x <- "binomial"
 #' type_y <- "binomial"
 #' x_attr_data <- rbinom(n_actor, 1, 0.5)
 #' y_attr_data <- rbinom(n_actor, 1, 0.5)
-#' z_net_data  <- matrix(0, nrow = n_actor, ncol = n_actor) 
-#' object = iglm.data(z_network = z_net_data, x_attribute = x_attr_data,
-#'  y_attribute = y_attr_data, neighborhood = neighborhood,
-#'  directed = FALSE,type_x = type_x,type_y = type_y)
+#' z_net_data <- matrix(0, nrow = n_actor, ncol = n_actor)
+#' object <- iglm.data(
+#'   z_network = z_net_data, x_attribute = x_attr_data,
+#'   y_attribute = y_attr_data, neighborhood = neighborhood,
+#'   directed = FALSE, type_x = type_x, type_y = type_y
+#' )
 #' statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
 #' @export
-statistics = function(formula) {
-  tmp_obj <- eval(formula[[2]],envir = environment(formula))
-  if(inherits(tmp_obj, "iglm.data.list")) {
+statistics <- function(formula) {
+  tmp_obj <- eval(formula[[2]], envir = environment(formula))
+  if (inherits(tmp_obj, "iglm.data.list")) {
     k <- length(tmp_obj)
     lhs_call <- formula[[2]]
     rhs_part <- formula[[3]]
@@ -41,43 +43,42 @@ statistics = function(formula) {
       new_formula_call <- call("~", new_lhs, rhs_part)
       as.formula(new_formula_call, env = f_env)
     })
-    counts <- lapply(formula_list, function(x){
+    counts <- lapply(formula_list, function(x) {
       statistics(x)
     })
-    counts <- do.call(counts,what = "rbind")
+    counts <- do.call(counts, what = "rbind")
     return(counts)
-  } else{
-    preprocessed = formula_preprocess(formula)
-    if(length(preprocessed$type_list) >0){
-      counts = as.vector(xyz_count_statistics(preprocessed))
-      names(counts) = preprocessed$coef_names  
+  } else {
+    preprocessed <- formula_preprocess(formula)
+    if (length(preprocessed$type_list) > 0) {
+      counts <- as.vector(xyz_count_statistics(preprocessed))
+      names(counts) <- preprocessed$coef_names
       return(counts)
     } else {
       warning("No valid terms specified in the formula. Returning an empty vector.")
       return(c())
     }
-    
   }
-
 }
 
 
-
-xyz_count_statistics = function(preprocessed, ...) {
-  n_actor_tmp = length(preprocessed$data_object$x_attribute)
+xyz_count_statistics <- function(preprocessed, ...) {
+  n_actor_tmp <- length(preprocessed$data_object$x_attribute)
   # browser()
-  xyz_count_global(z_network =  preprocessed$data_object$z_network,
-                   x_attribute = preprocessed$data_object$x_attribute,
-                   y_attribute = preprocessed$data_object$y_attribute,
-                   type_x = preprocessed$data_object$type_x,
-                   type_y = preprocessed$data_object$type_y,
-                   attr_x_scale = preprocessed$data_object$scale_x,
-                   attr_y_scale = preprocessed$data_object$scale_y,
-                   neighborhood = preprocessed$data_object$neighborhood,
-                   overlap=preprocessed$data_object$overlap,
-                   directed = preprocessed$data_object$directed,
-                   terms = preprocessed$term_names,
-                   data_list = preprocessed$data_list,
-                   type_list = preprocessed$type_list,
-                   n_actor = n_actor_tmp)
+  xyz_count_global(
+    z_network = preprocessed$data_object$z_network,
+    x_attribute = preprocessed$data_object$x_attribute,
+    y_attribute = preprocessed$data_object$y_attribute,
+    type_x = preprocessed$data_object$type_x,
+    type_y = preprocessed$data_object$type_y,
+    attr_x_scale = preprocessed$data_object$scale_x,
+    attr_y_scale = preprocessed$data_object$scale_y,
+    neighborhood = preprocessed$data_object$neighborhood,
+    overlap = preprocessed$data_object$overlap,
+    directed = preprocessed$data_object$directed,
+    terms = preprocessed$term_names,
+    data_list = preprocessed$data_list,
+    type_list = preprocessed$type_list,
+    n_actor = n_actor_tmp
+  )
 }
