@@ -32,16 +32,18 @@ terms.
 
 ``` r
 # Create a iglm.data object
-n_actor = 10
-neighborhood = matrix(1, nrow = n_actor, ncol = n_actor)
+n_actor <- 10
+neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
 type_x <- "binomial"
 type_y <- "binomial"
 x_attr_data <- rbinom(n_actor, 1, 0.5)
 y_attr_data <- rbinom(n_actor, 1, 0.5)
-z_net_data  <- matrix(0, nrow = n_actor, ncol = n_actor) 
-object = iglm.data(z_network = z_net_data, x_attribute = x_attr_data,
- y_attribute = y_attr_data, neighborhood = neighborhood,
- directed = FALSE,type_x = type_x,type_y = type_y)
+z_net_data <- matrix(0, nrow = n_actor, ncol = n_actor)
+object <- iglm.data(
+  z_network = z_net_data, x_attribute = x_attr_data,
+  y_attribute = y_attr_data, neighborhood = neighborhood,
+  directed = FALSE, type_x = type_x, type_y = type_y
+)
 statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
 #> edges(mode = 'local')           attribute_y           attribute_x 
 #>                     0                     5                     7 
