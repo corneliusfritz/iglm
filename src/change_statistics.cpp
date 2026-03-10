@@ -670,254 +670,73 @@ EFFECT_REGISTER("spillover_yc_symm", ::xyz_stat_interaction_edges_cov, "spillove
 
 
 auto xyz_stat_interaction_edges_xy= CHANGESTAT{
+  double res = 0.0;
+  // Undirected case
   if(!object.z_network.directed){
     if(mode == "z"){
       // What to do if the network change stat is desired
       // z_ij from 0 -> 1
       if(object.get_val_overlap(actor_i, actor_j)){
-        return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)+
-               object.x_attribute.get_val(actor_j)*object.y_attribute.get_val(actor_i));  
-      } else {
-        return(0);
-      }
-      
+        res = object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j)+
+          object.x_attribute.get_val(actor_j)*object.y_attribute.get_val(actor_i);
+      } 
     } else if (mode == "x"){
       // What to do if the attribute change stat is wanted
       // x_i from 0 -> 1
-      int res = 0;
       auto& connections_of_i =  object.adj_list_nb.at(actor_i);
       for (int k : connections_of_i) {
-        res+= object.y_attribute.get_val(k);
-        // }
+        if(k != actor_i){
+          res+= object.y_attribute.get_val(k);
+        } else {
+          Rcout << "Here" << std::endl;
+        }
       } 
-      // Rcout << res << std::endl;
-      return(res);
     } else{
       // What to do if the attribute change stat is wanted
       // y_i from 0 -> 1
-      int res = 0;
       auto& connections_of_i =  object.adj_list_nb.at(actor_i);
       
       for (int k : connections_of_i) {
-        // if(k != actor_j){
+        if(k != actor_i){
         res+= object.x_attribute.get_val(k);  
-        // }
+        } else {
+          Rcout << "Here" << std::endl;
+        }
       }
-      // Rcout << res << std::endl;
-      return(res);
+    }
+  } else {
+    if(mode == "z"){
+      // What to do if the network change stat is desired
+      // z_ij from 0 -> 1
+      if(object.get_val_overlap(actor_i, actor_j)){
+        res = object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j);
+      } 
+    } else if (mode == "x"){ 
+      // What to do if the attribute change stat is wanted
+      // x_i from 0 -> 1
+      auto& connections_of_i =  object.adj_list_nb.at(actor_i);
+      
+      for (int k : connections_of_i) {
+        if(k != actor_i){
+          res+= object.y_attribute.get_val(k);   
+        }
+      } 
+    } else{ 
+      // What to do if the attribute change stat is wanted
+      // y_i from 0 -> 1
+      auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
+      
+      for (int k : connections_of_i) {
+        if(k != actor_i){
+          res+= object.x_attribute.get_val(k);   
+        }
+      } 
     }
   }
-  if(mode == "z"){
-    // What to do if the network change stat is desired
-    // z_ij from 0 -> 1
-    if(object.get_val_overlap(actor_i, actor_j)){
-      return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j));  
-    } else { 
-      return(0);
-    } 
-    
-  } else if (mode == "x"){ 
-    // What to do if the attribute change stat is wanted
-    // x_i from 0 -> 1
-    int res = 0;
-    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
-    
-    for (int k : connections_of_i) {
-      res+= object.y_attribute.get_val(k); 
-    } 
-    // Rcout <<  res << std::endl;
-    return(res);
-  } else{ 
-    // What to do if the attribute change stat is wanted
-    // y_i from 0 -> 1
-    int res = 0;
-    auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
-    
-    for (int k : connections_of_i) {
-      // if(k != actor_j){
-      res+= object.x_attribute.get_val(k);   
-      // }
-    } 
-    // Rcout << res << std::endl;
-    return(res);
-  }
+  return(res);
+  
 };
 EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy", 0);
-
-// auto xyz_stat_spillover_yy_log= CHANGESTAT{
-//   if(mode == "z"){
-//     // What to do if the network change stat is desired
-//     // z_ij from 0 -> 1
-//     // Rcout <<  res << std::endl;
-// 
-//     if(object.get_val_overlap(actor_i, actor_j)){
-//       return((object.y_attribute.get_val(actor_i))* log(object.y_attribute.get_val(actor_j) +1));
-//     } else {
-//       return(0);
-//     }
-//   } else if (mode == "y"){
-//     // What to do if the attribute change stat is wanted
-//     // y_i from k -> k + 1
-//     double res = 0;
-//     auto& connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-//     std::vector<int> connections_of_i;
-// 
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections with overlap between them
-//       connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-//     } else {
-//       connections_of_i = connections_of_i_all;
-//     }
-//     for (int k : connections_of_i) {
-//       res+= log(object.y_attribute.get_val(k) +1);
-//     }
-//     Rcout << res << std::endl;
-//     return(res);
-//   } else{
-//     double res = 0;
-//     // Rcout << res << std::endl;
-//     return(res);
-//   }
-// };
-// EFFECT_REGISTER("spillover_yy_log", ::xyz_stat_spillover_yy_log, "spillover_yy_log", 0);
-
-// 
-// auto xyz_stat_spillover_yy_log= CHANGESTAT{
-//   if(mode == "z"){
-//     // What to do if the network change stat is desired
-//     // z_ij from 0 -> 1
-//     // Rcout <<  res << std::endl;
-//     
-//     if(object.get_val_overlap(actor_i, actor_j)){
-//       return( log(object.y_attribute.get_val(actor_i) +1)* log(object.y_attribute.get_val(actor_j) +1));  
-//     } else { 
-//       return(0);
-//     }  
-//   } else if (mode == "y"){  
-//     // What to do if the attribute change stat is wanted
-//     // y_i from k -> k + 1
-//     double res = 0;
-//     auto& connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-//     std::vector<int> connections_of_i;
-//     
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections with overlap between them
-//       connections_of_i = get_intersection(connections_of_i_all, object.overlap.at(actor_i));
-//     } else { 
-//       connections_of_i = connections_of_i_all;
-//     } 
-//     double val_previously = object.y_attribute.get_val(actor_i);
-//     for (int k : connections_of_i) {
-//       res+= log(object.y_attribute.get_val(k) +1) * log(val_previously +1); 
-//     }  
-//     // Rcout << res << std::endl;
-//     return(res);
-//   } else{  
-//     double res = 0;
-//     // Rcout << res << std::endl;
-//     return(res);
-//   }
-// };
-// EFFECT_REGISTER("spillover_yy_log", ::xyz_stat_spillover_yy_log, "spillover_yy_log", 0);
-
-// 
-// auto xyz_stat_interaction_edges_directed= CHANGESTAT{
-//   if(mode == "z"){
-//     // What to do if the network change stat is desired
-//     // z_ij from 0 -> 1
-//     if(object.get_val_overlap(actor_i, actor_j)){
-//       return(object.x_attribute.get_val(actor_i)*object.y_attribute.get_val(actor_j));  
-//     } else { 
-//       return(0);
-//     }  
-//     
-//   } else if (mode == "x"){  
-//     // What to do if the attribute change stat is wanted
-//     // x_i from 0 -> 1
-//     int res = 0;
-//     auto& connections_of_i_all =  object.z_network.adj_list.at(actor_i);
-//     std::vector<int> connections_of_i;
-//     
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections with overlap between them
-//       std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-//                             std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-//                             std::inserter(connections_of_i, std::begin(connections_of_i)));
-//     } else { 
-//       connections_of_i = connections_of_i_all;
-//     } 
-//     
-//     
-//     for (int k : connections_of_i) {
-//       res+= object.y_attribute.get_val(*k); 
-//     }  
-//     
-//     auto& connections_of_j_all =  object.z_network.adj_list.at(actor_j);
-//     std::vector<int> connections_of_j;
-//     
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections with overlap between them
-//       std::set_intersection(std::begin(connections_of_j_all), std::end(connections_of_j_all),
-//                             std::begin(object.overlap.at(actor_j)), std::end(object.overlap.at(actor_j)),
-//                             std::inserter(connections_of_j, std::begin(connections_of_j)));
-//     } else { 
-//       connections_of_j = connections_of_j_all;
-//     } 
-//     
-//     for (int k : connections_of_j) {
-//       res+= object.y_attribute.get_val(*k); 
-//     }  
-//     
-//     return(res);
-//   } else{  
-//     // What to do if the attribute change stat is wanted
-//     // y_i from 0 -> 1
-//     int res = 0;
-//     auto& connections_of_i_all =  object.z_network.adj_list_in.at(actor_i);
-//     std::vector<int> connections_of_i;
-//     
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections within the same group
-//       std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-//                             std::begin(object.overlap.at(actor_i)), std::end(object.overlap.at(actor_i)),
-//                             std::inserter(connections_of_i, std::begin(connections_of_i)));
-//     } else {  
-//       connections_of_i = connections_of_i_all;
-//     }  
-//     
-//     for (int k : connections_of_i) {
-//       // if(k != actor_j){
-//       res+= object.x_attribute.get_val(*k);   
-//       // }
-//     }  
-//     
-//     auto& connections_of_j_all =  object.z_network.adj_list_in.at(actor_j);
-//     std::vector<int> connections_of_j;
-//     
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections within the same group
-//       std::set_intersection(std::begin(connections_of_j_all), std::end(connections_of_j_all),
-//                             std::begin(object.overlap.at(actor_j)), std::end(object.overlap.at(actor_j)),
-//                             std::inserter(connections_of_j, std::begin(connections_of_j)));
-//     } else {  
-//       connections_of_j = connections_of_j_all;
-//     }  
-//     for (int k : connections_of_j) {
-//       // if(k != actor_j){
-//       res+= object.x_attribute.get_val(*k);   
-//       // }
-//     }  
-//     return(res);
-//   }
-// };
-// EFFECT_REGISTER("interaction_edges_directed", ::xyz_stat_interaction_edges_directed, "interaction_edges_directed", 0);
-
 
 auto xyz_stat_interaction_edges_y_cov= CHANGESTAT{
   if(mode == "z"){
@@ -1016,52 +835,52 @@ auto xyz_stat_attribute_xy= CHANGESTAT{
   }
 };
 EFFECT_REGISTER("attribute_xy_global", ::xyz_stat_attribute_xy, "attribute_xy_global", 0);
-auto xyz_stat_matching_edges_x= CHANGESTAT{
-  if(mode == "z"){
-    // What to do if the network change stat is desired
-    // z_ij from 0 -> 1
-    // The change statistic will be x_i*x_j if actors i and j are in the same neighborhood
-    bool same_group = object.get_val_overlap(actor_i, actor_j);
-    // If the neighborhood is a full graph all actors are within the same group
-    if(same_group) {
-      // Rcout << "Change of an network!" << std::endl;
-      // Rcout << actor_i << std::endl;
-      // Rcout << actor_j << std::endl;
-      // Rcout << object.attribute.get_val(actor_i)*object.attribute.get_val(actor_j) << std::endl;
-      return(object.x_attribute.get_val(actor_i)*object.x_attribute.get_val(actor_j));
-    } else {
-      return(0);
-    }
-  } else if (mode == "x"){
-    // What to do if the attribute change stat is wanted
-    // x_i from 0 -> 1
-    // The change statistic will be sum_{h with h and i being in the same neighborhood}x_h z_{h,i} 
-    int res = 0;
-    auto& connections_of_i =  object.adj_list_nb.at(actor_i);
-    
-    for (int k : connections_of_i) {
-      res+= object.x_attribute.get_val(k);
-      // }
-    }
-    if(object.z_network.directed){
-      auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
-      
-      for (int k : connections_of_i) {
-        // Rcout << "Attribute of actor";
-        // Rcout << k << std::endl;
-        // Rcout << object.attribute.get_val(k) << std::endl;
-        // if(k != actor_j){
-        res+= object.x_attribute.get_val(k);
-        // }
-      }
-    }
-    // Rcout << res << std::endl;
-    return(res);
-  } else {
-    return(0);
-  }
-};
-EFFECT_REGISTER("spillover_xx", ::xyz_stat_matching_edges_x, "spillover_xx", 0);
+// auto xyz_stat_matching_edges_x= CHANGESTAT{
+//   if(mode == "z"){
+//     // What to do if the network change stat is desired
+//     // z_ij from 0 -> 1
+//     // The change statistic will be x_i*x_j if actors i and j are in the same neighborhood
+//     bool same_group = object.get_val_overlap(actor_i, actor_j);
+//     // If the neighborhood is a full graph all actors are within the same group
+//     if(same_group) {
+//       // Rcout << "Change of an network!" << std::endl;
+//       // Rcout << actor_i << std::endl;
+//       // Rcout << actor_j << std::endl;
+//       // Rcout << object.attribute.get_val(actor_i)*object.attribute.get_val(actor_j) << std::endl;
+//       return(object.x_attribute.get_val(actor_i)*object.x_attribute.get_val(actor_j));
+//     } else {
+//       return(0);
+//     }
+//   } else if (mode == "x"){
+//     // What to do if the attribute change stat is wanted
+//     // x_i from 0 -> 1
+//     // The change statistic will be sum_{h with h and i being in the same neighborhood}x_h z_{h,i} 
+//     int res = 0;
+//     auto& connections_of_i =  object.adj_list_nb.at(actor_i);
+//     
+//     for (int k : connections_of_i) {
+//       res+= object.x_attribute.get_val(k);
+//       // }
+//     }
+//     if(object.z_network.directed){
+//       auto& connections_of_i =  object.adj_list_in_nb.at(actor_i);
+//       
+//       for (int k : connections_of_i) {
+//         // Rcout << "Attribute of actor";
+//         // Rcout << k << std::endl;
+//         // Rcout << object.attribute.get_val(k) << std::endl;
+//         // if(k != actor_j){
+//         res+= object.x_attribute.get_val(k);
+//         // }
+//       }
+//     }
+//     // Rcout << res << std::endl;
+//     return(res);
+//   } else {
+//     return(0);
+//   }
+// };
+// EFFECT_REGISTER("spillover_xx", ::xyz_stat_matching_edges_x, "spillover_xx", 0);
 
 // y_i*y_j*z_ij * c_ij
 auto xyz_stat_matching_edges_y= CHANGESTAT{
@@ -1085,15 +904,41 @@ auto xyz_stat_matching_edges_y= CHANGESTAT{
         res+= object.y_attribute.get_val(k);
       }
     }
-    // Rcpp::Rcout << "Edges count"<<std::endl;
-    // Rcpp::Rcout << object.count_edges() <<std::endl;
-    // Rcpp::Rcout << res <<std::endl;
     return(res);
   } else {
     return(0.0);
   }
 };
 EFFECT_REGISTER("spillover_yy", ::xyz_stat_matching_edges_y, "spillover_yy", 0);
+
+auto xyz_stat_matching_edges_x= CHANGESTAT{
+  if(mode == "z"){
+    // What to do if the network change stat is desired
+    // z_ij from 0 -> 1
+    return(object.x_attribute.get_val(actor_i)*object.x_attribute.get_val(actor_j)*object.get_val_overlap(actor_i, actor_j));
+  } else if (mode == "x"){
+    // What to do if the attribute change stat is wanted
+    // x_i from 0 -> 1
+    double res = 0.0;
+    const auto& connections_of_i =  object.adj_list_nb.at(actor_i);
+    // Rcpp::Rcout << connections_of_i.size() <<std::endl;
+    for (int k : connections_of_i) {
+      res+= object.x_attribute.get_val(k);
+    } 
+    if(object.z_network.directed){
+      const auto& connections_in_of_i =  object.adj_list_in_nb.at(actor_i);
+      // Rcpp::Rcout << connections_in_of_i.size() <<std::endl;
+      for (int k : connections_in_of_i) {
+        res+= object.x_attribute.get_val(k);
+      }
+    }
+    return(res);
+  } else {
+    return(0.0);
+  }
+};
+EFFECT_REGISTER("spillover_xx", ::xyz_stat_matching_edges_x, "spillover_xx", 0);
+
 auto xyz_stat_spillover_yx_scaled_global = CHANGESTAT{
   if(mode == "z"){
     if(object.z_network.directed){

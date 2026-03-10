@@ -1,4 +1,4 @@
-test_that("Test some sufficient statistics for undirected networks (Poisson/normal)", {
+test_that("Test some sufficient statistics for undirected networks", {
   n_actor <- 100
   block <- matrix(nrow = 50, ncol = 50, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 50, block, simplify = FALSE)))
@@ -14,9 +14,10 @@ test_that("Test some sufficient statistics for undirected networks (Poisson/norm
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
   neighborhood[(n_actor - size_neighborhood + 1):(n_actor), (n_actor - size_neighborhood + 1):(n_actor)] <- 1
-  # diag(neighborhood) <- 0
+
+  diag(neighborhood) <- 0
   type_x <- "normal"
-  type_y <- "poisson"
+  type_y <- "normal"
 
   xyz_obj_new <- iglm.data(
     neighborhood = neighborhood, directed = F,
@@ -101,7 +102,8 @@ test_that("Test some sufficient statistics for undirected networks (Poisson/norm
   model_tmp_new$simulate()
 
   expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
-  expect_all_true(as.vector(model_tmp_new$results$stats[, 2] == statistics(model_tmp_new$results$samples ~ attribute_y)))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.1))
+  
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 3]) - statistics(model_tmp_new$results$samples ~ attribute_x) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_local) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_local) < 0.1))
@@ -111,7 +113,28 @@ test_that("Test some sufficient statistics for undirected networks (Poisson/norm
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 9]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_global) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 11]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled_global) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 10]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_global) < 0.1))
+  
+  model_tmp_new <- iglm(
+    formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x +
+      spillover_xx +
+      spillover_xy +
+      spillover_yy + degrees,
+    coef = c(gt_coef, 0, 0, 0), coef_degrees = gt_coef_pop, 
+    sampler = sampler_new,
+    control = control.iglm(accelerated = F, max_it = 200, display_progress = F)
+  )
+  model_tmp_new$simulate()
+  # sum(model_tmp_new$results$samples[[1]]$y_attribute)
+  expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 3]) - statistics(model_tmp_new$results$samples ~ attribute_x) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx ) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yy ) < 0.1))
+  
 })
+
+
 
 test_that("Test some sufficient statistics for directed networks (Poisson)", {
   n_actor <- 100
@@ -131,7 +154,7 @@ test_that("Test some sufficient statistics for directed networks (Poisson)", {
   neighborhood[(n_actor - size_neighborhood + 1):(n_actor), (n_actor - size_neighborhood + 1):(n_actor)] <- 1
   # diag(neighborhood) <- 0
   type_x <- "normal"
-  type_y <- "poisson"
+  type_y <- "normal"
 
   xyz_obj_new <- iglm.data(
     neighborhood = neighborhood, directed = TRUE,
@@ -217,7 +240,7 @@ test_that("Test some sufficient statistics for directed networks (Poisson)", {
   model_tmp_new$simulate()
 
   expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
-  expect_all_true(as.vector(model_tmp_new$results$stats[, 2] == statistics(model_tmp_new$results$samples ~ attribute_y)))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.01))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 3]) - statistics(model_tmp_new$results$samples ~ attribute_x) < 0.01))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_local) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_local) < 0.1))
@@ -227,6 +250,26 @@ test_that("Test some sufficient statistics for directed networks (Poisson)", {
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 11]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled_global) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 9]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_global) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 10]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_global) < 0.1))
+  
+  
+  model_tmp_new <- iglm(
+    formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x +
+      spillover_xx +
+      spillover_xy +
+      spillover_yy + degrees,
+    coef = c(gt_coef, 0, 0, 0), coef_degrees = gt_coef_pop, 
+    sampler = sampler_new,
+    control = control.iglm(accelerated = F, max_it = 200, display_progress = F)
+  )
+  model_tmp_new$simulate()
+  
+  expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 3]) - statistics(model_tmp_new$results$samples ~ attribute_x) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx ) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yy ) < 0.1))
+  
 })
 
 

@@ -804,13 +804,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         // Rcout << tmp << std::endl;
         double safe_eta = std::min(tmp.at(0), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
-        global_stats += (tmp_val - object.x_attribute.get_val_no_scale(tmp_i)) / object.x_attribute.scale * change_stat;
+        global_stats += (tmp_val - object.x_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
       if(object.x_attribute.type == "normal"){
         HR= coef.t()*change_stat;
         double tmp_val = R::rnorm(HR.at(0), sqrt(object.x_attribute.scale)); 
-        global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i)) / object.x_attribute.scale * change_stat;
+        global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
     }
@@ -841,13 +841,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         tmp = coef.t()*change_stat;
         double safe_eta = std::min(tmp.at(0), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
-        global_stats +=  (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) / object.y_attribute.scale * change_stat;
+        global_stats +=  (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
       if(object.y_attribute.type == "normal"){
         HR= coef.t()*change_stat;
         double tmp_val = R::rnorm(HR.at(0), sqrt(object.y_attribute.scale)); 
-        global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) / object.y_attribute.scale * change_stat;
+        global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
       
@@ -1159,7 +1159,7 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
   for(int i: seq(1,n_actor)){
     if(!fix_x){
       p.increment(); 
-      x_i = object.x_attribute.get_val(i);
+      x_i = object.x_attribute.get_val_no_scale(i);
       xyz_calculate_change_stats(change_stat_attribute_i, i,
                                  i,
                                  object,
@@ -1173,7 +1173,7 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
       now += 1;  
     }
     p.increment(); 
-    y_i = object.y_attribute.get_val(i);
+    y_i = object.y_attribute.get_val_no_scale(i);
     xyz_calculate_change_stats(change_stat_attribute_i, i,
                                i,
                                object,
@@ -1404,27 +1404,58 @@ arma::mat get_B(arma::uvec i_vec, arma::uvec  j_vec,
                 int n_actor) {
   arma::mat B_mat(coef_nondegrees.size(),coef_degrees.size());
   B_mat.fill(0);
-  arma::vec exp_tmp, cov_degrees(coef_degrees.size());
-  cov_degrees.fill(0);
+  // arma::vec exp_tmp, cov_degrees(coef_degrees.size());
+  // cov_degrees.fill(0);
   unsigned int number_elements_network = i_vec.size();
   // For the calculation of B we only have to regard network information (relating to the first entries)
+  const double max_eta = 20.0;
   
-  arma::vec vec_network = arma::exp(offset_nonoverlap*(1-overlap_vec)+std::get<0>(pseudo_lh).rows(0,number_elements_network-1)*coef_nondegrees +
+  const arma::mat& X_net = std::get<0>(pseudo_lh);
+  
+  arma::vec eta = arma::exp(offset_nonoverlap*(1-overlap_vec)+std::get<0>(pseudo_lh).rows(0,number_elements_network-1)*coef_nondegrees +
     coef_degrees.elem(i_vec-1) + coef_degrees.elem(j_vec-1+ n_actor*directed));
-  arma::vec vec_attribute = arma::exp(std::get<0>(pseudo_lh).rows(number_elements_network,std::get<0>(pseudo_lh).n_rows-1)*coef_nondegrees); 
-  arma::vec result = join_cols(vec_network, vec_attribute); 
   
-  for(unsigned int i = 0; i < number_elements_network; i++){
+  for (unsigned int i = 0; i < number_elements_network; i++) {
+    double current_eta = eta.at(i);
+    double weight;
     
-    arma::uword i_idx = i_vec[i] - 1;
-    arma::uword j_idx = j_vec[i] - 1 + (directed ? n_actor : 0);
-    double weight = result.at(i) / std::pow(1.0 + result.at(i), 2);
-    const arma::rowvec& x_row = std::get<0>(pseudo_lh).row(i);
+    // --- Numerical Stability Logic ---
+    // weight = exp(eta) / (1 + exp(eta))^2  => which is p * (1-p)
+    if (std::abs(current_eta) > max_eta) {
+      // At extreme eta, p*(1-p) is effectively 0 in double precision.
+      // This prevents inf/inf = NaN errors.
+      weight = 0.0;
+    } else {
+      double exp_eta = std::exp(current_eta);
+      double one_plus_exp = 1.0 + exp_eta;
+      // Stable calculation of p * (1 - p)
+      weight = exp_eta / (one_plus_exp * one_plus_exp);
+    }
     
-    B_mat.col(i_idx) += weight * x_row.t();
-    B_mat.col(j_idx) += weight * x_row.t();
-    
-  } 
+    // Only update if weight is meaningful and finite
+    if (weight > 1e-18) {
+      arma::uword i_idx = i_vec[i] - 1;
+      arma::uword j_idx = j_vec[i] - 1 + (directed ? n_actor : 0);
+      
+      // Apply weight to the transpose of the change statistics row
+      const arma::rowvec& x_row = X_net.row(i);
+      
+      // B_mat is (p x 2n), we update columns corresponding to actors i and j
+      B_mat.col(i_idx) += weight * x_row.t();
+      B_mat.col(j_idx) += weight * x_row.t();
+    }
+  }
+  
+  // for(unsigned int i = 0; i < number_elements_network; i++){
+  //   arma::uword i_idx = i_vec[i] - 1;
+  //   arma::uword j_idx = j_vec[i] - 1 + (directed ? n_actor : 0);
+  //   double weight = eta.at(i) / std::pow(1.0 + eta.at(i), 2);
+  //   const arma::rowvec& x_row = std::get<0>(pseudo_lh).row(i);
+  //   
+  //   B_mat.col(i_idx) += weight * x_row.t();
+  //   B_mat.col(j_idx) += weight * x_row.t();
+  //   
+  // } 
   
   return(B_mat);
 }
@@ -3692,7 +3723,7 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
   }
   if(return_x){
     for(int i: seq(1,n_actor)){
-      x_i = object.x_attribute.get_val(i);
+      x_i = object.x_attribute.get_val_no_scale(i);
       xyz_calculate_change_stats(change_stat_attribute_i, i,
                                  i,
                                  object,
@@ -3716,7 +3747,7 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
   if(return_y){
     for(int i: seq(1,n_actor)){
       
-      y_i = object.y_attribute.get_val(i);
+      y_i = object.y_attribute.get_val_no_scale(i);
       
       xyz_calculate_change_stats(change_stat_attribute_i, i,
                                  i,

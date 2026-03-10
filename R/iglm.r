@@ -256,7 +256,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
             seed = 2
           )
           sampler.z.obj <- sampler.net.attr(
-            n_proposals = nrow(self$iglm.data$z_network) * 10,
+            n_proposals = nrow(self$iglm.data$overlap) * 10,
             seed = 3
           )
           private$.sampler <- sampler.iglm(
