@@ -46,5 +46,5 @@ object <- iglm.data(
 )
 statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
 #> edges(mode = 'local')           attribute_y           attribute_x 
-#>                     0                     5                     7 
+#>                     0                     6                     6 
 ```

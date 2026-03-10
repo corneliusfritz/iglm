@@ -50,7 +50,7 @@ An object of class \`sampler_net_attr\` (and \`R6\`).
 sampler_comp_default <- sampler.net.attr()
 sampler_comp_default
 #>   Number of proposals : 10000
-#>   Random seed         : 297839
+#>   Random seed         : 978979
 #>   TNT sampling        : TRUE
 
 # Custom settings
