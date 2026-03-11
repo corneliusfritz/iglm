@@ -18,10 +18,10 @@ test_that("Test some sufficient statistics for undirected networks", {
   diag(neighborhood) <- 0
   type_x <- "normal"
   type_y <- "normal"
-
+  # debugonce(iglm.data)
   xyz_obj_new <- iglm.data(
-    neighborhood = neighborhood, directed = F,
-    type_x = type_x, type_y = type_y
+    neighborhood = neighborhood, directed = FALSE,
+    type_x = type_x, type_y = type_y, scale_y = 2, scale_x = 3
   )
   gt_coef <- c(3, -1, -1)
   gt_coef_pop <- c(rnorm(n = n_actor, -2, 1))
@@ -63,21 +63,24 @@ test_that("Test some sufficient statistics for undirected networks", {
   val_xy <- c("spillover_xy_scaled(mode = 'local')" = 0)
   val_yx <- c("spillover_yx_scaled(mode = 'local')" = 0)
   network_nb <- z_network * overlap
+  
+  x_scaled <- tmp[[1]]$x_attribute / xyz_obj_new$scale_x
+  y_scaled <- tmp[[1]]$y_attribute / xyz_obj_new$scale_y
   for (i in 1:tmp[[1]]$n_actor) {
     if (sum(network_nb[i, ]) == 0) {
       next
     }
-    val_xx <- val_xx + sum((tmp[[1]]$x_attribute[i]) * tmp[[1]]$x_attribute[network_nb[i, ] == 1]) / sum(network_nb[i, ])
-    val_yy <- val_yy + sum((tmp[[1]]$y_attribute[i]) * tmp[[1]]$y_attribute[network_nb[i, ] == 1]) / sum(network_nb[i, ])
-    val_xy <- val_xy + sum((tmp[[1]]$x_attribute[i]) * tmp[[1]]$y_attribute[network_nb[i, ] == 1]) / sum(network_nb[i, ])
-    val_yx <- val_yx + sum((tmp[[1]]$y_attribute[i]) * tmp[[1]]$x_attribute[network_nb[i, ] == 1]) / sum(network_nb[i, ])
+    val_xx <- val_xx + sum(x_scaled[i] * x_scaled[network_nb[i, ] == 1]) / sum(network_nb[i, ])
+    val_yy <- val_yy + sum(y_scaled[i] * y_scaled[network_nb[i, ] == 1]) / sum(network_nb[i, ])
+    val_xy <- val_xy + (sum(x_scaled[i] * y_scaled[network_nb[i, ] == 1]) / sum(network_nb[i, ])) *
+      (xyz_obj_new$scale_y / xyz_obj_new$scale_x)
+    val_yx <- val_yx + sum(y_scaled[i] * x_scaled[network_nb[i, ] == 1]) / sum(network_nb[i, ])
   }
   expect_equal(count_values_iglm[1], val_xx)
   expect_equal(count_values_iglm[2], val_yy)
   expect_equal(count_values_iglm[3], val_xy)
   expect_equal(count_values_iglm[4], val_yx)
-
-
+  
   sampler_new <- sampler.iglm(
     n_burn_in = 1, n_simulation = 10,
     sampler_x = sampler.net.attr(n_proposals = n_actor * 100, seed = 13),
@@ -128,7 +131,7 @@ test_that("Test some sufficient statistics for undirected networks", {
   expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 3]) - statistics(model_tmp_new$results$samples ~ attribute_x) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx ) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yy ) < 0.1))
   
@@ -200,6 +203,7 @@ test_that("Test some sufficient statistics for directed networks (Poisson)", {
   val_xy <- c("spillover_xy_scaled(mode = 'local')" = 0)
   val_yx <- c("spillover_yx_scaled(mode = 'local')" = 0)
   network_nb <- z_network * overlap
+  
   for (i in 1:tmp[[1]]$n_actor) {
     if (sum(network_nb[i, ]) == 0) {
       next
