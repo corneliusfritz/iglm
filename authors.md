@@ -9,11 +9,11 @@
 ## Citation
 
 Fritz C, Schweinberger M (2026). *iglm: Regression under Network
-Interference*. R package version 1.1.
+Interference*. R package version 1.2.
 
     @Manual{,
       title = {iglm: Regression under Network Interference},
       author = {Cornelius Fritz and Michael Schweinberger},
       year = {2026},
-      note = {R package version 1.1},
+      note = {R package version 1.2},
     }
