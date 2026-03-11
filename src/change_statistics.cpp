@@ -259,19 +259,19 @@ EFFECT_REGISTER("edges_local", ::xyz_stat_edges_nb, "edges_local", 0);
 
 auto xyz_stat_attribute_xy_nb= CHANGESTAT{
   if(mode == "y"){
-    int res = 0;
+    double res = 0.0;
     for (auto k = object.overlap.at(unit_i).begin(); k != object.overlap.at(unit_i).end(); k++) {
       res+= object.y_attribute.get_val(*k);
     }
     return(res);
   } else if(mode == "x"){
-    int res = 0;
+    double res = 0.0;
     for (auto k = object.overlap.at(unit_i).begin(); k != object.overlap.at(unit_i).end(); k++) {
       res+= object.x_attribute.get_val(*k);
     }
     return(res);
   } else {
-    return(0);
+    return(0.0);
   }
 };
 EFFECT_REGISTER("attribute_xy_local", ::xyz_stat_attribute_xy_nb, "attribute_xy_local", 0);
@@ -283,7 +283,7 @@ auto xyz_stat_attribute_xy_nonb= CHANGESTAT{
       get_difference_vec(object.all_actors, object.overlap.at(unit_i));
     
     
-    int res = 0;
+    double res = 0.0;
     for (int k : difference_result) {
       res+= object.y_attribute.get_val(k);
     }
@@ -291,13 +291,13 @@ auto xyz_stat_attribute_xy_nonb= CHANGESTAT{
   } else if(mode == "x"){ 
     std::vector<int> difference_result = 
       get_difference_vec(object.all_actors, object.overlap.at(unit_i));
-    int res = 0;
+    double res = 0.0;
     for (int k : difference_result) {
       res+= object.x_attribute.get_val(k);
     } 
     return(res);
   } else { 
-    return(0);
+    return(0.0);
   }
 };
 EFFECT_REGISTER("attribute_xy_alocal", ::xyz_stat_attribute_xy_nonb, "attribute_xy_alocal", 0);
@@ -649,12 +649,12 @@ auto xyz_stat_interaction_edges_cov= CHANGESTAT{
   } else if (mode == "x"){
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
-    int res = 0;
+    double res = 0.0;
     return(res);
   } else{
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
-    int res = 0;
+    double res = 0.0;
     auto& connections_of_i =  object.adj_list_nb.at(unit_i);
     
     for (int k : connections_of_i) {
@@ -751,12 +751,12 @@ auto xyz_stat_interaction_edges_y_cov= CHANGESTAT{
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
     // Do nothing!
-    int res = 0;
+    double res = 0.0;
     return(res);
   } else{  
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
-    int res = 0;
+    double res = 0.0;
     auto& connections_of_i =  object.adj_list_nb.at(unit_i);
     
     for (int k : connections_of_i) {
@@ -782,13 +782,13 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     if(object.get_val_overlap(unit_i, unit_j)){
       return(object.x_attribute.get_val(unit_j)*object.y_attribute.get_val(unit_i));  
     } else { 
-      return(0);
+      return(0.0);
     } 
     
   } else if (mode == "x"){ 
     // What to do if the attribute change stat is wanted
     // x_i from 0 -> 1
-    int res = 0;
+    double res = 0.0;
     // Rcout << unit_i << std::endl;
     // Rcout << object.adj_list_in_nb.size() << std::endl;
     auto& connections_of_i =  object.adj_list_in_nb.at(unit_i);
@@ -806,7 +806,7 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
   } else{ 
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
-    int res = 0;
+    double res = 0.0;
     auto& connections_of_i =  object.adj_list_nb.at(unit_i);
     
     for (int k : connections_of_i) {
@@ -835,52 +835,6 @@ auto xyz_stat_attribute_xy= CHANGESTAT{
   }
 };
 EFFECT_REGISTER("attribute_xy_global", ::xyz_stat_attribute_xy, "attribute_xy_global", 0);
-// auto xyz_stat_matching_edges_x= CHANGESTAT{
-//   if(mode == "z"){
-//     // What to do if the network change stat is desired
-//     // z_ij from 0 -> 1
-//     // The change statistic will be x_i*x_j if actors i and j are in the same neighborhood
-//     bool same_group = object.get_val_overlap(unit_i, unit_j);
-//     // If the neighborhood is a full graph all actors are within the same group
-//     if(same_group) {
-//       // Rcout << "Change of an network!" << std::endl;
-//       // Rcout << unit_i << std::endl;
-//       // Rcout << unit_j << std::endl;
-//       // Rcout << object.attribute.get_val(unit_i)*object.attribute.get_val(unit_j) << std::endl;
-//       return(object.x_attribute.get_val(unit_i)*object.x_attribute.get_val(unit_j));
-//     } else {
-//       return(0);
-//     }
-//   } else if (mode == "x"){
-//     // What to do if the attribute change stat is wanted
-//     // x_i from 0 -> 1
-//     // The change statistic will be sum_{h with h and i being in the same neighborhood}x_h z_{h,i} 
-//     int res = 0;
-//     auto& connections_of_i =  object.adj_list_nb.at(unit_i);
-//     
-//     for (int k : connections_of_i) {
-//       res+= object.x_attribute.get_val(k);
-//       // }
-//     }
-//     if(object.z_network.directed){
-//       auto& connections_of_i =  object.adj_list_in_nb.at(unit_i);
-//       
-//       for (int k : connections_of_i) {
-//         // Rcout << "Attribute of actor";
-//         // Rcout << k << std::endl;
-//         // Rcout << object.attribute.get_val(k) << std::endl;
-//         // if(k != unit_j){
-//         res+= object.x_attribute.get_val(k);
-//         // }
-//       }
-//     }
-//     // Rcout << res << std::endl;
-//     return(res);
-//   } else {
-//     return(0);
-//   }
-// };
-// EFFECT_REGISTER("spillover_xx", ::xyz_stat_matching_edges_x, "spillover_xx", 0);
 
 // y_i*y_j*z_ij * c_ij
 auto xyz_stat_matching_edges_y= CHANGESTAT{
@@ -1862,7 +1816,6 @@ auto xyz_stat_spillover_yy_scaled_global = CHANGESTAT{
 };
 EFFECT_REGISTER("spillover_yy_scaled_global", ::xyz_stat_spillover_yy_scaled_global, "spillover_yy_scaled_global", 0);
 
-
 auto xyz_stat_spillover_xx_scaled = CHANGESTAT{
   // Statistic: y_i * Average(y_neighbors)
   if (mode == "z") {
@@ -2193,7 +2146,7 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
     return 0.0;
   }
   
-  int res = 0;
+  double res = 0.0;
   const auto &overlap_i = object.overlap.at(unit_i);
   if (!object.get_val_overlap(unit_i, unit_j)) return 0.0; // same_group check
   
@@ -2536,7 +2489,7 @@ auto xyz_stat_gwesp_local_OTP= CHANGESTAT{
     }
     return(res);
   }else { 
-    return(0);
+    return(0.0);
   }
 }; 
 EFFECT_REGISTER("gwesp_local_OTP", ::xyz_stat_gwesp_local_OTP, "gwesp_local_OTP",0.0);

@@ -179,7 +179,7 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
     // Rcout << object.x_attribute.attribute(i-1) << std::endl;
     
     alt_object.x_attribute.set_attr_value(i, object.x_attribute.attribute.at(i-1));
-    res +=change_stat*object.x_attribute.get_val_no_scale(i);
+    res +=change_stat*object.x_attribute.get_val(i);
   }
   // Rcout << "Y Attr" << std::endl;
   
@@ -196,7 +196,7 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
     // Rcout << change_stat << std::endl;
     // Rcout << "Here" << std::endl;
     alt_object.y_attribute.set_attr_value(i, object.y_attribute.attribute.at(i-1));
-    res +=change_stat*object.y_attribute.get_val_no_scale(i);
+    res +=change_stat*object.y_attribute.get_val(i);
   }
   return(res);
 }
@@ -790,7 +790,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(random_accept(a)<HR.at(0)){
-          global_stats += (multiplier * 1.0 / object.x_attribute.scale) * change_stat;
+          global_stats += (multiplier * 1.0) * change_stat;
           // Here we modify the network
           if(proposed_change == 0){
             object.x_attribute.set_attr_0(tmp_i);  
@@ -810,7 +810,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       if(object.x_attribute.type == "normal"){
         HR= coef.t()*change_stat;
         double tmp_val = R::rnorm(HR.at(0), sqrt(object.x_attribute.scale)); 
-        global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i)) * change_stat;
+        global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i))/object.x_attribute.scale * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
     }
@@ -847,7 +847,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       if(object.y_attribute.type == "normal"){
         HR= coef.t()*change_stat;
         double tmp_val = R::rnorm(HR.at(0), sqrt(object.y_attribute.scale)); 
-        global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) * change_stat;
+        global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i))/object.y_attribute.scale * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
       
