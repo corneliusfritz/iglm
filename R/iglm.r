@@ -425,8 +425,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @param rows  numeric vector is provided with values between 1 and 4,
     #'              only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.
-    #' @param ... Additional arguments (currently unused).
-    print = function(digits = 4, rows = c(1, 2), ...) {
+    #' @param formula_print (logical) If `TRUE`, also prints the model formula. Default is `TRUE`.  
+    print = function(digits = 4, rows = c(1, 2), formula_print = TRUE) {
       cat("iglm object\n")
       cat(strrep("-", 50), "\n", sep = "")
 
@@ -434,9 +434,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         stop("`digits` must be a single non-negative integer.", call. = FALSE)
       }
 
-
-      # --- Display formula
-      cat("Formula:\n  ", deparse(private$.formula), "\n", sep = "")
+      if(formula_print){
+        # --- Display formula
+        cat("Formula:\n  ", deparse(private$.formula), "\n", sep = "")
+      }
+      
       # --- Results
       if (nrow(private$.results$coefficients_path) > 0) {
         # cat("\n")
@@ -735,7 +737,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @return Prints the summary to the console and returns `NULL` invisibly.
     summary = function(digits = 3) {
-      self$print(digits = digits, rows = c(1, 2, 3, 4))
+      self$print(digits = digits, rows = c(1, 2, 3, 4), formula_print = FALSE)
     },
     #' @description
     #' Simulate networks from the fitted model or a specified model. Stores

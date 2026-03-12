@@ -325,55 +325,7 @@ auto xyz_stat_attribute_xz_nb= CHANGESTAT{
 };
 EFFECT_REGISTER("attribute_xz_local", ::xyz_stat_attribute_xz_nb, "attribute_xz_local", 0);
 
-// 
-// double xyz_stat_attribute_x_nb(XYZ_class &object,
-//                             int &unit_i,
-//                             int &unit_j,
-//                             arma::mat &data,
-//                             double &type,
-//                             std::string &mode,
-//                             bool &is_full_neighborhood){
-//   if(mode == "x"){
-//     int res = 0;
-//     
-//     for (auto k = object.overlap.at(unit_i).begin(); k != object.overlap.at(unit_i).end(); k++) {
-//       res+= object.x_attribute.get_val(*k);
-//     }
-//     return(res);
-//   } else {
-//     return(0);
-//   }
-// }
-// 
-// double xyz_stat_attribute_x_z_nb(XYZ_class &object,
-//                                  int &unit_i,
-//                                  int &unit_j,
-//                                  arma::mat &data,
-//                                  double &type,
-//                                  std::string &mode,
-//                                  bool &is_full_neighborhood){
-//   if(mode == "x"){
-//     int res = 0;
-//     std::vector<int>& connections_of_i_all =  object.z_network.adj_list.at(unit_i);
-//     std::vector<int> connections_of_i;
-//     
-//     // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
-//     if(!is_full_neighborhood){
-//       // Next we only want to get the connections within the same group
-//       std::set_intersection(std::begin(connections_of_i_all), std::end(connections_of_i_all),
-//                             std::begin(object.overlap.at(unit_i)), std::end(object.overlap.at(unit_i)),
-//                             std::inserter(connections_of_i, std::begin(connections_of_i)));
-//     } else {  
-//       connections_of_i = connections_of_i_all;
-//     }  
-//     res = connections_of_i.size();
-//     return(res);
-//   } else if(mode == "z"){
-//     return(object.x_attribute.get_val(unit_i) + object.x_attribute.get_val(unit_j));
-//   } else {
-//     return(0);
-//   }
-// } 
+
 
 auto xyz_stat_edges_x_out_nb= CHANGESTAT{
   if(mode == "x"){
@@ -385,6 +337,187 @@ auto xyz_stat_edges_x_out_nb= CHANGESTAT{
   }
 }; 
 EFFECT_REGISTER("outedges_x_local", ::xyz_stat_edges_x_out_nb, "outedges_x_local", 0);
+
+auto xyz_stat_edges_x_match_global = CHANGESTAT {
+  if (mode == "z") {
+    if (object.x_attribute.get_val(unit_i) ==  object.x_attribute.get_val(unit_j)) {
+      return 1.0;
+    } else {
+      return 0.0;
+    }
+    
+  } else if (mode == "x") { 
+    if(object.x_attribute.type != "binomial") {
+      Rcpp::stop("The x attribute should be binary for this statistic");
+    }
+    double res = 0.0; 
+    
+    if (object.z_network.directed) {
+      const auto& out_connections = object.z_network.adj_list.at(unit_i);
+      for (int k : out_connections) {
+        res += (2.0 * object.x_attribute.get_val(k) - 1.0);
+      }
+      const auto& in_connections = object.z_network.adj_list_in.at(unit_i);
+      for (int k : in_connections) {
+        res += (2.0 * object.x_attribute.get_val(k) - 1.0);
+      }
+    } else {
+      const auto& connections_of_i = object.z_network.adj_list.at(unit_i);
+      for (int k : connections_of_i) {
+        res += (2.0 * object.x_attribute.get_val(k) - 1.0);
+      } 
+    }
+    
+    return res;
+    
+  } else if (mode == "y") { 
+    return 0.0; 
+  } 
+  
+  return 0.0;
+}; 
+
+EFFECT_REGISTER("edges_x_match_global", ::xyz_stat_edges_x_match_global, "edges_x_match_global", 0);
+
+auto xyz_stat_edges_x_match_local = CHANGESTAT {
+  if (mode == "z") {
+    if(!object.get_val_overlap(unit_i, unit_j)) {
+      return 0.0;
+    }
+    if (object.x_attribute.get_val(unit_i) ==  object.x_attribute.get_val(unit_j)) {
+      return 1.0;
+    } else {
+      return 0.0;
+    } 
+    
+  } else if (mode == "x") {  
+    double res = 0.0; 
+    if(object.x_attribute.type != "binomial") {
+      Rcpp::stop("The x attribute should be binary for this statistic");
+    }
+    if (object.z_network.directed) {
+      const auto& out_connections = object.adj_list_nb.at(unit_i);
+      for (int k : out_connections) {
+        res += (2.0 * object.x_attribute.get_val(k) - 1.0);
+      }
+      const auto& in_connections = object.adj_list_in_nb.at(unit_i);
+      for (int k : in_connections) {
+        res += (2.0 * object.x_attribute.get_val(k) - 1.0);
+      }
+    } else {
+      const auto& connections_of_i = object.adj_list_nb.at(unit_i);
+      for (int k : connections_of_i) {
+        res += (2.0 * object.x_attribute.get_val(k) - 1.0);
+      }  
+    }
+    
+    return res;
+    
+  } else if (mode == "y") {  
+    return 0.0; 
+  }  
+  return 0.0;
+};  
+
+EFFECT_REGISTER("edges_x_match_local", ::xyz_stat_edges_x_match_local, "edges_x_match_local", 0);
+
+
+auto xyz_stat_edges_y_match = CHANGESTAT {
+  if (mode == "z") {
+    double Y_i = object.y_attribute.get_val(unit_i);
+    double Y_j = object.y_attribute.get_val(unit_j);
+    
+    if (Y_i == Y_j) {
+      return 1.0;
+    } else {
+      return 0.0;
+    }
+    
+  } else if (mode == "y") { 
+    if(object.y_attribute.type != "binomial") {
+      Rcpp::stop("The y attribute should be binary for this statistic");
+    }
+    double res = 0.0; 
+    
+    if (object.z_network.directed) {
+      const auto& out_connections = object.z_network.adj_list.at(unit_i);
+      for (int k : out_connections) {
+        double Y_k = object.y_attribute.get_val(k);
+        res += (2.0 * Y_k - 1.0);
+      }
+      const auto& in_connections = object.z_network.adj_list_in.at(unit_i);
+      for (int k : in_connections) {
+        double Y_k = object.y_attribute.get_val(k);
+        res += (2.0 * Y_k - 1.0);
+      }
+    } else {
+      const auto& connections_of_i = object.z_network.adj_list.at(unit_i);
+      for (int k : connections_of_i) {
+        double Y_k = object.y_attribute.get_val(k);
+        res += (2.0 * Y_k - 1.0);
+      } 
+    }
+    
+    return res;
+    
+  } else if (mode == "x") { 
+    return 0.0; 
+  } 
+  
+  return 0.0;
+}; 
+
+EFFECT_REGISTER("edges_y_match_global", ::xyz_stat_edges_y_match, "edges_y_match_global", 0);
+
+auto xyz_stat_edges_y_match_local = CHANGESTAT {
+  if (mode == "z") {
+    if(!object.get_val_overlap(unit_i, unit_j)) {
+      return 0.0;
+    }
+    double Y_i = object.y_attribute.get_val(unit_i);
+    double Y_j = object.y_attribute.get_val(unit_j);
+    
+    if (Y_i == Y_j) {
+      return 1.0;
+    } else {
+      return 0.0;
+    }
+    
+  } else if (mode == "y") { 
+    if(object.y_attribute.type != "binomial") {
+      Rcpp::stop("The y attribute should be binary for this statistic");
+    }
+    double res = 0.0; 
+    
+    if (object.z_network.directed) {
+      const auto& out_connections = object.adj_list_nb.at(unit_i);
+      for (int k : out_connections) {
+        double Y_k = object.y_attribute.get_val(k);
+        res += (2.0 * Y_k - 1.0);
+      }
+      const auto& in_connections = object.adj_list_in_nb.at(unit_i);
+      for (int k : in_connections) {
+        double Y_k = object.y_attribute.get_val(k);
+        res += (2.0 * Y_k - 1.0);
+      }
+    } else {
+      const auto& connections_of_i = object.adj_list_nb.at(unit_i);
+      for (int k : connections_of_i) {
+        double Y_k = object.y_attribute.get_val(k);
+        res += (2.0 * Y_k - 1.0);
+      } 
+    }
+    
+    return res;
+    
+  } else if (mode == "x") { 
+    return 0.0; 
+  } 
+  
+  return 0.0;
+}; 
+
+EFFECT_REGISTER("edges_y_match_local", ::xyz_stat_edges_y_match_local, "edges_y_match_local", 0);
 
 auto xyz_stat_edges_x_out_nonb= CHANGESTAT{
   if(mode == "x"){

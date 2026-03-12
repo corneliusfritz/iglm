@@ -416,7 +416,7 @@ formula_preprocess <- function(formula) {
 
   term_per_term <- unlist(lapply(formula_info, function(x) x$base_name))
   special_terms <- c(
-    "spillover_yy_scaled", "spillover_xx_scaled", "spillover_yx_scaled",
+    "edges_x_match","edges_y_match","spillover_yy_scaled", "spillover_xx_scaled", "spillover_yx_scaled",
     "spillover_xy_scaled", "gwdegree", "gwdsp", "gwesp", "edges",
     "mutual", "cov_z", "cov_z_out", "cov_z_in",
     "inedges_y", "outedges_y", "attribute_xy", "inedges_x", "outedges_x"

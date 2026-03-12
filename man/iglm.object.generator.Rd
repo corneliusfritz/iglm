@@ -192,7 +192,7 @@ An object of class `iglm_model_assessment` containing the
 Print a summary of the `iglm.object`. If estimation results are
 available, they are printed in a standard coefficient table format.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(digits = 4, rows = c(1, 2), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(digits = 4, rows = c(1, 2), formula_print = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -203,7 +203,7 @@ available, they are printed in a standard coefficient table format.
 \item{\code{rows}}{numeric vector is provided with values between 1 and 4,
 only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.}
 
-\item{\code{...}}{Additional arguments (currently unused).}
+\item{\code{formula_print}}{(logical) If `TRUE`, also prints the model formula. Default is `TRUE`.}
 }
 \if{html}{\out{</div>}}
 }
