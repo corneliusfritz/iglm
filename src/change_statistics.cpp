@@ -33,8 +33,7 @@ auto xyz_stat_repetition = CHANGESTAT{
 }; 
 EFFECT_REGISTER("mutual_global", ::xyz_stat_repetition, "mutual_global", 0);
 
-auto xyz_stat_edges= CHANGESTAT
-{
+auto xyz_stat_edges= CHANGESTAT{
   
   if (mode == "z")
     return 1.0;
@@ -324,7 +323,6 @@ auto xyz_stat_attribute_xz_nb= CHANGESTAT{
   } 
 };
 EFFECT_REGISTER("attribute_xz_local", ::xyz_stat_attribute_xz_nb, "attribute_xz_local", 0);
-
 
 
 auto xyz_stat_edges_x_out_nb= CHANGESTAT{
@@ -726,45 +724,6 @@ auto xyz_stat_attribute_y= CHANGESTAT{
 };
 EFFECT_REGISTER("attribute_y", ::xyz_stat_attribute_y, "attribute_y", 0);
 
-
-// auto xyz_stat_interaction_edges= CHANGESTAT{
-//   if(mode == "z"){
-//     // What to do if the network change stat is desired
-//     // z_ij from 0 -> 1
-//     if(object.get_val_overlap(unit_i, unit_j)){
-//       return(object.x_attribute.get_val(unit_i)*object.y_attribute.get_val(unit_j)+
-//              object.x_attribute.get_val(unit_j)*object.y_attribute.get_val(unit_i));  
-//     } else {
-//       return(0);
-//     }
-//     
-//   } else if (mode == "x"){
-//     // What to do if the attribute change stat is wanted
-//     // x_i from 0 -> 1
-//     int res = 0;
-//     auto& connections_of_i =  object.adj_list_nb.at(unit_i);
-//     for (int k : connections_of_i) {
-//       res+= object.y_attribute.get_val(*k);
-//       // }
-//     } 
-//     // Rcout << res << std::endl;
-//     return(res);
-//   } else{
-//     // What to do if the attribute change stat is wanted
-//     // y_i from 0 -> 1
-//     int res = 0;
-//     auto& connections_of_i =  object.adj_list_nb.at(unit_i);
-//     
-//     for (int k : connections_of_i) {
-//       // if(k != unit_j){
-//       res+= object.x_attribute.get_val(*k);  
-//       // }
-//     }
-//     // Rcout << res << std::endl;
-//     return(res);
-//   }
-// };
-// EFFECT_REGISTER("spillover_xy_symm", ::xyz_stat_interaction_edges, "spillover_xy_symm", 0);
 
 // cov_i *cov_j * z_ij*c_ij
 auto xyz_stat_interaction_edges_cov= CHANGESTAT{
@@ -2413,7 +2372,6 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
   
   return static_cast<double>(res);
 };
-
 EFFECT_REGISTER("transitive", ::xyz_stat_transitive_edges, "transitive", 0);
 
 auto xyz_stat_nonisolates= CHANGESTAT{
@@ -2529,6 +2487,7 @@ auto xyz_stat_gwesp_local_ISP= CHANGESTAT{
   }
 }; 
 EFFECT_REGISTER("gwesp_local_ISP", ::xyz_stat_gwesp_local_ISP, "gwesp_local_ISP",0.0);
+
 auto xyz_stat_gwesp_local_symm= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
@@ -2956,7 +2915,6 @@ auto xyz_stat_gwdsp_OSP= CHANGESTAT{
   }
 }; 
 EFFECT_REGISTER("gwdsp_global_OSP", ::xyz_stat_gwdsp_OSP, "gwdsp_global_OSP",0.0);
-
 
 
 auto xyz_stat_gwdsp_ITP_local= CHANGESTAT{

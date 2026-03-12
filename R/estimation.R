@@ -73,7 +73,7 @@ control.iglm <- function(estimate_model = TRUE,
                          return_y = FALSE,
                          return_z = FALSE,
                          accelerated = TRUE,
-                         exact = FALSE) {
+                         exact = TRUE) {
   if (!var_method %in% c("Godambe", "Mean-value", "Hessian")) {
     stop("var_method must be one of 'Godambe', 'Mean-value', or 'Hessian'")
   }

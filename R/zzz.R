@@ -99,197 +99,242 @@ add_alpha <- function(color_code, alpha_level) {
 #'
 #' \describe{
 #'    \item{\strong{1. \eqn{g_i} Terms for Attribute Dependence}}{}
-#'   \item{\code{attribute_x}}{
-#'     \strong{Attribute (X) [g-term]:} Intercept for attribute 'x'.
-#'     \eqn{g_i(x_i,y_i) = x_i}
-#'   }
-#'   \item{\code{attribute_y}}{
-#'     \strong{Attribute (Y) [g-term]:} Intercept for attribute 'y'.
-#'     \eqn{g_i(x_i,y_i) = y_i}
-#'   }
-#'   \item{\code{cov_x}}{
-#'     \strong{Nodal Covariate (X) [g-term]:} Effect of a unit-level covariate \eqn{v_i} on attribute \eqn{x_i}.
-#'     \eqn{g_i(x_i,y_i) = v_i x_i}
-#'   }
-#'   \item{\code{cov_y(data = v)}}{
-#'     \strong{Nodal Covariate (Y) [g-term]:} Effect of a unit-level covariate \eqn{v_i} on attribute \eqn{y_i}.
-#'     \eqn{g_i(x_i,y_i) = v_i y_i}
-#'   }
+#'    \item{\code{attribute_x}}{
+#'      \strong{Attribute (X) [g-term]:} Intercept for attribute \eqn{x}.
+#'      \eqn{g_i(x_i,y_i) = x_i}
+#'    }
+#'    \item{\code{attribute_y}}{
+#'      \strong{Attribute (Y) [g-term]:} Intercept for attribute \eqn{y}.
+#'      \eqn{g_i(x_i,y_i) = y_i}
+#'    }
+#'    \item{\code{cov_x}}{
+#'      \strong{Nodal Covariate (X) [g-term]:} Effect of a unit-level exogenous covariate \eqn{v_i} on endogenous attribute \eqn{x_i}.
+#'      \eqn{g_i(x_i,y_i) = v_i x_i}
+#'    }
+#'    \item{\code{cov_y(data = v)}}{
+#'      \strong{Nodal Covariate (Y) [g-term]:} Effect of a unit-level exogenous covariate \eqn{v_i} on endogenous attribute \eqn{y_i}.
+#'      \eqn{g_i(x_i,y_i) = v_i y_i}
+#'    }
 #'    \item{\code{attribute_xy(mode = "global")}}{
-#'     \strong{Nodal Attribute Interaction (X-Y) [g-term]:} Interaction of attributes \eqn{x_i} and \eqn{y_i} on the same node. For mode different from "global", we count interactions of an actor's attributes with their local neighbors' attributes.
-#'     \itemize{
-#'       \item \code{global}: \eqn{g_i(x_i,y_i) = x_i y_i}
-#'       \item \code{local}: \eqn{g_i(x_i,y_i) = x_i \sum_{j \in \mathcal{N}_i} y_j + y_i \sum_{j \in \mathcal{N}_i} x_j}
-#'       \item \code{alocal}: \eqn{g_i(x_i,y_i) = x_i \sum_{j \notin \mathcal{N}_i} y_j + y_i \sum_{j \notin \mathcal{N}_i} x_j}
-#'     }
-#'   }
-#'   \item{\strong{2. \eqn{h_{i,j}} Terms for Network Dependence}}{}
-#'   \item{\code{degrees}}{
-#'     \strong{degrees [h-term]:} Adds fixed effects for all actors in the network. Estimation of degrees effects is carried out using a MM algorithm.
-#'      For directed networks, each actors has a sender and receiver effect (we assume that the out effect of actor N is 0 for identifiability).
-#'      For undirected networks, each actor has a single degrees effect.
-#'   }
-#'   \item{\code{edges(mode = "global")}}{
-#'     \strong{Edges [h-term]:} Counts different types of edges.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = z_{i,j}}
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} z_{i,j}}
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j}}
-#'     }
-#'   }
-#'   \item{\code{mutual(mode = "global")}}{
-#'     \strong{Mutual Reciprocity [h-term]:} Counts whether the reciprocal tie between actors \eqn{i} and \eqn{j} is present. This term should only be used for directed networks.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = z_{i,j} z_{j,i}} (for \eqn{i < j})
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} z_{i,j} z_{j,i}} (for \eqn{i < j})
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j} z_{j,i}} (for \eqn{i < j})
-#'     }
-#'   }
-#'   \item{\code{cov_z(data, mode = "global")}}{
-#'     \strong{Dyadic Covariate [h-term]:} The effect of a dyadic covariate \eqn{w_{i,j}} for directed or undirected networks.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = w_{i,j} z_{i,j}}
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} w_{i,j} z_{i,j}}
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) w_{i,j} z_{i,j}}
-#'     }
-#'   }
-#'   \item{\code{isolates}}{
-#'     \strong{Isolates [z-term]:}
-#'     Counts and accounts for the number of non-isolated nodes.
-#'   }
-#'   \item{\code{nonisolates}}{
-#'     \strong{Non-Isolates [z-term]:}
-#'     Counts and accounts for the number of non-isolated nodes. It is the exact
-#'     negative of the \code{isolates} statistic.
-#'   }
-#'   \item{\code{gwodegree(decay)}}{
-#'     \strong{Geometrically Weighted Out-Degree  [z-term]:}
-#'     The Geometrically Weighted Out-Degree statistic is implemented as in the `ergm` package.
-#'   }
-#'   \item{\code{gwidegree(decay)}}{
-#'     \strong{Geometrically Weighted In-Degree [z-term]:}
-#'     The Geometrically Weighted In-Degree (GWIDegree) statistic is implemented as in the `ergm` package.
-#'   }
-#'   \item{\code{gwesp(data, mode = "global", variant = "OTP")}}{
-#'     \strong{Geometrically Weighted  Edegewise-Shared Partners [h-term]:} Geometrically weighted edgewise shared partners (GWESP) statistic for directed networks as implemented in the `ergm` package.
-#'     Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}\, z_{i,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}\, z_{i,j}}),
-#'     OSP (outgoing shared partners, \eqn{z_{i,h}\,z_{j,h}\, z_{i,j}}), ISP (incoming shared partners, \eqn{z_{h,i}\,z_{h,j}\, z_{i,j}}).
-#'     \itemize{
-#'       \item \code{global}: ESP counts are calculated over all edges in the network.
-#'       \item \code{local}: ESP counts are restricted to local edges only (edges with non-overlapping neighborhoods).
-#'     }
-#'   }
-#'   \item{\code{gwdsp(data, mode = "global", variant = "OTP")}}{
-#'     \strong{Geometrically Weighted  Dyadwise-Shared Partners [h-term]:} Geometrically weighted dyadwise shared partners (GWDSP) statistic for directed networks as implemented in the `ergm` package.
-#'     Variants include: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}}),
-#'     OSP (outgoing shared partners, \eqn{z_{i,h}\,z_{j,h}}), ISP (incoming shared partners, \eqn{z_{h,i}\,z_{h,j}}).
-#'     \itemize{
-#'       \item \code{global}: ESP counts are calculated over all edges in the network.
-#'       \item \code{local}: ESP counts are restricted to local edges only (edges with non-overlapping neighborhoods).
-#'     }
-#'   }
-#'   \item{\code{cov_z_out(data, mode = "global")}}{
-#'     \strong{Covariate Sender [h-term]:} The effect of a monadic covariate \eqn{v_{i}} on being the sender in a directed network.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = v_i z_{i,j}}
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} v_i z_{i,j}}
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) v_i z_{i,j}}
-#'     }
-#'   }
-#'   \item{\code{cov_z_in(data, mode = "global")}}{
-#'     \strong{Covariate Receiver [h-term]:} The effect of a monadic covariate \eqn{v_{i}} on being the receiver in a directed network.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = v_j z_{i,j}}
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} v_j z_{i,j}}
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) v_j z_{i,j}}
-#'     }
-#'   }
-#'   \item{\code{transitive}}{
-#'     \strong{Transitivity (Local) [Joint]:} A statistic checking whether the dyad is a local transitive edge, meaning that there exists an actor \eqn{h \neq i,j}
-#'     such that \eqn{h\in \mathcal{N}_i, h\in \mathcal{N}_j} with \eqn{z_{i,j} = z_{i,h} = z_{h,j}}: \eqn{h_{i,j} = c_{i,j} z_{i,j} \mathbb{I}(\sum_{k} c_{i,k} c_{j,k} z_{i,k} z_{k,j}>1)}
-#'   }
+#'      \strong{Nodal Attribute Interaction (X-Y) [g-term]:} Interaction of attributes \eqn{x_i} and \eqn{y_i}. Spatial or structural boundaries determine the interaction scale.
+#'      \itemize{
+#'        \item \code{global}: \eqn{g_i(x_i,y_i) = x_i y_i}
+#'        \item \code{local}: \eqn{g_i(x_i,y_i) = x_i \sum_{j \in \mathcal{N}_i} y_j + y_i \sum_{j \in \mathcal{N}_i} x_j}
+#'        \item \code{alocal}: \eqn{g_i(x_i,y_i) = x_i \sum_{j \notin \mathcal{N}_i} y_j + y_i \sum_{j \notin \mathcal{N}_i} x_j}
+#'      }
+#'    }
+#'    \item{\strong{2. \eqn{h_{i,j}} Terms for Network Dependence}}{}
+#'    \item{\code{degrees}}{
+#'      \strong{Degrees [h-term]:} Specifies node-level fixed effects. Estimation requires an MM algorithm constraint.
+#'      Directed networks assign distinct sender and receiver effects (constraining node N's out-effect to 0 for identifiability).
+#'      Undirected networks assign a singular degree effect per node.
+#'    }
+#'    \item{\code{edges(mode = "global")}}{
+#'      \strong{Edges [h-term]:} Captures the baseline propensity of tie formation \eqn{z_{i,j}}, partitioned by structural boundary \eqn{c_{i,j}}.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} z_{i,j}}
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{mutual(mode = "global")}}{
+#'      \strong{Mutual Reciprocity [h-term]:} Evaluates reciprocal tie formation in directed networks.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = z_{i,j} z_{j,i}} (for \eqn{i < j})
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} z_{i,j} z_{j,i}} (for \eqn{i < j})
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j} z_{j,i}} (for \eqn{i < j})
+#'      }
+#'    }
+#'    \item{\code{cov_z(data, mode = "global")}}{
+#'      \strong{Dyadic Covariate [h-term]:} Exogenous dyadic covariate \eqn{w_{i,j}} influence on edge formation.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = w_{i,j} z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} w_{i,j} z_{i,j}}
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) w_{i,j} z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{isolates}}{
+#'      \strong{Isolates [z-term]:} Captures the frequency of nodes with degree zero \eqn{\mathbb{I} (\sum_{j\neq i} z_{i,j} = 0)}.
+#'    }
+#'    \item{\code{nonisolates}}{
+#'      \strong{Non-Isolates [z-term]:} Captures the frequency of nodes with degree strictly greater than zero \eqn{\mathbb{I} (\sum_{j\neq i} z_{i,j} \neq 0)}.
+#'    }
+#'    \item{\code{gwodegree(mode = "global", decay = 2.0)}}{
+#'      \strong{Geometrically Weighted Out-Degree [z-term]:} Captures the out-degree distribution utilizing an exponential decay parameter \eqn{\alpha}.
+#'      \itemize{
+#'        \item \code{global}: Evaluated across the entire adjacency matrix.
+#'        \item \code{local}: Evaluated strictly within local neighborhood partitions \eqn{c_{i,j}}.
+#'      }
+#'    }
+#'    \item{\code{gwidegree(mode = "global", decay = 2.0)}}{
+#'      \strong{Geometrically Weighted In-Degree [z-term]:} Captures the in-degree distribution utilizing an exponential decay parameter \eqn{\alpha}.
+#'      \itemize{
+#'        \item \code{global}: Evaluated across the entire adjacency matrix.
+#'        \item \code{local}: Evaluated strictly within local neighborhood partitions \eqn{c_{i,j}}.
+#'      }
+#'    }
+#'    \item{\code{gwesp(data, mode = "global", type = "OTP", decay = 2.0)}}{
+#'      \strong{Geometrically Weighted Edgewise-Shared Partners [h-term]:} Models triadic closure propensity conditioning on existing edges, scaled by decay parameter \eqn{\alpha}.
+#'      Types dictate the structural path constraint: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}\, z_{i,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}\, z_{i,j}}),
+#'      OSP (outgoing shared partners, \eqn{z_{i,h}\,z_{j,h}\, z_{i,j}}), ISP (incoming shared partners, \eqn{z_{h,i}\,z_{h,j}\, z_{i,j}}).
+#'      \itemize{
+#'        \item \code{global}: Path evaluations span the entire network topology.
+#'        \item \code{local}: Path evaluations are constrained exclusively to \eqn{c_{i,j}} overlapping neighborhoods.
+#'      }
+#'    }
+#'    \item{\code{gwdsp(data, mode = "global", type = "OTP", decay = 2.0)}}{
+#'      \strong{Geometrically Weighted Dyadwise-Shared Partners [h-term]:} Models the baseline triadic potential irrespective of the closing \eqn{z_{i,j}} edge, scaled by decay parameter \eqn{\alpha}.
+#'      Types dictate the structural path constraint: OTP (outgoing two-paths, \eqn{z_{i,h}\,z_{h,j}}), ITP (incoming two-paths, \eqn{z_{h,i}\,z_{j,h}}),
+#'      OSP (outgoing shared partners, \eqn{z_{i,h}\,z_{j,h}}), ISP (incoming shared partners, \eqn{z_{h,i}\,z_{h,j}}).
+#'      \itemize{
+#'        \item \code{global}: Path evaluations span the entire network topology.
+#'        \item \code{local}: Path evaluations are constrained exclusively to \eqn{c_{i,j}} overlapping neighborhoods.
+#'      }
+#'    }
+#'    \item{\code{cov_z_out(data, mode = "global")}}{
+#'      \strong{Covariate Sender [h-term]:} Exogenous monadic covariate \eqn{v_{i}} influence on generating an outgoing tie.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = v_i z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} v_i z_{i,j}}
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) v_i z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{cov_z_in(data, mode = "global")}}{
+#'      \strong{Covariate Receiver [h-term]:} Exogenous monadic covariate \eqn{v_{j}} influence on receiving an incoming tie.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = v_j z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} v_j z_{i,j}}
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) v_j z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{transitive}}{
+#'      \strong{Transitivity (Local) [Joint]:} Indicator evaluating the presence of a local transitive triad configuration. An actor \eqn{h \neq i,j} must exist fulfilling
+#'      \eqn{h\in \mathcal{N}_i, h\in \mathcal{N}_j} mapping to \eqn{z_{i,j} = z_{i,h} = z_{h,j}}: \eqn{h_{i,j} = c_{i,j} z_{i,j} \mathbb{I}(\sum_{k} c_{i,k} c_{j,k} z_{i,k} z_{k,j}>1)}.
+#'    }
 #'    \item{\strong{3. \eqn{h_{i,j}} Terms for Joint Attribute/Network Dependence}}{}
-#'   \item{\code{outedges_x_global()}}{
-#'     \strong{Attribute Out-Degree (X-Z Global) [h-term]:} Models \eqn{x_i}'s effect on its out-degree.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = x_i z_{i,j}}.
-#'   }
-#'   \item{\code{outedges_x(mode = "global")}}{
-#'     \strong{Attribute Out-Degree (X-Z) [Joint h-term]:} Models \eqn{x_i}'s effect on its out-degree.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = x_i z_{i,j}}
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i z_{i,j}}
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) x_i z_{i,j}}
-#'     }
-#'   }
-#'   \item{\code{inedges_x(mode = "global")}}{
-#'     \strong{Attribute In-Degree (X-Z) [Joint h-term]:} Models \eqn{x_j}'s effect on its in-degree.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = x_j z_{i,j}}
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_j z_{i,j}}
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) x_j z_{i,j}}
-#'     }
-#'   }
-#'   \item{\code{outedges_y(mode = "global")}}{
-#'     \strong{Attribute Out-Degree (Y-Z) [Joint h-term]:} Models \eqn{y_i}'s effect on its out-degree.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = y_i z_{i,j}}
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i z_{i,j}}
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) y_i z_{i,j}}
-#'     }
-#'   }
-#'   \item{\code{inedges_y(mode = "global")}}{
-#'     \strong{Attribute In-Degree (Y-Z) [Joint h-term]:} Models \eqn{y_j}'s effect on its in-degree.
-#'     \itemize{
-#'       \item \code{global}: \eqn{h_{i,j}(x,y,z) = y_j z_{i,j}}
-#'       \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_j z_{i,j}}
-#'       \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) y_j z_{i,j}}
-#'     }
-#'   }
-#'   \item{\code{spillover_xx}}{
-#'     \strong{Symmetric X-X-Z Outcome Spillover [h-term]:} Models \eqn{x}-outcome spillover \strong{within} the local neighborhood.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j}}.
-#'   }
-#'   \item{\code{spillover_xx_scaled}}{
-#'     \strong{X-X-Z Outcome Spillover [h-term]:} Models \eqn{x}-outcome spillover \strong{within} the local neighborhood but weights the influence of \eqn{x_j} on \eqn{x_i} by the out-degree of actor \eqn{i} with other actors in its neighborhood, denoted by \eqn{\text{local\_degree(i)} (for undirected networks, the degree is used)}.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j} / \text{local\_degree(i)}}.
-#'   }
-#'   \item{\code{spillover_yy}}{
-#'     \strong{Symmetric Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j}}.
-#'   }
-#'   \item{\code{spillover_yy_scaled}}{
-#'     \strong{Y-Y-Z Outcome Spillover [h-term]:} Models \eqn{y}-outcome spillover \strong{within} the local neighborhood but weights the influence of \eqn{y_j} on \eqn{y_i} by the degree of actor \eqn{i} with other actors in its neighborhood, defined above.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j} / \text{local\_degree(i)}}.
-#'   }
-#'   \item{\code{spillover_xy}}{
-#'     \strong{Directed X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j}}.
-#'   }
-#'   \item{\code{spillover_xy_scaled}}{
-#'     \strong{X-Y-Z Outcome Spillover [h-term]:} Models the \eqn{x_i \to y_j} treatment spillover \strong{within} the local neighborhood but weights the influence of \eqn{y_j} on \eqn{x_i} by the degree of actor \eqn{i} with other actors in its neighborhood, defined above.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j} / \text{local\_degree(i)}}.
-#'   }
-#'   \item{\code{spillover_xy_symm}}{
-#'     \strong{Symmetric X-Y-Z Treatment Spillover [h-term]:} Models the \eqn{x_i \leftrightarrow y_j} treatment spillover \strong{within} the local neighborhood.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} (x_i y_j + x_j y_i) z_{i,j}}.
-#'   }
-#'   \item{\code{spillover_yx}}{
-#'     \strong{Directed Y-X-Z Treatment Spillover [h-term]:} Models the \eqn{y_i \to x_j} treatment spillover \strong{within} the local neighborhood.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i x_j z_{i,j}}.
-#'   }
-#'   \item{\code{spillover_yx_scaled}}{
-#'     \strong{Y-X-Z Outcome Spillover [h-term]:} Models the \eqn{y_i \to x_j} treatment spillover \strong{within} the local neighborhood but weights the influence of \eqn{x_j} on \eqn{y_i} by the degree of actor \eqn{i} with other actors in its neighborhood, defined above.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i x_j z_{i,j} / \text{local\_degree(i)}}.
-#'   }
-#'   \item{\code{spillover_yc}}{
-#'     \strong{Directed Y-C-Z Treatment Spillover [h-term]:} Models \eqn{y}-treat spillover to a covariate \eqn{v}  \strong{within} the local neighborhood.
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i v_j z_{i,j}}.
-#'   }
-#'   \item{\code{spillover_yc_symm(data = v)}}{
-#'     \strong{Symmetric Treatment Spillover [h-term]:} Models the \eqn{v_i \leftrightarrow y_j } treatment spillover .
-#'     Corresponds to \eqn{h_{i,j}(x,y,z) = c_{i,j} (v_i y_j + v_j y_i) z_{i,j}}.
-#'   }
-#'   }
+#'    \item{\code{attribute_xz(mode = "local")}}{
+#'      \strong{Attribute Sum (X-Z) [Joint h-term]:} Models the additive effect of \eqn{x_i} and \eqn{x_j} on edge formation within local neighborhoods.
+#'      \itemize{
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} (x_i + x_j) z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{attribute_yz(mode = "local")}}{
+#'      \strong{Attribute Sum (Y-Z) [Joint h-term]:} Models the additive effect of \eqn{y_i} and \eqn{y_j} on edge formation within local neighborhoods.
+#'      \itemize{
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} (y_i + y_j) z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{edges_x_match(mode = "global")}}{
+#'      \strong{Attribute Match (X-Z) [Joint h-term]:} Models homophily/matching on the binary attribute \eqn{x}.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = \mathbb{I}(x_i = x_j) z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} \mathbb{I}(x_i = x_j) z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{edges_y_match(mode = "global")}}{
+#'      \strong{Attribute Match (Y-Z) [Joint h-term]:} Models homophily/matching on the binary attribute \eqn{y}.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = \mathbb{I}(y_i = y_j) z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} \mathbb{I}(y_i = y_j) z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{outedges_x(mode = "global")}}{
+#'      \strong{Attribute Out-Degree (X-Z) [Joint h-term]:} Influence of endogenous \eqn{x_i} on out-degree formation.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = x_i z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i z_{i,j}}
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) x_i z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{inedges_x(mode = "global")}}{
+#'      \strong{Attribute In-Degree (X-Z) [Joint h-term]:} Influence of endogenous \eqn{x_j} on in-degree reception.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = x_j z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_j z_{i,j}}
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) x_j z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{outedges_y(mode = "global")}}{
+#'      \strong{Attribute Out-Degree (Y-Z) [Joint h-term]:} Influence of endogenous \eqn{y_i} on out-degree formation.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = y_i z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i z_{i,j}}
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) y_i z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{inedges_y(mode = "global")}}{
+#'      \strong{Attribute In-Degree (Y-Z) [Joint h-term]:} Influence of endogenous \eqn{y_j} on in-degree reception.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = y_j z_{i,j}}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_j z_{i,j}}
+#'        \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) y_j z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{spillover_xx(mode = "local")}}{
+#'      \strong{Symmetric X-X-Z Outcome Spillover [h-term]:} Propagates \eqn{x}-outcome spillover effects through explicit network ties.
+#'      \itemize{
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{spillover_xx_scaled(mode = "local")}}{
+#'      \strong{Scaled X-X-Z Outcome Spillover [h-term]:} Normalizes the \eqn{x}-outcome spillover influence by the relevant out-degree topology of actor \eqn{i}.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = x_i x_j z_{i,j} / \text{deg}(i)}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j} / \text{deg}(i, \text{local})}
+#'      }
+#'    }
+#'    \item{\code{spillover_yy(mode = "local")}}{
+#'      \strong{Symmetric Y-Y-Z Outcome Spillover [h-term]:} Propagates \eqn{y}-outcome spillover effects through explicit network ties.
+#'      \itemize{
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{spillover_yy_scaled(mode = "local")}}{
+#'      \strong{Scaled Y-Y-Z Outcome Spillover [h-term]:} Normalizes the \eqn{y}-outcome spillover influence by the relevant out-degree topology of actor \eqn{i}.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = y_i y_j z_{i,j} / \text{deg}(i)}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j} / \text{deg}(i, \text{local})}
+#'      }
+#'    }
+#'    \item{\code{spillover_xy(mode = "local")}}{
+#'      \strong{Directed X-Y-Z Treatment Spillover [h-term]:} Maps the cross-attribute \eqn{x_i \to y_j} treatment assignment across the network graph.
+#'      \itemize{
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{spillover_xy_scaled(mode = "local")}}{
+#'      \strong{Scaled X-Y-Z Treatment Spillover [h-term]:} Normalizes the cross-attribute \eqn{x_i \to y_j} spillover influence by the relevant out-degree topology of actor \eqn{i}.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = x_i y_j z_{i,j} / \text{deg}(i)}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j} / \text{deg}(i, \text{local})}
+#'      }
+#'    }
+#'    \item{\code{spillover_yx(mode = "local")}}{
+#'      \strong{Directed Y-X-Z Treatment Spillover [h-term]:} Maps the cross-attribute \eqn{y_i \to x_j} treatment assignment across the network graph.
+#'      \itemize{
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i x_j z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{spillover_yx_scaled(mode = "local")}}{
+#'      \strong{Scaled Y-X-Z Treatment Spillover [h-term]:} Normalizes the cross-attribute \eqn{y_i \to x_j} spillover influence by the relevant out-degree topology of actor \eqn{i}.
+#'      \itemize{
+#'        \item \code{global}: \eqn{h_{i,j}(x,y,z) = y_i x_j z_{i,j} / \text{deg}(i)}
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i x_j z_{i,j} / \text{deg}(i, \text{local})}
+#'      }
+#'    }
+#'    \item{\code{spillover_yc(mode = "local")}}{
+#'      \strong{Directed Y-C-Z Treatment Spillover [h-term]:} Specifies exogenous covariate \eqn{v} interacting with endogenous trait \eqn{y} over the network.
+#'      \itemize{
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i v_j z_{i,j}}
+#'      }
+#'    }
+#'    \item{\code{spillover_yc_symm(data = v, mode = "local")}}{
+#'      \strong{Symmetric Y-C-Z Treatment Spillover [h-term]:} Bidirectional mapping of the exogenous covariate \eqn{v} and endogenous trait \eqn{y} interaction.
+#'      \itemize{
+#'        \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} (v_i y_j + v_j y_i) z_{i,j}}
+#'      }
+#'    }
+#' }
 #' @references
 #'
 #' Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
