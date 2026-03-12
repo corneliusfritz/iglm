@@ -258,7 +258,7 @@ available, they are printed in a standard coefficient table format.
 
 #### Usage
 
-    iglm.object.generator$print(digits = 4, rows = c(1, 2), ...)
+    iglm.object.generator$print(digits = 4, rows = c(1, 2), formula_print = TRUE)
 
 #### Arguments
 
@@ -273,9 +273,10 @@ available, they are printed in a standard coefficient table format.
   Pr(\>\|t\|), 5: Global Count of Sufficient Statistic). Default is
   \`c(1, 2)\` to show only estimates and standard errors.
 
-- `...`:
+- `formula_print`:
 
-  Additional arguments (currently unused).
+  (logical) If \`TRUE\`, also prints the model formula. Default is
+  \`TRUE\`.
 
 ------------------------------------------------------------------------
 
