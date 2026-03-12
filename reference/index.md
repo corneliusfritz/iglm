@@ -20,7 +20,6 @@
 - [`results()`](results.md) : Constructor for the results R6 Object
 - [`results.generator`](results.generator.md) : R6 Class for Storing
   iglm Estimation and Simulation Results
-- [`rice`](rice.md) : Information on students at Rice University.
 - [`sampler.iglm()`](sampler.iglm.md) : Constructor for a iglm Sampler
 - [`sampler.iglm.generator`](sampler.iglm.generator.md) : R6 Class for
   iglm Sampler Settings
