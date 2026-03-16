@@ -19,7 +19,7 @@ control.iglm(
   return_y = FALSE,
   return_z = FALSE,
   accelerated = TRUE,
-  exact = FALSE
+  exact = TRUE
 )
 ```
 

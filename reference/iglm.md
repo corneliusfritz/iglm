@@ -164,5 +164,16 @@ model_tmp_new$estimate()
 # Model Assessment
 model_tmp_new$assess(formula = ~degree_distribution)
 
+
+
+
+
+
+
+
+
+
+
+
 # model_tmp_new$results$plot(assess = TRUE)
 ```

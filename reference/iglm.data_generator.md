@@ -568,7 +568,7 @@ Calculates the distribution of the \`x_attribute\`.
     iglm.data_generator$x_distribution(
       value_range = NULL,
       prob = TRUE,
-      plot = FALSE
+      plot = TRUE
     )
 
 #### Arguments
@@ -605,7 +605,7 @@ Calculates the distribution of the \`y_attribute\`.
     iglm.data_generator$y_distribution(
       value_range = NULL,
       prob = TRUE,
-      plot = FALSE
+      plot = TRUE
     )
 
 #### Arguments
@@ -722,7 +722,7 @@ Calculates the geodesic distance distribution of the symmetrized
     iglm.data_generator$geodesic_distances_distribution(
       value_range = NULL,
       prob = TRUE,
-      plot = FALSE
+      plot = TRUE
     )
 
 #### Arguments
@@ -775,7 +775,7 @@ Calculates the distribution of edgewise shared partners.
       type = "ALL",
       value_range = NULL,
       prob = TRUE,
-      plot = FALSE
+      plot = TRUE
     )
 
 #### Arguments
@@ -817,7 +817,7 @@ Calculates the distribution of dyadwise shared partners.
       type = "ALL",
       value_range = NULL,
       prob = TRUE,
-      plot = FALSE
+      plot = TRUE
     )
 
 #### Arguments
@@ -858,7 +858,7 @@ Calculates the degree distribution of the \`z_network\`.
     iglm.data_generator$degree_distribution(
       value_range = NULL,
       prob = TRUE,
-      plot = FALSE
+      plot = TRUE
     )
 
 #### Arguments
@@ -912,7 +912,7 @@ Calculates the spillover degree distribution between actors with
     iglm.data_generator$spillover_degree_distribution(
       prob = TRUE,
       value_range = NULL,
-      plot = FALSE
+      plot = TRUE
     )
 
 #### Arguments
