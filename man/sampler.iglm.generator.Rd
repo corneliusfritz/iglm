@@ -17,19 +17,19 @@ parallelization options. It also holds references to component samplers
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{sampler_x}}{(`sampler_net_attr`) Read-only. The sampler configuration object for the x attribute.}
+\item{\code{sampler_x}}{(`sampler_net_attr`) The sampler configuration object for the x attribute.}
 
-\item{\code{sampler_y}}{(`sampler_net_attr`) Read-only. The sampler configuration object for the y attribute.}
+\item{\code{sampler_y}}{(`sampler_net_attr`) The sampler configuration object for the y attribute.}
 
-\item{\code{sampler_z}}{(`sampler_net_attr`) Read-only. The sampler configuration object for the z network (overlap region).}
+\item{\code{sampler_z}}{(`sampler_net_attr`) The sampler configuration object for the z network (overlap region).}
 
-\item{\code{n_simulation}}{(`integer`) Read-only. The number of simulations to generate after burn-in.}
+\item{\code{n_simulation}}{(`integer`) The number of simulations to generate after burn-in.}
 
-\item{\code{n_burn_in}}{(`integer`) Read-only. The number of burn-in iterations.}
+\item{\code{n_burn_in}}{(`integer`) The number of burn-in iterations.}
 
-\item{\code{init_empty}}{(`logical`) Read-only. Flag indicating whether simulations start from an empty state.}
+\item{\code{init_empty}}{(`logical`) Flag indicating whether simulations start from an empty state.}
 
-\item{\code{cluster}}{(`cluster` object or `NULL`) Read-only. The parallel cluster object being used, or `NULL`.}
+\item{\code{cluster}}{(`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.}
 }
 \if{html}{\out{</div>}}
 }

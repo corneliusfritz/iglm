@@ -442,33 +442,35 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     }
   ),
   active = list(
-    #' @field sampler_x (`sampler_net_attr`) Read-only. The sampler configuration object for the x attribute.
+    #' @field sampler_x (`sampler_net_attr`) The sampler configuration object for the x attribute.
     sampler_x = function(value) {
-      if (missing(value)) private$.sampler_x else stop("`sampler_x` is read-only.", call. = FALSE)
+      if (missing(value)) private$.sampler_x else {
+        self$set_x_sampler(value)
+      }
     },
-    #' @field sampler_y (`sampler_net_attr`) Read-only. The sampler configuration object for the y attribute.
+    #' @field sampler_y (`sampler_net_attr`) The sampler configuration object for the y attribute.
     sampler_y = function(value) {
-      if (missing(value)) private$.sampler_y else stop("`sampler_y` is read-only.", call. = FALSE)
+      if (missing(value)) private$.sampler_y else self$set_y_sampler(value)
     },
-    #' @field sampler_z (`sampler_net_attr`) Read-only. The sampler configuration object for the z network (overlap region).
+    #' @field sampler_z (`sampler_net_attr`) The sampler configuration object for the z network (overlap region).
     sampler_z = function(value) {
-      if (missing(value)) private$.sampler_z else stop("`sampler_z` is read-only.", call. = FALSE)
+      if (missing(value)) private$.sampler_z else self$set_z_sampler(value)
     },
-    #' @field n_simulation (`integer`) Read-only. The number of simulations to generate after burn-in.
+    #' @field n_simulation (`integer`) The number of simulations to generate after burn-in.
     n_simulation = function(value) {
-      if (missing(value)) private$.n_simulation else stop("`n_simulation` is read-only.", call. = FALSE)
+      if (missing(value)) private$.n_simulation else if(is.numeric(value)) self$n_simulation <- value else stop("`n_simulation` must be numeric.", call. = FALSE)
     },
-    #' @field n_burn_in (`integer`) Read-only. The number of burn-in iterations.
+    #' @field n_burn_in (`integer`) The number of burn-in iterations.
     n_burn_in = function(value) {
-      if (missing(value)) private$.n_burn_in else stop("`n_burn_in` is read-only.", call. = FALSE)
+      if (missing(value)) private$.n_burn_in else if(is.numeric(value)) self$n_burn_in <- value else stop("`n_burn_in` must be numeric.", call. = FALSE)
     },
-    #' @field init_empty (`logical`) Read-only. Flag indicating whether simulations start from an empty state.
+    #' @field init_empty (`logical`) Flag indicating whether simulations start from an empty state.
     init_empty = function(value) {
-      if (missing(value)) private$.init_empty else stop("`init_empty` is read-only.", call. = FALSE)
+      if (missing(value)) private$.init_empty else if(is.logical(value)) self$init_empty <- value else stop("`init_empty` must be logical", call. = FALSE)
     },
-    #' @field cluster (`cluster` object or `NULL`) Read-only. The parallel cluster object being used, or `NULL`.
+    #' @field cluster (`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.
     cluster = function(value) {
-      if (missing(value)) private$.cluster else stop("`cluster` is read-only.", call. = FALSE)
+      if (missing(value)) private$.cluster else self$set_cluster(value)
     }
   )
 )

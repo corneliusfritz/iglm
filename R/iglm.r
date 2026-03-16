@@ -388,7 +388,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       names(ranges_tmp) <- rep("value_range", length(names_tmp))
       # for(i in 1:length(private$.results$samples)){
       #   cat(i," \n")
-      #   eval_change(formula = formula,object = private$.results$samples[[i]], additional_args = ranges_tmp)
+      # debugonce(eval_change)
+        # eval_change(formula = formula,object = private$.results$samples[[i]], additional_args = ranges_tmp)
       # }
       # debugonce(private$.results$samples[[155]]$spillover_degree_distribution)
       # private$.results$samples[[155]]$spillover_degree_distribution()
@@ -1058,26 +1059,26 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       if (missing(value)) private$.results else stop("`results` is read-only.", call. = FALSE)
     },
 
-    #' @field iglm.data (`iglm.data`) Read-only. The associated \code{\link{iglm.data}} R6 object containing the network and attribute data.
+    #' @field iglm.data (`iglm.data`) The associated \code{\link{iglm.data}} R6 object containing the network and attribute data.
     iglm.data = function(value) {
       if (missing(value)) private$.iglm.data else {
-        browser()
+        self$set_target(value)
       }
     },
 
-    #' @field control (`control.iglm`) Read-only. The \code{\link{control.iglm}} object specifying estimation parameters.
+    #' @field control (`control.iglm`) The \code{\link{control.iglm}} object specifying estimation parameters.
     control = function(value) {
-      if (missing(value)) private$.control else stop("`control` is read-only.", call. = FALSE)
+      if (missing(value)) private$.control else self$set_control(value)
     },
 
-    #' @field sampler (`sampler.iglm`) Read-only. The  \code{\link{sampler.iglm}} object specifying MCMC sampling parameters.
+    #' @field sampler (`sampler.iglm`) The  \code{\link{sampler.iglm}} object specifying MCMC sampling parameters.
     sampler = function(value) {
-      if (missing(value)) private$.sampler else stop("`sampler` is read-only.", call. = FALSE)
+      if (missing(value)) private$.sampler else self$set_sampler(value)
     },
 
-    #' @field name (`character`) Read-only. The name of the model.
+    #' @field name (`character`) The name of the model.
     name = function(value) {
-      if (missing(value)) private$.name else stop("`name` is read-only.", call. = FALSE)
+      if (missing(value)) private$.name else if (is.character(value)) self$name <- value else stop("`name` must be a character string.", call. = FALSE)
     },
 
     #' @field sufficient_statistics (`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.

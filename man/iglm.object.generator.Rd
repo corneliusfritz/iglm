@@ -29,13 +29,13 @@ Schweinberger, M. and M. S. Handcock (2015). Local dependence in random graph mo
 
 \item{\code{results}}{(`results`) Read-only. The \code{\link{results}} R6 object containing all estimation and simulation outputs.}
 
-\item{\code{iglm.data}}{(`iglm.data`) Read-only. The associated \code{\link{iglm.data}} R6 object containing the network and attribute data.}
+\item{\code{iglm.data}}{(`iglm.data`) The associated \code{\link{iglm.data}} R6 object containing the network and attribute data.}
 
-\item{\code{control}}{(`control.iglm`) Read-only. The \code{\link{control.iglm}} object specifying estimation parameters.}
+\item{\code{control}}{(`control.iglm`) The \code{\link{control.iglm}} object specifying estimation parameters.}
 
-\item{\code{sampler}}{(`sampler.iglm`) Read-only. The  \code{\link{sampler.iglm}} object specifying MCMC sampling parameters.}
+\item{\code{sampler}}{(`sampler.iglm`) The  \code{\link{sampler.iglm}} object specifying MCMC sampling parameters.}
 
-\item{\code{name}}{(`character`) Read-only. The name of the model.}
+\item{\code{name}}{(`character`) The name of the model.}
 
 \item{\code{sufficient_statistics}}{(`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.}
 }

@@ -1560,21 +1560,21 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     }
   ),
 
-  # --- Active Bindings for Read-Only Access ---
+  # --- Active Bindings ---
   active = list(
-    #' @field x_attribute (`numeric`) Read-only. The vector for the first unit-level attribute.
+    #' @field x_attribute (`numeric`) The vector for the first unit-level attribute.
     x_attribute = function(value) {
       if (missing(value)) private$.x_attribute else {
         self$set_x_attribute(value)
       }
     },
 
-    #' @field y_attribute (`numeric`) Read-only. The vector for the second unit-level attribute.
+    #' @field y_attribute (`numeric`) The vector for the second unit-level attribute.
     y_attribute = function(value) {
       if (missing(value)) private$.y_attribute else self$set_y_attribute(value)
     },
 
-    #' @field z_network (`matrix`) Read-only. The primary network structure as a 2-column integer edgelist.
+    #' @field z_network (`matrix`) The primary network structure as a 2-column integer edgelist.
     z_network = function(value) {
       if (missing(value)) private$.z_network else self$set_z_network(value)
     },
@@ -1589,44 +1589,44 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (missing(value)) private$.overlap else stop("`overlap` is read-only.", call. = FALSE)
     },
 
-    #' @field directed (`logical`) Read-only. Indicates if the `z_network` is treated as directed.
+    #' @field directed (`logical`) Indicates if the `z_network` is treated as directed.
     directed = function(value) {
       if (missing(value)) private$.directed else stop("`directed` is read-only.", call. = FALSE)
     },
 
-    #' @field n_actor (`integer`) Read-only. The total number of actors (nodes) in the network.
+    #' @field n_actor (`integer`) The total number of actors (nodes) in the network.
     n_actor = function(value) {
       if (missing(value)) private$.n_actor else stop("`n_actor` is read-only.", call. = FALSE)
     },
-    #' @field type_x (`character`) Read-only. The specified distribution type for the `x_attribute`.
+    #' @field type_x (`character`) The specified distribution type for the `x_attribute`.
     type_x = function(value) {
       if (missing(value)) private$.type_x else self$set_type_x(value)
     },
-    #' @field type_y (`character`) Read-only. The specified distribution type for the `y_attribute`.
+    #' @field type_y (`character`) The specified distribution type for the `y_attribute`.
     type_y = function(value) {
       if (missing(value)) private$.type_y else self$set_type_y(value)
     },
-    #' @field scale_x (`numeric`) Read-only. The scale parameter associated with the `x_attribute`.
+    #' @field scale_x (`numeric`) The scale parameter associated with the `x_attribute`.
     scale_x = function(value) {
       if (missing(value)) private$.scale_x else self$set_scale_x(value)
     },
-    #' @field scale_y (`numeric`) Read-only. The scale parameter associated with the `y_attribute`.
+    #' @field scale_y (`numeric`) The scale parameter associated with the `y_attribute`.
     scale_y = function(value) {
       if (missing(value)) private$.scale_y else self$set_scale_y(value)
     },
-    #' @field fix_x (`logical`) Read-only. Indicates if the `x_attribute` is fixed during estimation/simulation.
+    #' @field fix_x (`logical`) Indicates if the `x_attribute` is fixed during estimation/simulation.
     fix_x = function(value) {
       if (missing(value)) private$.fix_x else self$set_fix_x(value)
     },
-    #' @field fix_z (`logical`) Read-only. Indicates if the `z_network` is fixed during estimation/simulation.
+    #' @field fix_z (`logical`) RIndicates if the `z_network` is fixed during estimation/simulation.
     fix_z = function(value) {
       if (missing(value)) private$.fix_z else self$set_fix_z(value)
     },
-    #' @field descriptives (`list`) Read-only. A list storing computed descriptive statistics for the network and attributes.
+    #' @field descriptives (`list`)A list storing computed descriptive statistics for the network and attributes.
     descriptives = function(value) {
       if (missing(value)) private$.descriptives else stop("`descriptives` is read-only.", call. = FALSE)
     },
-    #' @field fix_z_alocal (`logical`) Read-only. Flag indicating whether nonoverlap edges are treated as random.
+    #' @field fix_z_alocal (`logical`) Flag indicating whether nonoverlap edges are treated as random.
     fix_z_alocal = function(value) {
       if (missing(value)) private$.fix_z_alocal else self$set_fix_z_alocal(value)
     }

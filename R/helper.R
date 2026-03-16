@@ -69,6 +69,7 @@ eval_change <- function(formula, additional_args = NULL, object) {
       args[[length(args) + 1]] <- additional_args[[i]]
       names(args)[length(args)] <- names(additional_args)[i]
     }
+    args$plot <- FALSE
     # The function/method to call is the named item inside the R6 object
     method_to_call <- object[[func_name]]
     if (is.function(method_to_call)) {
