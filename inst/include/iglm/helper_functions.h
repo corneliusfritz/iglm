@@ -10,7 +10,17 @@
 #include <vector>
 #include <algorithm>
 #include <random>
-#include "iglm/extension_api.hpp"
+#ifndef IGLM_API
+#if defined(_WIN32)
+#ifdef IGLM_COMPILING_IGLM
+#define IGLM_API __declspec(dllexport)
+#else
+#define IGLM_API __declspec(dllimport)
+#endif
+#else
+#define IGLM_API
+#endif
+#endif
 // [[Rcpp::depends(RcppArmadillo)]]
 using namespace Rcpp;
 

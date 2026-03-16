@@ -1060,7 +1060,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
     #' @field iglm.data (`iglm.data`) Read-only. The associated \code{\link{iglm.data}} R6 object containing the network and attribute data.
     iglm.data = function(value) {
-      if (missing(value)) private$.iglm.data else stop("`iglm.data` is read-only.", call. = FALSE)
+      if (missing(value)) private$.iglm.data else {
+        browser()
+      }
     },
 
     #' @field control (`control.iglm`) Read-only. The \code{\link{control.iglm}} object specifying estimation parameters.

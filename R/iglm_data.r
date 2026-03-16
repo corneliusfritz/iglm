@@ -544,7 +544,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @param prob (logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.
     #' @param plot (logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.
     #' @return A numeric vector representing the distribution of `x_attribute` (invisible).
-    x_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE) {
+    x_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE) {
       if (private$.type_x == "normal") {
         tmp_density <- density(private$.x_attribute, from = value_range[1], to = value_range[2])
         names(tmp_density$y) <- tmp_density$x
@@ -585,7 +585,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @param prob (logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.
     #' @param plot (logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.
     #' @return A numeric vector representing the distribution of `y_attribute` (invisible).
-    y_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE) {
+    y_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE) {
       if (is.null(value_range)) {
         value_range <- range(private$.y_attribute)
       }
@@ -759,7 +759,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'   distribution (proportions). If `FALSE`, returns raw counts.
     #' @return A named vector (a `table` object) with the distribution of
     #'   geodesic distances. Includes `Inf` for unreachable pairs.
-    geodesic_distances_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE) {
+    geodesic_distances_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE) {
       if (is.null(private$.descriptives$geodesic_distances)) {
         self$geodesic_distances()
       }
@@ -838,7 +838,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     edgewise_shared_partner_distribution = function(type = "ALL",
                                                     value_range = NULL,
                                                     prob = TRUE,
-                                                    plot = FALSE) {
+                                                    plot = TRUE) {
       if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL")) {
         stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
       }
@@ -926,7 +926,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'   shared partner counts.
     dyadwise_shared_partner_distribution = function(type = "ALL",
                                                     value_range = NULL,
-                                                    prob = TRUE, plot = FALSE) {
+                                                    prob = TRUE, plot = TRUE) {
       if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL")) {
         stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
       }
@@ -1011,7 +1011,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return If the network is directed, a list containing two `table`
     #'   objects: `in_degree` and `out_degree`. If undirected, a single
     #'   `table` object with the degree distribution.
-    degree_distribution = function(value_range = NULL, prob = TRUE, plot = FALSE) {
+    degree_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE) {
       if (is.null(private$.descriptives$degree)) {
         self$degree()
       }
@@ -1117,14 +1117,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       private$.descriptives$degree <- res
       return(res)
     },
-    # spillover_degree_distribution_new = function( prob = TRUE, value_range = NULL, plot = FALSE){
-    #   browser()
-    #   actors_x = which(private$.x_attribute > self$mean_x())
-    #   actors_y = which(private$.y_attribute > self$mean_y())
-    #   private$.z_network
-    #   private$.overlap
-    #
-    # },
     #' @description
     #' Calculates the spillover degree distribution between actors with
     #' `x_attribute == 1` and actors with `y_attribute == 1`.
@@ -1138,23 +1130,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return A list containing two `table` objects:
     #'   `out_spillover_degree` (from x_i=1 to y_j=1) and
     #'   `in_spillover_degree` (from y_i=1 to x_j=1).
-    spillover_degree_distribution = function(prob = TRUE, value_range = NULL, plot = FALSE) {
-      # actors_x = which(x$x_attribute == 1)
-      # actors_y = which(x$y_attribute == 1)
-      #
-      # adj_mat_x_y = matrix(data = 0, nrow = length(actors_x), ncol = length(actors_y), dimnames = list(actors_x, actors_y))
-      # edges_x_y = x$z_network[(x$z_network[,1] %in% actors_x) & (x$z_network[,2] %in% actors_y),]
-      # edges_x_y[,1] = match(edges_x_y[,1], rownames(adj_mat_x_y))
-      # edges_x_y[,2] = match(edges_x_y[,2], colnames(adj_mat_x_y))
-      # adj_mat_x_y[edges_x_y] = 1
-      # adj_mat_x_y[which(neighborhood[actors_x,as.numeric(colnames(adj_mat_x_y))] == 0, arr.ind = T)] = NA
-      # adj_mat_x_y = adj_mat_x_y[rowSums(neighborhood[actors_x,as.numeric(colnames(adj_mat_x_y))],na.rm = T) != 0,]
-      # adj_mat_x_y = adj_mat_x_y[,colSums(neighborhood[actors_x,as.numeric(colnames(adj_mat_x_y))],na.rm = T) != 0]
-      #
-      # out_degree_x_y = table(factor(rowSums(adj_mat_x_y,na.rm = T), levels = 0:max_outdegree_x_y))/nrow(adj_mat_x_y)
-      # in_degree_x_y = table(factor(colSums(adj_mat_x_y,na.rm = T), levels = 0:max_indegree_x_y))/ncol(adj_mat_x_y)
-      #
-      # browser()
+    spillover_degree_distribution = function(prob = TRUE, value_range = NULL, plot = TRUE) {
       actors_x <- which(private$.x_attribute > self$mean_x())
       actors_y <- which(private$.y_attribute > self$mean_y())
 
@@ -1588,17 +1564,19 @@ iglm.data_generator <- R6::R6Class("iglm.data",
   active = list(
     #' @field x_attribute (`numeric`) Read-only. The vector for the first unit-level attribute.
     x_attribute = function(value) {
-      if (missing(value)) private$.x_attribute else stop("`x_attribute` is read-only.", call. = FALSE)
+      if (missing(value)) private$.x_attribute else {
+        self$set_x_attribute(value)
+      }
     },
 
     #' @field y_attribute (`numeric`) Read-only. The vector for the second unit-level attribute.
     y_attribute = function(value) {
-      if (missing(value)) private$.y_attribute else stop("`y_attribute` is read-only.", call. = FALSE)
+      if (missing(value)) private$.y_attribute else self$set_y_attribute(value)
     },
 
     #' @field z_network (`matrix`) Read-only. The primary network structure as a 2-column integer edgelist.
     z_network = function(value) {
-      if (missing(value)) private$.z_network else stop("`z_network` is read-only.", call. = FALSE)
+      if (missing(value)) private$.z_network else self$set_z_network(value)
     },
 
     #' @field neighborhood (`matrix` or `NULL`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. `NULL` if not provided.
@@ -1620,32 +1598,29 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     n_actor = function(value) {
       if (missing(value)) private$.n_actor else stop("`n_actor` is read-only.", call. = FALSE)
     },
-
     #' @field type_x (`character`) Read-only. The specified distribution type for the `x_attribute`.
     type_x = function(value) {
-      if (missing(value)) private$.type_x else stop("`type_x` is read-only.", call. = FALSE)
+      if (missing(value)) private$.type_x else self$set_type_x(value)
     },
-
     #' @field type_y (`character`) Read-only. The specified distribution type for the `y_attribute`.
     type_y = function(value) {
-      if (missing(value)) private$.type_y else stop("`type_y` is read-only.", call. = FALSE)
+      if (missing(value)) private$.type_y else self$set_type_y(value)
     },
-
     #' @field scale_x (`numeric`) Read-only. The scale parameter associated with the `x_attribute`.
     scale_x = function(value) {
-      if (missing(value)) private$.scale_x else stop("`scale_x` is read-only.", call. = FALSE)
+      if (missing(value)) private$.scale_x else self$set_scale_x(value)
     },
     #' @field scale_y (`numeric`) Read-only. The scale parameter associated with the `y_attribute`.
     scale_y = function(value) {
-      if (missing(value)) private$.scale_y else stop("`scale_y` is read-only.", call. = FALSE)
+      if (missing(value)) private$.scale_y else self$set_scale_y(value)
     },
     #' @field fix_x (`logical`) Read-only. Indicates if the `x_attribute` is fixed during estimation/simulation.
     fix_x = function(value) {
-      if (missing(value)) private$.fix_x else stop("`fix_x` is read-only.", call. = FALSE)
+      if (missing(value)) private$.fix_x else self$set_fix_x(value)
     },
     #' @field fix_z (`logical`) Read-only. Indicates if the `z_network` is fixed during estimation/simulation.
     fix_z = function(value) {
-      if (missing(value)) private$.fix_z else stop("`fix_z` is read-only.", call. = FALSE)
+      if (missing(value)) private$.fix_z else self$set_fix_z(value)
     },
     #' @field descriptives (`list`) Read-only. A list storing computed descriptive statistics for the network and attributes.
     descriptives = function(value) {
@@ -1653,7 +1628,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     },
     #' @field fix_z_alocal (`logical`) Read-only. Flag indicating whether nonoverlap edges are treated as random.
     fix_z_alocal = function(value) {
-      if (missing(value)) private$.fix_z_alocal else stop("`fix_z_alocal` is read-only.", call. = FALSE)
+      if (missing(value)) private$.fix_z_alocal else self$set_fix_z_alocal(value)
     }
   )
 )

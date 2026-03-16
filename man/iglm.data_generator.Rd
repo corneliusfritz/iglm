@@ -459,7 +459,7 @@ Calculates the distribution of the `x_attribute`.
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$x_distribution(
   value_range = NULL,
   prob = TRUE,
-  plot = FALSE
+  plot = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -487,7 +487,7 @@ Calculates the distribution of the `y_attribute`.
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$y_distribution(
   value_range = NULL,
   prob = TRUE,
-  plot = FALSE
+  plot = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -597,7 +597,7 @@ Calculates the geodesic distance distribution of the symmetrized
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$geodesic_distances_distribution(
   value_range = NULL,
   prob = TRUE,
-  plot = FALSE
+  plot = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -645,7 +645,7 @@ Calculates the distribution of edgewise shared partners.
   type = "ALL",
   value_range = NULL,
   prob = TRUE,
-  plot = FALSE
+  plot = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -681,7 +681,7 @@ Calculates the distribution of dyadwise shared partners.
   type = "ALL",
   value_range = NULL,
   prob = TRUE,
-  plot = FALSE
+  plot = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -716,7 +716,7 @@ Calculates the degree distribution of the `z_network`.
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$degree_distribution(
   value_range = NULL,
   prob = TRUE,
-  plot = FALSE
+  plot = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -765,7 +765,7 @@ Calculates the spillover degree distribution between actors with
 \if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$spillover_degree_distribution(
   prob = TRUE,
   value_range = NULL,
-  plot = FALSE
+  plot = TRUE
 )}\if{html}{\out{</div>}}
 }
 

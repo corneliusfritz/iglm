@@ -15,10 +15,10 @@ test_that("Test some sufficient statistics for undirected networks", {
   }
   neighborhood[(n_actor - size_neighborhood + 1):(n_actor), (n_actor - size_neighborhood + 1):(n_actor)] <- 1
 
-  diag(neighborhood) <- 0
+  # diag(neighborhood) <- 0
   type_x <- "normal"
   type_y <- "normal"
-  # debugonce(iglm.data)
+
   xyz_obj_new <- iglm.data(
     neighborhood = neighborhood, directed = FALSE,
     type_x = type_x, type_y = type_y, scale_y = 2, scale_x = 3
@@ -107,14 +107,13 @@ test_that("Test some sufficient statistics for undirected networks", {
   expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 3]) - statistics(model_tmp_new$results$samples ~ attribute_x) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_local) < 0.1))
-  expect_all_true(as.vector(abs(as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_local)) < 0.1))
-  expect_all_true(as.vector(abs(as.numeric(model_tmp_new$results$stats[, 9]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_global)) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_local)) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_local)) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_local)) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 7]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled_local)) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 8]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_global)) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 9]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_global)) < 0.1))
   expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 10]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_global)) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_local) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 7]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled_local) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 8]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_global) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 11]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled_global) < 0.1))
   
   model_tmp_new <- iglm(
     formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x +
@@ -126,6 +125,9 @@ test_that("Test some sufficient statistics for undirected networks", {
     control = control.iglm(accelerated = F, max_it = 200, display_progress = F)
   )
   model_tmp_new$simulate()
+  
+  
+  
   # sum(model_tmp_new$results$samples[[1]]$y_attribute)
   expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.1))
@@ -138,7 +140,7 @@ test_that("Test some sufficient statistics for undirected networks", {
 
 
 
-test_that("Test some sufficient statistics for directed networks (Poisson)", {
+test_that("Test some sufficient statistics for directed networks", {
   n_actor <- 100
   block <- matrix(nrow = 50, ncol = 50, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 50, block, simplify = FALSE)))
@@ -422,3 +424,4 @@ test_that("Test the spillover effects", {
   expect_equal(count_values_iglm[4], val_yx)
   expect_equal(count_values_iglm[4], model_tmp_new$results$stats[1, 2])
 })
+
