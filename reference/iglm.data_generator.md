@@ -8,18 +8,16 @@ connections (z_network).
 
 - `x_attribute`:
 
-  (\`numeric\`) Read-only. The vector for the first unit-level
-  attribute.
+  (\`numeric\`) The vector for the first unit-level attribute.
 
 - `y_attribute`:
 
-  (\`numeric\`) Read-only. The vector for the second unit-level
-  attribute.
+  (\`numeric\`) The vector for the second unit-level attribute.
 
 - `z_network`:
 
-  (\`matrix\`) Read-only. The primary network structure as a 2-column
-  integer edgelist.
+  (\`matrix\`) The primary network structure as a 2-column integer
+  edgelist.
 
 - `neighborhood`:
 
@@ -33,53 +31,49 @@ connections (z_network).
 
 - `directed`:
 
-  (\`logical\`) Read-only. Indicates if the \`z_network\` is treated as
-  directed.
+  (\`logical\`) Indicates if the \`z_network\` is treated as directed.
 
 - `n_actor`:
 
-  (\`integer\`) Read-only. The total number of actors (nodes) in the
-  network.
+  (\`integer\`) The total number of actors (nodes) in the network.
 
 - `type_x`:
 
-  (\`character\`) Read-only. The specified distribution type for the
+  (\`character\`) The specified distribution type for the
   \`x_attribute\`.
 
 - `type_y`:
 
-  (\`character\`) Read-only. The specified distribution type for the
+  (\`character\`) The specified distribution type for the
   \`y_attribute\`.
 
 - `scale_x`:
 
-  (\`numeric\`) Read-only. The scale parameter associated with the
-  \`x_attribute\`.
+  (\`numeric\`) The scale parameter associated with the \`x_attribute\`.
 
 - `scale_y`:
 
-  (\`numeric\`) Read-only. The scale parameter associated with the
-  \`y_attribute\`.
+  (\`numeric\`) The scale parameter associated with the \`y_attribute\`.
 
 - `fix_x`:
 
-  (\`logical\`) Read-only. Indicates if the \`x_attribute\` is fixed
-  during estimation/simulation.
+  (\`logical\`) Indicates if the \`x_attribute\` is fixed during
+  estimation/simulation.
 
 - `fix_z`:
 
-  (\`logical\`) Read-only. Indicates if the \`z_network\` is fixed
-  during estimation/simulation.
+  (\`logical\`) RIndicates if the \`z_network\` is fixed during
+  estimation/simulation.
 
 - `descriptives`:
 
-  (\`list\`) Read-only. A list storing computed descriptive statistics
-  for the network and attributes.
+  (\`list\`)A list storing computed descriptive statistics for the
+  network and attributes.
 
 - `fix_z_alocal`:
 
-  (\`logical\`) Read-only. Flag indicating whether nonoverlap edges are
-  treated as random.
+  (\`logical\`) Flag indicating whether nonoverlap edges are treated as
+  random.
 
 ## Methods
 

@@ -13,37 +13,36 @@ sampling individual parts (attributes x, y, network z).
 
 - `sampler_x`:
 
-  (\`sampler_net_attr\`) Read-only. The sampler configuration object for
-  the x attribute.
+  (\`sampler_net_attr\`) The sampler configuration object for the x
+  attribute.
 
 - `sampler_y`:
 
-  (\`sampler_net_attr\`) Read-only. The sampler configuration object for
-  the y attribute.
+  (\`sampler_net_attr\`) The sampler configuration object for the y
+  attribute.
 
 - `sampler_z`:
 
-  (\`sampler_net_attr\`) Read-only. The sampler configuration object for
-  the z network (overlap region).
+  (\`sampler_net_attr\`) The sampler configuration object for the z
+  network (overlap region).
 
 - `n_simulation`:
 
-  (\`integer\`) Read-only. The number of simulations to generate after
-  burn-in.
+  (\`integer\`) The number of simulations to generate after burn-in.
 
 - `n_burn_in`:
 
-  (\`integer\`) Read-only. The number of burn-in iterations.
+  (\`integer\`) The number of burn-in iterations.
 
 - `init_empty`:
 
-  (\`logical\`) Read-only. Flag indicating whether simulations start
-  from an empty state.
+  (\`logical\`) Flag indicating whether simulations start from an empty
+  state.
 
 - `cluster`:
 
-  (\`cluster\` object or \`NULL\`) Read-only. The parallel cluster
-  object being used, or \`NULL\`.
+  (\`cluster\` object or \`NULL\`) The parallel cluster object being
+  used, or \`NULL\`.
 
 ## Methods
 

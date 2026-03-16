@@ -47,22 +47,22 @@ Methodology), 7, 647-676.
 
 - `iglm.data`:
 
-  (\`iglm.data\`) Read-only. The associated [`iglm.data`](iglm.data.md)
-  R6 object containing the network and attribute data.
+  (\`iglm.data\`) The associated [`iglm.data`](iglm.data.md) R6 object
+  containing the network and attribute data.
 
 - `control`:
 
-  (\`control.iglm\`) Read-only. The [`control.iglm`](control.iglm.md)
-  object specifying estimation parameters.
+  (\`control.iglm\`) The [`control.iglm`](control.iglm.md) object
+  specifying estimation parameters.
 
 - `sampler`:
 
-  (\`sampler.iglm\`) Read-only. The [`sampler.iglm`](sampler.iglm.md)
-  object specifying MCMC sampling parameters.
+  (\`sampler.iglm\`) The [`sampler.iglm`](sampler.iglm.md) object
+  specifying MCMC sampling parameters.
 
 - `name`:
 
-  (\`character\`) Read-only. The name of the model.
+  (\`character\`) The name of the model.
 
 - `sufficient_statistics`:
 
