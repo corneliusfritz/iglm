@@ -21,7 +21,7 @@ simulate_iglm(
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment.
-See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
+See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
 
 \item{basis}{An optional `iglm.data` object to serve as the basis for the simulation.
 If provided, the simulation starts from the state defined in this object.

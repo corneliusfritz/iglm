@@ -550,7 +550,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         names(tmp_density$y) <- tmp_density$x
 
         if (plot) {
-          plot(tmp_density,
+          plot(las  = 1,tmp_density,
             main = "Density of x_attribute",
             xlab = "x_attribute values", ylab = "Density"
           )
@@ -593,7 +593,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         tmp_density <- density(private$.y_attribute, from = value_range[1], to = value_range[2])
         names(tmp_density$y) <- tmp_density$x
         if (plot) {
-          plot(tmp_density,
+          plot(las  = 1,tmp_density,
             main = "Density of y_attribute",
             xlab = "y_attribute values", ylab = "Density"
           )
@@ -1450,44 +1450,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       n <- as.integer(private$.n_actor)
       dir_flag <- isTRUE(private$.directed)
 
-      # --- helper to coerce stored edge list to a clean 2-col integer matrix
-      edge_mat <- function(E) {
-        if (is.null(E)) {
-          return(matrix(integer(0), ncol = 2))
-        }
-        E <- as.matrix(E)
-        if (!is.numeric(E) || ncol(E) != 2) {
-          stop("Edge list must be numeric matrix with 2 columns.")
-        }
-        storage.mode(E) <- "integer"
-        # drop self-loops for counting/printing
-        E <- E[E[, 1] != E[, 2], , drop = FALSE]
-        E
-      }
-
-      zE <- edge_mat(private$.z_network)
-      nbE <- edge_mat(private$.neighborhood)
-      ovE <- edge_mat(private$.overlap)
-
-      # --- edge counting: for undirected, count unique unordered pairs
-      count_edges <- function(E, directed) {
-        if (nrow(E) == 0) {
-          return(0L)
-        }
-        if (directed) {
-          return(nrow(E))
-        } else {
-          U <- cbind(pmin(E[, 1], E[, 2]), pmax(E[, 1], E[, 2]))
-          return(nrow(unique(U)))
-        }
-      }
-
-      m_z <- count_edges(zE, dir_flag)
-      m_nb <- count_edges(nbE, dir_flag)
-
-
-      denom <- if (dir_flag) n * (n - 1) else n * (n - 1) / 2
-      # dens  <- if (denom > 0) m_z / denom else NA_real_
+      m_z <- nrow(private$.z_network)
+      m_nb <- nrow(private$.neighborhood)
       numfmt <- function(v) format(round(v, digits), nsmall = digits, trim = TRUE)
 
       summarize_attr <- function(v, type, scale) {
@@ -1496,11 +1460,11 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           n1 <- sum(v == 1, na.rm = TRUE)
           n0 <- sum(v == 0, na.rm = TRUE)
           p1 <- mean(v == 1, na.rm = TRUE)
-          paste0("binomial with 1s=", n1, ", 0s=", n0, ", P(1)=", numfmt(p1))
+          paste0("binomial 1s=", n1, ", 0s=", n0, ", P(1)=", numfmt(p1))
         } else if (type == "poisson") {
           qs <- stats::quantile(v, c(.00, .25, .50, .75, 1), na.rm = TRUE, names = FALSE)
           paste0(
-            "poisson with min=", numfmt(qs[1]),
+            "poisson min=", numfmt(qs[1]),
             ", q1=", numfmt(qs[2]),
             ", med=", numfmt(qs[3]),
             ", q3=", numfmt(qs[4]),
@@ -1509,10 +1473,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           )
         } else if (type == "normal") {
           paste0(
-            "normal with mean=", numfmt(mean(v, na.rm = TRUE)),
+            "normal mean=", numfmt(mean(v, na.rm = TRUE)),
             ", sd=", numfmt(stats::sd(v, na.rm = TRUE)),
-            ", min=", numfmt(min(v, na.rm = TRUE)),
-            ", max=", numfmt(max(v, na.rm = TRUE)),
             ", scale= ", numfmt(scale)
           )
         } else {

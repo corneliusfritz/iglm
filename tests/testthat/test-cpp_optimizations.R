@@ -38,12 +38,11 @@ test_that("Optimized GWESP statistics are correct", {
   sampler <- sampler.iglm(n_simulation = 1, n_burn_in = 0)
 
   # Test OSP
-  format_osp <- data_obj ~ gwesp_local_OSP(decay = 100) # Decay=100 makes it essentially count common partners
+  format_osp <- data_obj ~ gwesp(mode = "local",variant  = "OSP", decay = 100) # Decay=100 makes it essentially count common partners
   res_osp <- simulate_iglm(formula = format_osp, coef = c(0), sampler = sampler, only_stats = TRUE)
   # The change stat for switching an edge from 0 to 1 would be exp(100)*(1 - exp(-100 * (count+delta))) ...
   # Actually, the implementation of gwesp_local_OSP in C++ for existing edges is complex.
   # Let's use a simpler check: just ensure consistency.
-
   expect_true(is.matrix(res_osp$stats))
 })
 
@@ -71,7 +70,7 @@ test_that("TNT sampler preserves sorted adjacency lists and correct counts", {
   )
 
   # Model with GWESP to stress test the optimized partner counting
-  formula <- data_obj ~ edges(mode = "local") + gwesp_local_OTP(decay = 0.5)
+  formula <- data_obj ~ edges(mode = "local") + gwesp(mode = "local",variant = "OTP", decay = 0.5)
 
   expect_no_error({
     res <- simulate_iglm(formula = formula, coef = c(-2, 0.5), sampler = sampler, only_stats = TRUE)

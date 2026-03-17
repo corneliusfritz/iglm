@@ -62,3 +62,17 @@ std::vector<FUN> Registry::all_meta() const {
 }
 
 } // namespace iglm
+
+extern "C" void iglm_register_term_C(const char* name, void* fn_ptr, const char* short_name, double value) {
+    if (!fn_ptr) {
+        Rcpp::stop("Invalid function pointer passed to iglm_register_term_C");
+    }
+    std::string n(name);
+    std::string sn(short_name);
+    iglm::Registry::instance().add(n, (iglm::ExtFn)fn_ptr, sn, value);
+}
+
+// [[Rcpp::init]]
+void iglm_init_callable(DllInfo *dll) {
+    R_RegisterCCallable("iglm", "iglm_register_term_C", (DL_FUNC)iglm_register_term_C);
+}

@@ -23,8 +23,8 @@
 #define IGLM_API __declspec(dllimport)
 #endif
 #else
-// On Linux/macOS, R's symbol resolution handles this.
-#define IGLM_API
+// On Linux/macOS, we need to ensure symbols are visible even if loaded with R_LD_LOCAL
+#define IGLM_API __attribute__ ((visibility ("default")))
 #endif
 class XYZ_class; 
 
@@ -78,10 +78,22 @@ struct Registrar {
             const std::string& short_name,
             double value)
   {
+#ifdef IGLM_COMPILING_IGLM
+    // When compiling iglm itself, call the registry directly.
     if (!Registry::instance().add(name, fn, short_name, value)) {
       Rcpp::Rcerr << "Duplicate extension name '" << name << "' ignored.\n";
     }
-  } 
+#else
+    // When compiling an extension package, call through R_GetCCallable so that
+    // the registration always lands in iglm's singleton — not a duplicate one
+    // created by the extension's DLL.
+    typedef void (*reg_fn_t)(const char*, void*, const char*, double);
+    reg_fn_t reg = (reg_fn_t)R_GetCCallable("iglm", "iglm_register_term_C");
+    if (reg) {
+      reg(name.c_str(), (void*)fn, short_name.c_str(), value);
+    }
+#endif
+  }
 };
 
 #define iglm_JOIN_IMPL(a,b) a##b

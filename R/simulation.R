@@ -5,7 +5,7 @@
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
 #'   name of a `iglm.data` object available in the calling environment.
-#'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
+#'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
 #' @param coef Numeric vector containing the coefficient values for the structural
 #'   (non-degrees) terms defined in the `formula`.
 #' @param coef_degrees Numeric vector specifying the degrees coefficient

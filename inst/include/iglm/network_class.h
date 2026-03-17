@@ -19,7 +19,10 @@ public:
   std::vector<char> adj_mat;
 
   inline size_t get_mat_idx(int from, int to) const {
-    return (from - 1) * n_actor + (to - 1);
+    if (from < 1 || from > n_actor || to < 1 || to > n_actor) {
+        return 0; // Or some safe default, though get_val will check it
+    }
+    return (size_t)(from - 1) * n_actor + (to - 1);
   }
 
   // Constructors
@@ -35,8 +38,15 @@ public:
   double count_edges() const;
   
   inline double get_val(int from, int to) const {
-    return adj_mat[get_mat_idx(from, to)] ? 1.0 : 0.0;
+    if (from < 1 || from > n_actor || to < 1 || to > n_actor) {
+        return 0.0;
+    }
+    size_t idx = get_mat_idx(from, to);
+    if (idx >= adj_mat.size()) return 0.0; 
+    return adj_mat[idx] ? 1.0 : 0.0;
   }
+  
+  int get_n_actor() const { return n_actor; }
   
   void add_edge(int from, int to);
   void delete_edge(int from, int to);

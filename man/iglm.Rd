@@ -18,7 +18,7 @@ iglm(
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment.
-See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
+See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
 
 \item{coef}{Optional numeric vector of initial coefficients for the structural
 (non-degrees) terms in `formula`. If `NULL`, coefficients are
@@ -76,7 +76,7 @@ behavior (via \eqn{g_i}) and dyadic, network-based dependencies (via \eqn{h_{i,j
 including local dependence limited to overlapping neighborhoods.
 This help page documents the various statistics available in 'iglm',
 corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
-components of the joint model. See \code{\link{model.terms}} for details on specifying
+components of the joint model. See \code{\link{iglm-terms}} for details on specifying
 all model terms via the formula interface.
 }
 

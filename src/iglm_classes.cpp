@@ -343,8 +343,12 @@ void XZ_class::initialize_overlap_counts() {
     N_1_overlap = 0;
     
     for (int idx = 0; idx < (int)overlap_mat.n_rows; ++idx) {
-        if (z_network.get_val((int)overlap_mat(idx, 0), (int)overlap_mat(idx, 1))) {
-            N_1_overlap++;
+        int from = (int)overlap_mat(idx, 0);
+        int to = (int)overlap_mat(idx, 1);
+        if (from >= 1 && from <= z_network.get_n_actor() && to >= 1 && to <= z_network.get_n_actor()) {
+            if (z_network.get_val(from, to)) {
+                N_1_overlap++;
+            }
         }
     }
     if (!z_network.directed) N_1_overlap /= 2;

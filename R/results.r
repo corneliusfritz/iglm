@@ -286,7 +286,8 @@ results.generator <- R6::R6Class("results",
         } else {
           normalized <- scale(private$.stats)
           normalized[is.nan(normalized)] <- 0
-          plot(NA, xlim = c(1, nrow(normalized)), ylim = range(normalized), xlab = "Sample", ylab = "Normalized Statistic", bty = "l")
+          plot(NA, xlim = c(1, nrow(normalized)), ylim = range(normalized), 
+               xlab = "Sample", ylab = "Normalized Statistic", las  = 1, bty = "l")
           for (tmp in seq_len(ncol(normalized))) {
             lines(y = normalized[, tmp], x = seq_len(nrow(normalized)), col = tmp)
           }
@@ -297,7 +298,7 @@ results.generator <- R6::R6Class("results",
           stop("Model has not been estimated yet. Cannot plot results.", call. = FALSE)
         }
 
-        plot(private$.llh, type = "l", xlab = "Iteration", ylab = "Log-likelihood", bty = "l")
+        plot(private$.llh, type = "l", xlab = "Iteration", las  = 1, ylab = "Log-likelihood", bty = "l")
 
         if (!is.null(private$.score_degrees)) {
           coefficients_path_np <- matrix(private$.coefficients_path[, seq_len(nrow(private$.var))], ncol = nrow(private$.var))
@@ -305,7 +306,7 @@ results.generator <- R6::R6Class("results",
             ncol = nrow(private$.fisher_degrees)
           )
 
-          plot(NA,
+          plot(NA,las  = 1,
             xlim = c(1, nrow(coefficients_path_p)), ylim = range(coefficients_path_p),
             xlab = "Iteration", ylab = "Degree Coefficients", bty = "l"
           )
@@ -313,7 +314,7 @@ results.generator <- R6::R6Class("results",
             lines(y = coefficients_path_p[, tmp], x = seq_len(nrow(coefficients_path_p)), col = tmp)
           }
 
-          plot(NA,
+          plot(NA, las  = 1,
             xlim = c(1, nrow(coefficients_path_np)),
             ylim = range(coefficients_path_np),
             xlab = "Iteration", ylab = "Coefficients", bty = "l"
@@ -322,7 +323,7 @@ results.generator <- R6::R6Class("results",
             lines(y = coefficients_path_np[, tmp], x = seq_len(nrow(coefficients_path_np)), col = tmp)
           }
         } else {
-          plot(NA, xlim = c(1, nrow(private$.coefficients_path)), ylim = range(private$.coefficients_path), xlab = "Iteration", ylab = "Coefficients")
+          plot(NA, las  = 1, xlim = c(1, nrow(private$.coefficients_path)), ylim = range(private$.coefficients_path), xlab = "Iteration", ylab = "Coefficients")
           for (tmp in seq_len(ncol(private$.coefficients_path))) {
             lines(y = private$.coefficients_path[, tmp], x = seq_len(nrow(private$.coefficients_path)), col = tmp)
           }
@@ -371,7 +372,7 @@ results.generator <- R6::R6Class("results",
           normalized <- private$.stats
           normalized <- sweep(normalized, 2, private$.model_assessment$sufficient_statistics, "/")
           for (i in seq_len(ncol(normalized))) {
-            plot(density(normalized[, i]),
+            plot(density(normalized[, i]), las  = 1,
               main = paste0(names(private$.model_assessment$sufficient_statistics)[i]),
               bty = "l", xlab = "Ratio between Simulated and Observed Sufficient Statistics"
             )
@@ -409,7 +410,7 @@ results.generator <- R6::R6Class("results",
                   private$.model_assessment$observed$degree_distribution$in_degree
                 ))
 
-                plot(private$.model_assessment$observed$degree_distribution$in_degree,
+                plot(private$.model_assessment$observed$degree_distribution$in_degree, las  = 1,
                   xlab = "Indegree", ylim = ylim,
                   xlim = c(min(as.numeric(names(x_positions))) - 0.3, max(as.numeric(names(x_positions))) + 0.3),
                   ylab = "Percentage", type = "n", bty = "l", axes = FALSE
@@ -421,7 +422,7 @@ results.generator <- R6::R6Class("results",
                     n = 10
                   )
                 )
-                axis(side = 2)
+                axis(side = 2, las = 1)
                 x <- as.numeric(names(private$.model_assessment$observed$degree_distribution$in_degree))
                 x_polygon <- c(x, rev(x))
                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated)))
@@ -489,7 +490,7 @@ results.generator <- R6::R6Class("results",
                   private$.model_assessment$observed$degree_distribution$in_degree
                 ))
 
-                plot(private$.model_assessment$observed$degree_distribution$in_degree,
+                plot(private$.model_assessment$observed$degree_distribution$in_degree, las  = 1,
                   xlab = "Indegree", ylim = ylim,
                   xlim = c(min(as.numeric(names(x_positions))) - 0.3, max(as.numeric(names(x_positions))) + 0.3),
                   ylab = "Percentage", type = "n", bty = "l", axes = FALSE
@@ -501,7 +502,7 @@ results.generator <- R6::R6Class("results",
                     n = 10
                   )
                 )
-                axis(side = 2)
+                axis(side = 2, las = 1)
                 boxplot(simulated,
                   at = as.numeric(names(private$.model_assessment$observed$degree_distribution$in_degree)),
                   add = TRUE, col = "#87CEEB80", boxwex = 0.5, axes = FALSE
@@ -534,7 +535,7 @@ results.generator <- R6::R6Class("results",
                 ))
 
                 plot(private$.model_assessment$observed$degree_distribution$out_degree,
-                  xlab = "Outdegree", ylim = ylim,
+                  xlab = "Outdegree", ylim = ylim, las  = 1,
                   xlim = c(min(as.numeric(names(x_positions))) - 0.3, max(as.numeric(names(x_positions))) + 0.3),
                   ylab = "Percentage", type = "n", bty = "l", axes = FALSE
                 )
@@ -545,7 +546,7 @@ results.generator <- R6::R6Class("results",
                     n = 10
                   )
                 )
-                axis(side = 2)
+                axis(side = 2, las = 1)
                 x <- as.numeric(names(private$.model_assessment$observed$degree_distribution$out_degree))
                 x_polygon <- c(x, rev(x))
                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated)))
@@ -613,7 +614,7 @@ results.generator <- R6::R6Class("results",
                 ))
 
                 plot(private$.model_assessment$observed$degree_distribution$out_degree,
-                  xlab = "Outdegree", ylim = ylim,
+                  xlab = "Outdegree", ylim = ylim, las  = 1,
                   xlim = c(min(as.numeric(names(x_positions))) - 0.3, max(as.numeric(names(x_positions))) + 0.3),
                   ylab = "Percentage", type = "n", bty = "l", axes = FALSE
                 )
@@ -623,8 +624,8 @@ results.generator <- R6::R6Class("results",
                     n = 10
                   )
                 )
-                axis(side = 2)
-                boxplot(simulated,
+                axis(side = 2, las = 1)
+                boxplot(simulated, 
                   at = as.numeric(names(private$.model_assessment$observed$degree_distribution$out_degree)),
                   add = TRUE, col = "#87CEEB80", boxwex = 0.5, axes = FALSE
                 )
@@ -658,7 +659,7 @@ results.generator <- R6::R6Class("results",
 
 
                 plot(private$.model_assessment$observed$degree_distribution,
-                  xlab = "Degree", ylim = ylim,
+                  xlab = "Degree", ylim = ylim, las  = 1,
                   xlim = c(min(as.numeric(names(x_positions))) - 0.3, max(as.numeric(names(x_positions))) + 0.3),
                   ylab = "Percentage", type = "n", bty = "l", axes = FALSE
                 )
@@ -669,7 +670,7 @@ results.generator <- R6::R6Class("results",
                     n = 10
                   )
                 )
-                axis(side = 2)
+                axis(side = 2, las = 1)
                 x <- as.numeric(names(private$.model_assessment$observed$degree_distribution))
                 x_polygon <- c(x, rev(x))
                 y_polygon <- c(colMins(simulated), rev(colMaxs(simulated)))
@@ -738,7 +739,7 @@ results.generator <- R6::R6Class("results",
                 ))
 
                 plot(private$.model_assessment$observed$degree_distribution,
-                  xlab = "Degree", ylim = ylim,
+                  xlab = "Degree", ylim = ylim, las  = 1,
                   xlim = c(min(as.numeric(names(x_positions))) - 0.3, max(as.numeric(names(x_positions))) + 0.3),
                   ylab = "Percentage", type = "n", bty = "l", axes = FALSE
                 )
@@ -748,10 +749,10 @@ results.generator <- R6::R6Class("results",
                     n = 10
                   )
                 )
-                axis(side = 2)
+                axis(side = 2, las = 1)
 
 
-                boxplot(simulated,
+                boxplot(simulated, las  = 1,
                   at = as.numeric(names(private$.model_assessment$observed$degree_distribution)),
                   add = TRUE, col = "#87CEEB80", boxwex = 0.5, axes = FALSE
                 )
@@ -796,7 +797,7 @@ results.generator <- R6::R6Class("results",
                 simulated,
                 x_positions
               ))
-              plot(x_positions,
+              plot(x_positions, las  = 1,
                 xlab = xlab_tmp, ylab = "Percentage", type = "n",
                 ylim = ylim, axes = F,
                 bty = "l",
@@ -809,7 +810,7 @@ results.generator <- R6::R6Class("results",
                   n = 10
                 )
               )
-              axis(side = 2)
+              axis(side = 2, las = 1)
 
               x <- as.numeric(names(x_positions))
               x_polygon <- c(x, rev(x))
@@ -881,7 +882,7 @@ results.generator <- R6::R6Class("results",
                 simulated,
                 x_positions
               ))
-              plot(x_positions,
+              plot(las  = 1,x_positions,
                 xlab = xlab_tmp, ylab = "Percentage", type = "n",
                 ylim = ylim, axes = F,
                 bty = "l",
@@ -894,7 +895,7 @@ results.generator <- R6::R6Class("results",
                   n = 10
                 )
               )
-              axis(side = 2)
+              axis(side = 2, las = 1)
 
               boxplot(simulated,
                 at = as.numeric(names(x_positions)),
@@ -928,7 +929,7 @@ results.generator <- R6::R6Class("results",
               ), na.rm = TRUE)
               x_positions <- private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree
 
-              plot(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree,
+              plot(las  = 1,private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree,
                 xlab = "Spillover Indegree", ylab = "Percentage", type = "n",
                 xlim = c(min(as.numeric(names(x_positions))) - 0.5, max(as.numeric(names(x_positions))) + 0.5),
                 ylim = ylim, bty = "l", axes = FALSE
@@ -941,7 +942,7 @@ results.generator <- R6::R6Class("results",
                   n = 10
                 )
               )
-              axis(side = 2)
+              axis(side = 2,las  = 1)
               x <- as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree))
               x_polygon <- c(x, rev(x))
               y_polygon <- c(colMins(simulated), rev(colMaxs(simulated)))
@@ -1010,7 +1011,7 @@ results.generator <- R6::R6Class("results",
               x_positions <- private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree
 
 
-              plot(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree,
+              plot(las  = 1,private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree,
                 xlab = "Spillover Outdegree", ylab = "Percentage", type = "n",
                 xlim = c(min(as.numeric(names(x_positions))) - 0.5, max(as.numeric(names(x_positions))) + 0.5),
                 ylim = ylim, bty = "l", axes = FALSE
@@ -1022,7 +1023,7 @@ results.generator <- R6::R6Class("results",
                   n = 10
                 )
               )
-              axis(side = 2)
+              axis(side = 2, las = 1)
               x <- as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree))
               x_polygon <- c(x, rev(x))
               y_polygon <- c(colMins(simulated), rev(colMaxs(simulated)))
@@ -1092,7 +1093,7 @@ results.generator <- R6::R6Class("results",
               ), na.rm = TRUE)
               x_positions <- private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree
 
-              plot(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree,
+              plot(las  = 1,private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree,
                 xlab = "Spillover Indegree", ylab = "Percentage", type = "n",
                 xlim = c(min(as.numeric(names(x_positions))) - 0.5, max(as.numeric(names(x_positions))) + 0.5),
                 ylim = ylim, bty = "l", axes = FALSE
@@ -1105,7 +1106,7 @@ results.generator <- R6::R6Class("results",
                   n = 10
                 )
               )
-              axis(side = 2)
+              axis(side = 2, las = 1)
 
               boxplot(simulated,
                 at = as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$in_spillover_degree)),
@@ -1126,7 +1127,7 @@ results.generator <- R6::R6Class("results",
               ))
               x_positions <- private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree
 
-              plot(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree,
+              plot(las  = 1,private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree,
                 xlab = "Spillover Outdegree", ylab = "Percentage", type = "n",
                 xlim = c(min(as.numeric(names(x_positions))) - 0.5, max(as.numeric(names(x_positions))) + 0.5),
                 ylim = ylim, bty = "l", axes = FALSE
@@ -1138,7 +1139,7 @@ results.generator <- R6::R6Class("results",
                   n = 10
                 )
               )
-              axis(side = 2)
+              axis(side = 2, las = 1)
 
               boxplot(simulated,
                 at = as.numeric(names(private$.model_assessment$observed$spillover_degree_distribution$out_spillover_degree)),
@@ -1172,7 +1173,7 @@ results.generator <- R6::R6Class("results",
 
 
               x_positions <- seq_along(private$.model_assessment$observed$geodesic_distances_distribution)
-              plot(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
+              plot(las  = 1,x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
                 xlab = "Geodesic Distance", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                 xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
               )
@@ -1253,7 +1254,7 @@ results.generator <- R6::R6Class("results",
 
 
               x_positions <- seq_along(private$.model_assessment$observed$geodesic_distances_distribution)
-              plot(x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
+              plot(las  = 1,x_positions, as.vector(private$.model_assessment$observed$geodesic_distances_distribution),
                 xlab = "Geodesic Distance", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                 xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
               )
@@ -1297,7 +1298,7 @@ results.generator <- R6::R6Class("results",
 
 
               x_positions <- seq_along(private$.model_assessment$observed$y_distribution)
-              plot(x_positions, as.vector(private$.model_assessment$observed$y_distribution),
+              plot(las  = 1,x_positions, as.vector(private$.model_assessment$observed$y_distribution),
                 xlab = "Distribution of Y", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                 xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
               )
@@ -1380,7 +1381,7 @@ results.generator <- R6::R6Class("results",
 
 
                 x_positions <- as.numeric(names(private$.model_assessment$observed$y_distribution))
-                plot(x_positions, as.vector(private$.model_assessment$observed$y_distribution),
+                plot(las  = 1,x_positions, as.vector(private$.model_assessment$observed$y_distribution),
                   xlab = "Distribution of Y", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                   xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
                 )
@@ -1432,7 +1433,7 @@ results.generator <- R6::R6Class("results",
 
 
                 x_positions <- seq_along(private$.model_assessment$observed$y_distribution)
-                plot(x_positions, as.vector(private$.model_assessment$observed$y_distribution),
+                plot(las  = 1,x_positions, as.vector(private$.model_assessment$observed$y_distribution),
                   xlab = "Distribution of Y", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                   xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
                 )
@@ -1476,7 +1477,7 @@ results.generator <- R6::R6Class("results",
               ))
 
               x_positions <- seq_along(private$.model_assessment$observed$x_distribution)
-              plot(x_positions, as.vector(private$.model_assessment$observed$x_distribution),
+              plot(las  = 1,x_positions, as.vector(private$.model_assessment$observed$x_distribution),
                 xlab = "Distribution of Y", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                 xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
               )
@@ -1558,7 +1559,7 @@ results.generator <- R6::R6Class("results",
                 ))
 
                 x_positions <- as.numeric(names(private$.model_assessment$observed$x_distribution))
-                plot(x_positions, as.vector(private$.model_assessment$observed$x_distribution),
+                plot(las  = 1,x_positions, as.vector(private$.model_assessment$observed$x_distribution),
                   xlab = "Distribution of Y", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                   xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
                 )
@@ -1609,7 +1610,7 @@ results.generator <- R6::R6Class("results",
 
 
                 x_positions <- seq_along(private$.model_assessment$observed$x_distribution)
-                plot(x_positions, as.vector(private$.model_assessment$observed$x_distribution),
+                plot(las  = 1,x_positions, as.vector(private$.model_assessment$observed$x_distribution),
                   xlab = "Distribution of X", ylab = "Percentage", type = "n", xaxt = "n", ylim = ylim,
                   xlim = c(min(x_positions) - 0.3, max(x_positions) + 0.3), bty = "l"
                 )

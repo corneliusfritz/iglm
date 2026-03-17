@@ -124,12 +124,23 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
       pos_names <- ifelse(arg_names == "", paste0("..", seq_along(arg_exprs)),
         arg_names
       )
-      arg_vals <- vector("list", length(arg_exprs))
-      names(arg_vals) <- pos_names
-
+      arg_vals <- list()
       for (i in seq_along(arg_exprs)) {
-        v <- try(eval(arg_exprs[[i]], envir = env), silent = TRUE)
-        arg_vals[[i]] <- if (inherits(v, "try-error")) NULL else v
+        val_expr <- arg_exprs[[i]]
+        # If it's a character literal, keep it as character
+        if (is.character(val_expr)) {
+          val <- val_expr
+        } else {
+          val <- try(eval(val_expr, envir = env), silent = TRUE)
+          if (inherits(val, "try-error")) val <- NULL
+        }
+        
+        nm <- arg_names[i]
+        if (nm == "") {
+          arg_vals[[paste0("..", i)]] <- val
+        } else {
+          arg_vals[[nm]] <- val
+        }
       }
 
       # optionally evaluate the whole call
@@ -139,28 +150,28 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
         if (!inherits(tmp, "try-error")) evaluated <- tmp
       }
 
-
       entry <- c(
-        label = gsub(pattern = '\\\"', replacement = "'", x = .deparse1(term_expr)),
+        list(label = gsub(pattern = '\\\"', replacement = "'", x = .deparse1(term_expr))),
         arg_vals,
-        base_name = base_name
+        list(base_name = base_name)
       )
       if (!is.null(evaluated)) entry$.evaluated <- evaluated
+      
+      # For the elt_name (key in the output list), we still want the full name 
+      # but we MUST NOT change base_name in the entry list
       name_addon <- ""
-      if (!is.null(arg_exprs$type)) {
-        name_addon <- paste0(name_addon, .deparse1(arg_exprs$type))
+      if (!is.null(arg_exprs$type)) name_addon <- paste0(name_addon, "_", .deparse1(arg_exprs$type))
+      if (!is.null(arg_exprs$data)) name_addon <- paste0(name_addon, "_", .deparse1(arg_exprs$data))
+      if (!is.null(arg_exprs$mode)) name_addon <- paste0(name_addon, "_", .deparse1(arg_exprs$mode))
+      if (!is.null(arg_exprs$variant)) name_addon <- paste0(name_addon, "_", .deparse1(arg_exprs$variant))
+      
+      elt_name <- paste0(base_name, name_addon)
+      # Ensure uniqueness
+      if (elt_name %in% names(out)) {
+         suffix <- 2
+         while(paste0(elt_name, ".", suffix) %in% names(out)) suffix <- suffix + 1
+         elt_name <- paste0(elt_name, ".", suffix)
       }
-      if (!is.null(arg_exprs$data)) {
-        name_addon <- paste0(name_addon, .deparse1(arg_exprs$data))
-      }
-      if (!is.null(arg_exprs$mode)) {
-        name_addon <- paste0(name_addon, arg_exprs$mode)
-      }
-      if (!is.null(arg_exprs$variant)) {
-        name_addon <- paste0(name_addon, arg_exprs$variant)
-      }
-      elt_name <- paste0(base_name, "_", name_addon)
-      taken_names <- c(taken_names, elt_name)
       out[[elt_name]] <- entry
     }
   }
@@ -412,92 +423,30 @@ formula_preprocess <- function(formula) {
 
   includes_degrees <- "degrees" %in% all.vars(formula)
   formula <- stats::update(formula, . ~ . - degrees)
-  # debugonce(rhs_terms_as_list)
   formula_info <- rhs_terms_as_list(formula)
 
-  term_per_term <- unlist(lapply(formula_info, function(x) x$base_name))
-  special_terms <- c(
-    "edges_x_match","edges_y_match","spillover_yy_scaled", "spillover_xx_scaled", "spillover_yx_scaled",
-    "spillover_xy_scaled", "gwdegree", "gwdsp", "gwesp", "edges",
-    "mutual", "cov_z", "cov_z_out", "cov_z_in",
-    "inedges_y", "outedges_y", "attribute_xy", "inedges_x", "outedges_x"
-  )
-  is_special <- term_per_term %in% special_terms
+  term_names <- character(length(formula_info))
+  data_list <- list()
+  type_list <- numeric(length(formula_info))
+  coef_names <- character(length(formula_info))
 
-  mode_per_term <- lapply(formula_info, function(x) x$mode)
-  mode_per_term <- unlist(lapply(mode_per_term, function(x) {
-    if (is.null(x)) {
-      "global"
-    } else {
-      if (!x %in% c("global", "local", "alocal")) {
-        stop(paste0("Mode '", x, "' not recognized. Please use 'global', 'local' or 'alocal'."))
-      } else {
-        x
-      }
-    }
-  }))
-  term_per_term[is_special] <- paste0(term_per_term[is_special], "_", mode_per_term[is_special], sep = "")
-
-  is_very_special <- term_per_term %in% c("gwdsp_global", "gwdsp_local", "gwesp_global", "gwesp_local")
-  for (m in which(is_very_special)) {
-    formula_info[[m]]$data <- matrix(formula_info[[m]]$decay)
-  }
-  variant_per_term <- lapply(formula_info, function(x) x$variant)
-  variant_per_term <- unlist(lapply(variant_per_term, function(x) {
-    if (is.null(x)) {
-      if (data_object$directed) {
-        "OSP"
-      } else {
-        "symm"
-      }
-    } else {
-      if (data_object$directed) {
-        if (!x %in% c("ITP", "ISP", "OTP", "OSP")) {
-          stop(paste0("Mode '", x, "' not recognized. Please use 'ITP','ISP', 'OTP' or 'OSP'."))
-        } else {
-          x
-        }
-      } else {
-        if (!x %in% c("symm")) {
-          stop(paste0("Mode '", x, "' not recognized. For directed networks, only 'symm' is implemented."))
-        } else {
-          x
-        }
-      }
-    }
-  }))
-  term_per_term[is_very_special] <- paste0(term_per_term[is_very_special], "_", variant_per_term[is_very_special], sep = "")
-
-  is_cov_xy <- term_per_term %in% c("cov_x", "cov_y")
-  #   Make sure that the data is a matrix for all covariates for x and y
-  for (m in which(is_cov_xy)) {
-    formula_info[[m]]$data <- matrix(formula_info[[m]]$data, nrow = 1)
+  for (i in seq_along(formula_info)) {
+    arglist <- formula_info[[i]]
+    # Call the modular initialization system
+    init <- InitIglmTerm(data_object = data_object, arglist = arglist)
+    
+    term_names[i] <- init$term_name
+    data_list[[i]] <- init$data
+    type_list[i] <- init$type
+    coef_names[i] <- init$coef_name
   }
 
-  type_per_term <- lapply(formula_info, function(x) x$type)
-  type_per_term <- unlist(lapply(type_per_term, function(x) {
-    if (is.null(x)) {
-      1
-    } else {
-      x
-    }
-  }))
-
-  data_per_term <- lapply(formula_info, function(x) x$data)
-  data_per_term <- lapply(data_per_term, function(x) {
-    if (is.null(x)) {
-      matrix(1)
-    } else {
-      x
-    }
-  })
-  name_per_term <- unlist(lapply(formula_info, function(x) x$label))
   return(list(
     data_object = data_object,
-    data_list = data_per_term,
-    type_list = type_per_term,
-    coef_names = name_per_term,
-    term_names = term_per_term,
+    data_list = data_list,
+    type_list = type_list,
+    coef_names = coef_names,
+    term_names = term_names,
     includes_degrees = includes_degrees
   ))
 }

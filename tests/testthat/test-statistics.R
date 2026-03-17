@@ -91,29 +91,31 @@ test_that("Test some sufficient statistics for undirected networks", {
 
   model_tmp_new <- iglm(
     formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x +
-      spillover_xx_scaled_local +
-      spillover_xy_scaled_local +
-      spillover_yx_scaled_local +
-      spillover_yy_scaled_local +
-      spillover_xx_scaled_global +
-      spillover_xy_scaled_global +
-      spillover_yx_scaled_global +
-      spillover_yy_scaled_global + degrees,
+      spillover_xx_scaled(mode = "local") +
+      spillover_xy_scaled(mode = "local") +
+      spillover_yx_scaled(mode = "local") +
+      spillover_yy_scaled(mode = "local") +
+      spillover_xx_scaled(mode = "global") +
+      spillover_xy_scaled(mode = "global") +
+      spillover_yx_scaled(mode = "global") +
+      spillover_yy_scaled(mode = "global") + degrees,
     coef = c(gt_coef, 0, 0, 0, 0, 0, 0, 0, 0), coef_degrees = gt_coef_pop, sampler = sampler_new,
     control = control.iglm(accelerated = F, max_it = 200, display_progress = F)
   )
+  
   model_tmp_new$simulate()
 
   expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.1))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 3]) - statistics(model_tmp_new$results$samples ~ attribute_x) < 0.1))
-  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_local)) < 0.1))
-  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_local)) < 0.1))
-  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_local)) < 0.1))
-  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 7]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled_local)) < 0.1))
-  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 8]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_global)) < 0.1))
-  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 9]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_global)) < 0.1))
-  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 10]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_global)) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~  spillover_xx_scaled(mode = "local") )) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled(mode = "local"))) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled(mode = "local") )) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 7]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled(mode = "local") )) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 8]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled(mode = "global"))) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 9]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled(mode = "global"))) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 10]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled(mode = "global"))) < 0.1))
+  expect_all_true(as.vector((as.numeric(model_tmp_new$results$stats[, 11]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled(mode = "global"))) < 0.1))
   
   model_tmp_new <- iglm(
     formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x +
@@ -232,14 +234,14 @@ test_that("Test some sufficient statistics for directed networks", {
 
   model_tmp_new <- iglm(
     formula = xyz_obj_new ~ edges(mode = "local") + attribute_y + attribute_x +
-      spillover_xx_scaled_local +
-      spillover_xy_scaled_local +
-      spillover_yx_scaled_local +
-      spillover_yy_scaled_local +
-      spillover_xx_scaled_global +
-      spillover_xy_scaled_global +
-      spillover_yx_scaled_global +
-      spillover_yy_scaled_global + degrees,
+      spillover_xx_scaled(mode = "local") +
+      spillover_xy_scaled(mode = "local") +
+      spillover_yx_scaled(mode = "local") +
+      spillover_yy_scaled(mode = "local") +
+      spillover_xx_scaled(mode = "global") +
+      spillover_xy_scaled(mode = "global") +
+      spillover_yx_scaled(mode = "global") +
+      spillover_yy_scaled(mode = "global") + degrees,
     coef = c(gt_coef, 0, 0, 0, 0, 0, 0, 0, 0), coef_degrees = gt_coef_pop, sampler = sampler_new,
     control = control.iglm(accelerated = F, max_it = 200, display_progress = F)
   )
@@ -248,14 +250,15 @@ test_that("Test some sufficient statistics for directed networks", {
   expect_all_true(as.vector(model_tmp_new$results$stats[, 1] == statistics(model_tmp_new$results$samples ~ edges(mode = "local"))))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 2]) - statistics(model_tmp_new$results$samples ~ attribute_y) < 0.01))
   expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 3]) - statistics(model_tmp_new$results$samples ~ attribute_x) < 0.01))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_local) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_local) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_local) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 7]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled_local) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 8]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled_global) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 11]) - statistics(model_tmp_new$results$samples ~ spillover_yy_scaled_global) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 9]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled_global) < 0.1))
-  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 10]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled_global) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 4]) - statistics(model_tmp_new$results$samples ~  spillover_xx_scaled(mode = "local") ) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 5]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled(mode = "local")) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 6]) - statistics(model_tmp_new$results$samples ~ spillover_yx_scaled(mode = "local") ) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 7]) - statistics(model_tmp_new$results$samples ~  spillover_yy_scaled(mode = "local")) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 8]) - statistics(model_tmp_new$results$samples ~ spillover_xx_scaled(mode = "global")) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 9]) - statistics(model_tmp_new$results$samples ~ spillover_xy_scaled(mode = "global")) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 10]) - statistics(model_tmp_new$results$samples ~  spillover_yx_scaled(mode = "global")) < 0.1))
+  expect_all_true(as.vector(as.numeric(model_tmp_new$results$stats[, 11]) - statistics(model_tmp_new$results$samples ~  spillover_yy_scaled(mode = "global") ) < 0.1))
+  
   
   
   model_tmp_new <- iglm(

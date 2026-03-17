@@ -269,8 +269,10 @@ static const R_CallMethodDef CallEntries[] = {
 };
 
 void export_cpp_symbols(DllInfo *dll);
+void iglm_init_callable(DllInfo *dll);
 RcppExport void R_init_iglm(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
     export_cpp_symbols(dll);
+    iglm_init_callable(dll);
 }

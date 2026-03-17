@@ -43,23 +43,27 @@ public:
   }
   
   double get_val(int from) const {
-    if(from > n_actor) return 0.0;
+    if(from < 1 || from > n_actor) return 0.0;
     return(attribute(from-1)/scale);
   }
   
   double get_val_no_scale(int from) const {
-    if(from > n_actor) return 0.0;
+    if(from < 1 || from > n_actor) return 0.0;
     return(attribute(from-1));
   }
   
   void print();
   
   void set_attr_0(int from) {
-    attribute(from-1) = 0;
+    if(from >= 1 && from <= n_actor) {
+        attribute(from-1) = 0;
+    }
   }
   
   void set_attr_value(int from, double val) {
-    attribute(from-1) = val;
+    if(from >= 1 && from <= n_actor) {
+        attribute(from-1) = val;
+    }
   }
   
   void set_attr_from_armavec(arma::vec attribute_tmp) {
@@ -67,7 +71,9 @@ public:
   }
   
   void set_attr_1(int from) {
-    attribute(from-1) = 1;
+    if(from >= 1 && from <= n_actor) {
+        attribute(from-1) = 1;
+    }
   }
 
 private:

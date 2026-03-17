@@ -98,7 +98,7 @@ and control objects, calculating initial statistics, and validating.
 \describe{
 \item{\code{formula}}{A model `formula` object. The left-hand side should be the
 name of a \code{\link{iglm.data}} object available in the calling environment.
-See \code{\link{model.terms}} for details on specifying the right-hand side terms.}
+See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
 
 \item{\code{coef}}{A numeric vector of initial coefficients for the terms in
 the formula (excluding degree coefficeints). If `NULL`, coefficients are

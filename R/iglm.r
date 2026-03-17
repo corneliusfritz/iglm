@@ -115,7 +115,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' and control objects, calculating initial statistics, and validating.
     #' @param formula A model `formula` object. The left-hand side should be the
     #'   name of a \code{\link{iglm.data}} object available in the calling environment.
-    #'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
+    #'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
     #' @param coef A numeric vector of initial coefficients for the terms in
     #'   the formula (excluding degree coefficeints). If `NULL`, coefficients are
     #'   initialized to zero.
@@ -1120,7 +1120,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' including local dependence limited to overlapping neighborhoods.
 #' This help page documents the various statistics available in 'iglm',
 #' corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
-#' components of the joint model. See \code{\link{model.terms}} for details on specifying
+#' components of the joint model. See \code{\link{iglm-terms}} for details on specifying
 #' all model terms via the formula interface.
 #'
 #'
@@ -1129,7 +1129,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #'
 #' @param formula A model `formula` object. The left-hand side should be the
 #'   name of a `iglm.data` object available in the calling environment.
-#'   See \code{\link{model.terms}} for details on specifying the right-hand side terms.
+#'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
 #' @param coef Optional numeric vector of initial coefficients for the structural
 #'   (non-degrees) terms in `formula`. If `NULL`, coefficients are
 #'   initialized to zero. Length must match the number of terms.
