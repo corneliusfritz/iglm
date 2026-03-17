@@ -47,10 +47,7 @@ neighborhood[(n_actor - size_neighborhood + 1):(n_actor), (n_actor - size_neighb
 
 type_x <- "binomial"
 type_y <- "binomial"
-formula_beg <- as.formula("xyz_obj ~ 1 ")
-formula_model <- as.formula("xyz_object ~ 1 ")
-
-object <- iglm.data(neighborhood = neighborhood, directed = F, type_x = type_x, type_y = type_y)
+object <- iglm.data(neighborhood = neighborhood, directed = F, type_x = type_x, type_y = type_y, n_actor = n_actor)
 ```
 
 ## Model Specification
