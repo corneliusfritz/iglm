@@ -21,44 +21,41 @@
 #' pair-level components, \eqn{\sum_{i \ne j} h_{i,j}(x,y,z)}.
 #' The implemented terms are grouped into three categories:
 #' \enumerate{
-#' \item  \eqn{{g}_i} terms for attribute dependence,
-#' \item \eqn{{h}_{i,j}} terms for network dependence,
-#' \item \eqn{{h}_{i,j}} Terms for joint attribute/network dependence.
+#' \item \strong{Attribute Terms}: Depend only on individual attributes \eqn{x_i} or \eqn{y_i}.
+#' \item \strong{Network Terms}: Depend only on the connections \eqn{z_{i,j}}.
+#' \item \strong{Joint Attribute/Network Terms}: Depend on both individual attributes and connections.
 #' }
-#' Below is a detailed description of each term that can be specified in the model formula (see, \code{\link{iglm}}):
-#' \code{iglm.data ~ <term_1> + <term_2> + ... }, where the left-hand side of the formula has to be a \code{\link{iglm.data}} object,
-#' and the right-hand side lists some of the terms from the list below, which should be included in the model.
-#' Setting, e.g., \code{<term_1>} to  \code{attribute_x} includes the term \eqn{g_i(x,y,z) = x_i} in \eqn{g_i}.
-#' Note that the function \code{\link{create_userterms_skeleton}} can be used to create custom terms.
+#' @section Category 1: Attribute Terms:
 #'
-#' @section Notation:
+#' Below is a detailed description of terms that depend only on nodal attributes:
+#' \itemize{
+#'   \item \code{\link{attribute_x-term}}, \code{\link{attribute_y-term}}
+#'   \item \code{\link{cov_x-term}}, \code{\link{cov_y-term}}
+#'   \item \code{\link{attribute_xy-term}}
+#' }
 #'
-#' Here, \eqn{x_i} and \eqn{y_i} are the attributes for actor \eqn{i},
-#' and \eqn{z_{i,j}} indicates the presence (1) or absence (0) of a tie
-#' from actor \eqn{i} to actor \eqn{j}.
-#' The local neighborhood of actor \eqn{i} is denoted \eqn{\mathcal{N}_i},
-#' and the indicator for whether actors \eqn{i} and \eqn{j} share a local
-#' neighborhood is given by
-#' \eqn{c_{i,j} = \mathbb{I}(\mathcal{N}_i \cap \mathcal{N}_j \neq \emptyset)}.
-#' The functions below specify the forms of \eqn{g_i(x_i,y_i)} and \eqn{h_{i,j}(x,y,z)}
-#' for each term.
-#' Some terms also depend on other covariates, which are denoted by
-#' \eqn{v = (v_1, ..., v_N)} (unit-level) and \eqn{w = (w_{i,j}) \in \mathbb{R}^{N \times N}}(dyadic).
-#' These covariates must be provided by the user via the \code{data} argument of the terms.
-#' Assuming that the matriv \code{x} exists in the environment associated with the
-#' used formula, \code{cov_z(data = v)} includes the dyadic covariable \eqn{v = (v_{i,j})} in the model.
-#' Some terms also have a \code{mode} argument, which can take values
-#' \code{"global"}, \code{"local"}, or \code{"alocal"}.
-#' The \code{"global"} mode indicates that the statistic is computed
-#' over the entire network, while \code{"local"} restricts the statistic
-#' to local neighborhoods only (i.e., edges where \eqn{c_{i,j} = 1}).
-#' The \code{"alocal"} mode restricts the statistic to non-local edges
-#' only (i.e., edges where \eqn{c_{i,j} = 0}).
-#' For instance, \code{edges(mode = "local")} counts the number of edges
-#' that connect actors with overlapping neighborhoods.
-#' See underneath for which options are implemented for each term.
-#' See the documentation for \code{\link{iglm}} for details on model fitting
-#' and estimation.
+#' @section Category 2: Network Terms:
+#'
+#' Below is a detailed description of terms that depend only on the network structure:
+#' \itemize{
+#'   \item \code{\link{edges-term}}, \code{\link{mutual-term}}
+#'   \item \code{\link{cov_z-term}}, \code{\link{cov_z_in-term}}, \code{\link{cov_z_out-term}}
+#'   \item \code{\link{degrees-term}}
+#'   \item \code{\link{gwdegree-term}}, \code{\link{gwidegree-term}}, \code{\link{gwodegree-term}}
+#'   \item \code{\link{gwesp-term}}, \code{\link{gwdsp-term}}
+#'   \item \code{\link{transitive-term}}, \code{\link{nonisolates-term}}, \code{\link{isolates-term}}
+#' }
+#'
+#' @section Category 3: Joint Attribute/Network Terms:
+#'
+#' Below is a detailed description of terms that depend on both attributes and the network:
+#' \itemize{
+#'   \item \code{\link{attribute_xz-term}}, \code{\link{attribute_yz-term}}
+#'   \item \code{\link{inedges_x-term}}, \code{\link{inedges_y-term}}, \code{\link{outedges_x-term}}, \code{\link{outedges_y-term}}
+#'   \item \code{\link{edges_x_match-term}}, \code{\link{edges_y_match-term}}
+#'   \item \code{\link{spillover_xx-term}}, \code{\link{spillover_yy-term}}
+#'   \item \code{\link{spillover_yx-term}}, \code{\link{spillover_xy-term}}, \code{\link{spillover_yc-term}}, \code{\link{spillover_yc_symm-term}}
+#' }
 #'
 #' @references
 #'
@@ -221,12 +218,13 @@ InitIglmTerm.cov_z <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist, 
                            expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
                            defaults = list(mode = "global", data = matrix(1), type = 1))
-  list(
+  res <- list(
     term_name = paste0("cov_z_", arglist$mode),
-    data = arglist$data,
-    type = arglist$type,
     coef_name = arglist$label
   )
+  if (!all(arglist$data == 1) || length(arglist$data) != 1) res$data <- arglist$data
+  if (arglist$type != 1) res$type <- arglist$type
+  res
 }
 
 #' @description \code{cov_z_out(data, mode = "global")}: Covariate Sender: Exogenous monadic covariate \eqn{v_{i}} influence on generating an outgoing tie.
@@ -244,12 +242,14 @@ InitIglmTerm.cov_z_out <- function(data_object, arglist, ...) {
                            directed = TRUE,
                            expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
                            defaults = list(mode = "global", data = matrix(1), type = 1))
-  list(
+  data <- if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  res <- list(
     term_name = paste0("cov_z_out_", arglist$mode),
-    data = if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1),
-    type = arglist$type,
     coef_name = arglist$label
   )
+  if (!all(data == 1) || length(data) != 1) res$data <- data
+  if (arglist$type != 1) res$type <- arglist$type
+  res
 }
 
 #' @description \code{cov_z_in(data, mode = "global")}: Covariate Receiver: Exogenous monadic covariate \eqn{v_{j}} influence on receiving an incoming tie.
@@ -267,12 +267,14 @@ InitIglmTerm.cov_z_in <- function(data_object, arglist, ...) {
                            directed = TRUE,
                            expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
                            defaults = list(mode = "global", data = matrix(1), type = 1))
-  list(
+  data <- if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  res <- list(
     term_name = paste0("cov_z_in_", arglist$mode),
-    data = if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1),
-    type = arglist$type,
     coef_name = arglist$label
   )
+  if (!all(data == 1) || length(data) != 1) res$data <- data
+  if (arglist$type != 1) res$type <- arglist$type
+  res
 }
 
 #' @description \code{cov_x(data = v)}: Nodal Covariate (X): Effect of a unit-level exogenous covariate \eqn{v_i} on endogenous attribute \eqn{x_i}.
@@ -285,12 +287,14 @@ InitIglmTerm.cov_x <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist, 
                            expected = list(data = "matrix", type = "numeric"),
                            defaults = list(data = matrix(1), type = 1))
-  list(
+  data <- if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  res <- list(
     term_name = "cov_x",
-    data = if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1),
-    type = arglist$type,
     coef_name = arglist$label
   )
+  if (!all(data == 1) || length(data) != 1) res$data <- data
+  if (arglist$type != 1) res$type <- arglist$type
+  res
 }
 
 #' @description \code{cov_y(data = v)}: Nodal Covariate (Y): Effect of a unit-level exogenous covariate \eqn{v_i} on endogenous attribute \eqn{y_i}.
@@ -303,12 +307,14 @@ InitIglmTerm.cov_y <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist, 
                            expected = list(data = "matrix", type = "numeric"),
                            defaults = list(data = matrix(1), type = 1))
-  list(
+  data <- if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  res <- list(
     term_name = "cov_y",
-    data = if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1),
-    type = arglist$type,
     coef_name = arglist$label
   )
+  if (!all(data == 1) || length(data) != 1) res$data <- data
+  if (arglist$type != 1) res$type <- arglist$type
+  res
 }
 
 #' @description \code{attribute_xy(mode = "global")}: Nodal Attribute Interaction (X-Y): Interaction of attributes \eqn{x_i} and \eqn{y_i}.
@@ -698,12 +704,13 @@ InitIglmTerm.spillover_yc_symm <- function(data_object, arglist, ...) {
                            directed = FALSE,
                            expected = list(data = "matrix", mode = "local"),
                            defaults = list(data = matrix(1), mode = "local"))
-  list(
+  data <- if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  res <- list(
     term_name = "spillover_yc_symm",
-    data = if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1),
-    type = 1,
     coef_name = arglist$label
   )
+  if (!all(data == 1) || length(data) != 1) res$data <- data
+  res
 }
 
 #' @description \code{spillover_xy(mode = "local")}: Directed X-Y-Z Treatment Spillover: Maps cross-attribute \eqn{x_i \to y_j} treatment assignment.
@@ -731,12 +738,13 @@ InitIglmTerm.spillover_yc <- function(data_object, arglist, ...) {
                            directed = TRUE,
                            expected = list(data = "matrix", mode = "local"),
                            defaults = list(data = matrix(1), mode = "local"))
-  list(
+  data <- if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  res <- list(
     term_name = "spillover_yc",
-    data = if(is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1),
-    type = 1,
     coef_name = arglist$label
   )
+  if (!all(data == 1) || length(data) != 1) res$data <- data
+  res
 }
 
 #' @description \code{spillover_yx(mode = "local")}: Directed Y-X-Z Treatment Spillover: Maps cross-attribute \eqn{y_i \to x_j} treatment assignment.
