@@ -118,8 +118,6 @@ create_userterms_skeleton <- function(path = ".", pkg_name = "iglm.userterms") {
     "                                  defaults = list(mode = \"local\"))",
     "  list(",
     "    term_name = 'my_mutual',",
-    "    data = matrix(1),",
-    "    type = 1,",
     "    coef_name = arglist$label",
     "  )",
     "}",
@@ -132,8 +130,6 @@ create_userterms_skeleton <- function(path = ".", pkg_name = "iglm.userterms") {
     "                                   defaults = list(mode = \"local\"))",
     "  list(",
     "    term_name = \"my_spillover\",",
-    "    data = matrix(1),",
-    "    type = 1,",
     "    coef_name = arglist$label",
     "  )}"
   )

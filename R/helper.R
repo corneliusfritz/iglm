@@ -436,8 +436,8 @@ formula_preprocess <- function(formula) {
     init <- InitIglmTerm(data_object = data_object, arglist = arglist)
     
     term_names[i] <- init$term_name
-    data_list[[i]] <- init$data
-    type_list[i] <- init$type
+    data_list[[i]] <- if (is.null(init$data)) matrix(1) else init$data
+    type_list[i] <- if (is.null(init$type)) 1L else init$type
     coef_names[i] <- init$coef_name
   }
 

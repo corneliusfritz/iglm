@@ -129,7 +129,7 @@ InitIglmTerm <- function(data_object, arglist, ...) {
 #' @param defaults a list of default values for arguments.
 #' @param directed Logical indicating if the term is only for directed (TRUE) or undirected (FALSE) networks.
 #' @return A modified \code{arglist} with defaults applied and validated values.
-#' @keywords internal
+#' @export
 check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expected = list(), defaults = list(), directed = NULL) {
   if (!is.null(directed) && data_object$directed != directed) {
     stop(sprintf("Term is only for %s networks.", if (directed) "directed" else "undirected"))
@@ -182,8 +182,6 @@ InitIglmTerm.edges <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("edges_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -205,8 +203,6 @@ InitIglmTerm.mutual <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("mutual_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -331,8 +327,6 @@ InitIglmTerm.attribute_xy <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("attribute_xy_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -348,8 +342,6 @@ InitIglmTerm.attribute_yz <- function(data_object, arglist, ...) {
                            defaults = list(mode = "local"))
   list(
     term_name = "attribute_yz_local",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -365,8 +357,6 @@ InitIglmTerm.attribute_xz <- function(data_object, arglist, ...) {
                            defaults = list(mode = "local"))
   list(
     term_name = "attribute_xz_local",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -388,8 +378,6 @@ InitIglmTerm.inedges_y <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("inedges_y_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -410,8 +398,6 @@ InitIglmTerm.outedges_y <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("outedges_y_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -433,8 +419,6 @@ InitIglmTerm.inedges_x <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("inedges_x_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -455,8 +439,6 @@ InitIglmTerm.outedges_x <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("outedges_x_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -470,8 +452,6 @@ NULL
 InitIglmTerm.attribute_x <- function(data_object, arglist, ...) {
   list(
     term_name = "attribute_x",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -485,8 +465,6 @@ NULL
 InitIglmTerm.attribute_y <- function(data_object, arglist, ...) {
   list(
     term_name = "attribute_y",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -506,8 +484,6 @@ InitIglmTerm.edges_x_match <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("edges_x_match_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -527,8 +503,6 @@ InitIglmTerm.edges_y_match <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("edges_y_match_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -548,8 +522,6 @@ InitIglmTerm.spillover_yy_scaled <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("spillover_yy_scaled_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -569,8 +541,6 @@ InitIglmTerm.spillover_xx_scaled <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("spillover_xx_scaled_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -590,8 +560,6 @@ InitIglmTerm.spillover_yx_scaled <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("spillover_yx_scaled_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -611,8 +579,6 @@ InitIglmTerm.spillover_xy_scaled <- function(data_object, arglist, ...) {
                            defaults = list(mode = "global"))
   list(
     term_name = paste0("spillover_xy_scaled_", arglist$mode),
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -751,8 +717,6 @@ InitIglmTerm.spillover_xy <- function(data_object, arglist, ...) {
                            defaults = list(mode = "local"))
   list(
     term_name = "spillover_xy",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -786,8 +750,6 @@ InitIglmTerm.spillover_yx <- function(data_object, arglist, ...) {
                            defaults = list(mode = "local"))
   list(
     term_name = "spillover_yx",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -803,8 +765,6 @@ InitIglmTerm.spillover_yy <- function(data_object, arglist, ...) {
                            defaults = list(mode = "local"))
   list(
     term_name = "spillover_yy",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -820,8 +780,6 @@ InitIglmTerm.spillover_xx <- function(data_object, arglist, ...) {
                            defaults = list(mode = "local"))
   list(
     term_name = "spillover_xx",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -834,8 +792,6 @@ NULL
 InitIglmTerm.transitive <- function(data_object, arglist, ...) {
   list(
     term_name = "transitive",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -848,8 +804,6 @@ NULL
 InitIglmTerm.nonisolates <- function(data_object, arglist, ...) {
   list(
     term_name = "nonisolates",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
@@ -862,8 +816,6 @@ NULL
 InitIglmTerm.isolates <- function(data_object, arglist, ...) {
   list(
     term_name = "isolates",
-    data = matrix(1),
-    type = 1,
     coef_name = arglist$label
   )
 }
