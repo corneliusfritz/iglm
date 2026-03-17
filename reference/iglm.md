@@ -28,8 +28,8 @@ iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  [`model.terms`](model.terms.md) for details on specifying the
-  right-hand side terms.
+  [`iglm-terms`](iglm-terms.md) for details on specifying the right-hand
+  side terms.
 
 - coef:
 
@@ -96,7 +96,7 @@ dependencies (via \\h\_{i,j}\\), including local dependence limited to
 overlapping neighborhoods. This help page documents the various
 statistics available in 'iglm', corresponding to the \\g_i\\
 (attribute-level) and \\h\_{i,j}\\ (pair-level) components of the joint
-model. See [`model.terms`](model.terms.md) for details on specifying all
+model. See [`iglm-terms`](iglm-terms.md) for details on specifying all
 model terms via the formula interface.
 
 ## References

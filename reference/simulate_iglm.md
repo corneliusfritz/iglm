@@ -26,8 +26,8 @@ simulate_iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  [`model.terms`](model.terms.md) for details on specifying the
-  right-hand side terms.
+  [`iglm-terms`](iglm-terms.md) for details on specifying the right-hand
+  side terms.
 
 - basis:
 

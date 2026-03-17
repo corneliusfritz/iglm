@@ -144,7 +144,7 @@ and control objects, calculating initial statistics, and validating.
 
   A model \`formula\` object. The left-hand side should be the name of a
   [`iglm.data`](iglm.data.md) object available in the calling
-  environment. See [`model.terms`](model.terms.md) for details on
+  environment. See [`iglm-terms`](iglm-terms.md) for details on
   specifying the right-hand side terms.
 
 - `coef`:

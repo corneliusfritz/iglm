@@ -143,11 +143,11 @@ state_twitter
 #>   units                       : 495
 #>   directed                    : TRUE
 #>   edges (fixed = FALSE)       : 9218
-#>   neighborhood edges          : 23903
+#>   neighborhood edges          : 24398
 #> 
 #> Attribute summaries
-#>   x_attribute (fixed = TRUE)  : binomial with 1s=195, 0s=300, P(1)=0.394
-#>   y_attribute                 : binomial with 1s=204, 0s=291, P(1)=0.412
+#>   x_attribute (fixed = TRUE)  : binomial 1s=195, 0s=300, P(1)=0.394
+#>   y_attribute                 : binomial 1s=204, 0s=291, P(1)=0.412
 #> 
 #> $match_gender
 #>         [,1]  [,2]  [,3]  [,4]  [,5]  [,6]  [,7]  [,8]  [,9] [,10] [,11] [,12]
