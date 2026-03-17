@@ -2,6 +2,8 @@
 
 ## All functions
 
+- [`check.IglmTerm()`](check.IglmTerm.md) : Check Arguments for iglm
+  Model Terms
 - [`control.iglm()`](control.iglm.md) : Set Control Parameters for iglm
   Estimation
 - [`copenhagen`](copenhagen.md) : Copenhagen Network Study
