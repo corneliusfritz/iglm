@@ -21,11 +21,11 @@
 #' pair-level components, \eqn{\sum_{i \ne j} h_{i,j}(x,y,z)}.
 #' The implemented terms are grouped into three categories:
 #' \enumerate{
-#' \item \strong{Attribute Terms}: Depend only on individual attributes \eqn{x_i} or \eqn{y_i}.
-#' \item \strong{Network Terms}: Depend only on the connections \eqn{z_{i,j}}.
-#' \item \strong{Joint Attribute/Network Terms}: Depend on both individual attributes and connections.
+#' \item \strong{Terms using only \eqn{x_i} or \eqn{y_i}}: Depend only on individual attributes \eqn{x_i} or \eqn{y_i}.
+#' \item \strong{Terms using only \eqn{z_{i,j}}}: Depend only on the connections \eqn{z_{i,j}}.
+#' \item \strong{Terms using both}: Depend on both individual attributes and connections.
 #' }
-#' @section Category 1: Attribute Terms:
+#' @section Terms using only \eqn{x_i} or \eqn{y_i}:
 #'
 #' Below is a detailed description of terms that depend only on nodal attributes:
 #' \itemize{
@@ -34,7 +34,7 @@
 #'   \item \code{\link{attribute_xy-term}}
 #' }
 #'
-#' @section Category 2: Network Terms:
+#' @section Terms using only \eqn{z_{i,j}}:
 #'
 #' Below is a detailed description of terms that depend only on the network structure:
 #' \itemize{
@@ -46,7 +46,7 @@
 #'   \item \code{\link{transitive-term}}, \code{\link{nonisolates-term}}, \code{\link{isolates-term}}
 #' }
 #'
-#' @section Category 3: Joint Attribute/Network Terms:
+#' @section Terms using both:
 #'
 #' Below is a detailed description of terms that depend on both attributes and the network:
 #' \itemize{
