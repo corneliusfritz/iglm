@@ -60,15 +60,10 @@ are a sum of unit-level components, \eqn{\sum_i g_i(x_i,y_i)}, and/or
 pair-level components, \eqn{\sum_{i \ne j} h_{i,j}(x,y,z)}.
 The implemented terms are grouped into three categories:
 \enumerate{
-\item  \eqn{{g}_i} terms for attribute dependence,
-\item \eqn{{h}_{i,j}} terms for network dependence,
-\item \eqn{{h}_{i,j}} Terms for joint attribute/network dependence.
+\item \strong{Attribute Terms}: Depend only on individual attributes \eqn{x_i} or \eqn{y_i}.
+\item \strong{Network Terms}: Depend only on the connections \eqn{z_{i,j}}.
+\item \strong{Joint Attribute/Network Terms}: Depend on both individual attributes and connections.
 }
-Below is a detailed description of each term that can be specified in the model formula (see, \code{\link{iglm}}):
-\code{iglm.data ~ <term_1> + <term_2> + ... }, where the left-hand side of the formula has to be a \code{\link{iglm.data}} object,
-and the right-hand side lists some of the terms from the list below, which should be included in the model.
-Setting, e.g., \code{<term_1>} to  \code{attribute_x} includes the term \eqn{g_i(x,y,z) = x_i} in \eqn{g_i}.
-Note that the function \code{\link{create_userterms_skeleton}} can be used to create custom terms.
 
 \code{degrees}: Degrees: Specifies node-level fixed effects. Estimation requires an MM algorithm constraint.
 
@@ -224,35 +219,42 @@ Types dictate path constraint: OTP, ITP, OSP, ISP for directed; symm for undirec
 
 \code{isolates}: Isolates: Captures frequency of nodes with degree zero.
 }
-\section{Notation}{
+\section{Category 1}{
+ Attribute Terms:
 
+Below is a detailed description of terms that depend only on nodal attributes:
+\itemize{
+  \item \code{\link{attribute_x-term}}, \code{\link{attribute_y-term}}
+  \item \code{\link{cov_x-term}}, \code{\link{cov_y-term}}
+  \item \code{\link{attribute_xy-term}}
+}
+}
 
-Here, \eqn{x_i} and \eqn{y_i} are the attributes for actor \eqn{i},
-and \eqn{z_{i,j}} indicates the presence (1) or absence (0) of a tie
-from actor \eqn{i} to actor \eqn{j}.
-The local neighborhood of actor \eqn{i} is denoted \eqn{\mathcal{N}_i},
-and the indicator for whether actors \eqn{i} and \eqn{j} share a local
-neighborhood is given by
-\eqn{c_{i,j} = \mathbb{I}(\mathcal{N}_i \cap \mathcal{N}_j \neq \emptyset)}.
-The functions below specify the forms of \eqn{g_i(x_i,y_i)} and \eqn{h_{i,j}(x,y,z)}
-for each term.
-Some terms also depend on other covariates, which are denoted by
-\eqn{v = (v_1, ..., v_N)} (unit-level) and \eqn{w = (w_{i,j}) \in \mathbb{R}^{N \times N}}(dyadic).
-These covariates must be provided by the user via the \code{data} argument of the terms.
-Assuming that the matriv \code{x} exists in the environment associated with the
-used formula, \code{cov_z(data = v)} includes the dyadic covariable \eqn{v = (v_{i,j})} in the model.
-Some terms also have a \code{mode} argument, which can take values
-\code{"global"}, \code{"local"}, or \code{"alocal"}.
-The \code{"global"} mode indicates that the statistic is computed
-over the entire network, while \code{"local"} restricts the statistic
-to local neighborhoods only (i.e., edges where \eqn{c_{i,j} = 1}).
-The \code{"alocal"} mode restricts the statistic to non-local edges
-only (i.e., edges where \eqn{c_{i,j} = 0}).
-For instance, \code{edges(mode = "local")} counts the number of edges
-that connect actors with overlapping neighborhoods.
-See underneath for which options are implemented for each term.
-See the documentation for \code{\link{iglm}} for details on model fitting
-and estimation.
+\section{Category 2}{
+ Network Terms:
+
+Below is a detailed description of terms that depend only on the network structure:
+\itemize{
+  \item \code{\link{edges-term}}, \code{\link{mutual-term}}
+  \item \code{\link{cov_z-term}}, \code{\link{cov_z_in-term}}, \code{\link{cov_z_out-term}}
+  \item \code{\link{degrees-term}}
+  \item \code{\link{gwdegree-term}}, \code{\link{gwidegree-term}}, \code{\link{gwodegree-term}}
+  \item \code{\link{gwesp-term}}, \code{\link{gwdsp-term}}
+  \item \code{\link{transitive-term}}, \code{\link{nonisolates-term}}, \code{\link{isolates-term}}
+}
+}
+
+\section{Category 3}{
+ Joint Attribute/Network Terms:
+
+Below is a detailed description of terms that depend on both attributes and the network:
+\itemize{
+  \item \code{\link{attribute_xz-term}}, \code{\link{attribute_yz-term}}
+  \item \code{\link{inedges_x-term}}, \code{\link{inedges_y-term}}, \code{\link{outedges_x-term}}, \code{\link{outedges_y-term}}
+  \item \code{\link{edges_x_match-term}}, \code{\link{edges_y_match-term}}
+  \item \code{\link{spillover_xx-term}}, \code{\link{spillover_yy-term}}
+  \item \code{\link{spillover_yx-term}}, \code{\link{spillover_xy-term}}, \code{\link{spillover_yc-term}}, \code{\link{spillover_yc_symm-term}}
+}
 }
 
 \references{

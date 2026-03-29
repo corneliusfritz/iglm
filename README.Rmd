@@ -1,8 +1,4 @@
-<!-- badges: start -->
-[![Codecov test coverage](https://codecov.io/gh/corneliusfritz/iglm/graph/badge.svg)](https://app.codecov.io/gh/corneliusfritz/iglm)
-<!-- badges: end -->
-  
-  
+
 An Introduction to Estimating Joint Probability Models with `iglm`
 ================
 
