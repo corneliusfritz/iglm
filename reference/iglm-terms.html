@@ -14,14 +14,11 @@ Each term defines a component for the model's features, which
 are a sum of unit-level components, \(\sum_i g_i(x_i,y_i)\), and/or
 pair-level components, \(\sum_{i \ne j} h_{i,j}(x,y,z)\).
 The implemented terms are grouped into three categories:
-\({g}_i\) terms for attribute dependence,
-\({h}_{i,j}\) terms for network dependence,
-\({h}_{i,j}\) Terms for joint attribute/network dependence.
-Below is a detailed description of each term that can be specified in the model formula (see, iglm):
-iglm.data ~ &amp;lt;term_1&amp;gt; + &amp;lt;term_2&amp;gt; + ... , where the left-hand side of the formula has to be a iglm.data object,
-and the right-hand side lists some of the terms from the list below, which should be included in the model.
-Setting, e.g., &amp;lt;term_1&amp;gt; to  attribute_x includes the term \(g_i(x,y,z) = x_i\) in \(g_i\).
-Note that the function create_userterms_skeleton can be used to create custom terms.
+Attribute Terms: Depend only on individual attributes \(x_i\) or \(y_i\).
+Network Terms: Depend only on the connections \(z_{i,j}\).
+Joint Attribute/Network Terms: Depend on both individual attributes and connections.
+
+
 degrees: Degrees: Specifies node-level fixed effects. Estimation requires an MM algorithm constraint.
 edges(mode = &quot;global&quot;): Edges: Captures the baseline propensity of tie formation \(z_{i,j}\), partitioned by structural boundary \(c_{i,j}\).
 global: \(h_{i,j}(x,y,z) = z_{i,j}\)
@@ -153,14 +150,11 @@ Each term defines a component for the model's features, which
 are a sum of unit-level components, \(\sum_i g_i(x_i,y_i)\), and/or
 pair-level components, \(\sum_{i \ne j} h_{i,j}(x,y,z)\).
 The implemented terms are grouped into three categories:
-\({g}_i\) terms for attribute dependence,
-\({h}_{i,j}\) terms for network dependence,
-\({h}_{i,j}\) Terms for joint attribute/network dependence.
-Below is a detailed description of each term that can be specified in the model formula (see, iglm):
-iglm.data ~ &amp;lt;term_1&amp;gt; + &amp;lt;term_2&amp;gt; + ... , where the left-hand side of the formula has to be a iglm.data object,
-and the right-hand side lists some of the terms from the list below, which should be included in the model.
-Setting, e.g., &amp;lt;term_1&amp;gt; to  attribute_x includes the term \(g_i(x,y,z) = x_i\) in \(g_i\).
-Note that the function create_userterms_skeleton can be used to create custom terms.
+Attribute Terms: Depend only on individual attributes \(x_i\) or \(y_i\).
+Network Terms: Depend only on the connections \(z_{i,j}\).
+Joint Attribute/Network Terms: Depend on both individual attributes and connections.
+
+
 degrees: Degrees: Specifies node-level fixed effects. Estimation requires an MM algorithm constraint.
 edges(mode = &quot;global&quot;): Edges: Captures the baseline propensity of tie formation \(z_{i,j}\), partitioned by structural boundary \(c_{i,j}\).
 global: \(h_{i,j}(x,y,z) = z_{i,j}\)
@@ -285,7 +279,7 @@ isolates: Isolates: Captures frequency of nodes with degree zero."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -323,15 +317,10 @@ that can be further decomposed into two parts:</p><ul><li><p><strong>\(\mathbf{g
 </ul><p>Each term defines a component for the model's features, which
 are a sum of unit-level components, \(\sum_i g_i(x_i,y_i)\), and/or
 pair-level components, \(\sum_{i \ne j} h_{i,j}(x,y,z)\).
-The implemented terms are grouped into three categories:</p><ol><li><p>\({g}_i\) terms for attribute dependence,</p></li>
-<li><p>\({h}_{i,j}\) terms for network dependence,</p></li>
-<li><p>\({h}_{i,j}\) Terms for joint attribute/network dependence.</p></li>
-</ol><p>Below is a detailed description of each term that can be specified in the model formula (see, <code><a href="iglm.html">iglm</a></code>):
-<code>iglm.data ~ &lt;term_1&gt; + &lt;term_2&gt; + ... </code>, where the left-hand side of the formula has to be a <code><a href="iglm.data.html">iglm.data</a></code> object,
-and the right-hand side lists some of the terms from the list below, which should be included in the model.
-Setting, e.g., <code>&lt;term_1&gt;</code> to  <code>attribute_x</code> includes the term \(g_i(x,y,z) = x_i\) in \(g_i\).
-Note that the function <code><a href="create_userterms_skeleton.html">create_userterms_skeleton</a></code> can be used to create custom terms.</p>
-<p><code>degrees</code>: Degrees: Specifies node-level fixed effects. Estimation requires an MM algorithm constraint.</p>
+The implemented terms are grouped into three categories:</p><ol><li><p><strong>Attribute Terms</strong>: Depend only on individual attributes \(x_i\) or \(y_i\).</p></li>
+<li><p><strong>Network Terms</strong>: Depend only on the connections \(z_{i,j}\).</p></li>
+<li><p><strong>Joint Attribute/Network Terms</strong>: Depend on both individual attributes and connections.</p></li>
+</ol><p><code>degrees</code>: Degrees: Specifies node-level fixed effects. Estimation requires an MM algorithm constraint.</p>
 <p><code>edges(mode = "global")</code>: Edges: Captures the baseline propensity of tie formation \(z_{i,j}\), partitioned by structural boundary \(c_{i,j}\).</p><ul><li><p><code>global</code>: \(h_{i,j}(x,y,z) = z_{i,j}\)</p></li>
 <li><p><code>local</code>: \(h_{i,j}(x,y,z) = c_{i,j} z_{i,j}\)</p></li>
 <li><p><code>alocal</code>: \(h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j}\)</p></li>
@@ -404,37 +393,31 @@ Types dictate path constraint: OTP, ITP, OSP, ISP for directed; symm for undirec
 
 
     <div class="section level2">
-    <h2 id="notation">Notation<a class="anchor" aria-label="anchor" href="#notation"></a></h2>
-
-
-
-<p>Here, \(x_i\) and \(y_i\) are the attributes for actor \(i\),
-and \(z_{i,j}\) indicates the presence (1) or absence (0) of a tie
-from actor \(i\) to actor \(j\).
-The local neighborhood of actor \(i\) is denoted \(\mathcal{N}_i\),
-and the indicator for whether actors \(i\) and \(j\) share a local
-neighborhood is given by
-\(c_{i,j} = \mathbb{I}(\mathcal{N}_i \cap \mathcal{N}_j \neq \emptyset)\).
-The functions below specify the forms of \(g_i(x_i,y_i)\) and \(h_{i,j}(x,y,z)\)
-for each term.
-Some terms also depend on other covariates, which are denoted by
-\(v = (v_1, ..., v_N)\) (unit-level) and \(w = (w_{i,j}) \in \mathbb{R}^{N \times N}\)(dyadic).
-These covariates must be provided by the user via the <code>data</code> argument of the terms.
-Assuming that the matriv <code>x</code> exists in the environment associated with the
-used formula, <code>cov_z(data = v)</code> includes the dyadic covariable \(v = (v_{i,j})\) in the model.
-Some terms also have a <code>mode</code> argument, which can take values
-<code>"global"</code>, <code>"local"</code>, or <code>"alocal"</code>.
-The <code>"global"</code> mode indicates that the statistic is computed
-over the entire network, while <code>"local"</code> restricts the statistic
-to local neighborhoods only (i.e., edges where \(c_{i,j} = 1\)).
-The <code>"alocal"</code> mode restricts the statistic to non-local edges
-only (i.e., edges where \(c_{i,j} = 0\)).
-For instance, <code>edges(mode = "local")</code> counts the number of edges
-that connect actors with overlapping neighborhoods.
-See underneath for which options are implemented for each term.
-See the documentation for <code><a href="iglm.html">iglm</a></code> for details on model fitting
-and estimation.</p>
-    </div>
+    <h2 id="category-">Category 1<a class="anchor" aria-label="anchor" href="#category-"></a></h2>
+    <p>Attribute Terms:</p>
+<p>Below is a detailed description of terms that depend only on nodal attributes:</p><ul><li><p><code>attribute_x-term</code>, <code>attribute_y-term</code></p></li>
+<li><p><code>cov_x-term</code>, <code>cov_y-term</code></p></li>
+<li><p><code>attribute_xy-term</code></p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="category--1">Category 2<a class="anchor" aria-label="anchor" href="#category--1"></a></h2>
+    <p>Network Terms:</p>
+<p>Below is a detailed description of terms that depend only on the network structure:</p><ul><li><p><code>edges-term</code>, <code>mutual-term</code></p></li>
+<li><p><code>cov_z-term</code>, <code>cov_z_in-term</code>, <code>cov_z_out-term</code></p></li>
+<li><p><code>degrees-term</code></p></li>
+<li><p><code>gwdegree-term</code>, <code>gwidegree-term</code>, <code>gwodegree-term</code></p></li>
+<li><p><code>gwesp-term</code>, <code>gwdsp-term</code></p></li>
+<li><p><code>transitive-term</code>, <code>nonisolates-term</code>, <code>isolates-term</code></p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="category--2">Category 3<a class="anchor" aria-label="anchor" href="#category--2"></a></h2>
+    <p>Joint Attribute/Network Terms:</p>
+<p>Below is a detailed description of terms that depend on both attributes and the network:</p><ul><li><p><code>attribute_xz-term</code>, <code>attribute_yz-term</code></p></li>
+<li><p><code>inedges_x-term</code>, <code>inedges_y-term</code>, <code>outedges_x-term</code>, <code>outedges_y-term</code></p></li>
+<li><p><code>edges_x_match-term</code>, <code>edges_y_match-term</code></p></li>
+<li><p><code>spillover_xx-term</code>, <code>spillover_yy-term</code></p></li>
+<li><p><code>spillover_yx-term</code>, <code>spillover_xy-term</code>, <code>spillover_yc-term</code>, <code>spillover_yc_symm-term</code></p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.</p>

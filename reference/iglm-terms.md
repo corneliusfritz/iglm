@@ -20,22 +20,13 @@ of unit-level components, \\\sum_i g_i(x_i,y_i)\\, and/or pair-level
 components, \\\sum\_{i \ne j} h\_{i,j}(x,y,z)\\. The implemented terms
 are grouped into three categories:
 
-1.  \\{g}\_i\\ terms for attribute dependence,
+1.  **Attribute Terms**: Depend only on individual attributes \\x_i\\ or
+    \\y_i\\.
 
-2.  \\{h}\_{i,j}\\ terms for network dependence,
+2.  **Network Terms**: Depend only on the connections \\z\_{i,j}\\.
 
-3.  \\{h}\_{i,j}\\ Terms for joint attribute/network dependence.
-
-Below is a detailed description of each term that can be specified in
-the model formula (see, [`iglm`](iglm.md)):
-`iglm.data ~ <term_1> + <term_2> + ... `, where the left-hand side of
-the formula has to be a [`iglm.data`](iglm.data.md) object, and the
-right-hand side lists some of the terms from the list below, which
-should be included in the model. Setting, e.g., `<term_1>` to
-`attribute_x` includes the term \\g_i(x,y,z) = x_i\\ in \\g_i\\. Note
-that the function
-[`create_userterms_skeleton`](create_userterms_skeleton.md) can be used
-to create custom terms.
+3.  **Joint Attribute/Network Terms**: Depend on both individual
+    attributes and connections.
 
 `degrees`: Degrees: Specifies node-level fixed effects. Estimation
 requires an MM algorithm constraint.
@@ -255,31 +246,56 @@ strictly greater than zero.
 
 `isolates`: Isolates: Captures frequency of nodes with degree zero.
 
-## Notation
+## Category 1
 
-Here, \\x_i\\ and \\y_i\\ are the attributes for actor \\i\\, and
-\\z\_{i,j}\\ indicates the presence (1) or absence (0) of a tie from
-actor \\i\\ to actor \\j\\. The local neighborhood of actor \\i\\ is
-denoted \\\mathcal{N}\_i\\, and the indicator for whether actors \\i\\
-and \\j\\ share a local neighborhood is given by \\c\_{i,j} =
-\mathbb{I}(\mathcal{N}\_i \cap \mathcal{N}\_j \neq \emptyset)\\. The
-functions below specify the forms of \\g_i(x_i,y_i)\\ and
-\\h\_{i,j}(x,y,z)\\ for each term. Some terms also depend on other
-covariates, which are denoted by \\v = (v_1, ..., v_N)\\ (unit-level)
-and \\w = (w\_{i,j}) \in \mathbb{R}^{N \times N}\\(dyadic). These
-covariates must be provided by the user via the `data` argument of the
-terms. Assuming that the matriv `x` exists in the environment associated
-with the used formula, `cov_z(data = v)` includes the dyadic covariable
-\\v = (v\_{i,j})\\ in the model. Some terms also have a `mode` argument,
-which can take values `"global"`, `"local"`, or `"alocal"`. The
-`"global"` mode indicates that the statistic is computed over the entire
-network, while `"local"` restricts the statistic to local neighborhoods
-only (i.e., edges where \\c\_{i,j} = 1\\). The `"alocal"` mode restricts
-the statistic to non-local edges only (i.e., edges where \\c\_{i,j} =
-0\\). For instance, `edges(mode = "local")` counts the number of edges
-that connect actors with overlapping neighborhoods. See underneath for
-which options are implemented for each term. See the documentation for
-[`iglm`](iglm.md) for details on model fitting and estimation.
+Attribute Terms:
+
+Below is a detailed description of terms that depend only on nodal
+attributes:
+
+- `attribute_x-term`, `attribute_y-term`
+
+- `cov_x-term`, `cov_y-term`
+
+- `attribute_xy-term`
+
+## Category 2
+
+Network Terms:
+
+Below is a detailed description of terms that depend only on the network
+structure:
+
+- `edges-term`, `mutual-term`
+
+- `cov_z-term`, `cov_z_in-term`, `cov_z_out-term`
+
+- `degrees-term`
+
+- `gwdegree-term`, `gwidegree-term`, `gwodegree-term`
+
+- `gwesp-term`, `gwdsp-term`
+
+- `transitive-term`, `nonisolates-term`, `isolates-term`
+
+## Category 3
+
+Joint Attribute/Network Terms:
+
+Below is a detailed description of terms that depend on both attributes
+and the network:
+
+- `attribute_xz-term`, `attribute_yz-term`
+
+- `inedges_x-term`, `inedges_y-term`, `outedges_x-term`,
+  `outedges_y-term`
+
+- `edges_x_match-term`, `edges_y_match-term`
+
+- `spillover_xx-term`, `spillover_yy-term`
+
+- `spillover_yx-term`, `spillover_xy-term`, `spillover_yc-term`,
+  `spillover_yc_symm-term`
 
 ## References
 
