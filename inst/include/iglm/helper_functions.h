@@ -58,8 +58,7 @@ inline void print_set(std::unordered_set<int> tmp){
 }
 
 inline void set_seed(int seed) {
-  Rcpp::Environment base_env("package:base");
-  Rcpp::Function set_seed_r = base_env["set.seed"];
+  Rcpp::Function set_seed_r("set.seed");
   set_seed_r(seed);
 }
 
