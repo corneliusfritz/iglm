@@ -24,6 +24,9 @@
 //  @returns double The calculated validation score or fitness value.
 
 auto xyz_stat_repetition = CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "z"){
     return(object.z_network.get_val(unit_j, unit_i));
   }  
@@ -44,6 +47,9 @@ auto xyz_stat_edges= CHANGESTAT{
 EFFECT_REGISTER("edges_global", ::xyz_stat_edges, "edges_global", 0);
 
 auto xyz_stat_repetition_nonb= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "z"){
     return(object.z_network.get_val(unit_j, unit_i)*(1-object.get_val_overlap(unit_i,unit_j)));
   } 
@@ -326,6 +332,9 @@ EFFECT_REGISTER("attribute_xz_local", ::xyz_stat_attribute_xz_nb, "attribute_xz_
 
 
 auto xyz_stat_edges_x_out_nb= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "x"){
     return(object.adj_list_nb.at(unit_i).size());
   } else if(mode == "z"){  
@@ -518,6 +527,9 @@ auto xyz_stat_edges_y_match_local = CHANGESTAT {
 EFFECT_REGISTER("edges_y_match_local", ::xyz_stat_edges_y_match_local, "edges_y_match_local", 0);
 
 auto xyz_stat_edges_x_out_nonb= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "x"){
     auto& connections_of_i_all =  object.z_network.adj_list.at(unit_i);
     std::vector<int> connections_of_i;
@@ -540,6 +552,9 @@ EFFECT_REGISTER("outedges_x_alocal", ::xyz_stat_edges_x_out_nonb, "outedges_x_al
 
 
 auto xyz_stat_edges_x_out= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "x"){
     return(object.z_network.adj_list.at(unit_i).size());
   } else if(mode == "z"){ 
@@ -639,6 +654,9 @@ EFFECT_REGISTER("outedges_y_alocal", ::xyz_stat_edges_y_out_nonb, "outedges_y_al
 
 
 auto xyz_stat_edges_y_out = CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "y"){
     return(object.z_network.adj_list.at(unit_i).size());
   } else if(mode == "z"){ 
@@ -727,6 +745,9 @@ EFFECT_REGISTER("attribute_y", ::xyz_stat_attribute_y, "attribute_y", 0);
 
 // cov_i *cov_j * z_ij*c_ij
 auto xyz_stat_interaction_edges_cov= CHANGESTAT{
+  if(object.z_network.directed){
+    Rcpp::stop("This statistic is only for undirected networks");  
+  }
   if(mode == "z"){
     // What to do if the network change stat is desired
     // z_ij from 0 -> 1
@@ -831,6 +852,9 @@ auto xyz_stat_interaction_edges_xy= CHANGESTAT{
 EFFECT_REGISTER("spillover_xy", ::xyz_stat_interaction_edges_xy, "spillover_xy", 0);
 
 auto xyz_stat_interaction_edges_y_cov= CHANGESTAT{
+  if(!object.z_network.directed){
+    Rcpp::stop("This statistic is only for directed networks");  
+  }
   if(mode == "z"){
     // What to do if the network change stat is desired
     // z_ij from 0 -> 1
@@ -2490,6 +2514,9 @@ EFFECT_REGISTER("gwesp_local_ISP", ::xyz_stat_gwesp_local_ISP, "gwesp_local_ISP"
 
 auto xyz_stat_gwesp_local_symm= CHANGESTAT{
   if(mode == "z"){
+    if(object.z_network.directed){
+      Rcpp::stop("This statistic is only for undirected networks");  
+    }
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
     if(object.get_val_overlap(unit_i, unit_j) == false){
@@ -2521,6 +2548,10 @@ EFFECT_REGISTER("gwesp_local_symm", ::xyz_stat_gwesp_local_symm, "gwesp_local_sy
 
 auto xyz_stat_gwesp_global_symm= CHANGESTAT{
   if(mode == "z"){
+    if(object.z_network.directed){
+      Rcpp::stop("This statistic is only for undirected networks");  
+    }
+    
     double expo_min = (1-exp(-data.at(0,0)));  
     double expo_pos = exp(data.at(0,0));
     // Check if the edge (i,j) currently exists physically in the object
@@ -2528,15 +2559,15 @@ auto xyz_stat_gwesp_global_symm= CHANGESTAT{
     double tmp_count;
     
     // 1. Step: For all common partner of i and j 
-    std::vector<int> osp_ij = object.get_common_partners_nb(unit_i, unit_j);
+    std::vector<int> osp_ij = object.z_network.get_common_partners(unit_i, unit_j);
     double res = expo_pos*(1- pow(expo_min, osp_ij.size()));
     
     
     
     for (int k : osp_ij) {
-      tmp_count = object.count_common_partners_nb(unit_i, k);
+      tmp_count = object.z_network.count_common_partners(unit_i, k);
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
-      tmp_count = object.count_common_partners_nb(unit_j, k);
+      tmp_count = object.z_network.count_common_partners(unit_j, k);
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
@@ -2664,21 +2695,21 @@ auto xyz_stat_gwesp_ISP= CHANGESTAT{
     double expo_pos = exp(data.at(0,0));
     // 1. Step: For all ISP of i and j 
     double res = expo_pos*(1- pow(expo_min, 
-                                  object.count_common_partners_nb(unit_i, unit_j, "ISP")));
+                                  object.count_common_partners(unit_i, unit_j, "ISP")));
     // 2. Step: For all h in OSP of i and j check their ISP between j and h 
-    std::vector<int> osp_ij = object.get_common_partners_nb(unit_i, unit_j, "OSP");
+    std::vector<int> osp_ij = object.get_common_partners(unit_i, unit_j, "OSP");
     
     // Check if the edge (i,j) currently exists physically in the object
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
     double tmp_count;
     for (int k : osp_ij) {
-      tmp_count = object.count_common_partners_nb(unit_j, k, "ISP");
+      tmp_count = object.count_common_partners(unit_j, k, "ISP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step: For all h in OTP of i and j check their ISP between h and j
-    std::vector<int> otp_ij = object.get_common_partners_nb(unit_i, unit_j, "OTP");
+    std::vector<int> otp_ij = object.get_common_partners(unit_i, unit_j, "OTP");
     for (int k : otp_ij) {
-      tmp_count = object.count_common_partners_nb(k, unit_j, "ISP");
+      tmp_count = object.count_common_partners(k, unit_j, "ISP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
@@ -2699,20 +2730,20 @@ auto xyz_stat_gwesp_OTP= CHANGESTAT{
     // 1. Step: For all OTP of i and j 
     
     double res = expo_pos*(1- pow(expo_min, 
-                                  object.count_common_partners_nb(unit_i, unit_j, "OTP")));
+                                  object.count_common_partners(unit_i, unit_j, "OTP")));
     // 2. Step: 
-    std::vector<int> osp_ij = object.get_common_partners_nb(unit_i, unit_j, "OSP");
+    std::vector<int> osp_ij = object.get_common_partners(unit_i, unit_j, "OSP");
     
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
     double tmp_count;
     for (int k : osp_ij) {
-      tmp_count = object.count_common_partners_nb(unit_i, k, "OTP");
+      tmp_count = object.count_common_partners(unit_i, k, "OTP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step:
-    std::vector<int> isp_ij = object.get_common_partners_nb(unit_i, unit_j, "ISP");
+    std::vector<int> isp_ij = object.get_common_partners(unit_i, unit_j, "ISP");
     for (int k : isp_ij) {
-      tmp_count = object.count_common_partners_nb(k, unit_j, "OTP");
+      tmp_count = object.count_common_partners(k, unit_j, "OTP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
@@ -2732,20 +2763,20 @@ auto xyz_stat_gwesp_OSP= CHANGESTAT{
     double expo_pos = exp(data.at(0,0));
     // 1. Step: For all OSP of i and j 
     double res = expo_pos*(1- pow(expo_min, 
-                                  object.count_common_partners_nb(unit_i, unit_j, "OSP")));
+                                  object.count_common_partners(unit_i, unit_j, "OSP")));
     // 2. Step: 
     
-    std::vector<int> otp_ij = object.get_common_partners_nb(unit_i, unit_j, "OTP");
+    std::vector<int> otp_ij = object.get_common_partners(unit_i, unit_j, "OTP");
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
     double tmp_count;
     for (int k : otp_ij) {
-      tmp_count = object.count_common_partners_nb(unit_i, k, "OSP");
+      tmp_count = object.count_common_partners(unit_i, k, "OSP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     // 3. Step:
-    std::vector<int> isp_ij = object.get_common_partners_nb(unit_i, unit_j, "ISP");
+    std::vector<int> isp_ij = object.get_common_partners(unit_i, unit_j, "ISP");
     for (int k : isp_ij) {
-      tmp_count = object.count_common_partners_nb(k, unit_i, "OSP");
+      tmp_count = object.count_common_partners(k, unit_i, "OSP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }
     return(res);
@@ -2770,14 +2801,14 @@ auto xyz_stat_gwdsp_symm= CHANGESTAT{
     double tmp_count;
     for (int k : out_j) {
       if(unit_i == k) continue;
-      tmp_count = object.count_common_partners_nb(unit_i, k);
+      tmp_count = object.count_common_partners(unit_i, k);
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }  
     // 2. Step: 
     auto& out_i = object.z_network.adj_list.at(unit_i);
     for (int k : out_i) {
       if(unit_j == k) continue;
-      tmp_count = object.count_common_partners_nb(k, unit_j);
+      tmp_count = object.count_common_partners(k, unit_j);
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     }  
     return(res);
@@ -2791,7 +2822,6 @@ auto xyz_stat_gwdsp_local_symm= CHANGESTAT{
   if(object.z_network.directed){
     Rcpp::stop("This statistic is only for undirected networks");  
   }
-  
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     if(object.get_val_overlap(unit_i, unit_j) == false){
@@ -2839,14 +2869,14 @@ auto xyz_stat_gwdsp_ITP= CHANGESTAT{
     double tmp_count;
     for (int k : out_j) {
       if(unit_i == k) continue;
-      tmp_count = object.count_common_partners_nb(unit_i, k, "OTP");
+      tmp_count = object.count_common_partners(unit_i, k, "OTP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     } 
     // 2. Step: 
     auto& in_i = object.z_network.adj_list_in.at(unit_i);
     for (int k : in_i) {
       if(unit_j == k) continue;
-      tmp_count = object.count_common_partners_nb(k, unit_j, "OTP");
+      tmp_count = object.count_common_partners(k, unit_j, "OTP");
       res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count); 
     } 
     return(res);
@@ -2872,7 +2902,7 @@ auto xyz_stat_gwdsp_ISP= CHANGESTAT{
     auto& out_i = object.z_network.adj_list.at(unit_i);
     for (int k : out_i) {
       if(unit_j == k) continue;
-      tmp_count = object.count_common_partners_nb(unit_j, k, "ISP");
+      tmp_count = object.count_common_partners(unit_j, k, "ISP");
       if (edge_exists) {
         tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
       }
@@ -2903,7 +2933,7 @@ auto xyz_stat_gwdsp_OSP= CHANGESTAT{
     auto& in_j = object.z_network.adj_list_in.at(unit_j);
     for (int k : in_j) {
       if(unit_i == k) continue;
-      tmp_count = object.count_common_partners_nb(unit_i, k, "OSP");
+      tmp_count = object.count_common_partners(unit_i, k, "OSP");
       if (edge_exists) {
         tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
       }
@@ -3010,7 +3040,7 @@ auto xyz_stat_gwdsp_OSP_local= CHANGESTAT{
   }
 }; 
 
-EFFECT_REGISTER("gwdsp_local_OSP", ::xyz_stat_gwdsp_OSP_local, "gwdsp_global_local_OSP",0.0);
+EFFECT_REGISTER("gwdsp_local_OSP", ::xyz_stat_gwdsp_OSP_local, "gwdsp_local_OSP",0.0);
 
 auto xyz_stat_gwidegree= CHANGESTAT{
   if(!object.z_network.directed){
@@ -3039,9 +3069,18 @@ auto xyz_stat_gwodegree= CHANGESTAT{
     if (edge_exists) {
       tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
     }
-    return(pow(expo_min, tmp_count));
+    double res = pow(expo_min, tmp_count);
+    // Add Node j contribution for undirected networks
+    if (!object.z_network.directed) {
+      double tmp_count_j = object.z_network.adj_list.at(unit_j).size();
+      if (edge_exists) {
+        tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1) : 0.0; 
+      }
+      res += pow(expo_min, tmp_count_j);
+    }
+    return(res);
   }else {  
-    return(0);
+    return(0.0);
   }
 }; 
 EFFECT_REGISTER("gwodegree_global", ::xyz_stat_gwodegree, "gwodegree_global",0.0);
@@ -3079,7 +3118,16 @@ auto xyz_stat_gwodegree_local= CHANGESTAT{
     if (edge_exists) {
       tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
     }
-    return(pow(expo_min, tmp_count));
+    double res = pow(expo_min, tmp_count);
+    // Add Node j contribution for undirected networks
+    if (!object.z_network.directed) {
+      double tmp_count_j = object.adj_list_nb.at(unit_j).size();
+      if (edge_exists) {
+        tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1) : 0.0; 
+      }
+      res += pow(expo_min, tmp_count_j);
+    }
+    return(res);
   }else {  
     return(0);
   }

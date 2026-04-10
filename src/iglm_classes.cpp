@@ -414,6 +414,13 @@ double XZ_class::count_nb_edges() const {
     return(count);
 }
 
+std::vector<int> XZ_class::get_common_partners(unsigned int from,unsigned int to, std::string type) const {
+  return(z_network.get_common_partners(from, to, type));
+}
+size_t XZ_class::count_common_partners(unsigned int from, unsigned int to, std::string type) const {
+  return(z_network.count_common_partners(from, to, type));
+}
+  
 std::vector<int> XZ_class::get_common_partners_nb(unsigned int from,unsigned int to, std::string type) const {
     if(type == "OTP"){
         return(get_intersection_vec(adj_list_nb[from], adj_list_in_nb[to])); 

@@ -51,6 +51,10 @@ public:
   double count_edges() const;
   double count_nb_edges() const;
   
+  std::vector<int> get_common_partners(unsigned int from,unsigned int to, std::string type = "OSP")const;
+  size_t count_common_partners(unsigned int from, unsigned int to, std::string type = "OSP") const;
+  
+  
   std::vector<int> get_common_partners_nb(unsigned int from,unsigned int to, std::string type = "OSP")const;
   size_t count_common_partners_nb(unsigned int from, unsigned int to, std::string type = "OSP") const;
   
