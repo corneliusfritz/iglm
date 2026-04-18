@@ -1,5 +1,5 @@
 #' @docType class
-#' @title An R6 class for Network GLM (Generalized Linear Model) Objects
+#' @title Network GLM (Generalized Linear Model) Objects (R6 Class)
 #' @description
 #' The `iglm.object` class encapsulates all components required to define,
 #' estimate, and simulate from a network generalized linear model. This includes
@@ -450,17 +450,28 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         tvalue <- est / stderr
         pvalue <- 2 * pnorm(-abs(tvalue))
 
-        coef_table <- cbind(est, stderr, tvalue, pvalue, private$.sufficient_statistics)
-        # Check if we can add space between the columns
-        colnames(coef_table) <- c("Estimate", "SE", "t-value", "Pr(>|t|)", "Suff. Statistic")
+        coef_table <- cbind(est, stderr, tvalue, pvalue)
+        colnames(coef_table) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+        if (5 %in% rows) {
+           coef_table <- cbind(coef_table, "Suff. Statistic" = private$.sufficient_statistics)
+        }
         rownames(coef_table) <- names
-        coef_table <- round(coef_table, digits)
-        eps_threshold <- 10^(-digits)
-        which_wrong <- coef_table == 0
-        which_wrong[, 4] <- FALSE
-        coef_table[coef_table == 0] <-
-          paste0("< ", format(eps_threshold, scientific = FALSE))
-        print(coef_table[, rows], quote = FALSE, right = TRUE)
+        
+        cols_to_print <- rows[rows <= ncol(coef_table)]
+        # Filter columns based on 'rows' argument but keep t value and p-value for printCoefmat logic if possible
+        # Actually printCoefmat is best used on the full table or first 4 columns.
+        
+        if (all(c(1, 2, 3, 4) %in% rows)) {
+            printCoefmat(coef_table[, intersect(rows, 1:ncol(coef_table)), drop = FALSE], 
+                         digits = digits, 
+                         has.Pvalue = TRUE, 
+                         P.values = TRUE,
+                         signif.stars = getOption("show.signif.stars"),
+                         na.print = "NA")
+        } else {
+            # Fallback for subsets without full statistical info
+            print(round(coef_table[, rows, drop = FALSE], digits))
+        }
 
         cat(paste(
           "\nTime for estimation: ",
@@ -1088,7 +1099,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
   )
 )
 
-#' @title Construct a iglm Model Specification Object
+#' @title Construct an iglm Model Specification Object
 #' @description
 #' \code{R} package \code{iglm} implements generalized linear models (GLMs)
 #' for studying relationships among attributes in connected populations,
@@ -1148,7 +1159,6 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' @aliases iglm.object
 #' @examples
 #' # Example usage:
-#' library(iglm)
 #' # Create a iglm.data data object (example)
 #' n_actor <- 50
 #' neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
@@ -1188,7 +1198,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #'
 #' # Model Assessment
 #' model_tmp_new$assess(formula = ~degree_distribution)
-#' # model_tmp_new$results$plot(assess = TRUE)
+#' model_tmp_new$results$plot(model_assessment = TRUE)
 #'
 #' @references
 #'

@@ -3,7 +3,7 @@
 \docType{class}
 \name{iglm.object.generator}
 \alias{iglm.object.generator}
-\title{An R6 class for Network GLM (Generalized Linear Model) Objects}
+\title{Network GLM (Generalized Linear Model) Objects (R6 Class)}
 \description{
 The `iglm.object` class encapsulates all components required to define,
 estimate, and simulate from a network generalized linear model. This includes

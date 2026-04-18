@@ -1,5 +1,5 @@
 #' @docType class
-#' @title A R6 class to represent networks with unit-level attributes
+#' @title Networks with Unit-Level Attributes (R6 Class)
 #' @description
 #' The `iglm.data` class is a container for storing, validating, and analyzing
 #' unit-level attributes (x_attribute, y_attribute) and connections (z_network).

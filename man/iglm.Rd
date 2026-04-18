@@ -3,7 +3,7 @@
 \name{iglm}
 \alias{iglm}
 \alias{iglm.object}
-\title{Construct a iglm Model Specification Object}
+\title{Construct an iglm Model Specification Object}
 \usage{
 iglm(
   formula = NULL,
@@ -82,7 +82,6 @@ all model terms via the formula interface.
 
 \examples{
 # Example usage:
-library(iglm)
 # Create a iglm.data data object (example)
 n_actor <- 50
 neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
@@ -122,7 +121,7 @@ model_tmp_new$estimate()
 
 # Model Assessment
 model_tmp_new$assess(formula = ~degree_distribution)
-# model_tmp_new$results$plot(assess = TRUE)
+model_tmp_new$results$plot(model_assessment = TRUE)
 
 }
 \references{

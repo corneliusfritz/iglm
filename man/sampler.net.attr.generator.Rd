@@ -3,7 +3,7 @@
 \docType{class}
 \name{sampler.net.attr.generator}
 \alias{sampler.net.attr.generator}
-\title{R6 Class for Single Component Sampler Settings}
+\title{Single Component Sampler Settings (R6 Class)}
 \description{
 The `sampler_net_attr` class is a simple R6 container used within the
 `sampler.iglm` class. It holds the MCMC sampling parameters
