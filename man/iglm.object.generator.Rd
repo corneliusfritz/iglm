@@ -192,7 +192,7 @@ An object of class `iglm_model_assessment` containing the
 Print a summary of the `iglm.object`. If estimation results are
 available, they are printed in a standard coefficient table format.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(digits = 4, rows = c(1, 2), formula_print = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(digits = 3, rows = c(1, 2), formula_print = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

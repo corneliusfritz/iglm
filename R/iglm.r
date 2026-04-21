@@ -427,7 +427,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param rows  numeric vector is provided with values between 1 and 4,
     #'              only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.
     #' @param formula_print (logical) If `TRUE`, also prints the model formula. Default is `TRUE`.  
-    print = function(digits = 4, rows = c(1, 2), formula_print = TRUE) {
+    print = function(digits = 3, rows = c(1, 2), formula_print = TRUE) {
       cat("iglm object\n")
       cat(strrep("-", 50), "\n", sep = "")
 
