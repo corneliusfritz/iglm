@@ -72,7 +72,7 @@ NULL
 
 #' @title Initialize iglm Model Terms
 #'
-#' This is an internal generic function used to initialize mapping and data
+#' @description This is an internal generic function used to initialize mapping and data
 #' for terms in a \code{\link{iglm.object}} formula.
 #'
 #' @param data_object An \code{\link{iglm.data}} object.
@@ -114,7 +114,7 @@ InitIglmTerm <- function(data_object, arglist, ...) {
 
 #' @title Check Arguments for iglm Model Terms
 #'
-#' This is an internal helper function used to validate and set defaults
+#' @description This is an internal helper function used to validate and set defaults
 #' for arguments passed to iglm model terms.
 #'
 #' @param data_object The iglm.data object.
@@ -125,7 +125,7 @@ InitIglmTerm <- function(data_object, arglist, ...) {
 #' @param defaults a list of default values for arguments.
 #' @param directed Logical indicating if the term is only for directed (TRUE) or undirected (FALSE) networks.
 #' @return A modified \code{arglist} with defaults applied and validated values.
-#' @export
+#' @keywords internal
 check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expected = list(), defaults = list(), directed = NULL) {
   if (!is.null(directed) && data_object$directed != directed) {
     stop(sprintf("Term is only for %s networks.", if (directed) "directed" else "undirected"))

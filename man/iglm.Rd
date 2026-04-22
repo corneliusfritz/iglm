@@ -3,7 +3,7 @@
 \name{iglm}
 \alias{iglm}
 \alias{iglm.object}
-\title{Construct an IGLM Model Specification Object}
+\title{Construct an iglm Model Specification Object}
 \usage{
 iglm(
   formula = NULL,

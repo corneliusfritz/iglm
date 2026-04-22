@@ -1,8 +1,8 @@
 #' @docType class
-#' @title Network GLM (Generalized Linear Model) Objects (R6 Class)
+#' @title iglm Objects (R6 Class)
 #' @description
 #' The `iglm.object` class encapsulates all components required to define,
-#' estimate, and simulate from a network generalized linear model. This includes
+#' estimate, and simulate from a generalized linear model under interference. This includes
 #' the model formula, coefficients, the underlying network and attribute data
 #' (via a `iglm.data` object), sampler controls, estimation controls, and storage
 #' for results.
@@ -860,7 +860,6 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'   \itemize{
     #'     \item \code{"marginal"}: Computes predictions by aggregating over the MCMC samples stored
     #'     in the internal results. If samples do not exist, \code{self$simulate()} is triggered automatically.
-    #'     This represents the expectation integrated over the uncertainty of the latent process.
     #'     \item \code{"conditional"}: Computes predictions using the systematic component of the
     #'     Generalized Linear Model (GLM). It calculates the linear predictor \eqn{\eta = X\beta}
     #'     (plus offset and degrees terms for the network) and applies the inverse link function
@@ -878,9 +877,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @details
     #' \strong{Marginal Predictions:}
     #' When \code{variant = "marginal"}, the function approximates the expected value via Monte Carlo integration:
-    #' \deqn{\hat{\mu} = \frac{1}{S} \sum_{s=1}^{S} y^{(s)}}
-    #' where \eqn{y^{(s)}} are the realized values from the \eqn{s}-th simulation sample.
-    #' For the network \code{z}, this results in an edge probability matrix averaged over all sampled networks.
+    #' \deqn{\hat{\mu} = \frac{1}{S} \sum_{s=1}^{S} h^{(s)}}
+    #' where \eqn{h^{(s)}} are the realized values from the \eqn{s}-th simulation sample (being either attribute x, y or the connections z).
+    #' For the network \code{z}, this results in a marginal edge probability matrix averaged over all sampled networks.
     #'
     #' \strong{Conditional Predictions:}
     #' When \code{variant = "conditional"}, the function calculates the theoretical mean \eqn{\mu} based on the
@@ -1151,7 +1150,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
   )
 )
 
-#' @title Construct an IGLM Model Specification Object
+#' @title Construct an iglm Model Specification Object
 #' @description
 #' \code{R} package \code{iglm} implements generalized linear models (GLMs)
 #' for studying relationships among attributes in connected populations,
