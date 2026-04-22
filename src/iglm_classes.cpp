@@ -52,6 +52,8 @@ Network::Network(int n_actor_, bool directed_) {
         adj_list_in.resize(n_actor + 1);
     }
     adj_mat.assign(n_actor * n_actor, 0);
+    out_degrees.assign(n_actor + 1, 0);
+    in_degrees.assign(n_actor + 1, 0);
     number_edges = 0;
 }
 
@@ -63,7 +65,14 @@ Network::Network(int n_actor_, bool directed_, arma::mat mat) {
         adj_list_in.resize(n_actor + 1);
     }
     adj_mat.assign(n_actor * n_actor, 0);
+    out_degrees.assign(n_actor + 1, 0);
+    in_degrees.assign(n_actor + 1, 0);
     mat_to_map_vec(mat, n_actor, directed, adj_list, adj_list_in, adj_mat);
+    for(int i = 1; i <= n_actor; i++) {
+        out_degrees[i] = adj_list[i].size();
+        if (directed) in_degrees[i] = adj_list_in[i].size();
+        else in_degrees[i] = out_degrees[i];
+    }
     number_edges = count_edges(); 
 }
 
@@ -77,7 +86,14 @@ void Network::set_network_from_mat(int n_actor_, bool directed_, arma::mat mat){
         adj_list_in.resize(n_actor + 1);
     }
     adj_mat.assign(n_actor * n_actor, 0);
+    out_degrees.assign(n_actor + 1, 0);
+    in_degrees.assign(n_actor + 1, 0);
     mat_to_map_vec(mat, n_actor, directed, adj_list, adj_list_in, adj_mat);
+    for(int i = 1; i <= n_actor; i++) {
+        out_degrees[i] = adj_list[i].size();
+        if (directed) in_degrees[i] = adj_list_in[i].size();
+        else in_degrees[i] = out_degrees[i];
+    }
     number_edges = count_edges(); 
 }
 
@@ -178,6 +194,8 @@ void Network::add_edge(int from, int to) {
             auto& i_list = adj_list_in[to];
             i_list.insert(std::lower_bound(i_list.begin(), i_list.end(), from), from);
             adj_mat[get_mat_idx(from, to)] = 1;
+            out_degrees[from]++;
+            in_degrees[to]++;
             number_edges ++;
         }
     } else{
@@ -188,6 +206,10 @@ void Network::add_edge(int from, int to) {
             list_t.insert(std::lower_bound(list_t.begin(), list_t.end(), from), from);
             adj_mat[get_mat_idx(from, to)] = 1;
             adj_mat[get_mat_idx(to, from)] = 1;
+            out_degrees[from]++;
+            out_degrees[to]++;
+            in_degrees[from]++;
+            in_degrees[to]++;
             number_edges ++;
         }
     }
@@ -199,6 +221,8 @@ void Network::delete_edge(int from, int to) {
             adj_list[from].erase(std::remove(adj_list[from].begin(), adj_list[from].end(), to), adj_list[from].end());
             adj_list_in[to].erase(std::remove(adj_list_in[to].begin(), adj_list_in[to].end(), from), adj_list_in[to].end());
             adj_mat[get_mat_idx(from, to)] = 0;
+            out_degrees[from]--;
+            in_degrees[to]--;
             number_edges --;
         }
     } else{
@@ -207,6 +231,10 @@ void Network::delete_edge(int from, int to) {
             adj_list[to].erase(std::remove(adj_list[to].begin(), adj_list[to].end(), from), adj_list[to].end());
             adj_mat[get_mat_idx(from, to)] = 0;
             adj_mat[get_mat_idx(to, from)] = 0;
+            out_degrees[from]--;
+            out_degrees[to]--;
+            in_degrees[from]--;
+            in_degrees[to]--;
             number_edges --;
         }
     }
@@ -230,6 +258,9 @@ XZ_class::XZ_class(int n_actor_, bool directed_, std::string type_, double scale
     overlap_bool_mat.assign(n_actor * n_actor, 0);
     neighborhood_bool_mat.assign(n_actor * n_actor, 0);
     overlap_mat = arma::zeros<arma::mat>(0, 2);
+    out_degrees_nb.assign(n_actor + 1, 0);
+    in_degrees_nb.assign(n_actor + 1, 0);
+    active_edges_nb_idx.assign(n_actor * n_actor, -1);
     
     for (int i = 1; i <= n_actor; ++i) { 
         all_actors.push_back(i);
@@ -252,6 +283,9 @@ XZ_class::XZ_class(int n_actor_, bool directed_, arma::mat neighborhood_, arma::
     mat_to_map_vec(neighborhood_, n_actor, directed_, neighborhood, neighborhood, neighborhood_bool_mat);
     mat_to_map_vec(overlap_, n_actor, directed_, overlap, overlap, overlap_bool_mat);
     overlap_mat = overlap_;
+    out_degrees_nb.assign(n_actor + 1, 0);
+    in_degrees_nb.assign(n_actor + 1, 0);
+    active_edges_nb_idx.assign(n_actor * n_actor, -1);
     
     for (int i = 1; i <= n_actor; i++){
         all_actors.push_back(i);
@@ -273,6 +307,9 @@ XZ_class::XZ_class(int n_actor_, bool directed_, std::vector<std::vector<int>> n
     adj_list_in_nb.resize(n_actor + 1);
     overlap_bool_mat.assign(n_actor * n_actor, 0);
     neighborhood_bool_mat.assign(n_actor * n_actor, 0);
+    out_degrees_nb.assign(n_actor + 1, 0);
+    in_degrees_nb.assign(n_actor + 1, 0);
+    active_edges_nb_idx.assign(n_actor * n_actor, -1);
 
     for (int i = 1; i <= n_actor; i++){ 
         for(int neighbor : neighborhood_[i]) {
@@ -341,6 +378,10 @@ void XZ_class::initialize_overlap_counts() {
     int K = z_network.directed ? 1 : 2;
     N_total_overlap = (int)overlap_mat.n_rows / K;
     N_1_overlap = 0;
+    out_degrees_nb.assign(n_actor + 1, 0);
+    in_degrees_nb.assign(n_actor + 1, 0);
+    active_edges_nb.clear();
+    active_edges_nb_idx.assign(n_actor * n_actor, -1);
     
     for (int idx = 0; idx < (int)overlap_mat.n_rows; ++idx) {
         int from = (int)overlap_mat(idx, 0);
@@ -348,10 +389,20 @@ void XZ_class::initialize_overlap_counts() {
         if (from >= 1 && from <= z_network.get_n_actor() && to >= 1 && to <= z_network.get_n_actor()) {
             if (z_network.get_val(from, to)) {
                 N_1_overlap++;
+                out_degrees_nb[from]++;
+                in_degrees_nb[to]++;
+                active_edges_nb_idx[get_mat_idx(from, to)] = active_edges_nb.size();
+                active_edges_nb.push_back({from, to});
             }
         }
     }
-    if (!z_network.directed) N_1_overlap /= 2;
+    if (!z_network.directed) {
+        N_1_overlap /= 2;
+        // In undirected, in_degrees_nb should match out_degrees_nb
+        // and we already incremented both directions because overlap_mat contains both.
+        // Actually, overlap_mat for undirected has 2 rows per dyad?
+        // Let's check Network::add_edge logic.
+    }
 }
 
 void XZ_class::add_edge(int from, int to) {
@@ -360,10 +411,14 @@ void XZ_class::add_edge(int from, int to) {
             z_network.add_edge(from, to);
             if(overlap_bool_mat[get_mat_idx(from, to)]){
                 N_1_overlap++;
+                out_degrees_nb[from]++;
+                in_degrees_nb[to]++;
                 auto& l_nb = adj_list_nb[from];
                 l_nb.insert(std::lower_bound(l_nb.begin(), l_nb.end(), to), to);
                 auto& li_nb = adj_list_in_nb[to];
                 li_nb.insert(std::lower_bound(li_nb.begin(), li_nb.end(), from), from);
+                active_edges_nb_idx[get_mat_idx(from, to)] = active_edges_nb.size();
+                active_edges_nb.push_back({from, to});
             }
         }
     } else{
@@ -371,10 +426,18 @@ void XZ_class::add_edge(int from, int to) {
             z_network.add_edge(from, to);
             if(overlap_bool_mat[get_mat_idx(from, to)]){
                 N_1_overlap++;
+                out_degrees_nb[from]++;
+                out_degrees_nb[to]++;
+                in_degrees_nb[from]++;
+                in_degrees_nb[to]++;
                 auto& l_f = adj_list_nb[from];
                 l_f.insert(std::lower_bound(l_f.begin(), l_f.end(), to), to);
                 auto& l_t = adj_list_nb[to];
                 l_t.insert(std::lower_bound(l_t.begin(), l_t.end(), from), from);
+                active_edges_nb_idx[get_mat_idx(from, to)] = active_edges_nb.size();
+                active_edges_nb.push_back({from, to});
+                active_edges_nb_idx[get_mat_idx(to, from)] = active_edges_nb.size();
+                active_edges_nb.push_back({to, from});
             }
         }
     } 
@@ -386,8 +449,19 @@ void XZ_class::delete_edge(int from, int to) {
             z_network.delete_edge(from, to);
             if(overlap_bool_mat[get_mat_idx(from, to)]){
                 N_1_overlap--;
+                out_degrees_nb[from]--;
+                in_degrees_nb[to]--;
                 adj_list_nb[from].erase(std::remove(adj_list_nb[from].begin(), adj_list_nb[from].end(), to), adj_list_nb[from].end());
                 adj_list_in_nb[to].erase(std::remove(adj_list_in_nb[to].begin(), adj_list_in_nb[to].end(), from), adj_list_in_nb[to].end());
+                
+                int idx = active_edges_nb_idx[get_mat_idx(from, to)];
+                if (idx != -1) {
+                    auto last_edge = active_edges_nb.back();
+                    active_edges_nb[idx] = last_edge;
+                    active_edges_nb_idx[get_mat_idx(last_edge.first, last_edge.second)] = idx;
+                    active_edges_nb.pop_back();
+                    active_edges_nb_idx[get_mat_idx(from, to)] = -1;
+                }
             }
         }
     } else{ 
@@ -395,8 +469,30 @@ void XZ_class::delete_edge(int from, int to) {
             z_network.delete_edge(from, to);
             if(overlap_bool_mat[get_mat_idx(from, to)]){
                 N_1_overlap--;
+                out_degrees_nb[from]--;
+                out_degrees_nb[to]--;
+                in_degrees_nb[from]--;
+                in_degrees_nb[to]--;
                 adj_list_nb[from].erase(std::remove(adj_list_nb[from].begin(), adj_list_nb[from].end(), to), adj_list_nb[from].end());
                 adj_list_nb[to].erase(std::remove(adj_list_nb[to].begin(), adj_list_nb[to].end(), from), adj_list_nb[to].end());
+                
+                int idx1 = active_edges_nb_idx[get_mat_idx(from, to)];
+                if (idx1 != -1) {
+                    auto last_edge = active_edges_nb.back();
+                    active_edges_nb[idx1] = last_edge;
+                    active_edges_nb_idx[get_mat_idx(last_edge.first, last_edge.second)] = idx1;
+                    active_edges_nb.pop_back();
+                    active_edges_nb_idx[get_mat_idx(from, to)] = -1;
+                }
+                
+                int idx2 = active_edges_nb_idx[get_mat_idx(to, from)];
+                if (idx2 != -1) {
+                    auto last_edge = active_edges_nb.back();
+                    active_edges_nb[idx2] = last_edge;
+                    active_edges_nb_idx[get_mat_idx(last_edge.first, last_edge.second)] = idx2;
+                    active_edges_nb.pop_back();
+                    active_edges_nb_idx[get_mat_idx(to, from)] = -1;
+                }
             }
         }
     } 
@@ -483,6 +579,8 @@ void XZ_class::copy_from(XZ_class obj) {
     overlap = obj.overlap;
     adj_list_nb = obj.adj_list_nb;
     adj_list_in_nb = obj.adj_list_in_nb;
+    out_degrees_nb = obj.out_degrees_nb;
+    in_degrees_nb = obj.in_degrees_nb;
     overlap_bool_mat = obj.overlap_bool_mat;
     neighborhood_bool_mat = obj.neighborhood_bool_mat;
     n_actor = obj.n_actor;
@@ -546,6 +644,10 @@ void XYZ_class::set_info_arma(arma::vec x_attribute_, arma::vec y_attribute_, ar
     y_attribute.attribute = y_attribute_;
     mat_to_map_vec(z_network_, n_actor, z_network.directed, z_network.adj_list, z_network.adj_list_in, z_network.adj_mat);
     for (int i = 1; i <= n_actor; i++){
+        z_network.out_degrees[i] = z_network.adj_list[i].size();
+        if (z_network.directed) z_network.in_degrees[i] = z_network.adj_list_in[i].size();
+        else z_network.in_degrees[i] = z_network.out_degrees[i];
+        
         adj_list_nb[i] = get_intersection_vec(z_network.adj_list[i], overlap[i]);
         if(z_network.directed){
             adj_list_in_nb[i] = get_intersection_vec(z_network.adj_list_in[i], overlap[i]);

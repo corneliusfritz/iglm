@@ -433,7 +433,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param print.coefmat (logical) If `TRUE` (default), prints the coefficient table.
     #' @param print.call (logical) If `TRUE` (default), prints the call that generated the object.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    print = function(digits = max(3, getOption("digits") - 3), 
+    print = function(digits = 3, 
                   rows = c(1, 2), 
                   signif.stars = getOption("show.signif.stars"),
                   eps.Pvalue = 0.0001, 
@@ -464,16 +464,16 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         if (print.fitinfo) {
           results_header <- "Results: \n\n"
         }
-        names <- rownames(private$.coef)
-        est <- as.vector(private$.coef)
-        stderr <- sqrt(diag(private$.results$var))
+        names <- private$.preprocess$coef_names
+        est <- as.numeric(private$.coef)
+        stderr <- as.numeric(sqrt(diag(private$.results$var)))
         tvalue <- est / stderr
         pvalue <- 2 * pnorm(-abs(tvalue))
 
-        coef_table <- cbind(est, stderr, tvalue, pvalue)
+        coef_table <- matrix(c(est, stderr, tvalue, pvalue), ncol = 4)
         colnames(coef_table) <- c("Estimate", "S.E.", "t-value", "Pr(>|t|)")
         if (5 %in% rows) {
-          coef_table <- cbind(coef_table, "Suff. Statistic" = private$.sufficient_statistics)
+          coef_table <- cbind(coef_table, "Suff. Statistic" = as.numeric(private$.sufficient_statistics))
         }
         rownames(coef_table) <- names
 
@@ -484,8 +484,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
         if (print.coefmat) {
           # Capture output to determine width
+          coef_table_print <- coef_table[, cols_to_print, drop = FALSE]
+          
           coefmat_out <- capture.output({
-            printCoefmat(coef_table[, cols_to_print, drop = FALSE],
+            printCoefmat(coef_table_print,
               digits = digits,
               has.Pvalue = has_p,
               P.values = has_p,
@@ -1149,7 +1151,6 @@ iglm.object.generator <- R6::R6Class("iglm.object",
   )
 )
 
-#' @title Construct an iglm Model Specification Object
 #' @description
 #' \code{R} package \code{iglm} implements generalized linear models (GLMs)
 #' for studying relationships among attributes in connected populations,

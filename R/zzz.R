@@ -34,7 +34,7 @@ add_alpha <- function(color_code, alpha_level) {
 }
 
 #'
-#' Generate the Skeleton for an R package to implement additional iglm terms
+#' @title Generate the Skeleton for an R Package to Implement Additional iglm Terms
 #'
 #' @description
 #' This function generates the directory structure and source files for a new R package

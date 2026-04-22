@@ -40,7 +40,7 @@
 \alias{transitive-term}
 \alias{nonisolates-term}
 \alias{isolates-term}
-\title{Model Specification for iglm Terms}
+\title{Model Specification for IGLM Terms}
 \description{
 The help pages of \code{\link{iglm}} describe the model with details on model fitting
 and estimation.

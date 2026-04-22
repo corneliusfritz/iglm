@@ -1,4 +1,4 @@
-#' Simulate responses and connections
+#' @title Simulate Responses and Connections
 #'
 #' @description
 #' Simulate responses and connections.

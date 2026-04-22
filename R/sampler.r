@@ -444,7 +444,9 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
   active = list(
     #' @field sampler_x (`sampler_net_attr`) The sampler configuration object for the x attribute.
     sampler_x = function(value) {
-      if (missing(value)) private$.sampler_x else {
+      if (missing(value)) {
+        private$.sampler_x
+      } else {
         self$set_x_sampler(value)
       }
     },
@@ -458,15 +460,15 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     },
     #' @field n_simulation (`integer`) The number of simulations to generate after burn-in.
     n_simulation = function(value) {
-      if (missing(value)) private$.n_simulation else if(is.numeric(value)) self$n_simulation <- value else stop("`n_simulation` must be numeric.", call. = FALSE)
+      if (missing(value)) private$.n_simulation else if (is.numeric(value)) self$n_simulation <- value else stop("`n_simulation` must be numeric.", call. = FALSE)
     },
     #' @field n_burn_in (`integer`) The number of burn-in iterations.
     n_burn_in = function(value) {
-      if (missing(value)) private$.n_burn_in else if(is.numeric(value)) self$n_burn_in <- value else stop("`n_burn_in` must be numeric.", call. = FALSE)
+      if (missing(value)) private$.n_burn_in else if (is.numeric(value)) self$n_burn_in <- value else stop("`n_burn_in` must be numeric.", call. = FALSE)
     },
     #' @field init_empty (`logical`) Flag indicating whether simulations start from an empty state.
     init_empty = function(value) {
-      if (missing(value)) private$.init_empty else if(is.logical(value)) self$init_empty <- value else stop("`init_empty` must be logical", call. = FALSE)
+      if (missing(value)) private$.init_empty else if (is.logical(value)) self$init_empty <- value else stop("`init_empty` must be logical", call. = FALSE)
     },
     #' @field cluster (`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.
     cluster = function(value) {

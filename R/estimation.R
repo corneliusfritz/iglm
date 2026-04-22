@@ -25,7 +25,7 @@ is_cluster_active <- function(clust) {
   return(test_result)
 }
 
-#' Set Control Parameters for iglm Estimation
+#' @title Set Control Parameters for iglm Estimation
 #'
 #' @description
 #' Create a list of control parameters for the `iglm` estimation algorithm.

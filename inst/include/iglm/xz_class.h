@@ -18,10 +18,15 @@ public:
   std::vector<std::vector<int>> neighborhood;
   std::vector<std::vector<int>> adj_list_nb;
   std::vector<std::vector<int>> adj_list_in_nb;
+  std::vector<int> out_degrees_nb;
+  std::vector<int> in_degrees_nb;
   std::vector<char> overlap_bool_mat;
   std::vector<char> neighborhood_bool_mat;
   arma::mat overlap_mat;
   std::vector<int> all_actors;
+  
+  std::vector<std::pair<int, int>> active_edges_nb;
+  std::vector<int> active_edges_nb_idx;
 
   int N_total_overlap;
   int N_1_overlap;

@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimation.R
 \name{control.iglm}
 \alias{control.iglm}
-\title{Set Control Parameters for iglm Estimation}
+\title{Set Control Parameters for IGLM Estimation}
 \usage{
 control.iglm(
   estimate_model = TRUE,

@@ -290,28 +290,17 @@ arma::vec xyz_count_global_internal(const XYZ_class& object,
 
 void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
                                           XYZ_class &object,
-                                          const int seed,
                                           const std::vector<arma::mat> &data_list,
                                           const std::vector<double> &type_list,
                                           const bool &is_full_neighborhood,
                                           const std::vector<xyz_ValidateFunction> &functions,
                                           arma::vec &global_stats, 
                                           const double offset_nonoverlap) {
-  int n_proposals = object.n_actor * (object.n_actor -1)/(object.z_network.directed ? 1 : 2);
-  
   std::string z = "z";
-  // double MR;
-  arma::mat HR;
-  // change_staCt = arma::vec(n_elem);
   arma::vec change_stat(functions.size());
-  set_seed(seed);
-  
-  NumericVector random_accept= runif(n_proposals,0,1);
-  
   arma::vec tmp_vec, tmp_stat;
   
   // Go through a loop for all actor changes
-  int a = 0; 
   if(object.z_network.directed){
     for(int i = 1; i <=(object.n_actor); ++i) {
       for(int j = 1; j <=(object.n_actor); ++j) {
@@ -333,9 +322,9 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
         tmp_stat=change_stat;
         
-        HR= exp(coef.t()*tmp_stat +offset_nonoverlap)/(exp(coef.t()*tmp_stat +offset_nonoverlap)+1);
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::as_scalar(arma::dot(coef, tmp_stat)) - offset_nonoverlap));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
-        if(random_accept(a)<HR.at(0)){
+        if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
             object.add_edge(i,j);
             global_stats += tmp_stat;
@@ -346,7 +335,6 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
             object.delete_edge(i,j);
           }
         }
-        ++ a; 
       }
     }  
   } else {
@@ -366,9 +354,9 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
                                    functions);
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
         tmp_stat=change_stat;
-        HR= exp(coef.t()*tmp_stat +offset_nonoverlap)/(exp(coef.t()*tmp_stat +offset_nonoverlap)+1);
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::as_scalar(arma::dot(coef, tmp_stat)) - offset_nonoverlap));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
-        if(random_accept(a)<HR.at(0)){
+        if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
             object.add_edge(i,j);
             global_stats += tmp_stat;
@@ -379,7 +367,6 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
             object.delete_edge(i,j);
           } 
         }
-        ++ a; 
       }
     }
   }
@@ -390,24 +377,16 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
 void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegrees,
                                                   const arma::vec &coef_degrees,
                                                   XYZ_class &object,
-                                                  const int seed,
                                                   const std::vector<arma::mat> &data_list,
                                                   const std::vector<double> &type_list,
                                                   const bool &is_full_neighborhood,
                                                   const std::vector<xyz_ValidateFunction> &functions,
                                                   arma::vec &global_stats, 
                                                   const double offset_nonoverlap) {
-  int n_proposals = object.n_actor * (object.n_actor -1)/(object.z_network.directed ? 1 : 2);
   std::string z = "z";
-  // double MR;
-  arma::mat HR;
-  // change_staCt = arma::vec(n_elem);
   arma::vec change_stat(functions.size());
-  set_seed(seed);
   
-  NumericVector random_accept= runif(n_proposals,0,1);
   // Go through a loop for all actor changes
-  int a = 0; 
   if(object.z_network.directed){
     for(int i = 1; i <=(object.n_actor); ++i) {
       double coef_degrees_i = coef_degrees(i-1); 
@@ -431,11 +410,9 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
         // Rcout << "Got CS" << std::endl;
         
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
-        HR= exp(coef_nondegrees.t()*change_stat + offset_nonoverlap +
-          (coef_degrees_i + coef_degrees(j-1+object.n_actor)));
-        HR= HR/(HR+1);
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::as_scalar(arma::dot(coef_nondegrees, change_stat)) - offset_nonoverlap - (coef_degrees_i + coef_degrees(j-1+object.n_actor))));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
-        if(random_accept(a)<HR.at(0)){
+        if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
             object.add_edge(i,j);
             global_stats += change_stat;
@@ -446,7 +423,6 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
             object.delete_edge(i,j);
           }
         }
-        ++ a; 
       }
     }
   } else {
@@ -466,12 +442,9 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
                                    is_full_neighborhood,
                                    functions);
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
-        HR= exp(coef_nondegrees.t()*change_stat + offset_nonoverlap +
-          (coef_degrees_i + coef_degrees(j-1)));
-        
-        HR= HR/(HR+1);
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::as_scalar(arma::dot(coef_nondegrees, change_stat)) - offset_nonoverlap - (coef_degrees_i + coef_degrees(j-1))));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
-        if(random_accept(a)<HR.at(0)){
+        if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
             object.add_edge(i,j);
             global_stats += change_stat;
@@ -482,7 +455,6 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
             object.delete_edge(i,j);
           }
         }
-        ++ a; 
       }
     }
   }
@@ -491,23 +463,18 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
 
 void xyz_simulate_network_consecutive_mh_directed(const arma::vec &coef,
                                                   XYZ_class &object,
-                                                  const int seed,
                                                   const std::vector<arma::mat> &data_list,
                                                   const std::vector<double> &type_list,
                                                   const bool &is_full_neighborhood,
                                                   const std::vector<xyz_ValidateFunction> &functions,
                                                   arma::vec &global_stats, 
                                                   const double offset_nonoverlap) {
-  int n_proposals = object.n_actor * (object.n_actor - 1) / 2;
   std::string z = "z";
   
   arma::vec change_stat_10(functions.size());
   arma::vec change_stat_01(functions.size());
   arma::vec change_stat_11_given_10(functions.size());
   
-  set_seed(seed);
-  NumericVector random_accept = runif(n_proposals, 0, 1);
-  int a = 0; 
   
   for(int i = 1; i <= (object.n_actor - 1); ++i) {
     for(int j = i + 1; j <= object.n_actor; ++j) {
@@ -536,9 +503,9 @@ void xyz_simulate_network_consecutive_mh_directed(const arma::vec &coef,
       object.delete_edge(i, j); 
       
       double log_P_00 = 0.0;
-      double log_P_10 = arma::as_scalar(coef.t() * change_stat_10) + offset_nonoverlap;
-      double log_P_01 = arma::as_scalar(coef.t() * change_stat_01) + offset_nonoverlap;
-      double log_P_11 = arma::as_scalar(coef.t() * (change_stat_10 + change_stat_11_given_10)) + 2.0 * offset_nonoverlap;
+      double log_P_10 = arma::as_scalar(arma::dot(coef, change_stat_10)) + offset_nonoverlap;
+      double log_P_01 = arma::as_scalar(arma::dot(coef, change_stat_01)) + offset_nonoverlap;
+      double log_P_11 = arma::as_scalar(arma::dot(coef, change_stat_10 + change_stat_11_given_10)) + 2.0 * offset_nonoverlap;
       
       double max_log_P = std::max({log_P_00, log_P_10, log_P_01, log_P_11});
       double P_00 = std::exp(log_P_00 - max_log_P);
@@ -551,7 +518,7 @@ void xyz_simulate_network_consecutive_mh_directed(const arma::vec &coef,
       P_10 /= sum_P;
       P_01 /= sum_P;
       
-      double r = random_accept(a);
+      double r = R::unif_rand();
       
       if (r < P_00) {
         // stay (0,0)
@@ -566,7 +533,6 @@ void xyz_simulate_network_consecutive_mh_directed(const arma::vec &coef,
         object.add_edge(j, i);
         global_stats += change_stat_10 + change_stat_11_given_10;
       }
-      ++a;
     }
   }
 }
@@ -574,23 +540,18 @@ void xyz_simulate_network_consecutive_mh_directed(const arma::vec &coef,
 void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_nondegrees,
                                                           const arma::vec &coef_degrees,
                                                           XYZ_class &object,
-                                                          const int seed,
                                                           const std::vector<arma::mat> &data_list,
                                                           const std::vector<double> &type_list,
                                                           const bool &is_full_neighborhood,
                                                           const std::vector<xyz_ValidateFunction> &functions,
                                                           arma::vec &global_stats, 
                                                           const double offset_nonoverlap) {
-  int n_proposals = object.n_actor * (object.n_actor - 1) / 2;
   std::string z = "z";
   
   arma::vec change_stat_10(functions.size());
   arma::vec change_stat_01(functions.size());
   arma::vec change_stat_11_given_10(functions.size());
   
-  set_seed(seed);
-  NumericVector random_accept = runif(n_proposals, 0, 1);
-  int a = 0; 
   
   for(int i = 1; i <= (object.n_actor - 1); ++i) {
     for(int j = i + 1; j <= object.n_actor; ++j) {
@@ -620,9 +581,9 @@ void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_
       double deg_ji = coef_degrees(j - 1) + coef_degrees(i - 1 + object.n_actor);
       
       double log_P_00 = 0.0;
-      double log_P_10 = arma::as_scalar(coef_nondegrees.t() * change_stat_10) + offset_nonoverlap + deg_ij;
-      double log_P_01 = arma::as_scalar(coef_nondegrees.t() * change_stat_01) + offset_nonoverlap + deg_ji;
-      double log_P_11 = arma::as_scalar(coef_nondegrees.t() * (change_stat_10 + change_stat_11_given_10)) + 2.0 * offset_nonoverlap + deg_ij + deg_ji;
+      double log_P_10 = arma::as_scalar(arma::dot(coef_nondegrees, change_stat_10)) + offset_nonoverlap + deg_ij;
+      double log_P_01 = arma::as_scalar(arma::dot(coef_nondegrees, change_stat_01)) + offset_nonoverlap + deg_ji;
+      double log_P_11 = arma::as_scalar(arma::dot(coef_nondegrees, change_stat_10 + change_stat_11_given_10)) + 2.0 * offset_nonoverlap + deg_ij + deg_ji;
       
       double max_log_P = std::max({log_P_00, log_P_10, log_P_01, log_P_11});
       double P_00 = std::exp(log_P_00 - max_log_P);
@@ -635,7 +596,7 @@ void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_
       P_10 /= sum_P;
       P_01 /= sum_P;
       
-      double r = random_accept(a);
+      double r = R::unif_rand();
       
       if (r < P_00) {
         // stay (0,0)
@@ -650,7 +611,6 @@ void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_
         object.add_edge(j, i);
         global_stats += change_stat_10 + change_stat_11_given_10;
       }
-      ++a;
     }
   }
 }
@@ -658,7 +618,6 @@ void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_
 void xyz_simulate_network_mh(const arma::vec coef,
                              XYZ_class &object,
                              const int &n_proposals,
-                             const int seed,
                              const std::vector<arma::mat> &data_list,
                              const std::vector<double> &type_list,
                              const bool &is_full_neighborhood,
@@ -672,8 +631,6 @@ void xyz_simulate_network_mh(const arma::vec coef,
   arma::mat HR;
   arma::vec change_stat(functions.size());
   
-  set_seed(seed);
-  NumericVector random_accept = runif(n_proposals, 0, 1);
   arma::vec tmp_stat;
   int multiplier = 1;
   int tmp_i, tmp_j, proposal_idx, tmp_switch; 
@@ -702,12 +659,10 @@ void xyz_simulate_network_mh(const arma::vec coef,
       bool propose_drop = R::unif_rand() < p_drop_forward;
       
       if (propose_drop) {
-        // Rejection sample strictly an existing edge within the overlap
-        do {
-          proposal_idx = (int)(R::unif_rand() * object.overlap_mat.n_rows);
-          tmp_i = object.overlap_mat(proposal_idx, 0);
-          tmp_j = object.overlap_mat(proposal_idx, 1);
-        } while (!object.z_network.get_val(tmp_i, tmp_j));
+        int target_edge_idx = (int)(R::unif_rand() * object.active_edges_nb.size());
+        auto edge = object.active_edges_nb[target_edge_idx];
+        tmp_i = edge.first;
+        tmp_j = edge.second;
         
         double p_add_reverse = (object.N_1_overlap - 1 == 0) ? 1.0 : ((N_0_overlap + 1 == 0) ? 0.0 : 0.5);
         hr_adj = std::log(p_add_reverse / p_drop_forward) + std::log((double)object.N_1_overlap / (double)(N_0_overlap + 1));
@@ -753,9 +708,9 @@ void xyz_simulate_network_mh(const arma::vec coef,
     tmp_stat = change_stat * multiplier;
     
     // Non-overlap offset removed; mathematically impossible to propose outside overlap
-    HR = exp(coef.t() * tmp_stat + hr_adj);
+    double HR_val = std::exp(arma::as_scalar(arma::dot(coef, tmp_stat)) + hr_adj);
     
-    if (random_accept(a) < HR.at(0)) {
+    if (R::unif_rand() < HR_val) {
       // accepted_proposals++;
       global_stats += tmp_stat;
       if (proposed_change == 0) {
@@ -774,7 +729,6 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
                                      const arma::vec coef_degrees,
                                      XYZ_class &object,
                                      const int &n_proposals,
-                                     const int seed,
                                      const std::vector<arma::mat> &data_list,
                                      const std::vector<double> &type_list,
                                      const bool &is_full_neighborhood,
@@ -788,8 +742,6 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
   arma::mat HR;
   arma::vec change_stat(functions.size());
   
-  set_seed(seed);
-  NumericVector random_accept = runif(n_proposals, 0, 1);
   arma::vec tmp_stat;
   int multiplier = 1;
   int tmp_i, tmp_j, proposal_idx, tmp_switch; 
@@ -816,11 +768,10 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
       bool propose_drop = R::unif_rand() < p_drop_forward;
       
       if (propose_drop) {
-        do {
-          proposal_idx = (int)(R::unif_rand() * object.overlap_mat.n_rows);
-          tmp_i = object.overlap_mat(proposal_idx, 0);
-          tmp_j = object.overlap_mat(proposal_idx, 1);
-        } while (!object.z_network.get_val(tmp_i, tmp_j));
+        int target_edge_idx = (int)(R::unif_rand() * object.active_edges_nb.size());
+        auto edge = object.active_edges_nb[target_edge_idx];
+        tmp_i = edge.first;
+        tmp_j = edge.second;
         
         double p_add_reverse = (object.N_1_overlap - 1 == 0) ? 1.0 : ((N_0_overlap + 1 == 0) ? 0.0 : 0.5);
         hr_adj = std::log(p_add_reverse / p_drop_forward) + std::log((double)object.N_1_overlap / (double)(N_0_overlap + 1));
@@ -865,21 +816,20 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
     tmp_stat = change_stat * multiplier;
     
     if (object.z_network.directed) {
-      HR = exp(coef_nondegrees.t() * tmp_stat + hr_adj + 
+      double HR_val = std::exp(arma::as_scalar(arma::dot(coef_nondegrees, tmp_stat)) + hr_adj + 
         multiplier * (coef_degrees(tmp_i - 1) + coef_degrees(tmp_j - 1 + object.n_actor)));
+      if (R::unif_rand() < HR_val) {
+        global_stats += tmp_stat;
+        if (proposed_change == 0) object.delete_edge(tmp_i, tmp_j);
+        if (proposed_change == 1) object.add_edge(tmp_i, tmp_j);
+      }
     } else {
-      HR = exp(coef_nondegrees.t() * tmp_stat + hr_adj + 
+      double HR_val = std::exp(arma::as_scalar(arma::dot(coef_nondegrees, tmp_stat)) + hr_adj + 
         multiplier * (coef_degrees(tmp_i - 1) + coef_degrees(tmp_j - 1)));  
-    }
-    
-    if (random_accept(a) < HR.at(0)) {
-      // accepted_proposals++;
-      global_stats += tmp_stat;
-      if (proposed_change == 0) {
-        object.delete_edge(tmp_i, tmp_j);
-      } 
-      if (proposed_change == 1) {
-        object.add_edge(tmp_i, tmp_j);
+      if (R::unif_rand() < HR_val) {
+        global_stats += tmp_stat;
+        if (proposed_change == 0) object.delete_edge(tmp_i, tmp_j);
+        if (proposed_change == 1) object.add_edge(tmp_i, tmp_j);
       }
     }
   }
@@ -890,7 +840,6 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
 void xyz_simulate_attribute_mh( const arma::vec coef,
                                 XYZ_class &object,
                                 const int &n_proposals,
-                                const int seed,
                                 const  std::vector<arma::mat> &data_list,
                                 const std::vector<double> &type_list,
                                 const bool &is_full_neighborhood,
@@ -901,11 +850,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
     return;
   }
   int proposed_change;
-  arma::vec HR;
-  set_seed(seed);
   arma::vec change_stat(functions.size());
-  
-  NumericVector random_accept= runif(n_proposals,0,1);
   arma::vec tmp_stat(functions.size());
   int multiplier;
   int tmp_i; 
@@ -936,10 +881,10 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         }  
         // 3. Step: Calculate the Hastings Ratios
         tmp_stat=change_stat*multiplier;
-        HR= exp(coef.t()*tmp_stat);
+        double HR_val = std::exp(arma::as_scalar(arma::dot(coef, tmp_stat)));
         
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
-        if(random_accept(a)<HR.at(0)){
+        if(R::unif_rand() < HR_val){
           global_stats += (multiplier * 1.0) * change_stat;
           // Here we modify the network
           if(proposed_change == 0){
@@ -950,16 +895,14 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         }
       }
       if(object.x_attribute.type == "poisson"){
-        tmp = coef.t()*change_stat;
-        // Rcout << tmp << std::endl;
-        double safe_eta = std::min(tmp.at(0), MAX_LOG_RATE);
+        double safe_eta = std::min(arma::as_scalar(arma::dot(coef, change_stat)), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats += (tmp_val - object.x_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
       if(object.x_attribute.type == "normal"){
-        HR= coef.t()*change_stat;
-        double tmp_val = R::rnorm(HR.at(0), sqrt(object.x_attribute.scale)); 
+        double HR_val = arma::as_scalar(arma::dot(coef, change_stat));
+        double tmp_val = R::rnorm(HR_val, sqrt(object.x_attribute.scale)); 
         global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i))/object.x_attribute.scale * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
@@ -975,9 +918,9 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         }
         // 3. Step: Calculate the Hastings Ratios
         tmp_stat=change_stat*multiplier;
-        HR= exp(coef.t()*tmp_stat);
+        double HR_val = std::exp(arma::as_scalar(arma::dot(coef, tmp_stat)));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
-        if(random_accept(a)<HR.at(0)){
+        if(R::unif_rand() < HR_val){
           global_stats += (multiplier * 1.0 / object.y_attribute.scale) * change_stat;
           // Here we modify the network
           if(proposed_change == 0){
@@ -988,15 +931,14 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         }
       }
       if(object.y_attribute.type == "poisson"){
-        tmp = coef.t()*change_stat;
-        double safe_eta = std::min(tmp.at(0), MAX_LOG_RATE);
+        double safe_eta = std::min(arma::as_scalar(arma::dot(coef, change_stat)), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats +=  (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
       if(object.y_attribute.type == "normal"){
-        HR= coef.t()*change_stat;
-        double tmp_val = R::rnorm(HR.at(0), sqrt(object.y_attribute.scale)); 
+        double HR_val = arma::as_scalar(arma::dot(coef, change_stat));
+        double tmp_val = R::rnorm(HR_val, sqrt(object.y_attribute.scale)); 
         global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i))/object.y_attribute.scale * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
@@ -1041,6 +983,10 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
   std::string x, y; 
   x = "x";
   y = "y";
+  if (seed_z > 0) {
+    Rcpp::Function set_seed_r("set.seed");
+    set_seed_r(seed_z);
+  }
   Progress p(n_simulation + n_burn_in, display_progress);
   // Start for a burn in period with the normal number of proposals
   // Intialize global statistics and then adapt them peu a peu
@@ -1053,7 +999,7 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
       // Rcout << "Sampling X| Y,Z" << std::endl;
       // Sample X| Y,Z
       xyz_simulate_attribute_mh(coef,object,
-                                n_proposals_x,seed_x +i,
+                                n_proposals_x,
                                 data_list, 
                                 type_list,
                                 is_full_neighborhood, 
@@ -1063,7 +1009,7 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
     // Rcout << "Sampling Y| X,Z" << std::endl;
     // Sample Y| X,Z
     xyz_simulate_attribute_mh(coef,object,
-                              n_proposals_y,seed_y +i,
+                              n_proposals_y,
                               data_list, type_list,
                               is_full_neighborhood, functions,
                               global_stats, y);
@@ -1074,13 +1020,13 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
         xyz_simulate_network_mh_degrees(coef,
                                         coef_degrees,
                                         object,
-                                        n_proposals_z, seed_z +i,
+                                        n_proposals_z,
                                         data_list, type_list,
                                         is_full_neighborhood, functions,
                                         global_stats, tnt); 
       } else {
         xyz_simulate_network_mh(coef,object,
-                                n_proposals_z, seed_z +i,
+                                n_proposals_z,
                                 data_list, type_list,
                                 is_full_neighborhood, functions,
                                 global_stats, tnt);  
@@ -1090,13 +1036,11 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
         if(degrees){
           xyz_simulate_network_consecutive_degrees_mh(coef,
                                                       coef_degrees,object,
-                                                      seed_z*2 +i,
                                                       data_list, type_list,
                                                       is_full_neighborhood, functions,
                                                       global_stats, offset_nonoverlap);
         } else {
           xyz_simulate_network_consecutive_mh(coef,object,
-                                              seed_z*2 +i,
                                               data_list, type_list,
                                               is_full_neighborhood, functions,
                                               global_stats, offset_nonoverlap);
@@ -3636,6 +3580,10 @@ List xyz_approximate_variability(arma::vec& coef,
       z_tmp.at(i) = 1;
   }
   // arma::vec gradient_tmp;
+  if (seed_z > 0) {
+    Rcpp::Function set_seed_r("set.seed");
+    set_seed_r(seed_z);
+  }
   for(int i = 1; i <=(n_simulation+n_burn_in);i ++) {
     Rcpp::checkUserInterrupt();
     // Rcout << "Updated Global Statistics: " << global_stats.t() << std::endl;
@@ -3647,7 +3595,7 @@ List xyz_approximate_variability(arma::vec& coef,
     if(!fix_x){
       // Sample X| Y,Z
       xyz_simulate_attribute_mh(coef,object,
-                                n_proposals_x,seed_x +i,
+                                n_proposals_x,
                                 data_list,
                                 type_list,
                                 is_full_neighborhood,
@@ -3656,7 +3604,7 @@ List xyz_approximate_variability(arma::vec& coef,
     }
     // Sample Y| X,Z
     xyz_simulate_attribute_mh(coef,object,
-                              n_proposals_y,seed_y +i,
+                              n_proposals_y,
                               data_list, type_list,
                               is_full_neighborhood, functions,
                               global_stats, "y");
@@ -3666,13 +3614,13 @@ List xyz_approximate_variability(arma::vec& coef,
         xyz_simulate_network_mh_degrees(coef,
                                         coef_degrees,
                                         object,
-                                        n_proposals_z, seed_z +i,
+                                        n_proposals_z,
                                         data_list, type_list,
                                         is_full_neighborhood, functions,
                                         global_stats, tnt); 
       } else {
         xyz_simulate_network_mh(coef,object,
-                                n_proposals_z, seed_z +i,
+                                n_proposals_z,
                                 data_list, type_list,
                                 is_full_neighborhood, functions,
                                 global_stats,  tnt);  
@@ -3682,25 +3630,25 @@ List xyz_approximate_variability(arma::vec& coef,
         if(degrees){
           if(object.z_network.directed) {
             xyz_simulate_network_consecutive_degrees_mh_directed(coef,
-                                                        coef_degrees,object, seed_z*2 +i,
+                                                        coef_degrees,object,
                                                         data_list, type_list,
                                                         is_full_neighborhood, functions,
                                                         global_stats, offset_nonoverlap);
           } else {
             xyz_simulate_network_consecutive_degrees_mh(coef,
-                                                        coef_degrees,object, seed_z*2 +i,
+                                                        coef_degrees,object,
                                                         data_list, type_list,
                                                         is_full_neighborhood, functions,
                                                         global_stats, offset_nonoverlap);
           }
         } else {
           if(object.z_network.directed) {
-            xyz_simulate_network_consecutive_mh_directed(coef,object,seed_z*2 +i,
+            xyz_simulate_network_consecutive_mh_directed(coef,object,
                                                 data_list, type_list,
                                                 is_full_neighborhood, functions,
                                                 global_stats, offset_nonoverlap);
           } else {
-            xyz_simulate_network_consecutive_mh(coef,object,seed_z*2 +i,
+            xyz_simulate_network_consecutive_mh(coef,object,
                                                 data_list, type_list,
                                                 is_full_neighborhood, functions,
                                                 global_stats, offset_nonoverlap);

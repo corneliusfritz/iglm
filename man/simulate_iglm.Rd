@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{simulate_iglm}
 \alias{simulate_iglm}
-\title{Simulate responses and connections}
+\title{Simulate Responses and Connections}
 \usage{
 simulate_iglm(
   formula,

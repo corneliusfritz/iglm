@@ -336,7 +336,7 @@ auto xyz_stat_edges_x_out_nb= CHANGESTAT{
     Rcpp::stop("This statistic is only for directed networks");  
   }
   if(mode == "x"){
-    return(object.adj_list_nb.at(unit_i).size());
+    return(object.out_degrees_nb[unit_i]);
   } else if(mode == "z"){  
     return(object.x_attribute.get_val(unit_i)*object.get_val_overlap(unit_i,unit_j));
   }else { 
@@ -556,13 +556,13 @@ auto xyz_stat_edges_x_out= CHANGESTAT{
     Rcpp::stop("This statistic is only for directed networks");  
   }
   if(mode == "x"){
-    return(object.z_network.adj_list.at(unit_i).size());
+    return(object.z_network.out_degrees[unit_i]);
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(unit_i));
   }else {
     return(0);
   }
-};
+}; 
 EFFECT_REGISTER("outedges_x_global", ::xyz_stat_edges_x_out, "outedges_x_global", 0);
 
 auto xyz_stat_edges_x_in_nb= CHANGESTAT{
@@ -571,13 +571,13 @@ auto xyz_stat_edges_x_in_nb= CHANGESTAT{
   }
   
   if(mode == "x"){
-    return(object.adj_list_in_nb.at(unit_i).size());
+    return(object.in_degrees_nb[unit_i]);
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(unit_j)*object.get_val_overlap(unit_i, unit_j));
   }else {
     return(0);
   }
-};
+}; 
 EFFECT_REGISTER("inedges_x_local", ::xyz_stat_edges_x_in_nb, "inedges_x_local", 0);
 
 auto xyz_stat_edges_x_in_nonb= CHANGESTAT{
@@ -611,13 +611,13 @@ auto xyz_stat_edges_x_in= CHANGESTAT{
   }
   
   if(mode == "x"){
-    return(object.z_network.adj_list_in.at(unit_i).size());
+    return(object.z_network.in_degrees[unit_i]);
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(unit_j));
   }else {
     return(0);
   }
-};
+}; 
 EFFECT_REGISTER("inedges_x_global", ::xyz_stat_edges_x_in, "inedges_x_global", 0);
 
 
@@ -1143,19 +1143,17 @@ auto xyz_stat_spillover_yx_scaled_global = CHANGESTAT{
     
   } else if (mode == "y"){
     if(object.z_network.directed){
-      auto& out_neighbors = object.z_network.adj_list.at(unit_i);
       double S_i = 0;
-      double deg_i = out_neighbors.size();
-      for (int j : out_neighbors) {
+      double deg_i = object.z_network.out_degrees[unit_i];
+      for (int j : object.z_network.adj_list.at(unit_i)) {
         S_i += object.x_attribute.get_val(j);
       }
       
       return (deg_i > 0.5) ? (S_i / deg_i) : 0.0;
     } else{
-      auto& out_neighbors = object.z_network.adj_list.at(unit_i);
       double S_i = 0;
-      double deg_i = out_neighbors.size();
-      for (int j : out_neighbors) {
+      double deg_i = object.z_network.out_degrees[unit_i];
+      for (int j : object.z_network.adj_list.at(unit_i)) {
         S_i += object.x_attribute.get_val(j);
       } 
       
@@ -1283,7 +1281,7 @@ auto xyz_stat_spillover_yx_scaled = CHANGESTAT{
       
       for (int k : in_neighbors) {
         if (object.get_val_overlap(k, unit_i)) {
-          double deg_k = object.adj_list_nb.at(k).size();
+          double deg_k = object.out_degrees_nb[k];
           if (deg_k > 0.5) {
             double Y_k = object.y_attribute.get_val(k);
             res += Y_k * (1.0 / deg_k);
@@ -1448,7 +1446,7 @@ auto xyz_stat_spillover_xy_scaled = CHANGESTAT{
       
       for (int k : in_neighbors) {
         if (object.get_val_overlap(k, unit_i)) {
-          double deg_k = object.adj_list_nb.at(k).size();
+          double deg_k = object.out_degrees_nb[k];
           if (deg_k > 0.5) {
             double X_k = object.x_attribute.get_val(k);
             res += X_k * (1.0 / deg_k);
@@ -1607,7 +1605,7 @@ auto xyz_stat_spillover_xy_scaled_global = CHANGESTAT{
       auto& in_neighbors = object.z_network.adj_list_in.at(unit_i);
       
       for (int k : in_neighbors) {
-        double deg_k = object.z_network.adj_list.at(k).size();
+        double deg_k = object.z_network.out_degrees[k];
         if (deg_k > 0.5) {
           double X_k = object.x_attribute.get_val(k);
           res += X_k * (1.0 / deg_k);
@@ -1619,7 +1617,7 @@ auto xyz_stat_spillover_xy_scaled_global = CHANGESTAT{
       auto& neighbors = object.z_network.adj_list.at(unit_i);
       
       for (int k : neighbors) {
-        double deg_k = object.z_network.adj_list.at(k).size();
+        double deg_k = object.z_network.out_degrees[k];
         if (deg_k > 0.5) {
           double X_k = object.x_attribute.get_val(k);
           res += X_k * (1.0 / deg_k);
@@ -2402,13 +2400,13 @@ auto xyz_stat_nonisolates= CHANGESTAT{
   if(mode == "z"){ 
     int degree_i,degree_j;  
     if(object.z_network.directed){
-      degree_i = object.z_network.adj_list.at(unit_i).size() + 
-        object.z_network.adj_list_in.at(unit_i).size();
-      degree_j = object.z_network.adj_list.at(unit_j).size() + 
-        object.z_network.adj_list_in.at(unit_j).size();
+      degree_i = object.z_network.out_degrees[unit_i] + 
+        object.z_network.in_degrees[unit_i];
+      degree_j = object.z_network.out_degrees[unit_j] + 
+        object.z_network.in_degrees[unit_j];
     } else {
-      degree_i = object.z_network.adj_list.at(unit_i).size();
-      degree_j = object.z_network.adj_list.at(unit_j).size();
+      degree_i = object.z_network.out_degrees[unit_i];
+      degree_j = object.z_network.out_degrees[unit_j];
     }
     // If the edge is already there, we need to substract one of the degrees
     if(object.z_network.get_val(unit_i, unit_j)){
@@ -2427,13 +2425,13 @@ auto xyz_stat_isolates= CHANGESTAT{
     arma::vec res(3);
     int degree_i,degree_j;  
     if(object.z_network.directed){
-      degree_i = object.z_network.adj_list.at(unit_i).size() + 
-        object.z_network.adj_list_in.at(unit_i).size();
-      degree_j = object.z_network.adj_list.at(unit_j).size() + 
-        object.z_network.adj_list_in.at(unit_j).size();
+      degree_i = object.z_network.out_degrees[unit_i] + 
+        object.z_network.in_degrees[unit_i];
+      degree_j = object.z_network.out_degrees[unit_j] + 
+        object.z_network.in_degrees[unit_j];
     } else {
-      degree_i = object.z_network.adj_list.at(unit_i).size();
-      degree_j = object.z_network.adj_list.at(unit_j).size();
+      degree_i = object.z_network.out_degrees[unit_i];
+      degree_j = object.z_network.out_degrees[unit_j];
     } 
     // If the edge is already there, we need to substract one of the degrees
     if(object.z_network.get_val(unit_i, unit_j)){
@@ -3050,7 +3048,7 @@ auto xyz_stat_gwidegree= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));  
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
-    double tmp_count = object.z_network.adj_list_in.at(unit_j).size();
+    double tmp_count = object.z_network.in_degrees[unit_j];
     if (edge_exists) {
       tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
     }
@@ -3065,14 +3063,14 @@ auto xyz_stat_gwodegree= CHANGESTAT{
   if(mode == "z"){
     double expo_min = (1-exp(-data.at(0,0)));
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
-    double tmp_count = object.z_network.adj_list.at(unit_i).size();
+    double tmp_count = object.z_network.out_degrees[unit_i];
     if (edge_exists) {
       tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
     }
     double res = pow(expo_min, tmp_count);
     // Add Node j contribution for undirected networks
     if (!object.z_network.directed) {
-      double tmp_count_j = object.z_network.adj_list.at(unit_j).size();
+      double tmp_count_j = object.z_network.out_degrees[unit_j];
       if (edge_exists) {
         tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1) : 0.0; 
       }
@@ -3096,7 +3094,7 @@ auto xyz_stat_gwidegree_local= CHANGESTAT{
       return(0);
     }
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
-    double tmp_count = object.adj_list_in_nb.at(unit_j).size();
+    double tmp_count = object.in_degrees_nb[unit_j];
     if (edge_exists) {
       tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
     }
@@ -3114,14 +3112,14 @@ auto xyz_stat_gwodegree_local= CHANGESTAT{
       return(0);
     }
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
-    double tmp_count = object.adj_list_nb.at(unit_i).size();
+    double tmp_count = object.out_degrees_nb[unit_i];
     if (edge_exists) {
       tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
     }
     double res = pow(expo_min, tmp_count);
     // Add Node j contribution for undirected networks
     if (!object.z_network.directed) {
-      double tmp_count_j = object.adj_list_nb.at(unit_j).size();
+      double tmp_count_j = object.out_degrees_nb[unit_j];
       if (edge_exists) {
         tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1) : 0.0; 
       }

@@ -17,6 +17,8 @@ public:
   std::vector<std::vector<int>> adj_list;
   std::vector<std::vector<int>> adj_list_in;
   std::vector<char> adj_mat;
+  std::vector<int> out_degrees;
+  std::vector<int> in_degrees;
 
   inline size_t get_mat_idx(int from, int to) const {
     if (from < 1 || from > n_actor || to < 1 || to > n_actor) {
