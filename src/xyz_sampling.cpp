@@ -322,7 +322,7 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
         tmp_stat=change_stat;
         
-        double HR_val = 1.0 / (1.0 + std::exp(-arma::as_scalar(arma::dot(coef, tmp_stat)) - offset_nonoverlap));
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::dot(coef, tmp_stat) - offset_nonoverlap));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
