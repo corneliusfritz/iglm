@@ -1,4 +1,4 @@
-# An Introduction to Estimating Joint Probability Models with \`iglm\`
+# Joint Modeling of Networks and Attributes with iglm
 
 ## Overview
 
@@ -7,14 +7,6 @@ designed for estimating joint probability models that incorporate
 network structures. The package allows users to analyze how individual
 attributes and network connections jointly influence outcomes of
 interest.
-
-## Basic Usage
-
-To use the `iglm` package, you first need to load it into your R session
-
-``` r
-library(iglm)
-```
 
 Next, you can create a `iglm` object by specifying the network structure
 and the attributes of interest. Here is a simple example:
@@ -106,7 +98,7 @@ model_tmp_new$estimate()
 model_tmp_new$iglm.data$degree_distribution(plot = TRUE)
 ```
 
-![](iglm_files/figure-html/unnamed-chunk-7-1.png)
+![](iglm_files/figure-html/unnamed-chunk-6-1.png)
 
 ## Model Assessment
 
@@ -118,10 +110,10 @@ model_tmp_new$assess(formula = ~ degree_distribution +
   geodesic_distances_distribution + edgewise_shared_partner_distribution + mcmc_diagnostics)
 ```
 
-![](iglm_files/figure-html/unnamed-chunk-8-1.png)![](iglm_files/figure-html/unnamed-chunk-8-2.png)![](iglm_files/figure-html/unnamed-chunk-8-3.png)![](iglm_files/figure-html/unnamed-chunk-8-4.png)![](iglm_files/figure-html/unnamed-chunk-8-5.png)![](iglm_files/figure-html/unnamed-chunk-8-6.png)
+![](iglm_files/figure-html/unnamed-chunk-7-1.png)![](iglm_files/figure-html/unnamed-chunk-7-2.png)![](iglm_files/figure-html/unnamed-chunk-7-3.png)![](iglm_files/figure-html/unnamed-chunk-7-4.png)![](iglm_files/figure-html/unnamed-chunk-7-5.png)![](iglm_files/figure-html/unnamed-chunk-7-6.png)
 
 ``` r
 model_tmp_new$results$plot(model_assessment = T)
 ```
 
-![](iglm_files/figure-html/unnamed-chunk-8-7.png)![](iglm_files/figure-html/unnamed-chunk-8-8.png)![](iglm_files/figure-html/unnamed-chunk-8-9.png)![](iglm_files/figure-html/unnamed-chunk-8-10.png)![](iglm_files/figure-html/unnamed-chunk-8-11.png)![](iglm_files/figure-html/unnamed-chunk-8-12.png)
+![](iglm_files/figure-html/unnamed-chunk-7-7.png)![](iglm_files/figure-html/unnamed-chunk-7-8.png)![](iglm_files/figure-html/unnamed-chunk-7-9.png)![](iglm_files/figure-html/unnamed-chunk-7-10.png)![](iglm_files/figure-html/unnamed-chunk-7-11.png)![](iglm_files/figure-html/unnamed-chunk-7-12.png)

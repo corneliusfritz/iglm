@@ -1,4 +1,4 @@
-# Construct a iglm Model Specification Object
+# Construct an iglm Model Specification Object
 
 `R` package `iglm` implements generalized linear models (GLMs) for
 studying relationships among attributes in connected populations, where
@@ -123,7 +123,6 @@ of Increasing Dimension. The Annals of Statistics, to appear.
 
 ``` r
 # Example usage:
-library(iglm)
 # Create a iglm.data data object (example)
 n_actor <- 50
 neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
@@ -164,5 +163,5 @@ model_tmp_new$estimate()
 # Model Assessment
 model_tmp_new$assess(formula = ~degree_distribution)
 
-# model_tmp_new$results$plot(assess = TRUE)
+model_tmp_new$results$plot(model_assessment = TRUE)
 ```

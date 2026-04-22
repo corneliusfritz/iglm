@@ -1,4 +1,4 @@
-# An R6 class for Network GLM (Generalized Linear Model) Objects
+# Network GLM (Generalized Linear Model) Objects (R6 Class)
 
 The \`iglm.object\` class encapsulates all components required to
 define, estimate, and simulate from a network generalized linear model.
@@ -258,7 +258,17 @@ available, they are printed in a standard coefficient table format.
 
 #### Usage
 
-    iglm.object.generator$print(digits = 4, rows = c(1, 2), formula_print = TRUE)
+    iglm.object.generator$print(
+      digits = max(3, getOption("digits") - 3),
+      rows = c(1, 2),
+      signif.stars = getOption("show.signif.stars"),
+      eps.Pvalue = 1e-04,
+      print.formula = TRUE,
+      print.fitinfo = TRUE,
+      print.coefmat = TRUE,
+      print.call = TRUE,
+      ...
+    )
 
 #### Arguments
 
@@ -268,15 +278,42 @@ available, they are printed in a standard coefficient table format.
 
 - `rows`:
 
-  numeric vector is provided with values between 1 and 4, only the
-  corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4:
-  Pr(\>\|t\|), 5: Global Count of Sufficient Statistic). Default is
+  If a numeric vector with values between 1 and 5 is provided, only the
+  corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value,
+  4: Pr(\>\|t\|), 5: Global Count of Sufficient Statistic). Default is
   \`c(1, 2)\` to show only estimates and standard errors.
 
-- `formula_print`:
+- `signif.stars`:
 
-  (logical) If \`TRUE\`, also prints the model formula. Default is
-  \`TRUE\`.
+  (logical) If \`TRUE\`, prints significance stars for the coefficients.
+  Default is \`getOption("show.signif.stars")\`.
+
+- `eps.Pvalue`:
+
+  (numeric) Tolerance for small p-values. Default is \`0.0001\`.
+
+- `print.formula`:
+
+  (logical) If \`TRUE\` (default), prints the model formula.
+
+- `print.fitinfo`:
+
+  (logical) If \`TRUE\` (default), prints information about the
+  estimation results.
+
+- `print.coefmat`:
+
+  (logical) If \`TRUE\` (default), prints the coefficient table.
+
+- `print.call`:
+
+  (logical) If \`TRUE\` (default), prints the call that generated the
+  object.
+
+- `...`:
+
+  Additional arguments passed to
+  [`printCoefmat`](https://rdrr.io/r/stats/printCoefmat.html).
 
 ------------------------------------------------------------------------
 
@@ -420,13 +457,18 @@ estimated first.
 
 #### Usage
 
-    iglm.object.generator$summary(digits = 3)
+    iglm.object.generator$summary(digits = max(3, getOption("digits") - 3), ...)
 
 #### Arguments
 
 - `digits`:
 
   (integer) Number of digits for rounding numeric output.
+
+- `...`:
+
+  Additional arguments passed to
+  [`printCoefmat`](https://rdrr.io/r/stats/printCoefmat.html).
 
 #### Returns
 

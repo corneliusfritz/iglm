@@ -1,4 +1,4 @@
-# R6 Class for Single Component Sampler Settings
+# Single Component Sampler Settings (R6 Class)
 
 The \`sampler_net_attr\` class is a simple R6 container used within the
 \`sampler.iglm\` class. It holds the MCMC sampling parameters for a

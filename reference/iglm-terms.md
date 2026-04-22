@@ -1,4 +1,4 @@
-# Model specification for iglm terms
+# Model Specification for iglm Terms
 
 The help pages of [`iglm`](iglm.md) describe the model with details on
 model fitting and estimation. Generally, a model is specified via it's

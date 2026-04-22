@@ -46,24 +46,24 @@ network-mediated phenomena.
   [`spillover_yy-term`](iglm-terms.md)
   [`spillover_xx-term`](iglm-terms.md)
   [`transitive-term`](iglm-terms.md) [`nonisolates-term`](iglm-terms.md)
-  [`isolates-term`](iglm-terms.md) : Model specification for iglm terms
-- [`iglm()`](iglm.md) : Construct a iglm Model Specification Object
+  [`isolates-term`](iglm-terms.md) : Model Specification for iglm Terms
+- [`iglm()`](iglm.md) : Construct an iglm Model Specification Object
 - [`iglm.data()`](iglm.data.md) : Constructor for the iglm.data R6
   object
-- [`iglm.data_generator`](iglm.data_generator.md) : A R6 class to
-  represent networks with unit-level attributes
-- [`iglm.object.generator`](iglm.object.generator.md) : An R6 class for
-  Network GLM (Generalized Linear Model) Objects
+- [`iglm.data_generator`](iglm.data_generator.md) : Networks with
+  Unit-Level Attributes (R6 Class)
+- [`iglm.object.generator`](iglm.object.generator.md) : Network GLM
+  (Generalized Linear Model) Objects (R6 Class)
 - [`results()`](results.md) : Constructor for the results R6 Object
-- [`results.generator`](results.generator.md) : R6 Class for Storing
-  iglm Estimation and Simulation Results
+- [`results.generator`](results.generator.md) : iglm Estimation and
+  Simulation Results (R6 Class)
 - [`sampler.iglm()`](sampler.iglm.md) : Constructor for a iglm Sampler
-- [`sampler.iglm.generator`](sampler.iglm.generator.md) : R6 Class for
-  iglm Sampler Settings
+- [`sampler.iglm.generator`](sampler.iglm.generator.md) : iglm Sampler
+  Settings (R6 Class)
 - [`sampler.net.attr()`](sampler.net.attr.md) : Constructor for Single
   Component Sampler Settings
-- [`sampler.net.attr.generator`](sampler.net.attr.generator.md) : R6
-  Class for Single Component Sampler Settings
+- [`sampler.net.attr.generator`](sampler.net.attr.generator.md) : Single
+  Component Sampler Settings (R6 Class)
 - [`simulate_iglm()`](simulate_iglm.md) : Simulate responses and
   connections
 - [`state_twitter`](state_twitter.md) : Twitter (X) data list for U.S.
@@ -74,5 +74,4 @@ network-mediated phenomena.
 
 ### All vignettes
 
-- [An Introduction to Estimating Joint Probability Models with
-  \`iglm\`](iglm.md):
+- [Joint Modeling of Networks and Attributes with iglm](iglm.md):

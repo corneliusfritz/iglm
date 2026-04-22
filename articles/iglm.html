@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>An Introduction to Estimating Joint Probability Models with `iglm` • iglm</title>
+<title>Joint Modeling of Networks and Attributes with iglm • iglm</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -15,7 +15,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="An Introduction to Estimating Joint Probability Models with `iglm`">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Joint Modeling of Networks and Attributes with iglm">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>An Introduction to Estimating Joint Probability Models with `iglm`</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Joint Modeling of Networks and Attributes with iglm</h1>
             
       
 
@@ -70,18 +70,10 @@ package, which is designed for estimating joint probability models that
 incorporate network structures. The package allows users to analyze how
 individual attributes and network connections jointly influence outcomes
 of interest.</p>
-</div>
-<div class="section level2">
-<h2 id="basic-usage">Basic Usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
-</h2>
-<p>To use the <code>iglm</code> package, you first need to load it into
-your R session</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">iglm</span><span class="op">)</span></span></code></pre></div>
 <p>Next, you can create a <code>iglm</code> object by specifying the
 network structure and the attributes of interest. Here is a simple
 example:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_actor</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span></span>
 <span><span class="va">attribute_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_actor</span><span class="op">)</span></span>
@@ -116,11 +108,11 @@ example:</p>
 </h2>
 <p>You can specify a model formula that includes various network
 statistics and attribute effects. For example:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="va">object</span> <span class="op">~</span> <span class="va">edges</span> <span class="op">+</span> <span class="va">attribute_y</span> <span class="op">+</span> <span class="va">attribute_x</span> <span class="op">+</span> <span class="va">degrees</span></span></code></pre></div>
 <p>To fully define the model, you need to set up a sampler for the MCMC
 estimation and set all necessary parameters:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Parameters of edges(mode = "local"), attribute_y, and attribute_x</span></span>
 <span><span class="va">gt_coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co"># Parameters for popularity effect</span></span>
@@ -145,7 +137,7 @@ estimation and set all necessary parameters:</p>
 </h2>
 <p>Once you have specified a model, you can simulate new data based on
 the fitted parameters:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Simulate new networks</span></span>
 <span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">simulate</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Get the samples</span></span>
@@ -156,25 +148,25 @@ the fitted parameters:</p>
 </h2>
 <p>You can estimate the model parameters using the <code>estimate</code>
 method:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First set the first simulated network as the target for estimation</span></span>
 <span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">set_target</span><span class="op">(</span><span class="va">tmp</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">estimate</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">model_tmp_new</span><span class="op">$</span><span class="va">iglm.data</span><span class="op">$</span><span class="fu">degree_distribution</span><span class="op">(</span>plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="iglm_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="iglm_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level2">
 <h2 id="model-assessment">Model Assessment<a class="anchor" aria-label="anchor" href="#model-assessment"></a>
 </h2>
 <p>After estimation, you can assess the model fit using various
 diagnostics:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="fu">assess</span><span class="op">(</span>formula <span class="op">=</span> <span class="op">~</span> <span class="va">degree_distribution</span> <span class="op">+</span></span>
 <span>  <span class="va">geodesic_distances_distribution</span> <span class="op">+</span> <span class="va">edgewise_shared_partner_distribution</span> <span class="op">+</span> <span class="va">mcmc_diagnostics</span><span class="op">)</span></span></code></pre></div>
-<p><img src="iglm_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-2.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-3.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-4.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-5.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-6.png" class="r-plt" alt="" width="100%"></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p><img src="iglm_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-2.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-3.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-4.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-5.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-6.png" class="r-plt" alt="" width="100%"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_tmp_new</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>model_assessment <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
-<p><img src="iglm_files/figure-html/unnamed-chunk-8-7.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-8.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-9.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-10.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-11.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-8-12.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="iglm_files/figure-html/unnamed-chunk-7-7.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-8.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-9.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-10.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-11.png" class="r-plt" alt="" width="100%"><img src="iglm_files/figure-html/unnamed-chunk-7-12.png" class="r-plt" alt="" width="100%"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

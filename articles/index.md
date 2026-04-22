@@ -2,5 +2,4 @@
 
 ### All vignettes
 
-- [An Introduction to Estimating Joint Probability Models with
-  \`iglm\`](iglm.md):
+- [Joint Modeling of Networks and Attributes with iglm](iglm.md):

@@ -1,4 +1,4 @@
-# R6 Class for Storing iglm Estimation and Simulation Results
+# iglm Estimation and Simulation Results (R6 Class)
 
 The \`results\` class stores estimation (\`\$estimate()\`) and
 simulation (\`\$simulate()\`) results.

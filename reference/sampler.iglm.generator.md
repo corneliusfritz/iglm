@@ -1,4 +1,4 @@
-# R6 Class for iglm Sampler Settings
+# iglm Sampler Settings (R6 Class)
 
 The \`sampler.iglm\` class is an R6 container for specifying and storing
 the parameters that control the MCMC (Markov Chain Monte Carlo) sampling
