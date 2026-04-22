@@ -433,14 +433,14 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param print.coefmat (logical) If `TRUE` (default), prints the coefficient table.
     #' @param print.call (logical) If `TRUE` (default), prints the call that generated the object.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    print = function(digits = 2, 
-                  rows = c(1, 2), 
-                  signif.stars = getOption("show.signif.stars"),
-                  eps.Pvalue = 0.0001, 
-                  print.formula = TRUE, 
-                  print.fitinfo = TRUE,
-                  print.coefmat = TRUE, 
-                  print.call = TRUE, ...) {
+    print = function(digits = 2,
+                     rows = c(1, 2),
+                     signif.stars = getOption("show.signif.stars"),
+                     eps.Pvalue = 0.0001,
+                     print.formula = TRUE,
+                     print.fitinfo = TRUE,
+                     print.coefmat = TRUE,
+                     print.call = TRUE, ...) {
       # Validation
       if (length(digits) != 1 || !is.numeric(digits) || digits < 0) {
         stop("`digits` must be a single non-negative integer.", call. = FALSE)
@@ -450,7 +450,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       call_out <- if (print.call && !is.null(private$.results$call)) {
         paste0("Call:\n", paste(deparse(private$.results$call), sep = "\n", collapse = "\n"), "\n\n")
       }
-      
+
       formula_out <- if (print.formula) {
         paste0("Formula:\n", paste(deparse(private$.formula), sep = "\n", collapse = "\n"), "\n\n")
       }
@@ -485,7 +485,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         if (print.coefmat) {
           # Capture output to determine width
           coef_table_print <- coef_table[, cols_to_print, drop = FALSE]
-          
+
           coefmat_out <- capture.output({
             printCoefmat(coef_table_print,
               digits = digits,
@@ -1223,9 +1223,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' # Define MCMC sampler
 #' sampler_new <- sampler.iglm(
 #'   n_burn_in = 100, n_simulation = 10,
-#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-#'   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134),
+#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+#'   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
 #'   init_empty = FALSE
 #' )
 #' # Create iglm model specification

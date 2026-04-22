@@ -11,6 +11,7 @@ sampler.iglm(
   n_simulation = 100,
   n_burn_in = 10,
   init_empty = TRUE,
+  seed = NA,
   cluster = NULL,
   file = NULL
 )
@@ -27,21 +28,21 @@ sample the `y_attribute`. If `NULL` (default), default settings are used.}
 sample the `z_network` ties *within* the defined neighborhood/overlap region.
 If `NULL` (default), default settings are used.}
 
-\item{n_simulation}{(integer) The number of independent samples (networks/attributes)
-to generate after the burn-in period. Default: 100. Must be non-negative.}
+\item{n_simulation}{(integer) The number of independent samples to generate
+after the burn-in period. Default: 100. Must be non-negative.}
 
-\item{n_burn_in}{(integer) The number of MCMC iterations to perform and discard
-at the beginning of the chain to allow it to reach approximate stationarity.
-Default: 10. Must be non-negative.}
+\item{n_burn_in}{(integer) The number of MCMC iterations to discard at the
+start for burn-in. Default: 10. Must be non-negative.}
 
-\item{init_empty}{(logical) If `TRUE` (default), initialize the MCMC chain from
-an empty state (e.g., empty network, attributes at zero or mean). If `FALSE`,
-the starting state might depend on the specific implementation.}
+\item{init_empty}{(logical) If `TRUE` (default), initialize the MCMC chain
+from an empty state.}
 
-\item{cluster}{A parallel cluster object (e.g., created with `parallel::makeCluster()`)
-to enable parallel execution of simulations. If `NULL` (default), simulations
-are run sequentially. Note: Cluster management (creation/stopping) is the
-user's responsibility.}
+\item{seed}{(integer or `NA`) A single integer seed set once before sampling
+begins to ensure reproducibility. If `NA` (default), a random seed is
+generated automatically.}
+
+\item{cluster}{A parallel cluster object (e.g., from `parallel::makeCluster()`)
+for parallel simulations. If `NULL` (default), simulations run sequentially.}
 
 \item{file}{(character or `NULL`) If provided, loads the sampler state from
 the specified .rds file instead of initializing from parameters.}
@@ -63,14 +64,14 @@ passing them to the `iglm` constructor or simulation functions.
 n_actor <- 50
 sampler_new <- sampler.iglm(
   n_burn_in = 100, n_simulation = 10,
-  sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-  sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-  sampler_z = sampler.net.attr(n_proposals = n_actor^2, seed = 134, tnt = TRUE),
+  seed = 42,
+  sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_z = sampler.net.attr(n_proposals = n_actor^2, tnt = TRUE),
   init_empty = FALSE
 )
 sampler_new
-# Change some values of the  sampler
-sampler_new$n_simulation
+sampler_new$seed
 sampler_new$set_n_simulation(100)
 sampler_new$n_simulation
 }

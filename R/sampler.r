@@ -5,165 +5,113 @@
 #' `sampler.iglm` class. It holds the MCMC sampling parameters
 #' for a single component of the `iglm` model, such as one attribute
 #' (e.g., `x_attribute`) or a part of the network (e.g., `z_network` within
-#' the overlap). It primarily stores the number of proposals and a random seed.
+#' the overlap). It stores the number of proposals and the TNT flag.
+#' The random seed is managed centrally by the parent `sampler.iglm` object.
 #' @importFrom R6 R6Class
 #' @importFrom stats runif
 #' @export
 sampler.net.attr.generator <- R6::R6Class("sampler.net.attr",
   private = list(
     .n_proposals = NULL,
-    .seed = NULL,
     .tnt = NULL
   ),
   public = list(
     #' @description
-    #' Create a new `sampler_net_attr` object. Validates inputs and sets
-    #' a random seed if none is provided.
+    #' Create a new `sampler_net_attr` object.
     #' @param n_proposals (integer) The number of MCMC proposals (iterations)
     #'   to perform for this specific component during each sampling step.
     #'   Default is 10000. Must be a non-negative integer.
-    #' @param seed (integer or `NA`) An integer seed for the random number
-    #'   generator to ensure reproducibility for this component's sampling.
-    #'   If `NA` (default), a random seed is generated automatically.
     #' @param file (character or `NULL`) If provided, loads the sampler state from
     #'  the specified .rds file instead of initializing from parameters.
     #' @param tnt (logical) If `TRUE` (default), use Tie-No-Tie sampling (only if used for networks).
     #' @return A new `sampler_net_attr` object.
-    initialize = function(n_proposals = 10000, seed = NA, file = NULL, tnt = TRUE) {
+    initialize = function(n_proposals = 10000, file = NULL, tnt = TRUE) {
       if (!is.null(file)) {
-        # --- LOAD LOGIC ---
         if (!file.exists(file)) {
           stop(paste("File not found:", file), call. = FALSE)
         }
         message(paste("Loading object state from:", file))
-
-        # Read the list of saved state
         data <- readRDS(file)
-
-        # Check that the loaded data is valid (optional but recommended)
-        if (!is.list(data) || !all(c(".n_proposals", ".seed", ".tnt") %in% names(data))) {
+        if (!is.list(data) || !".n_proposals" %in% names(data)) {
           stop("File does not contain a valid sampler_net_attr state.", call. = FALSE)
         }
-
-        # Restore state by assigning to private fields
         private$.n_proposals <- data$.n_proposals
-        private$.seed <- data$.seed
         private$.tnt <- data$.tnt
       } else {
         private$.n_proposals <- as.integer(n_proposals)
-        if (is.na(seed)) {
-          private$.seed <- sample.int(1e6, 1)
-        } else {
-          private$.seed <- as.integer(seed)
-        }
         private$.tnt <- as.logical(tnt)
       }
       invisible(self)
     },
     #' @description
     #' Print a summary of the sampler settings for this component.
-    #' @param indent (character) A string used for indentation (e.g., spaces)
-    #'   when printing, useful for nested structures. Default is "  ".
-    #' @return The object itself, invisibly. Called for side effect.
+    #' @param indent (character) Indentation string. Default is "  ".
+    #' @return The object itself, invisibly.
     print = function(indent = "  ") {
       cat(paste0(indent, "Number of proposals : ", format(private$.n_proposals), "\n"))
-      cat(paste0(indent, "Random seed         : ", private$.seed, "\n"))
       cat(paste0(indent, "TNT sampling        : ", if (isTRUE(private$.tnt)) "TRUE" else "FALSE", "\n"))
       invisible(self)
     },
-    #' @description
-    #' Gathers all data from private fields into a list.
-    #' @return A list containing all information of the sampler.
+    #' @description Gathers all data into a list.
+    #' @return A list with `n_proposals` and `tnt`.
     gather = function() {
-      list(
-        n_proposals = private$.n_proposals,
-        seed = private$.seed,
-        tnt = private$.tnt
-      )
+      list(n_proposals = private$.n_proposals, tnt = private$.tnt)
     },
-    #' @description
-    #' Sets the number of MCMC proposals for this component.
-    #' @param n_proposals (integer) The number of proposals to set.
-    #' @return None.
+    #' @description Sets the number of MCMC proposals.
+    #' @param n_proposals (integer) Number of proposals.
     set_n_proposals = function(n_proposals) {
       private$.n_proposals <- as.integer(n_proposals)
     },
-    #' @description
-    #' Sets the random seed for this component's sampler.
-    #' @param seed (integer) The random seed to set.
-    #' @return None.
-    set_seed = function(seed) {
-      private$.seed <- as.integer(seed)
-    },
-    #' @description
-    #' Sets whether to use TNT sampling for this component.
-    #' @param tnt (logical) `TRUE` to use TNT sampling, `FALSE` otherwise.
-    #' @return None.
+    #' @description Sets whether to use TNT sampling.
+    #' @param tnt (logical) `TRUE` to use TNT sampling.
     set_tnt = function(tnt) {
       private$.tnt <- as.logical(tnt)
     },
-    # This method gathers all data from private fields into a list
-    # and saves that list to a file.
-    #' @description
-    #' Save the object's state to an .rds file.
-    #' @param file (character) The file file where the state will be saved.
+    #' @description Save state to an .rds file.
+    #' @param file (character) File path.
     #' @return The object itself, invisibly.
     save = function(file) {
       if (missing(file) || !is.character(file) || length(file) != 1) {
         stop("A valid 'file' (character string) must be provided.", call. = FALSE)
       }
-      data_to_save <- self$gather()
-      saveRDS(data_to_save, file = file)
+      saveRDS(self$gather(), file = file)
       message(paste("Object state saved to:", file))
       invisible(self)
     }
   ),
   active = list(
-    #' @field n_proposals (`integer`) Read-only. The number of MCMC proposals per sampling step.
+    #' @field n_proposals (`integer`) Read-only. Number of MCMC proposals per step.
     n_proposals = function(value) {
       if (missing(value)) private$.n_proposals else stop("`n_proposals` is read-only.", call. = FALSE)
     },
-    #' @field seed (`integer`) Read-only. The random seed used for this component's sampler.
-    seed = function(value) {
-      if (missing(value)) private$.seed else stop("`seed` is read-only.", call. = FALSE)
-    },
-    #' @field tnt (`logical`) Read-only. Flag indicating whether TNT sampling is used.
+    #' @field tnt (`logical`) Read-only. Whether TNT sampling is used.
     tnt = function(value) {
       if (missing(value)) private$.tnt else stop("`tnt` is read-only.", call. = FALSE)
     }
   )
 )
-#' Constructor for Single Component Sampler Settings
+#' @title Constructor for Single Component Sampler Settings
 #'
 #' @description
-#' Creates an object of class `sampler_net_attr` (and `R6`). This object
-#' specifies the MCMC sampling parameters for a single component (like an
-#' attribute vector or a network structure) within the larger `iglm`
-#' simulation framework. It is typically used as input when creating a
-#' `sampler.iglm` object.
+#' Creates an object of class `sampler_net_attr` (and `R6`). Specifies MCMC
+#' sampling parameters for one component (attribute or network) within the
+#' `iglm` simulation framework. Used as input to `sampler.iglm()`.
 #'
-#' @param n_proposals (integer) The number of MCMC proposals (iterations) to
-#'   perform for this specific component during each sampling update.
+#' @param n_proposals (integer) Number of MCMC proposals per sampling update.
 #'   Default: 10000.
-#' @param seed (integer or `NA`) An integer seed for the random number generator
-#'   to ensure reproducibility for this component's sampling process. If `NA`
-#'   (default), a random seed will be generated automatically.
-#' @param file (character or `NULL`) If provided, loads the sampler state from
-#' '  the specified .rds file instead of initializing from parameters.
-#' @param tnt (logical) If `TRUE` (default), use Tie-No-Tie sampling (only if used for networks).
+#' @param file (character or `NULL`) If provided, loads state from an .rds file.
+#' @param tnt (logical) If `TRUE` (default), use Tie-No-Tie sampling.
 #' @return An object of class `sampler_net_attr` (and `R6`).
 #' @export
 #' @seealso `sampler.iglm`
 #' @examples
-#' # Default settings
 #' sampler_comp_default <- sampler.net.attr()
 #' sampler_comp_default
 #'
-#' # Custom settings
-#' sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, seed = 123, tnt = FALSE)
+#' sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, tnt = FALSE)
 #' sampler_comp_custom
 sampler.net.attr <- function(n_proposals = 10000, seed = NA, file = NULL, tnt = TRUE) {
-  sampler.net.attr.generator$new(n_proposals = n_proposals, seed = seed, file = file, tnt = tnt)
+  sampler.net.attr.generator$new(n_proposals = n_proposals, file = file, tnt = tnt)
 }
 
 
@@ -187,6 +135,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     .n_simulation = NULL,
     .n_burn_in = NULL,
     .init_empty = NULL,
+    .seed = NULL,
     .cluster = NULL,
     .validate = function() {
       # Check if cluster is valid
@@ -235,6 +184,9 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #'   initialized from an empty state (e.g., empty network, attributes at mean).
     #'   If `FALSE`, initialization might depend on the specific sampler implementation
     #'   (e.g., starting from observed data).
+    #' @param seed (integer or `NA`) A single integer seed for the random number
+    #'   generator, set once before sampling begins. If `NA` (default), a random
+    #'   seed is generated automatically.
     #' @param cluster A parallel cluster object (e.g., from the `parallel` package)
     #'   to use for running simulations in parallel. If `NULL` (default), simulations
     #'   are run sequentially.
@@ -243,7 +195,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #' @return A new `sampler.iglm` object.
     initialize = function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL,
                           n_simulation = 100, n_burn_in = 10, init_empty = TRUE,
-                          cluster = NULL, file = NULL) {
+                          seed = NA, cluster = NULL, file = NULL) {
       if (is.null(file)) {
         # Use default component samplers if not provided
         private$.sampler_x <- if (is.null(sampler_x)) sampler.net.attr() else sampler_x
@@ -255,6 +207,11 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
         private$.n_burn_in <- as.integer(n_burn_in)
         private$.init_empty <- as.logical(init_empty)
         private$.cluster <- cluster
+        if (is.na(seed)) {
+          private$.seed <- sample.int(1e6, 1)
+        } else {
+          private$.seed <- as.integer(seed)
+        }
 
         # Validate sub-samplers
         sub_samplers <- list(private$.sampler_x, private$.sampler_y, private$.sampler_z)
@@ -266,38 +223,28 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
           stop(paste("File not found:", file), call. = FALSE)
         }
         message(paste("Loading object state from:", file))
-
-        # Read the list of saved state
         data <- readRDS(file)
-        # browser()
-        # Check that the loaded data is valid (optional but recommended)
         required_fields <- c(
           "sampler_x", "sampler_y", "sampler_z",
-          "init_empty",
-          "n_simulation",
-          "n_burn_in"
+          "init_empty", "n_simulation", "n_burn_in", "seed"
         )
         if (!is.list(data) || !all(required_fields %in% names(data))) {
           stop("File does not contain a valid sampler.iglm state.", call. = FALSE)
         }
-        # Restore state by assigning to private fields
         private$.n_simulation <- data$n_simulation
         private$.n_burn_in <- data$n_burn_in
         private$.init_empty <- data$init_empty
-
+        private$.seed <- data$seed
         private$.sampler_x <- sampler.net.attr.generator$new(
           n_proposals = data$sampler_x$n_proposals,
-          seed = data$sampler_x$seed,
           tnt = data$sampler_x$tnt
         )
         private$.sampler_y <- sampler.net.attr.generator$new(
           n_proposals = data$sampler_y$n_proposals,
-          seed = data$sampler_y$seed,
           tnt = data$sampler_y$tnt
         )
         private$.sampler_z <- sampler.net.attr.generator$new(
           n_proposals = data$sampler_z$n_proposals,
-          seed = data$sampler_z$seed,
           tnt = data$sampler_z$tnt
         )
       }
@@ -380,24 +327,26 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
       private$.validate()
     },
     #' @description
+    #' Sets the random seed for this sampler.
+    #' @param seed (integer) The random seed to set.
+    #' @return None.
+    set_seed = function(seed) {
+      private$.seed <- as.integer(seed)
+    },
+    #' @description
     #' Prints a formatted summary of the sampler configuration to the console.
-    #' Includes core parameters (simulation count, burn-in, etc.) and calls
-    #' the `print` method for each component sampler (`sampler_x`, `sampler_y`, etc.).
-    #' @param digits (integer) Number of digits for formatting numeric values
-    #'   (like `prob_nb`). Default: 3.
+    #' @param digits (integer) Number of digits for formatting numeric values. Default: 3.
     #' @param ... Additional arguments (currently ignored).
     #' @return The `sampler.iglm` object itself (`self`), invisibly.
     print = function(digits = 3, ...) {
-      numfmt <- function(v) format(round(v, digits), nsmall = digits, trim = TRUE)
       cat("Sampler settings\n")
       cat(strrep("-", 60), "\n", sep = "")
       cat("Core parameters\n")
       cat("  n_simulation :", private$.n_simulation, "\n", sep = "")
       cat("  n_burn_in    :", private$.n_burn_in, "\n", sep = "")
       cat("  init_empty   :", if (isTRUE(private$.init_empty)) "TRUE" else "FALSE", "\n", sep = "")
-      cat("  gibbs        :", if (isTRUE(private$.gibbs)) "TRUE" else "FALSE", "\n", sep = "")
+      cat("  seed         :", private$.seed, "\n", sep = "")
       cat("\n")
-
       cat("Sub-samplers\n")
       cat("  sampler_x:\n")
       private$.sampler_x$print(indent = "    ")
@@ -417,7 +366,8 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
         sampler_z = private$.sampler_z$gather(),
         n_simulation = private$.n_simulation,
         n_burn_in = private$.n_burn_in,
-        init_empty = private$.init_empty
+        init_empty = private$.init_empty,
+        seed = private$.seed
       )
     },
     #' @description
@@ -470,6 +420,10 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     init_empty = function(value) {
       if (missing(value)) private$.init_empty else if (is.logical(value)) self$init_empty <- value else stop("`init_empty` must be logical", call. = FALSE)
     },
+    #' @field seed (`integer`) Read-only. The random seed used for sampling.
+    seed = function(value) {
+      if (missing(value)) private$.seed else stop("`seed` is read-only. Use `set_seed()` to change it.", call. = FALSE)
+    },
     #' @field cluster (`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.
     cluster = function(value) {
       if (missing(value)) private$.cluster else self$set_cluster(value)
@@ -498,20 +452,19 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #' @param sampler_z An object of class `sampler.net.attr` specifying how to
 #'   sample the `z_network` ties *within* the defined neighborhood/overlap region.
 #'   If `NULL` (default), default settings are used.
-#' @param n_simulation (integer) The number of independent samples (networks/attributes)
-#'   to generate after the burn-in period. Default: 100. Must be non-negative.
-#' @param n_burn_in (integer) The number of MCMC iterations to perform and discard
-#'   at the beginning of the chain to allow it to reach approximate stationarity.
-#'   Default: 10. Must be non-negative.
-#' @param init_empty (logical) If `TRUE` (default), initialize the MCMC chain from
-#'   an empty state (e.g., empty network, attributes at zero or mean). If `FALSE`,
-#'   the starting state might depend on the specific implementation.
-#' @param cluster A parallel cluster object (e.g., created with `parallel::makeCluster()`)
-#'   to enable parallel execution of simulations. If `NULL` (default), simulations
-#'   are run sequentially. Note: Cluster management (creation/stopping) is the
-#'   user's responsibility.
+#' @param n_simulation (integer) The number of independent samples to generate
+#'   after the burn-in period. Default: 100. Must be non-negative.
+#' @param n_burn_in (integer) The number of MCMC iterations to discard at the
+#'   start for burn-in. Default: 10. Must be non-negative.
+#' @param init_empty (logical) If `TRUE` (default), initialize the MCMC chain
+#'   from an empty state.
+#' @param seed (integer or `NA`) A single integer seed set once before sampling
+#'   begins to ensure reproducibility. If `NA` (default), a random seed is
+#'   generated automatically.
+#' @param cluster A parallel cluster object (e.g., from `parallel::makeCluster()`)
+#'   for parallel simulations. If `NULL` (default), simulations run sequentially.
 #' @param file (character or `NULL`) If provided, loads the sampler state from
-#' the specified .rds file instead of initializing from parameters.
+#'   the specified .rds file instead of initializing from parameters.
 #'
 #' @return An object of class `sampler.iglm` (and `R6`).
 #' @export
@@ -520,19 +473,19 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #' n_actor <- 50
 #' sampler_new <- sampler.iglm(
 #'   n_burn_in = 100, n_simulation = 10,
-#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-#'   sampler_z = sampler.net.attr(n_proposals = n_actor^2, seed = 134, tnt = TRUE),
+#'   seed = 42,
+#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+#'   sampler_z = sampler.net.attr(n_proposals = n_actor^2, tnt = TRUE),
 #'   init_empty = FALSE
 #' )
 #' sampler_new
-#' # Change some values of the  sampler
-#' sampler_new$n_simulation
+#' sampler_new$seed
 #' sampler_new$set_n_simulation(100)
 #' sampler_new$n_simulation
 sampler.iglm <- function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL,
                          n_simulation = 100, n_burn_in = 10, init_empty = TRUE,
-                         cluster = NULL, file = NULL) {
+                         seed = NA, cluster = NULL, file = NULL) {
   sampler.iglm.generator$new(
     sampler_x = sampler_x,
     sampler_y = sampler_y,
@@ -540,6 +493,7 @@ sampler.iglm <- function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL,
     n_simulation = n_simulation,
     n_burn_in = n_burn_in,
     init_empty = init_empty,
+    seed = seed,
     file = file,
     cluster = cluster
   )

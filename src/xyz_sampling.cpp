@@ -958,11 +958,9 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
                                 const std::vector<double>& type_list,
                                 arma::vec & global_stats,
                                 const int n_proposals_x,
-                                const int seed_x,
                                 const int n_proposals_y,
-                                const int seed_y,
                                 const  int n_proposals_z,
-                                const int seed_z,
+                                const int seed,
                                 const int n_burn_in,
                                 const  int n_simulation,
                                 std::vector<arma::vec>& res_x,
@@ -983,9 +981,9 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
   std::string x, y; 
   x = "x";
   y = "y";
-  if (seed_z > 0) {
+  if (seed > 0) {
     Rcpp::Function set_seed_r("set.seed");
-    set_seed_r(seed_z);
+    set_seed_r(seed);
   }
   Progress p(n_simulation + n_burn_in, display_progress);
   // Start for a burn in period with the normal number of proposals
@@ -1092,13 +1090,10 @@ List xyz_simulate_cpp(arma::vec& coef,
                       double attr_y_scale,
                       bool nonoverlap_random = false, 
                       int n_proposals_x = 100,
-                      int seed_x = 123,
                       int n_proposals_y = 100,
-                      int seed_y = 123,
                       int n_proposals_z = 100,
-                      int seed_z = 123,
+                      int seed = 123,
                       int n_proposals_z_nonoverlap = 100,
-                      int seed_z_nonoverlap = 123,
                       int n_burn_in = 100,
                       int n_simulation = 1,
                       bool only_stats = false,
@@ -1142,9 +1137,9 @@ List xyz_simulate_cpp(arma::vec& coef,
   std::vector<std::vector<std::vector<int>>> res_z(n_simulation);
   // Rcout << "B"<< std::endl;
   arma::mat stats = xyz_simulate_internal(object, coef,coef_degrees, data_list, type_list, global_stats,
-                                          n_proposals_x, seed_x,
-                                          n_proposals_y, seed_y,
-                                          n_proposals_z, seed_z,
+                                          n_proposals_x,
+                                          n_proposals_y,
+                                          n_proposals_z, seed,
                                           n_burn_in, n_simulation,
                                           res_x,res_y,res_z,
                                           only_stats, 
@@ -3496,11 +3491,9 @@ List xyz_approximate_variability(arma::vec& coef,
                                  std::vector<arma::mat>& data_list,
                                  std::vector<double>& type_list,
                                  int n_proposals_x,
-                                 int seed_x,
                                  int n_proposals_y,
-                                 int seed_y,
                                  int n_proposals_z,
-                                 int seed_z,
+                                 int seed,
                                  int n_burn_in,
                                  int n_simulation,
                                  bool display_progress,
@@ -3580,9 +3573,9 @@ List xyz_approximate_variability(arma::vec& coef,
       z_tmp.at(i) = 1;
   }
   // arma::vec gradient_tmp;
-  if (seed_z > 0) {
+  if (seed > 0) {
     Rcpp::Function set_seed_r("set.seed");
-    set_seed_r(seed_z);
+    set_seed_r(seed);
   }
   for(int i = 1; i <=(n_simulation+n_burn_in);i ++) {
     Rcpp::checkUserInterrupt();

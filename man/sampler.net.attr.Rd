@@ -7,36 +7,26 @@
 sampler.net.attr(n_proposals = 10000, seed = NA, file = NULL, tnt = TRUE)
 }
 \arguments{
-\item{n_proposals}{(integer) The number of MCMC proposals (iterations) to
-perform for this specific component during each sampling update.
+\item{n_proposals}{(integer) Number of MCMC proposals per sampling update.
 Default: 10000.}
 
-\item{seed}{(integer or `NA`) An integer seed for the random number generator
-to ensure reproducibility for this component's sampling process. If `NA`
-(default), a random seed will be generated automatically.}
+\item{file}{(character or `NULL`) If provided, loads state from an .rds file.}
 
-\item{file}{(character or `NULL`) If provided, loads the sampler state from
-'  the specified .rds file instead of initializing from parameters.}
-
-\item{tnt}{(logical) If `TRUE` (default), use Tie-No-Tie sampling (only if used for networks).}
+\item{tnt}{(logical) If `TRUE` (default), use Tie-No-Tie sampling.}
 }
 \value{
 An object of class `sampler_net_attr` (and `R6`).
 }
 \description{
-Creates an object of class `sampler_net_attr` (and `R6`). This object
-specifies the MCMC sampling parameters for a single component (like an
-attribute vector or a network structure) within the larger `iglm`
-simulation framework. It is typically used as input when creating a
-`sampler.iglm` object.
+Creates an object of class `sampler_net_attr` (and `R6`). Specifies MCMC
+sampling parameters for one component (attribute or network) within the
+`iglm` simulation framework. Used as input to `sampler.iglm()`.
 }
 \examples{
-# Default settings
 sampler_comp_default <- sampler.net.attr()
 sampler_comp_default
 
-# Custom settings
-sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, seed = 123, tnt = FALSE)
+sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, tnt = FALSE)
 sampler_comp_custom
 }
 \seealso{

@@ -95,9 +95,9 @@ gt_coef_pop <- rnorm(n = n_actor, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(
   n_burn_in = 100, n_simulation = 10,
-  sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-  sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-  sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134),
+  sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
   init_empty = FALSE
 )
 # Create iglm model specification

@@ -23,9 +23,9 @@ test_that("Define a iglm object, simulate, estimate, assess", {
 
   sampler_new <- sampler.iglm(
     n_burn_in = 10, n_simulation = 1,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-    sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134),
+    sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+    sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+    sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = F
   )
 
@@ -73,9 +73,9 @@ test_that("Define a iglm object, simulate, estimate, assess", {
 
   sampler_est <- sampler.iglm(
     n_burn_in = 1, n_simulation = 10,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 1),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 3),
-    sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 13),
+    sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+    sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+    sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = F
   )
 

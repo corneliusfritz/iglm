@@ -24,9 +24,9 @@ test_that("Define a iglm object and check all the results information", {
 
   sampler_new <- sampler.iglm(
     n_burn_in = 10, n_simulation = 1,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-    sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134),
+    sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+    sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+    sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = F
   )
   # xyz_obj_new$neighborhood

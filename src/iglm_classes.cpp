@@ -398,10 +398,6 @@ void XZ_class::initialize_overlap_counts() {
     }
     if (!z_network.directed) {
         N_1_overlap /= 2;
-        // In undirected, in_degrees_nb should match out_degrees_nb
-        // and we already incremented both directions because overlap_mat contains both.
-        // Actually, overlap_mat for undirected has 2 rows per dyad?
-        // Let's check Network::add_edge logic.
     }
 }
 
