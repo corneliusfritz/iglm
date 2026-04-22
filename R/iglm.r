@@ -249,16 +249,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         # --- Handle sampler ---
         if (is.null(sampler)) {
           sampler.x.obj <- sampler.net.attr(
-            n_proposals = self$iglm.data$n_actor * 10,
-            seed = 1
+            n_proposals = self$iglm.data$n_actor * 10
           )
           sampler.y.obj <- sampler.net.attr(
-            n_proposals = self$iglm.data$n_actor * 10,
-            seed = 2
+            n_proposals = self$iglm.data$n_actor * 10
           )
           sampler.z.obj <- sampler.net.attr(
-            n_proposals = nrow(self$iglm.data$overlap) * 10,
-            seed = 3
+            n_proposals = nrow(self$iglm.data$overlap) * 10
           )
           private$.sampler <- sampler.iglm(
             n_simulation = 100,
@@ -434,7 +431,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param print.coefmat (logical) If `TRUE` (default), prints the coefficient table.
     #' @param print.call (logical) If `TRUE` (default), prints the call that generated the object.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    print = function(digits = 2,
+    print = function(digits = 3,
                      rows = c(1, 2),
                      signif.stars = getOption("show.signif.stars"),
                      eps.Pvalue = 0.0001,
@@ -520,8 +517,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
         cat(paste(
           "\nTime for estimation: ",
-          format(round(as.numeric(private$.time_estimation), digits), nsmall = digits),
-          " ", attr(private$.time_estimation, "units"),
+          format(private$.time_estimation, digits = digits),
           "\n",
           sep = ""
         ))
@@ -530,7 +526,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           cat("\nDegree Parameters:\n")
           format_summary <- function(x, d) {
             s <- summary(x)
-            return(format(round(s, d), nsmall = d))
+            return(format(s, digits = d))
           }
           if (private$.iglm.data$directed) {
             cat("  Outdegrees:\n")
@@ -544,7 +540,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       } else {
         cat("\n")
         cat("Observed Sufficient Statistics:\n")
-        print(format(round(private$.sufficient_statistics, digits), nsmall = digits), quote = FALSE)
+        print(format(private$.sufficient_statistics, digits = digits), quote = FALSE)
       }
     },
     #' @description
@@ -759,24 +755,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         private$.validate()
 
         if (private$.control$display_progress) {
-          cat("\nResults: \n\n")
-          if (private$.preprocess$includes_degrees) {
-            names <- rownames(info$coefficients_nondegrees)
-            est <- as.vector(info$coefficients_nondegrees)
-            stderr <- sqrt(diag(info$var))
-            coef_table <- cbind(est, stderr)
-            colnames(coef_table) <- c("Estimate", "Std. Error")
-            rownames(coef_table) <- names
-            print(round(coef_table, 3), row.names = TRUE)
-          } else {
-            names <- rownames(info$coefficients)
-            est <- as.vector(info$coefficients)
-            stderr <- sqrt(diag(info$var))
-            coef_table <- cbind(est, stderr)
-            colnames(coef_table) <- c("Estimate", "Std. Error")
-            rownames(coef_table) <- names
-            print(round(coef_table, 3), row.names = TRUE)
-          }
+          self$print(print.formula = FALSE, print.call = FALSE)
         }
       } else {
         if (private$.control$display_progress) {
@@ -799,7 +778,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
     #' @return Prints the summary to the console and returns `NULL` invisibly.
-    summary = function(digits = max(3, getOption("digits") - 3), ...) {
+    summary = function(digits = 2, ...) {
       self$print(digits = digits, rows = c(1, 2, 3, 4), print.formula = FALSE, ...)
     },
     #' @description

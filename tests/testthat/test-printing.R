@@ -41,7 +41,7 @@ test_that("iglm.object print and summary works as expected", {
   expect_true(any(grepl("Formula:", out_print)))
   
   # Test digits argument
-  out_digits <- capture.output(model$summary(digits = 1))
+  out_digits <- capture.output(model$summary(digits = 2))
   # Check if "1.2" (from 1.23456) is in the output for Time
   expect_true(any(grepl("Time for estimation: 1.2 secs", out_digits)))
   
