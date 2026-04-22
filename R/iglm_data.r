@@ -1544,12 +1544,16 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 
     #' @field neighborhood (`matrix` or `NULL`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. `NULL` if not provided.
     neighborhood = function(value) {
-      if (missing(value)) private$.neighborhood else stop("`neighborhood` is read-only.", call. = FALSE)
+      if (missing(value)) {
+        if (is.null(private$.neighborhood)) matrix(0, nrow = 0, ncol = 2) else private$.neighborhood
+      } else stop("`neighborhood` is read-only.", call. = FALSE)
     },
 
     #' @field overlap (`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist.
     overlap = function(value) {
-      if (missing(value)) private$.overlap else stop("`overlap` is read-only.", call. = FALSE)
+      if (missing(value)) {
+        if (is.null(private$.overlap)) matrix(0, nrow = 0, ncol = 2) else private$.overlap
+      } else stop("`overlap` is read-only.", call. = FALSE)
     },
 
     #' @field directed (`logical`) Indicates if the `z_network` is treated as directed.

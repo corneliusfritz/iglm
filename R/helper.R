@@ -291,6 +291,14 @@ check_overlap <- function(mat_1, mat_2) {
 }
 
 iglm.data.neighborhood <- function(neighborhood, directed = NA, n_actor = NA) {
+  if (length(neighborhood) == 0 || nrow(neighborhood) == 0) {
+    res <- list(
+      neighborhood = matrix(numeric(0), nrow = 0, ncol = 2),
+      overlap = matrix(numeric(0), nrow = 0, ncol = 2)
+    )
+    class(res) <- "iglm.data.neighborhood"
+    return(res)
+  }
   if (is.na(n_actor)) {
     if (ncol(neighborhood) > 2) {
       n_actor <- nrow(neighborhood)

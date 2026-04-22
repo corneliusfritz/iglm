@@ -210,8 +210,8 @@ available, they are printed in a standard coefficient table format.
 \describe{
 \item{\code{digits}}{(integer) Number of digits for rounding numeric output.}
 
-\item{\code{rows}}{numeric vector is provided with values between 1 and 4,
-only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.}
+\item{\code{rows}}{If a numeric vector with values between 1 and 5 is provided,
+only the corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.}
 
 \item{\code{signif.stars}}{(logical) If `TRUE`, prints significance stars for the coefficients. Default is `getOption("show.signif.stars")`.}
 
