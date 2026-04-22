@@ -21,9 +21,11 @@ test_that("iglm.object print and summary works as expected", {
   )
   
   # We also need to set .coef in the iglm.object itself
-  # Since it's private, we use the environment trick
-  assign(".coef", matrix(c(-2, 0.5), ncol = 1), envir = model$.__enclos_env__$private)
-  rownames(model$.__enclos_env__$private$.coef) <- c("edges(mode = 'local')", "attribute_y")
+  # Use the public set_coefficients() method
+  model$set_coefficients(
+    coef = matrix(c(-2, 0.5), ncol = 1, 
+                  dimnames = list(c("edges(mode = 'local')", "attribute_y"), NULL))
+  )
   
   assign(".time_estimation", structure(1.23456, units = "secs", class = "difftime"), 
          envir = model$.__enclos_env__$private)
@@ -49,8 +51,10 @@ test_that("iglm.object print and summary works as expected", {
   
   # Test eps.Pvalue
   # Inject a very small p-value
-  model$.__enclos_env__$private$.coef <- matrix(c(-200, 0.5), ncol = 1)
-  rownames(model$.__enclos_env__$private$.coef) <- c("edges(mode = 'local')", "attribute_y")
+  model$set_coefficients(
+    coef = matrix(c(-200, 0.5), ncol = 1,
+                  dimnames = list(c("edges(mode = 'local')", "attribute_y"), NULL))
+  )
   out_eps <- capture.output(model$summary(eps.Pvalue = 0.5))
   # With eps.Pvalue = 0.5, most small p-values should be shown as <0.5 or < 0.5
   expect_true(any(grepl("<\\s*0\\.5", out_eps)))

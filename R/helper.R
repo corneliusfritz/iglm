@@ -291,7 +291,18 @@ check_overlap <- function(mat_1, mat_2) {
 }
 
 iglm.data.neighborhood <- function(neighborhood, directed = NA, n_actor = NA) {
-  if (length(neighborhood) == 0 || nrow(neighborhood) == 0) {
+  if (!is.matrix(neighborhood) && !is.data.frame(neighborhood)) {
+    if (length(neighborhood) == 0) {
+      neighborhood <- matrix(numeric(0), nrow = 0, ncol = 2)
+    } else {
+      stop("`neighborhood` must be a matrix or data frame.", call. = FALSE)
+    }
+  }
+
+  if (nrow(neighborhood) == 0) {
+    if (ncol(neighborhood) != 0 && ncol(neighborhood) != 2) {
+      stop("Empty neighborhood matrix must have 0 or 2 columns (edgelist).", call. = FALSE)
+    }
     res <- list(
       neighborhood = matrix(numeric(0), nrow = 0, ncol = 2),
       overlap = matrix(numeric(0), nrow = 0, ncol = 2)
