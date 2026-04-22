@@ -193,7 +193,7 @@ Print a summary of the `iglm.object`. If estimation results are
 available, they are printed in a standard coefficient table format.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(
-  digits = 3,
+  digits = 2,
   rows = c(1, 2),
   signif.stars = getOption("show.signif.stars"),
   eps.Pvalue = 1e-04,

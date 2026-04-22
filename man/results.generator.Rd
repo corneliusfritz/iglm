@@ -3,7 +3,7 @@
 \docType{class}
 \name{results.generator}
 \alias{results.generator}
-\title{IGLM Estimation and Simulation Results (R6 Class)}
+\title{iglm Estimation and Simulation Results (R6 Class)}
 \description{
 The `results` class stores estimation (`$estimate()`) and simulation (`$simulate()`) results.
 

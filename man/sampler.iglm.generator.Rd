@@ -3,7 +3,7 @@
 \docType{class}
 \name{sampler.iglm.generator}
 \alias{sampler.iglm.generator}
-\title{IGLM Sampler Settings (R6 Class)}
+\title{iglm Sampler Settings (R6 Class)}
 \description{
 The `sampler.iglm` class is an R6 container for specifying and storing
 the parameters that control the MCMC (Markov Chain Monte Carlo) sampling

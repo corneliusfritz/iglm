@@ -2,7 +2,7 @@
 % Please edit documentation in R/init_terms.R
 \name{InitIglmTerm}
 \alias{InitIglmTerm}
-\title{Initialize IGLM Model Terms
+\title{Initialize iglm Model Terms
 
 This is an internal generic function used to initialize mapping and data
 for terms in a \code{\link{iglm.object}} formula.}
@@ -20,7 +20,7 @@ InitIglmTerm(data_object, arglist, ...)
 A list containing information for the C++ backend.
 }
 \description{
-Initialize IGLM Model Terms
+Initialize iglm Model Terms
 
 This is an internal generic function used to initialize mapping and data
 for terms in a \code{\link{iglm.object}} formula.

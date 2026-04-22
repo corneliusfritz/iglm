@@ -2,7 +2,7 @@
 % Please edit documentation in R/init_terms.R
 \name{check.IglmTerm}
 \alias{check.IglmTerm}
-\title{Check Arguments for IGLM Model Terms
+\title{Check Arguments for iglm Model Terms
 
 This is an internal helper function used to validate and set defaults
 for arguments passed to iglm model terms.}
@@ -34,7 +34,7 @@ are either a character vector of allowed values, or a type string ("numeric", "m
 A modified \code{arglist} with defaults applied and validated values.
 }
 \description{
-Check Arguments for IGLM Model Terms
+Check Arguments for iglm Model Terms
 
 This is an internal helper function used to validate and set defaults
 for arguments passed to iglm model terms.

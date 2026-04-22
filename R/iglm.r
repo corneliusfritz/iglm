@@ -433,7 +433,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param print.coefmat (logical) If `TRUE` (default), prints the coefficient table.
     #' @param print.call (logical) If `TRUE` (default), prints the call that generated the object.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    print = function(digits = 3, 
+    print = function(digits = 2, 
                   rows = c(1, 2), 
                   signif.stars = getOption("show.signif.stars"),
                   eps.Pvalue = 0.0001, 
@@ -1151,6 +1151,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
   )
 )
 
+#' @title Construct an IGLM Model Specification Object
 #' @description
 #' \code{R} package \code{iglm} implements generalized linear models (GLMs)
 #' for studying relationships among attributes in connected populations,
