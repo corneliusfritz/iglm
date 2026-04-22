@@ -556,7 +556,7 @@ auto xyz_stat_edges_x_out= CHANGESTAT{
     Rcpp::stop("This statistic is only for directed networks");  
   }
   if(mode == "x"){
-    return(object.z_network.out_degrees[unit_i]);
+    return(object.z_network.out_degrees.at(unit_i));
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(unit_i));
   }else {
