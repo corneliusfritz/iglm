@@ -571,7 +571,7 @@ auto xyz_stat_edges_x_in_nb= CHANGESTAT{
   }
   
   if(mode == "x"){
-    return(object.in_degrees_nb[unit_i]);
+    return(object.in_degrees_nb.at(unit_i));
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(unit_j)*object.get_val_overlap(unit_i, unit_j));
   }else {
