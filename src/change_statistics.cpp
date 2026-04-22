@@ -611,7 +611,7 @@ auto xyz_stat_edges_x_in= CHANGESTAT{
   }
   
   if(mode == "x"){
-    return(object.z_network.in_degrees[unit_i]);
+    return(object.z_network.in_degrees.at(unit_i));
   } else if(mode == "z"){ 
     return(object.x_attribute.get_val(unit_j));
   }else {
