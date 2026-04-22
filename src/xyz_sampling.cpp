@@ -478,7 +478,7 @@ void xyz_simulate_network_consecutive_mh_directed(const arma::vec &coef,
   
   for(int i = 1; i <= (object.n_actor - 1); ++i) {
     for(int j = i + 1; j <= object.n_actor; ++j) {
-      if(object.get_val_overlap(i, j) || object.get_val_overlap(j, i)){
+      if(object.get_val_overlap(i, j)){
         continue;
       } 
       
@@ -555,7 +555,7 @@ void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_
   
   for(int i = 1; i <= (object.n_actor - 1); ++i) {
     for(int j = i + 1; j <= object.n_actor; ++j) {
-      if(object.get_val_overlap(i, j) || object.get_val_overlap(j, i)){
+      if(object.get_val_overlap(i, j)){
         continue;
       } 
       

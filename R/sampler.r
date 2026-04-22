@@ -32,11 +32,11 @@ sampler.net.attr.generator <- R6::R6Class("sampler.net.attr",
         }
         message(paste("Loading object state from:", file))
         data <- readRDS(file)
-        if (!is.list(data) || !".n_proposals" %in% names(data)) {
+        if (!is.list(data) || !"n_proposals" %in% names(data)) {
           stop("File does not contain a valid sampler_net_attr state.", call. = FALSE)
         }
-        private$.n_proposals <- data$.n_proposals
-        private$.tnt <- data$.tnt
+        private$.n_proposals <- data$n_proposals
+        private$.tnt <- data$tnt
       } else {
         private$.n_proposals <- as.integer(n_proposals)
         private$.tnt <- as.logical(tnt)
@@ -110,7 +110,7 @@ sampler.net.attr.generator <- R6::R6Class("sampler.net.attr",
 #'
 #' sampler_comp_custom <- sampler.net.attr(n_proposals = 50000, tnt = FALSE)
 #' sampler_comp_custom
-sampler.net.attr <- function(n_proposals = 10000, seed = NA, file = NULL, tnt = TRUE) {
+sampler.net.attr <- function(n_proposals = 10000, file = NULL, tnt = TRUE) {
   sampler.net.attr.generator$new(n_proposals = n_proposals, file = file, tnt = tnt)
 }
 

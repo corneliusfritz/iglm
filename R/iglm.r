@@ -15,6 +15,7 @@
 #'
 #' @importFrom R6 R6Class
 #' @importFrom methods as
+#' @importFrom stats runif
 #' @importFrom stats as.formula pnorm terms quantile update printCoefmat na.omit sd
 #' @importFrom utils modifyList
 #' @export

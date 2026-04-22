@@ -452,6 +452,10 @@ void XZ_class::delete_edge(int from, int to) {
                 
                 int idx = active_edges_nb_idx[get_mat_idx(from, to)];
                 if (idx != -1) {
+                    // Swap-with-last removal. When the list has exactly one
+                    // element, last_edge == the element being removed, so the
+                    // re-assignment to idx is a no-op; the subsequent -1 write
+                    // below still leaves the index in the correct state.
                     auto last_edge = active_edges_nb.back();
                     active_edges_nb[idx] = last_edge;
                     active_edges_nb_idx[get_mat_idx(last_edge.first, last_edge.second)] = idx;
@@ -474,6 +478,8 @@ void XZ_class::delete_edge(int from, int to) {
                 
                 int idx1 = active_edges_nb_idx[get_mat_idx(from, to)];
                 if (idx1 != -1) {
+                    // Swap-with-last removal (see directed case above for
+                    // explanation of the safe single-element edge case).
                     auto last_edge = active_edges_nb.back();
                     active_edges_nb[idx1] = last_edge;
                     active_edges_nb_idx[get_mat_idx(last_edge.first, last_edge.second)] = idx1;
@@ -483,6 +489,7 @@ void XZ_class::delete_edge(int from, int to) {
                 
                 int idx2 = active_edges_nb_idx[get_mat_idx(to, from)];
                 if (idx2 != -1) {
+                    // Swap-with-last removal (see directed case above).
                     auto last_edge = active_edges_nb.back();
                     active_edges_nb[idx2] = last_edge;
                     active_edges_nb_idx[get_mat_idx(last_edge.first, last_edge.second)] = idx2;
@@ -568,7 +575,7 @@ void XZ_class::print() {
     Rcout << "Network: Implemented as dense flat structures" << std::endl;
 }
 
-void XZ_class::copy_from(XZ_class obj) {
+void XZ_class::copy_from(const XZ_class& obj) {
     z_network = obj.z_network;
     x_attribute = obj.x_attribute;
     neighborhood = obj.neighborhood;
@@ -584,6 +591,12 @@ void XZ_class::copy_from(XZ_class obj) {
     all_actors = obj.all_actors;
     N_total_overlap = obj.N_total_overlap;
     N_1_overlap = obj.N_1_overlap;
+    // Copy the active-edge cache. These two members are derived from
+    // z_network + overlap_bool_mat and must stay in sync with them.
+    // Omitting them would cause delete_edge()'s swap-with-last logic to
+    // use stale indices, silently corrupting the active-edge list.
+    active_edges_nb = obj.active_edges_nb;
+    active_edges_nb_idx = obj.active_edges_nb_idx;
 }
 
 void XZ_class::set_neighborhood_from_mat(arma::mat mat) {

@@ -4,7 +4,7 @@
 \alias{sampler.net.attr}
 \title{Constructor for Single Component Sampler Settings}
 \usage{
-sampler.net.attr(n_proposals = 10000, seed = NA, file = NULL, tnt = TRUE)
+sampler.net.attr(n_proposals = 10000, file = NULL, tnt = TRUE)
 }
 \arguments{
 \item{n_proposals}{(integer) Number of MCMC proposals per sampling update.
