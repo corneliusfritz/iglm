@@ -336,7 +336,7 @@ auto xyz_stat_edges_x_out_nb= CHANGESTAT{
     Rcpp::stop("This statistic is only for directed networks");  
   }
   if(mode == "x"){
-    return(object.out_degrees_nb[unit_i]);
+    return(object.out_degrees_nb.at(unit_i));
   } else if(mode == "z"){  
     return(object.x_attribute.get_val(unit_i)*object.get_val_overlap(unit_i,unit_j));
   }else { 
