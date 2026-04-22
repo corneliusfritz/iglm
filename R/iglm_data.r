@@ -1542,14 +1542,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (missing(value)) private$.z_network else self$set_z_network(value)
     },
 
-    #' @field neighborhood (`matrix` or `NULL`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. `NULL` if not provided.
+    #' @field neighborhood (`matrix`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. An empty matrix if not provided.
     neighborhood = function(value) {
       if (missing(value)) {
         if (is.null(private$.neighborhood)) matrix(0, nrow = 0, ncol = 2) else private$.neighborhood
       } else stop("`neighborhood` is read-only.", call. = FALSE)
     },
 
-    #' @field overlap (`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist.
+    #' @field overlap (`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist. An empty matrix if overlap hasn't been computed or is not available.
     overlap = function(value) {
       if (missing(value)) {
         if (is.null(private$.overlap)) matrix(0, nrow = 0, ncol = 2) else private$.overlap
