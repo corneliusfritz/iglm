@@ -4,6 +4,7 @@
 #' The `iglm.data` class is a container for storing, validating, and analyzing
 #' unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 #' @import R6
+#' @import ragg
 #' @importFrom igraph graph_from_edgelist layout_with_fr vcount add_vertices V plot.igraph
 #' @importFrom grDevices colorRampPalette adjustcolor
 #' @importFrom graphics legend plot

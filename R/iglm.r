@@ -389,7 +389,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       # for(i in 1:length(private$.results$samples)){
       #   cat(i," \n")
       # debugonce(eval_change)
-        # eval_change(formula = formula,object = private$.results$samples[[i]], additional_args = ranges_tmp)
+      # eval_change(formula = formula,object = private$.results$samples[[i]], additional_args = ranges_tmp)
       # }
       # debugonce(private$.results$samples[[155]]$spillover_degree_distribution)
       # private$.results$samples[[155]]$spillover_degree_distribution()
@@ -424,10 +424,24 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' Print a summary of the `iglm.object`. If estimation results are
     #' available, they are printed in a standard coefficient table format.
     #' @param digits (integer) Number of digits for rounding numeric output.
-    #' @param rows  numeric vector is provided with values between 1 and 4,
+    #' @param rows numeric vector is provided with values between 1 and 4,
     #'              only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.
-    #' @param formula_print (logical) If `TRUE`, also prints the model formula. Default is `TRUE`.  
-    print = function(digits = 3, rows = c(1, 2), formula_print = TRUE) {
+    #' @param signif.stars (logical) If `TRUE`, prints significance stars for the coefficients. Default is `getOption("show.signif.stars")`.
+    #' @param eps.Pvalue (numeric) Tolerance for small p-values. Default is `0.0001`.
+    #' @param print.formula (logical) If `TRUE` (default), prints the model formula.
+    #' @param print.fitinfo (logical) If `TRUE` (default), prints information about the estimation results.
+    #' @param print.coefmat (logical) If `TRUE` (default), prints the coefficient table.
+    #' @param print.call (logical) If `TRUE` (default), prints the call that generated the object.
+    #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
+    print = function(digits = max(3, getOption("digits") - 3), 
+                  rows = c(1, 2), 
+                  signif.stars = getOption("show.signif.stars"),
+                  eps.Pvalue = 0.0001, 
+                  print.formula = TRUE, 
+                  print.fitinfo = TRUE,
+                  print.coefmat = TRUE, 
+                  print.call = TRUE, ...) {
+
       cat("iglm object\n")
       cat(strrep("-", 50), "\n", sep = "")
 
@@ -435,15 +449,20 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         stop("`digits` must be a single non-negative integer.", call. = FALSE)
       }
 
-      if(formula_print){
-        # --- Display formula
-        cat("Formula:\n  ", deparse(private$.formula), "\n", sep = "")
+      if (print.call && !is.null(private$.results$call)) {
+        cat("Call:\n", paste(deparse(private$.results$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
       }
-      
+
+      if (print.formula) {
+        # --- Display formula
+        cat("Formula:\n", paste(deparse(private$.formula), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+      }
+
       # --- Results
       if (nrow(private$.results$coefficients_path) > 0) {
-        # cat("\n")
-        cat("Results: \n\n")
+        if (print.fitinfo) {
+          cat("Results: \n\n")
+        }
         names <- rownames(private$.coef)
         est <- as.vector(private$.coef)
         stderr <- sqrt(diag(private$.results$var))
@@ -451,50 +470,59 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         pvalue <- 2 * pnorm(-abs(tvalue))
 
         coef_table <- cbind(est, stderr, tvalue, pvalue)
-        colnames(coef_table) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+        colnames(coef_table) <- c("Estimate", "S.E.", "t-value", "Pr(>|t|)")
         if (5 %in% rows) {
-           coef_table <- cbind(coef_table, "Suff. Statistic" = private$.sufficient_statistics)
+          coef_table <- cbind(coef_table, "Suff. Statistic" = private$.sufficient_statistics)
         }
         rownames(coef_table) <- names
-        
-        cols_to_print <- rows[rows <= ncol(coef_table)]
-        # Filter columns based on 'rows' argument but keep t value and p-value for printCoefmat logic if possible
-        # Actually printCoefmat is best used on the full table or first 4 columns.
-        
-        if (all(c(1, 2, 3, 4) %in% rows)) {
-            printCoefmat(coef_table[, intersect(rows, 1:ncol(coef_table)), drop = FALSE], 
-                         digits = digits, 
-                         has.Pvalue = TRUE, 
-                         P.values = TRUE,
-                         signif.stars = getOption("show.signif.stars"),
-                         na.print = "NA")
-        } else {
-            # Fallback for subsets without full statistical info
-            print(round(coef_table[, rows, drop = FALSE], digits))
+
+        cols_to_print <- intersect(rows, 1:ncol(coef_table))
+        has_p <- 4 %in% cols_to_print
+        cs_ind <- which(cols_to_print %in% 1:2)
+        tst_ind <- which(cols_to_print == 3)
+
+        if (print.coefmat) {
+          printCoefmat(coef_table[, cols_to_print, drop = FALSE],
+            digits = digits,
+            has.Pvalue = has_p,
+            P.values = has_p,
+            cs.ind = if (length(cs_ind) > 0) cs_ind else NULL,
+            tst.ind = if (length(tst_ind) > 0) tst_ind else NULL,
+            dig.tst = digits,
+            signif.stars = signif.stars,
+            na.print = "NA",
+            eps.Pvalue = eps.Pvalue,
+            ...
+          )
         }
 
         cat(paste(
           "\nTime for estimation: ",
-          round(as.numeric(private$.time_estimation), 3),
-          attr(private$.time_estimation, "units"),
-          "\n"
+          format(round(as.numeric(private$.time_estimation), digits), nsmall = digits),
+          " ", attr(private$.time_estimation, "units"),
+          "\n",
+          sep = ""
         ))
-        # browser()
+
         if (private$.preprocess$includes_degrees) {
           cat("\nDegree Parameters:\n")
+          format_summary <- function(x, d) {
+            s <- summary(x)
+            return(format(round(s, d), nsmall = d))
+          }
           if (private$.iglm.data$directed) {
             cat("  Outdegrees:\n")
-            print(summary(private$.coef_degrees[1:private$.iglm.data$n_actor]))
+            print(format_summary(private$.coef_degrees[1:private$.iglm.data$n_actor], digits), quote = FALSE)
             cat("\n  Indegrees:\n")
-            print(summary(private$.coef_degrees[(private$.iglm.data$n_actor + 1):(2 * private$.iglm.data$n_actor)]))
+            print(format_summary(private$.coef_degrees[(private$.iglm.data$n_actor + 1):(2 * private$.iglm.data$n_actor)], digits), quote = FALSE)
           } else {
-            print(summary(as.vector(private$.coef_degrees)))
+            print(format_summary(as.vector(private$.coef_degrees), digits), quote = FALSE)
           }
         }
       } else {
         cat("\n")
         cat("Observed Sufficient Statistics:\n")
-        print(round(private$.sufficient_statistics, digits))
+        print(format(round(private$.sufficient_statistics, digits), nsmall = digits), quote = FALSE)
       }
     },
     #' @description
@@ -747,9 +775,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' t-value, and Pr(>|t|).
     #' Requires the model to have been estimated first.
     #' @param digits (integer) Number of digits for rounding numeric output.
+    #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
     #' @return Prints the summary to the console and returns `NULL` invisibly.
-    summary = function(digits = 3) {
-      self$print(digits = digits, rows = c(1, 2, 3, 4), formula_print = FALSE)
+    summary = function(digits = max(3, getOption("digits") - 3), ...) {
+      self$print(digits = digits, rows = c(1, 2, 3, 4), print.formula = FALSE, ...)
     },
     #' @description
     #' Simulate networks from the fitted model or a specified model. Stores
@@ -1072,7 +1101,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
     #' @field iglm.data (`iglm.data`) The associated \code{\link{iglm.data}} R6 object containing the network and attribute data.
     iglm.data = function(value) {
-      if (missing(value)) private$.iglm.data else {
+      if (missing(value)) {
+        private$.iglm.data
+      } else {
         self$set_target(value)
       }
     },
