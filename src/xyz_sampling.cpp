@@ -981,7 +981,7 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
   std::string x, y; 
   x = "x";
   y = "y";
-  if (seed > 0) {
+  if (seed != NA_INTEGER) {
     Rcpp::Function set_seed_r("set.seed");
     set_seed_r(seed);
   }
