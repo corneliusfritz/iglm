@@ -708,7 +708,7 @@ void xyz_simulate_network_mh(const arma::vec coef,
     tmp_stat = change_stat * multiplier;
     
     // Non-overlap offset removed; mathematically impossible to propose outside overlap
-    double HR_val = std::exp(arma::as_scalar(arma::dot(coef, tmp_stat)) + hr_adj);
+    double HR_val = std::exp(arma::dot(coef, tmp_stat) + hr_adj);
     
     if (R::unif_rand() < HR_val) {
       // accepted_proposals++;
