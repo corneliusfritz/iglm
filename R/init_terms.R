@@ -1,5 +1,5 @@
 
-#' @title Model specification for iglm terms
+#' @title Model Specification for iglm Terms
 #'
 #' @description
 #'

@@ -3,7 +3,7 @@
 \docType{class}
 \name{iglm.data_generator}
 \alias{iglm.data_generator}
-\title{A R6 class to represent networks with unit-level attributes}
+\title{Networks with Unit-Level Attributes (R6 Class)}
 \description{
 The `iglm.data` class is a container for storing, validating, and analyzing
 unit-level attributes (x_attribute, y_attribute) and connections (z_network).
@@ -17,9 +17,9 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 
 \item{\code{z_network}}{(`matrix`) The primary network structure as a 2-column integer edgelist.}
 
-\item{\code{neighborhood}}{(`matrix` or `NULL`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. `NULL` if not provided.}
+\item{\code{neighborhood}}{(`matrix`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. An empty matrix if not provided.}
 
-\item{\code{overlap}}{(`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist.}
+\item{\code{overlap}}{(`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist. An empty matrix if overlap hasn't been computed or is not available.}
 
 \item{\code{directed}}{(`logical`) Indicates if the `z_network` is treated as directed.}
 

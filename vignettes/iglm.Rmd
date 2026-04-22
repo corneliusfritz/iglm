@@ -1,5 +1,5 @@
 ---
-title: "An Introduction to Estimating Joint Probability Models with `iglm`"
+title: "Joint Modeling of Networks and Attributes with iglm"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{undirected iglm}
@@ -12,7 +12,9 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  out.width = "100%"
+  out.width = "100%",
+  fig.width = 7, 
+  fig.height = 5
 )
 library(iglm)
 ```
@@ -21,11 +23,7 @@ library(iglm)
 This vignette provides an introduction to the `iglm` package, which is designed for estimating joint probability models that incorporate network structures. The package allows users to analyze how individual attributes and network connections jointly influence outcomes of interest.
 
 
-## Basic Usage
-To use the `iglm` package, you first need to load it into your R session
-```{r}
-library(iglm)
-```
+
 
 Next, you can create a `iglm` object by specifying the network structure and the attributes of interest. Here is a simple example:
 

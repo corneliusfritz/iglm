@@ -3,13 +3,11 @@
 #define helper_H
 // #include <Rcpp.h>
 #include <RcppArmadillo.h>
-#include <random>
 #include <set>
 #include <unordered_map>
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <random>
 #ifndef IGLM_API
 #if defined(_WIN32)
 #ifdef IGLM_COMPILING_IGLM

@@ -3,7 +3,7 @@
 \docType{class}
 \name{iglm.object.generator}
 \alias{iglm.object.generator}
-\title{An R6 class for Network GLM (Generalized Linear Model) Objects}
+\title{Network GLM (Generalized Linear Model) Objects (R6 Class)}
 \description{
 The `iglm.object` class encapsulates all components required to define,
 estimate, and simulate from a network generalized linear model. This includes
@@ -192,7 +192,17 @@ An object of class `iglm_model_assessment` containing the
 Print a summary of the `iglm.object`. If estimation results are
 available, they are printed in a standard coefficient table format.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(digits = 4, rows = c(1, 2), formula_print = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(
+  digits = max(3, getOption("digits") - 3),
+  rows = c(1, 2),
+  signif.stars = getOption("show.signif.stars"),
+  eps.Pvalue = 1e-04,
+  print.formula = TRUE,
+  print.fitinfo = TRUE,
+  print.coefmat = TRUE,
+  print.call = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -200,10 +210,22 @@ available, they are printed in a standard coefficient table format.
 \describe{
 \item{\code{digits}}{(integer) Number of digits for rounding numeric output.}
 
-\item{\code{rows}}{numeric vector is provided with values between 1 and 4,
-only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.}
+\item{\code{rows}}{If a numeric vector with values between 1 and 5 is provided,
+only the corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.}
 
-\item{\code{formula_print}}{(logical) If `TRUE`, also prints the model formula. Default is `TRUE`.}
+\item{\code{signif.stars}}{(logical) If `TRUE`, prints significance stars for the coefficients. Default is `getOption("show.signif.stars")`.}
+
+\item{\code{eps.Pvalue}}{(numeric) Tolerance for small p-values. Default is `0.0001`.}
+
+\item{\code{print.formula}}{(logical) If `TRUE` (default), prints the model formula.}
+
+\item{\code{print.fitinfo}}{(logical) If `TRUE` (default), prints information about the estimation results.}
+
+\item{\code{print.coefmat}}{(logical) If `TRUE` (default), prints the coefficient table.}
+
+\item{\code{print.call}}{(logical) If `TRUE` (default), prints the call that generated the object.}
+
+\item{\code{...}}{Additional arguments passed to \code{\link{printCoefmat}}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -343,13 +365,15 @@ Provides a summary of the estimation results with the following columns: Estimat
 t-value, and Pr(>|t|).
 Requires the model to have been estimated first.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$summary(digits = 3)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$summary(digits = max(3, getOption("digits") - 3), ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{digits}}{(integer) Number of digits for rounding numeric output.}
+
+\item{\code{...}}{Additional arguments passed to \code{\link{printCoefmat}}.}
 }
 \if{html}{\out{</div>}}
 }

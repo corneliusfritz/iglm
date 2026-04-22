@@ -1,6 +1,5 @@
 #include <RcppArmadillo.h>
 #include <RcppArmadilloExtensions/sample.h>
-#include <random>
 #include <set>
 #include <unordered_map>
 #include <progress.hpp>
@@ -308,9 +307,6 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
   set_seed(seed);
   
   NumericVector random_accept= runif(n_proposals,0,1);
-  
-  std::mt19937 generator(seed);
-  std::uniform_int_distribution<int>  distr(1, object.n_actor);
   
   arma::vec tmp_vec, tmp_stat;
   
@@ -669,7 +665,7 @@ void xyz_simulate_network_mh(const arma::vec coef,
                              const std::vector<xyz_ValidateFunction> &functions,
                              arma::vec &global_stats, 
                              const bool tnt = true) {
-  if (n_proposals == 0) return;
+  if (n_proposals == 0 || object.overlap_mat.n_rows == 0) return;
   
   int proposed_change;
   std::string z = "z";
@@ -681,10 +677,6 @@ void xyz_simulate_network_mh(const arma::vec coef,
   arma::vec tmp_stat;
   int multiplier = 1;
   int tmp_i, tmp_j, proposal_idx, tmp_switch; 
-  
-  std::mt19937 generator(seed);
-  std::uniform_int_distribution<int> proposal_nnn(0, object.overlap_mat.n_rows - 1);
-  std::uniform_real_distribution<double> unif_01(0.0, 1.0);
   
   // // Track strictly overlap dyads
   // int K = object.z_network.directed ? 1 : 2;
@@ -707,12 +699,12 @@ void xyz_simulate_network_mh(const arma::vec coef,
     
     if (tnt) {
       double p_drop_forward = (object.N_1_overlap == 0) ? 0.0 : ((N_0_overlap == 0) ? 1.0 : 0.5);
-      bool propose_drop = unif_01(generator) < p_drop_forward;
+      bool propose_drop = R::unif_rand() < p_drop_forward;
       
       if (propose_drop) {
         // Rejection sample strictly an existing edge within the overlap
         do {
-          proposal_idx = proposal_nnn(generator);
+          proposal_idx = (int)(R::unif_rand() * object.overlap_mat.n_rows);
           tmp_i = object.overlap_mat(proposal_idx, 0);
           tmp_j = object.overlap_mat(proposal_idx, 1);
         } while (!object.z_network.get_val(tmp_i, tmp_j));
@@ -723,7 +715,7 @@ void xyz_simulate_network_mh(const arma::vec coef,
       } else {
         // Rejection sample strictly a non-edge within the overlap
         do {
-          proposal_idx = proposal_nnn(generator);
+          proposal_idx = (int)(R::unif_rand() * object.overlap_mat.n_rows);
           tmp_i = object.overlap_mat(proposal_idx, 0);
           tmp_j = object.overlap_mat(proposal_idx, 1);
         } while (object.z_network.get_val(tmp_i, tmp_j));
@@ -733,7 +725,7 @@ void xyz_simulate_network_mh(const arma::vec coef,
         hr_adj = std::log(p_drop_reverse / p_add_forward) + std::log((double)N_0_overlap / (double)(object.N_1_overlap + 1));
       }
     } else {
-      proposal_idx = proposal_nnn(generator);
+      proposal_idx = (int)(R::unif_rand() * object.overlap_mat.n_rows);
       tmp_i = object.overlap_mat(proposal_idx, 0);
       tmp_j = object.overlap_mat(proposal_idx, 1);
       hr_adj = 0.0;
@@ -789,7 +781,7 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
                                      const std::vector<xyz_ValidateFunction> &functions,
                                      arma::vec &global_stats, 
                                      const bool tnt = true) {
-  if (n_proposals == 0) return;
+  if (n_proposals == 0 || object.overlap_mat.n_rows == 0) return;
   
   int proposed_change;
   std::string z = "z";
@@ -801,10 +793,6 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
   arma::vec tmp_stat;
   int multiplier = 1;
   int tmp_i, tmp_j, proposal_idx, tmp_switch; 
-  
-  std::mt19937 generator(seed);
-  std::uniform_int_distribution<int> distr(0, object.overlap_mat.n_rows - 1);
-  std::uniform_real_distribution<double> unif_01(0.0, 1.0);
   
   // int K = object.z_network.directed ? 1 : 2;
   // int N_total_overlap = object.overlap_mat.n_rows / K;
@@ -825,11 +813,11 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
     
     if (tnt) {
       double p_drop_forward = (object.N_1_overlap == 0) ? 0.0 : ((N_0_overlap == 0) ? 1.0 : 0.5);
-      bool propose_drop = unif_01(generator) < p_drop_forward;
+      bool propose_drop = R::unif_rand() < p_drop_forward;
       
       if (propose_drop) {
         do {
-          proposal_idx = distr(generator);
+          proposal_idx = (int)(R::unif_rand() * object.overlap_mat.n_rows);
           tmp_i = object.overlap_mat(proposal_idx, 0);
           tmp_j = object.overlap_mat(proposal_idx, 1);
         } while (!object.z_network.get_val(tmp_i, tmp_j));
@@ -839,7 +827,7 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
         
       } else {
         do {
-          proposal_idx = distr(generator);
+          proposal_idx = (int)(R::unif_rand() * object.overlap_mat.n_rows);
           tmp_i = object.overlap_mat(proposal_idx, 0);
           tmp_j = object.overlap_mat(proposal_idx, 1);
         } while (object.z_network.get_val(tmp_i, tmp_j));
@@ -849,7 +837,7 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
         hr_adj = std::log(p_drop_reverse / p_add_forward) + std::log((double)N_0_overlap / (double)(object.N_1_overlap + 1));
       }
     } else {
-      proposal_idx = distr(generator);
+      proposal_idx = (int)(R::unif_rand() * object.overlap_mat.n_rows);
       tmp_i = object.overlap_mat(proposal_idx, 0);
       tmp_j = object.overlap_mat(proposal_idx, 1);
       hr_adj = 0.0;
@@ -915,23 +903,19 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
   int proposed_change;
   arma::vec HR;
   set_seed(seed);
-  std::mt19937 gen(seed); // Mersenne Twister random generator
-  // std::uniform_real_distribution<> dist(0.0, 1.0);  // Uniform distribution [0, 1]
   arma::vec change_stat(functions.size());
   
   NumericVector random_accept= runif(n_proposals,0,1);
   arma::vec tmp_stat(functions.size());
   int multiplier;
   int tmp_i; 
-  std::mt19937 generator(seed);
-  std::uniform_int_distribution<int>  distr(1, object.n_actor);
   const double MAX_LOG_RATE = 100.0;
   arma::vec tmp;
   arma::vec tmp_row;
   // Go through a loop for each proposed change
   for(int a = 0; a <=(n_proposals-1); a ++ ) {
     // Here we pick the random entry
-    tmp_i = distr(generator);
+    tmp_i = (int)(R::unif_rand() * object.n_actor) + 1;
     // Here we calculate the change stat from turning y_i from 0 to 1
     xyz_calculate_change_stats(change_stat, tmp_i,
                                tmp_i,

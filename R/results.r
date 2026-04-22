@@ -1,5 +1,5 @@
 #' @docType class
-#' @title R6 Class for Storing iglm Estimation and Simulation Results
+#' @title iglm Estimation and Simulation Results (R6 Class)
 #' @description
 #' The `results` class stores estimation (`$estimate()`) and simulation (`$simulate()`) results.
 #'

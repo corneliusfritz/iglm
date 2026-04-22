@@ -1,5 +1,5 @@
 #' @docType class
-#' @title R6 Class for Single Component Sampler Settings
+#' @title Single Component Sampler Settings (R6 Class)
 #' @description
 #' The `sampler_net_attr` class is a simple R6 container used within the
 #' `sampler.iglm` class. It holds the MCMC sampling parameters
@@ -168,7 +168,7 @@ sampler.net.attr <- function(n_proposals = 10000, seed = NA, file = NULL, tnt = 
 
 
 #' @docType class
-#' @title R6 Class for iglm Sampler Settings
+#' @title iglm Sampler Settings (R6 Class)
 #' @description
 #' The `sampler.iglm` class is an R6 container for specifying and storing
 #' the parameters that control the MCMC (Markov Chain Monte Carlo) sampling

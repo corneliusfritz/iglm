@@ -1,9 +1,10 @@
 #' @docType class
-#' @title A R6 class to represent networks with unit-level attributes
+#' @title Networks with Unit-Level Attributes (R6 Class)
 #' @description
 #' The `iglm.data` class is a container for storing, validating, and analyzing
 #' unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 #' @import R6
+#' @import ragg
 #' @importFrom igraph graph_from_edgelist layout_with_fr vcount add_vertices V plot.igraph
 #' @importFrom grDevices colorRampPalette adjustcolor
 #' @importFrom graphics legend plot
@@ -1541,14 +1542,18 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (missing(value)) private$.z_network else self$set_z_network(value)
     },
 
-    #' @field neighborhood (`matrix` or `NULL`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. `NULL` if not provided.
+    #' @field neighborhood (`matrix`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. An empty matrix if not provided.
     neighborhood = function(value) {
-      if (missing(value)) private$.neighborhood else stop("`neighborhood` is read-only.", call. = FALSE)
+      if (missing(value)) {
+        if (is.null(private$.neighborhood)) matrix(0, nrow = 0, ncol = 2) else private$.neighborhood
+      } else stop("`neighborhood` is read-only.", call. = FALSE)
     },
 
-    #' @field overlap (`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist.
+    #' @field overlap (`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist. An empty matrix if overlap hasn't been computed or is not available.
     overlap = function(value) {
-      if (missing(value)) private$.overlap else stop("`overlap` is read-only.", call. = FALSE)
+      if (missing(value)) {
+        if (is.null(private$.overlap)) matrix(0, nrow = 0, ncol = 2) else private$.overlap
+      } else stop("`overlap` is read-only.", call. = FALSE)
     },
 
     #' @field directed (`logical`) Indicates if the `z_network` is treated as directed.
