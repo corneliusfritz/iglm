@@ -424,8 +424,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' Print a summary of the `iglm.object`. If estimation results are
     #' available, they are printed in a standard coefficient table format.
     #' @param digits (integer) Number of digits for rounding numeric output.
-    #' @param rows numeric vector is provided with values between 1 and 4,
-    #'              only the corresponding columns are printed (1: Estimate, 2: SE, 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.
+    #' @param rows If a numeric vector with values between 1 and 5 is provided,
+    #'              only the corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value, 4: Pr(>|t|), 5: Global Count of Sufficient Statistic). Default is `c(1, 2)` to show only estimates and standard errors.
     #' @param signif.stars (logical) If `TRUE`, prints significance stars for the coefficients. Default is `getOption("show.signif.stars")`.
     #' @param eps.Pvalue (numeric) Tolerance for small p-values. Default is `0.0001`.
     #' @param print.formula (logical) If `TRUE` (default), prints the model formula.
@@ -441,27 +441,28 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                   print.fitinfo = TRUE,
                   print.coefmat = TRUE, 
                   print.call = TRUE, ...) {
-
-      cat("iglm object\n")
-      cat(strrep("-", 50), "\n", sep = "")
-
+      # Validation
       if (length(digits) != 1 || !is.numeric(digits) || digits < 0) {
         stop("`digits` must be a single non-negative integer.", call. = FALSE)
       }
 
-      if (print.call && !is.null(private$.results$call)) {
-        cat("Call:\n", paste(deparse(private$.results$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+      # --- Prepare outputs for dynamic width calculation ---
+      call_out <- if (print.call && !is.null(private$.results$call)) {
+        paste0("Call:\n", paste(deparse(private$.results$call), sep = "\n", collapse = "\n"), "\n\n")
+      }
+      
+      formula_out <- if (print.formula) {
+        paste0("Formula:\n", paste(deparse(private$.formula), sep = "\n", collapse = "\n"), "\n\n")
       }
 
-      if (print.formula) {
-        # --- Display formula
-        cat("Formula:\n", paste(deparse(private$.formula), sep = "\n", collapse = "\n"), "\n\n", sep = "")
-      }
+      results_header <- NULL
+      coefmat_out <- NULL
+      table_width <- 50 # Default fallback
 
-      # --- Results
+      # --- Results Table Logic ---
       if (nrow(private$.results$coefficients_path) > 0) {
         if (print.fitinfo) {
-          cat("Results: \n\n")
+          results_header <- "Results: \n\n"
         }
         names <- rownames(private$.coef)
         est <- as.vector(private$.coef)
@@ -482,19 +483,37 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         tst_ind <- which(cols_to_print == 3)
 
         if (print.coefmat) {
-          printCoefmat(coef_table[, cols_to_print, drop = FALSE],
-            digits = digits,
-            has.Pvalue = has_p,
-            P.values = has_p,
-            cs.ind = if (length(cs_ind) > 0) cs_ind else NULL,
-            tst.ind = if (length(tst_ind) > 0) tst_ind else NULL,
-            dig.tst = digits,
-            signif.stars = signif.stars,
-            na.print = "NA",
-            eps.Pvalue = eps.Pvalue,
-            ...
-          )
+          # Capture output to determine width
+          coefmat_out <- capture.output({
+            printCoefmat(coef_table[, cols_to_print, drop = FALSE],
+              digits = digits,
+              has.Pvalue = has_p,
+              P.values = has_p,
+              cs.ind = if (length(cs_ind) > 0) cs_ind else NULL,
+              tst.ind = if (length(tst_ind) > 0) tst_ind else NULL,
+              dig.tst = digits,
+              signif.stars = signif.stars,
+              na.print = "NA",
+              eps.Pvalue = eps.Pvalue,
+              ...
+            )
+          })
+          if (length(coefmat_out) > 0) {
+            # Find the widest line (typically the header or data rows)
+            table_width <- max(nchar(coefmat_out))
+          }
         }
+      }
+
+      # --- Final Output ---
+      cat("iglm object\n")
+      cat(strrep("-", table_width), "\n", sep = "")
+
+      if (nrow(private$.results$coefficients_path) > 0) {
+        if (!is.null(call_out)) cat(call_out)
+        if (!is.null(formula_out)) cat(formula_out)
+        if (!is.null(results_header)) cat(results_header)
+        if (!is.null(coefmat_out)) cat(coefmat_out, sep = "\n")
 
         cat(paste(
           "\nTime for estimation: ",

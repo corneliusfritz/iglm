@@ -1,7 +1,7 @@
 Package: iglm
 Type: Package
 Title: Regression under Interference in Connected Populations
-Version: 1.2.3
+Version: 1.2.4
 Date: 2026-04-10
 Authors@R: c(
     person(given = "Cornelius", family = "Fritz", role = c("aut", "cre"), email = "corneliusfritz2010@gmail.com"), 

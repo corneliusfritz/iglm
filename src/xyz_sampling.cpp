@@ -665,7 +665,7 @@ void xyz_simulate_network_mh(const arma::vec coef,
                              const std::vector<xyz_ValidateFunction> &functions,
                              arma::vec &global_stats, 
                              const bool tnt = true) {
-  if (n_proposals == 0) return;
+  if (n_proposals == 0 || object.overlap_mat.n_rows == 0) return;
   
   int proposed_change;
   std::string z = "z";
@@ -781,7 +781,7 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
                                      const std::vector<xyz_ValidateFunction> &functions,
                                      arma::vec &global_stats, 
                                      const bool tnt = true) {
-  if (n_proposals == 0) return;
+  if (n_proposals == 0 || object.overlap_mat.n_rows == 0) return;
   
   int proposed_change;
   std::string z = "z";

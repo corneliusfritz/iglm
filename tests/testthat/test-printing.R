@@ -52,6 +52,6 @@ test_that("iglm.object print and summary works as expected", {
   model$.__enclos_env__$private$.coef <- matrix(c(-200, 0.5), ncol = 1)
   rownames(model$.__enclos_env__$private$.coef) <- c("edges(mode = 'local')", "attribute_y")
   out_eps <- capture.output(model$summary(eps.Pvalue = 0.5))
-  # With eps.Pvalue = 0.5, most small p-values should be shown as < 0.5
-  expect_true(any(grepl("< 0.5", out_eps)))
+  # With eps.Pvalue = 0.5, most small p-values should be shown as <0.5 or < 0.5
+  expect_true(any(grepl("<\\s*0\\.5", out_eps)))
 })
