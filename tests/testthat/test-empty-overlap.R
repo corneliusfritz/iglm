@@ -2,9 +2,7 @@ test_that("iglm handles empty overlap matrices gracefully", {
   n_actor <- 10
   neighborhood <- matrix(1, n_actor, n_actor)
   diag(neighborhood) <- 0
-  overlap <- matrix(0, n_actor, n_actor) # Force empty overlap_mat
-  
-  xyz_obj <- iglm.data(neighborhood = neighborhood, overlap = overlap, directed = FALSE)
+  xyz_obj <- iglm.data(neighborhood = neighborhood, return_neighborhood = FALSE, directed = FALSE)
   
   # The sampler_z tries to sample from the overlap_mat. 
   # If empty, this could cause out-of-bounds access in C++ without guards.
@@ -29,9 +27,7 @@ test_that("iglm handles empty overlap matrices with degrees gracefully", {
   n_actor <- 5
   neighborhood <- matrix(1, n_actor, n_actor)
   diag(neighborhood) <- 0
-  overlap <- matrix(0, n_actor, n_actor)
-  
-  xyz_obj <- iglm.data(neighborhood = neighborhood, overlap = overlap, directed = FALSE)
+  xyz_obj <- iglm.data(neighborhood = neighborhood, return_neighborhood = FALSE, directed = FALSE)
   
   # Test with degrees sampler
   sampler_new <- sampler.iglm(
