@@ -35,8 +35,8 @@ sampler.net.attr.generator <- R6::R6Class("sampler.net.attr",
         if (!is.list(data) || !"n_proposals" %in% names(data)) {
           stop("File does not contain a valid sampler_net_attr state.", call. = FALSE)
         }
-        private$.n_proposals <- data$n_proposals
-        private$.tnt <- data$tnt
+        private$.n_proposals <- as.integer(data$n_proposals)
+        private$.tnt <- if ("tnt" %in% names(data)) as.logical(data$tnt) else TRUE
       } else {
         private$.n_proposals <- as.integer(n_proposals)
         private$.tnt <- as.logical(tnt)
