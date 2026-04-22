@@ -45,8 +45,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // xyz_simulate_cpp
-List xyz_simulate_cpp(arma::vec& coef, arma::vec& coef_degrees, std::vector<std::string>& terms, int& n_actor, arma::mat z_network, arma::mat neighborhood, arma::mat overlap, arma::vec x_attribute, arma::vec y_attribute, bool init_empty, bool directed, bool degrees, std::vector<arma::mat>& data_list, std::vector<double>& type_list, double offset_nonoverlap, std::string type_x, std::string type_y, double attr_x_scale, double attr_y_scale, bool nonoverlap_random, int n_proposals_x, int n_proposals_y, int n_proposals_z, int seed, int n_proposals_z_nonoverlap, int n_burn_in, int n_simulation, bool only_stats, bool display_progress, bool fix_x, bool fix_z, bool tnt);
-RcppExport SEXP _iglm_xyz_simulate_cpp(SEXP coefSEXP, SEXP coef_degreesSEXP, SEXP termsSEXP, SEXP n_actorSEXP, SEXP z_networkSEXP, SEXP neighborhoodSEXP, SEXP overlapSEXP, SEXP x_attributeSEXP, SEXP y_attributeSEXP, SEXP init_emptySEXP, SEXP directedSEXP, SEXP degreesSEXP, SEXP data_listSEXP, SEXP type_listSEXP, SEXP offset_nonoverlapSEXP, SEXP type_xSEXP, SEXP type_ySEXP, SEXP attr_x_scaleSEXP, SEXP attr_y_scaleSEXP, SEXP nonoverlap_randomSEXP, SEXP n_proposals_xSEXP, SEXP n_proposals_ySEXP, SEXP n_proposals_zSEXP, SEXP seedSEXP, SEXP n_proposals_z_nonoverlapSEXP, SEXP n_burn_inSEXP, SEXP n_simulationSEXP, SEXP only_statsSEXP, SEXP display_progressSEXP, SEXP fix_xSEXP, SEXP fix_zSEXP, SEXP tntSEXP) {
+List xyz_simulate_cpp(arma::vec& coef, arma::vec& coef_degrees, std::vector<std::string>& terms, int& n_actor, arma::mat z_network, arma::mat neighborhood, arma::mat overlap, arma::vec x_attribute, arma::vec y_attribute, bool init_empty, bool directed, bool degrees, std::vector<arma::mat>& data_list, std::vector<double>& type_list, double offset_nonoverlap, std::string type_x, std::string type_y, double attr_x_scale, double attr_y_scale, bool nonoverlap_random, int n_proposals_x, int n_proposals_y, int n_proposals_z, int seed, int n_burn_in, int n_simulation, bool only_stats, bool display_progress, bool fix_x, bool fix_z, bool tnt);
+RcppExport SEXP _iglm_xyz_simulate_cpp(SEXP coefSEXP, SEXP coef_degreesSEXP, SEXP termsSEXP, SEXP n_actorSEXP, SEXP z_networkSEXP, SEXP neighborhoodSEXP, SEXP overlapSEXP, SEXP x_attributeSEXP, SEXP y_attributeSEXP, SEXP init_emptySEXP, SEXP directedSEXP, SEXP degreesSEXP, SEXP data_listSEXP, SEXP type_listSEXP, SEXP offset_nonoverlapSEXP, SEXP type_xSEXP, SEXP type_ySEXP, SEXP attr_x_scaleSEXP, SEXP attr_y_scaleSEXP, SEXP nonoverlap_randomSEXP, SEXP n_proposals_xSEXP, SEXP n_proposals_ySEXP, SEXP n_proposals_zSEXP, SEXP seedSEXP, SEXP n_burn_inSEXP, SEXP n_simulationSEXP, SEXP only_statsSEXP, SEXP display_progressSEXP, SEXP fix_xSEXP, SEXP fix_zSEXP, SEXP tntSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -74,7 +74,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type n_proposals_y(n_proposals_ySEXP);
     Rcpp::traits::input_parameter< int >::type n_proposals_z(n_proposals_zSEXP);
     Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type n_proposals_z_nonoverlap(n_proposals_z_nonoverlapSEXP);
     Rcpp::traits::input_parameter< int >::type n_burn_in(n_burn_inSEXP);
     Rcpp::traits::input_parameter< int >::type n_simulation(n_simulationSEXP);
     Rcpp::traits::input_parameter< bool >::type only_stats(only_statsSEXP);
@@ -82,7 +81,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type fix_x(fix_xSEXP);
     Rcpp::traits::input_parameter< bool >::type fix_z(fix_zSEXP);
     Rcpp::traits::input_parameter< bool >::type tnt(tntSEXP);
-    rcpp_result_gen = Rcpp::wrap(xyz_simulate_cpp(coef, coef_degrees, terms, n_actor, z_network, neighborhood, overlap, x_attribute, y_attribute, init_empty, directed, degrees, data_list, type_list, offset_nonoverlap, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, n_proposals_x, n_proposals_y, n_proposals_z, seed, n_proposals_z_nonoverlap, n_burn_in, n_simulation, only_stats, display_progress, fix_x, fix_z, tnt));
+    rcpp_result_gen = Rcpp::wrap(xyz_simulate_cpp(coef, coef_degrees, terms, n_actor, z_network, neighborhood, overlap, x_attribute, y_attribute, init_empty, directed, degrees, data_list, type_list, offset_nonoverlap, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, n_proposals_x, n_proposals_y, n_proposals_z, seed, n_burn_in, n_simulation, only_stats, display_progress, fix_x, fix_z, tnt));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -253,7 +252,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_iglm_iglm_print_registered_functions", (DL_FUNC) &_iglm_iglm_print_registered_functions, 0},
     {"_iglm_xyz_count_global", (DL_FUNC) &_iglm_xyz_count_global, 14},
-    {"_iglm_xyz_simulate_cpp", (DL_FUNC) &_iglm_xyz_simulate_cpp, 32},
+    {"_iglm_xyz_simulate_cpp", (DL_FUNC) &_iglm_xyz_simulate_cpp, 31},
     {"_iglm_pl_estimation", (DL_FUNC) &_iglm_pl_estimation, 22},
     {"_iglm_invert_mat", (DL_FUNC) &_iglm_invert_mat, 3},
     {"_iglm_get_A_inv", (DL_FUNC) &_iglm_get_A_inv, 1},
