@@ -140,7 +140,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     .validate = function() {
       # Check if cluster is valid
       if (!is.null(private$.cluster)) {
-        if (!inherits(cluster, "cluster")) {
+        if (!inherits(private$.cluster, "cluster")) {
           stop("`cluster` must be a valid cluster object from the 'parallel' package.", call. = FALSE)
         }
       }
@@ -408,12 +408,15 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     sampler_z = function(value) {
       if (missing(value)) private$.sampler_z else self$set_z_sampler(value)
     },
+    #' @field n_simulation (`integer`) The number of configurations to simulate.
     n_simulation = function(value) {
       if (missing(value)) private$.n_simulation else if (is.numeric(value)) self$set_n_simulation(value) else stop("`n_simulation` must be numeric.", call. = FALSE)
     },
+    #' @field n_burn_in (`integer`) The number of initial MCMC iterations to discard.
     n_burn_in = function(value) {
       if (missing(value)) private$.n_burn_in else if (is.numeric(value)) self$set_n_burn_in(value) else stop("`n_burn_in` must be numeric.", call. = FALSE)
     },
+    #' @field init_empty (`logical`) Whether to initialize simulations from an empty state.
     init_empty = function(value) {
       if (missing(value)) private$.init_empty else if (is.logical(value)) self$set_init_empty(value) else stop("`init_empty` must be logical", call. = FALSE)
     },

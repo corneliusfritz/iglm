@@ -68,7 +68,7 @@ To fully define the model, you need to set up a sampler for the MCMC estimation 
 ```{r}
 # Parameters of edges(mode = "local"), attribute_y, and attribute_x
 gt_coef <- c(3, -1, -1)
-# Parameters for popularity effect
+# Parameters for degree effect
 gt_coef_degrees <- c(rnorm(n = n_actor, -2, 1))
 # Define the sampler
 sampler_tmp <- sampler.iglm(

@@ -23,6 +23,12 @@ parallelization options. It also holds references to component samplers
 
 \item{\code{sampler_z}}{(`sampler_net_attr`) The sampler configuration object for the z network (overlap region).}
 
+\item{\code{n_simulation}}{(`integer`) The number of configurations to simulate.}
+
+\item{\code{n_burn_in}}{(`integer`) The number of initial MCMC iterations to discard.}
+
+\item{\code{init_empty}}{(`logical`) Whether to initialize simulations from an empty state.}
+
 \item{\code{seed}}{(`integer`) Read-only. The random seed used for sampling.}
 
 \item{\code{cluster}}{(`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.}
