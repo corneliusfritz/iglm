@@ -408,17 +408,14 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     sampler_z = function(value) {
       if (missing(value)) private$.sampler_z else self$set_z_sampler(value)
     },
-    #' @field n_simulation (`integer`) The number of simulations to generate after burn-in.
     n_simulation = function(value) {
-      if (missing(value)) private$.n_simulation else if (is.numeric(value)) self$n_simulation <- value else stop("`n_simulation` must be numeric.", call. = FALSE)
+      if (missing(value)) private$.n_simulation else if (is.numeric(value)) self$set_n_simulation(value) else stop("`n_simulation` must be numeric.", call. = FALSE)
     },
-    #' @field n_burn_in (`integer`) The number of burn-in iterations.
     n_burn_in = function(value) {
-      if (missing(value)) private$.n_burn_in else if (is.numeric(value)) self$n_burn_in <- value else stop("`n_burn_in` must be numeric.", call. = FALSE)
+      if (missing(value)) private$.n_burn_in else if (is.numeric(value)) self$set_n_burn_in(value) else stop("`n_burn_in` must be numeric.", call. = FALSE)
     },
-    #' @field init_empty (`logical`) Flag indicating whether simulations start from an empty state.
     init_empty = function(value) {
-      if (missing(value)) private$.init_empty else if (is.logical(value)) self$init_empty <- value else stop("`init_empty` must be logical", call. = FALSE)
+      if (missing(value)) private$.init_empty else if (is.logical(value)) self$set_init_empty(value) else stop("`init_empty` must be logical", call. = FALSE)
     },
     #' @field seed (`integer`) Read-only. The random seed used for sampling.
     seed = function(value) {

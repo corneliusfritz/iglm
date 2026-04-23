@@ -354,7 +354,7 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
                                    functions);
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
         tmp_stat=change_stat;
-        double HR_val = 1.0 / (1.0 + std::exp(-arma::as_scalar(arma::dot(coef, tmp_stat)) - offset_nonoverlap));
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::dot(coef, tmp_stat) - offset_nonoverlap));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
@@ -410,7 +410,7 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
         // Rcout << "Got CS" << std::endl;
         
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
-        double HR_val = 1.0 / (1.0 + std::exp(-arma::as_scalar(arma::dot(coef_nondegrees, change_stat)) - offset_nonoverlap - (coef_degrees_i + coef_degrees(j-1+object.n_actor))));
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::dot(coef_nondegrees, change_stat) - offset_nonoverlap - (coef_degrees_i + coef_degrees(j-1+object.n_actor))));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
@@ -442,7 +442,7 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
                                    is_full_neighborhood,
                                    functions);
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
-        double HR_val = 1.0 / (1.0 + std::exp(-arma::as_scalar(arma::dot(coef_nondegrees, change_stat)) - offset_nonoverlap - (coef_degrees_i + coef_degrees(j-1))));
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::dot(coef_nondegrees, change_stat) - offset_nonoverlap - (coef_degrees_i + coef_degrees(j-1))));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
@@ -503,9 +503,9 @@ void xyz_simulate_network_consecutive_mh_directed(const arma::vec &coef,
       object.delete_edge(i, j); 
       
       double log_P_00 = 0.0;
-      double log_P_10 = arma::as_scalar(arma::dot(coef, change_stat_10)) + offset_nonoverlap;
-      double log_P_01 = arma::as_scalar(arma::dot(coef, change_stat_01)) + offset_nonoverlap;
-      double log_P_11 = arma::as_scalar(arma::dot(coef, change_stat_10 + change_stat_11_given_10)) + 2.0 * offset_nonoverlap;
+      double log_P_10 = arma::dot(coef, change_stat_10) + offset_nonoverlap;
+      double log_P_01 = arma::dot(coef, change_stat_01) + offset_nonoverlap;
+      double log_P_11 = arma::dot(coef, change_stat_10 + change_stat_11_given_10) + 2.0 * offset_nonoverlap;
       
       double max_log_P = std::max({log_P_00, log_P_10, log_P_01, log_P_11});
       double P_00 = std::exp(log_P_00 - max_log_P);
@@ -581,9 +581,9 @@ void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_
       double deg_ji = coef_degrees(j - 1) + coef_degrees(i - 1 + object.n_actor);
       
       double log_P_00 = 0.0;
-      double log_P_10 = arma::as_scalar(arma::dot(coef_nondegrees, change_stat_10)) + offset_nonoverlap + deg_ij;
-      double log_P_01 = arma::as_scalar(arma::dot(coef_nondegrees, change_stat_01)) + offset_nonoverlap + deg_ji;
-      double log_P_11 = arma::as_scalar(arma::dot(coef_nondegrees, change_stat_10 + change_stat_11_given_10)) + 2.0 * offset_nonoverlap + deg_ij + deg_ji;
+      double log_P_10 = arma::dot(coef_nondegrees, change_stat_10) + offset_nonoverlap + deg_ij;
+      double log_P_01 = arma::dot(coef_nondegrees, change_stat_01) + offset_nonoverlap + deg_ji;
+      double log_P_11 = arma::dot(coef_nondegrees, change_stat_10 + change_stat_11_given_10) + 2.0 * offset_nonoverlap + deg_ij + deg_ji;
       
       double max_log_P = std::max({log_P_00, log_P_10, log_P_01, log_P_11});
       double P_00 = std::exp(log_P_00 - max_log_P);
@@ -816,7 +816,7 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
     tmp_stat = change_stat * multiplier;
     
     if (object.z_network.directed) {
-      double HR_val = std::exp(arma::as_scalar(arma::dot(coef_nondegrees, tmp_stat)) + hr_adj + 
+      double HR_val = std::exp(arma::dot(coef_nondegrees, tmp_stat) + hr_adj + 
         multiplier * (coef_degrees(tmp_i - 1) + coef_degrees(tmp_j - 1 + object.n_actor)));
       if (R::unif_rand() < HR_val) {
         global_stats += tmp_stat;
@@ -824,7 +824,7 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
         if (proposed_change == 1) object.add_edge(tmp_i, tmp_j);
       }
     } else {
-      double HR_val = std::exp(arma::as_scalar(arma::dot(coef_nondegrees, tmp_stat)) + hr_adj + 
+      double HR_val = std::exp(arma::dot(coef_nondegrees, tmp_stat) + hr_adj + 
         multiplier * (coef_degrees(tmp_i - 1) + coef_degrees(tmp_j - 1)));  
       if (R::unif_rand() < HR_val) {
         global_stats += tmp_stat;
@@ -881,7 +881,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         }  
         // 3. Step: Calculate the Hastings Ratios
         tmp_stat=change_stat*multiplier;
-        double HR_val = std::exp(arma::as_scalar(arma::dot(coef, tmp_stat)));
+        double HR_val = std::exp(arma::dot(coef, tmp_stat));
         
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(R::unif_rand() < HR_val){
@@ -895,13 +895,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         }
       }
       if(object.x_attribute.type == "poisson"){
-        double safe_eta = std::min(arma::as_scalar(arma::dot(coef, change_stat)), MAX_LOG_RATE);
+        double safe_eta = std::min(arma::dot(coef, change_stat), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats += (tmp_val - object.x_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
       if(object.x_attribute.type == "normal"){
-        double HR_val = arma::as_scalar(arma::dot(coef, change_stat));
+        double HR_val = arma::dot(coef, change_stat);
         double tmp_val = R::rnorm(HR_val, sqrt(object.x_attribute.scale)); 
         global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i))/object.x_attribute.scale * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
@@ -918,7 +918,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         }
         // 3. Step: Calculate the Hastings Ratios
         tmp_stat=change_stat*multiplier;
-        double HR_val = std::exp(arma::as_scalar(arma::dot(coef, tmp_stat)));
+        double HR_val = std::exp(arma::dot(coef, tmp_stat));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(R::unif_rand() < HR_val){
           global_stats += (multiplier * 1.0 / object.y_attribute.scale) * change_stat;
@@ -931,13 +931,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
         }
       }
       if(object.y_attribute.type == "poisson"){
-        double safe_eta = std::min(arma::as_scalar(arma::dot(coef, change_stat)), MAX_LOG_RATE);
+        double safe_eta = std::min(arma::dot(coef, change_stat), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats +=  (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
       if(object.y_attribute.type == "normal"){
-        double HR_val = arma::as_scalar(arma::dot(coef, change_stat));
+        double HR_val = arma::dot(coef, change_stat);
         double tmp_val = R::rnorm(HR_val, sqrt(object.y_attribute.scale)); 
         global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i))/object.y_attribute.scale * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
@@ -3572,7 +3572,7 @@ List xyz_approximate_variability(arma::vec& coef,
       z_tmp.at(i) = 1;
   }
   // arma::vec gradient_tmp;
-  if (seed > 0) {
+  if (seed != NA_INTEGER) {
     Rcpp::Function set_seed_r("set.seed");
     set_seed_r(seed);
   }
