@@ -4,24 +4,18 @@ The \`sampler_net_attr\` class is a simple R6 container used within the
 \`sampler.iglm\` class. It holds the MCMC sampling parameters for a
 single component of the \`iglm\` model, such as one attribute (e.g.,
 \`x_attribute\`) or a part of the network (e.g., \`z_network\` within
-the overlap). It primarily stores the number of proposals and a random
-seed.
+the overlap). It stores the number of proposals and the TNT flag. The
+random seed is managed centrally by the parent \`sampler.iglm\` object.
 
 ## Active bindings
 
 - `n_proposals`:
 
-  (\`integer\`) Read-only. The number of MCMC proposals per sampling
-  step.
-
-- `seed`:
-
-  (\`integer\`) Read-only. The random seed used for this component's
-  sampler.
+  (\`integer\`) Read-only. Number of MCMC proposals per step.
 
 - `tnt`:
 
-  (\`logical\`) Read-only. Flag indicating whether TNT sampling is used.
+  (\`logical\`) Read-only. Whether TNT sampling is used.
 
 ## Methods
 
@@ -35,8 +29,6 @@ seed.
 
 - [`sampler.net.attr.generator$set_n_proposals()`](#method-sampler.net.attr-set_n_proposals)
 
-- [`sampler.net.attr.generator$set_seed()`](#method-sampler.net.attr-set_seed)
-
 - [`sampler.net.attr.generator$set_tnt()`](#method-sampler.net.attr-set_tnt)
 
 - [`sampler.net.attr.generator$save()`](#method-sampler.net.attr-save)
@@ -47,17 +39,11 @@ seed.
 
 ### Method `new()`
 
-Create a new \`sampler_net_attr\` object. Validates inputs and sets a
-random seed if none is provided.
+Create a new \`sampler_net_attr\` object.
 
 #### Usage
 
-    sampler.net.attr.generator$new(
-      n_proposals = 10000,
-      seed = NA,
-      file = NULL,
-      tnt = TRUE
-    )
+    sampler.net.attr.generator$new(n_proposals = 10000, file = NULL, tnt = TRUE)
 
 #### Arguments
 
@@ -66,12 +52,6 @@ random seed if none is provided.
   (integer) The number of MCMC proposals (iterations) to perform for
   this specific component during each sampling step. Default is 10000.
   Must be a non-negative integer.
-
-- `seed`:
-
-  (integer or \`NA\`) An integer seed for the random number generator to
-  ensure reproducibility for this component's sampling. If \`NA\`
-  (default), a random seed is generated automatically.
 
 - `file`:
 
@@ -101,18 +81,17 @@ Print a summary of the sampler settings for this component.
 
 - `indent`:
 
-  (character) A string used for indentation (e.g., spaces) when
-  printing, useful for nested structures. Default is " ".
+  (character) Indentation string. Default is " ".
 
 #### Returns
 
-The object itself, invisibly. Called for side effect.
+The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
 ### Method `gather()`
 
-Gathers all data from private fields into a list.
+Gathers all data into a list.
 
 #### Usage
 
@@ -120,13 +99,13 @@ Gathers all data from private fields into a list.
 
 #### Returns
 
-A list containing all information of the sampler.
+A list with \`n_proposals\` and \`tnt\`.
 
 ------------------------------------------------------------------------
 
 ### Method `set_n_proposals()`
 
-Sets the number of MCMC proposals for this component.
+Sets the number of MCMC proposals.
 
 #### Usage
 
@@ -136,37 +115,13 @@ Sets the number of MCMC proposals for this component.
 
 - `n_proposals`:
 
-  (integer) The number of proposals to set.
-
-#### Returns
-
-None.
-
-------------------------------------------------------------------------
-
-### Method `set_seed()`
-
-Sets the random seed for this component's sampler.
-
-#### Usage
-
-    sampler.net.attr.generator$set_seed(seed)
-
-#### Arguments
-
-- `seed`:
-
-  (integer) The random seed to set.
-
-#### Returns
-
-None.
+  (integer) Number of proposals.
 
 ------------------------------------------------------------------------
 
 ### Method `set_tnt()`
 
-Sets whether to use TNT sampling for this component.
+Sets whether to use TNT sampling.
 
 #### Usage
 
@@ -176,17 +131,13 @@ Sets whether to use TNT sampling for this component.
 
 - `tnt`:
 
-  (logical) \`TRUE\` to use TNT sampling, \`FALSE\` otherwise.
-
-#### Returns
-
-None.
+  (logical) \`TRUE\` to use TNT sampling.
 
 ------------------------------------------------------------------------
 
 ### Method [`save()`](https://rdrr.io/r/base/save.html)
 
-Save the object's state to an .rds file.
+Save state to an .rds file.
 
 #### Usage
 
@@ -196,7 +147,7 @@ Save the object's state to an .rds file.
 
 - `file`:
 
-  (character) The file file where the state will be saved.
+  (character) File path.
 
 #### Returns
 

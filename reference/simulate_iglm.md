@@ -1,4 +1,4 @@
-# Simulate responses and connections
+# Simulate Responses and Connections
 
 Simulate responses and connections.
 
@@ -88,9 +88,9 @@ simulate_iglm(
   “parallel::makeCluster“. If provided and valid, the function performs
   a single burn-in simulation on the main R process, then distributes
   the remaining \`n_simulation\` tasks across the cluster workers using
-  “parallel::parLapply“. Seeds for component samplers are offset for
-  each worker to ensure different random streams. If \`NULL\` (default),
-  all simulations are run sequentially in the main R process.
+  “parallel::parLapply“. The master seed is offset for each worker to
+  ensure different random streams. If \`NULL\` (default), all
+  simulations are run sequentially in the main R process.
 
 - fix_x:
 

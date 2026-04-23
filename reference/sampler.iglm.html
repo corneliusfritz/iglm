@@ -62,6 +62,7 @@ passing them to the `iglm` constructor or simulation functions.</p>
 <span>  n_simulation <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  n_burn_in <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  init_empty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  file <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -89,27 +90,29 @@ If `NULL` (default), default settings are used.</p></dd>
 
 
 <dt id="arg-n-simulation">n_simulation<a class="anchor" aria-label="anchor" href="#arg-n-simulation"></a></dt>
-<dd><p>(integer) The number of independent samples (networks/attributes)
-to generate after the burn-in period. Default: 100. Must be non-negative.</p></dd>
+<dd><p>(integer) The number of independent samples to generate
+after the burn-in period. Default: 100. Must be non-negative.</p></dd>
 
 
 <dt id="arg-n-burn-in">n_burn_in<a class="anchor" aria-label="anchor" href="#arg-n-burn-in"></a></dt>
-<dd><p>(integer) The number of MCMC iterations to perform and discard
-at the beginning of the chain to allow it to reach approximate stationarity.
-Default: 10. Must be non-negative.</p></dd>
+<dd><p>(integer) The number of MCMC iterations to discard at the
+start for burn-in. Default: 10. Must be non-negative.</p></dd>
 
 
 <dt id="arg-init-empty">init_empty<a class="anchor" aria-label="anchor" href="#arg-init-empty"></a></dt>
-<dd><p>(logical) If `TRUE` (default), initialize the MCMC chain from
-an empty state (e.g., empty network, attributes at zero or mean). If `FALSE`,
-the starting state might depend on the specific implementation.</p></dd>
+<dd><p>(logical) If `TRUE` (default), initialize the MCMC chain
+from an empty state.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>(integer or `NA`) A single integer seed set once before sampling
+begins to ensure reproducibility. If `NA` (default), a random seed is
+generated automatically.</p></dd>
 
 
 <dt id="arg-cluster">cluster<a class="anchor" aria-label="anchor" href="#arg-cluster"></a></dt>
-<dd><p>A parallel cluster object (e.g., created with `parallel::makeCluster()`)
-to enable parallel execution of simulations. If `NULL` (default), simulations
-are run sequentially. Note: Cluster management (creation/stopping) is the
-user's responsibility.</p></dd>
+<dd><p>A parallel cluster object (e.g., from `parallel::makeCluster()`)
+for parallel simulations. If `NULL` (default), simulations run sequentially.</p></dd>
 
 
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
@@ -131,9 +134,10 @@ the specified .rds file instead of initializing from parameters.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">n_actor</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></span>
 <span class="r-in"><span><span class="va">sampler_new</span> <span class="op">&lt;-</span> <span class="fu">sampler.iglm</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  n_burn_in <span class="op">=</span> <span class="fl">100</span>, n_simulation <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>  sampler_x <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  sampler_y <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span> <span class="op">*</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">32</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  sampler_z <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span><span class="op">^</span><span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">134</span>, tnt <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  seed <span class="op">=</span> <span class="fl">42</span>,</span></span>
+<span class="r-in"><span>  sampler_x <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  sampler_y <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  sampler_z <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span><span class="op">^</span><span class="fl">2</span>, tnt <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  init_empty <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sampler_new</span></span></span>
@@ -143,24 +147,20 @@ the specified .rds file instead of initializing from parameters.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n_simulation :10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n_burn_in    :100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   init_empty   :FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   gibbs        :FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   seed         :42</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sub-samplers</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sampler_x:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Number of proposals : 500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Random seed         : 13</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     TNT sampling        : TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sampler_y:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Number of proposals : 500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Random seed         : 32</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     TNT sampling        : TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sampler_z:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Number of proposals : 2500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Random seed         : 134</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     TNT sampling        : TRUE</span>
-<span class="r-in"><span><span class="co"># Change some values of the  sampler</span></span></span>
-<span class="r-in"><span><span class="va">sampler_new</span><span class="op">$</span><span class="va">n_simulation</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10</span>
+<span class="r-in"><span><span class="va">sampler_new</span><span class="op">$</span><span class="va">seed</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 42</span>
 <span class="r-in"><span><span class="va">sampler_new</span><span class="op">$</span><span class="fu">set_n_simulation</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sampler_new</span><span class="op">$</span><span class="va">n_simulation</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 100</span>

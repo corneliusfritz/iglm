@@ -8,8 +8,8 @@ network structures. The package allows users to analyze how individual
 attributes and network connections jointly influence outcomes of
 interest.
 
-Next, you can create a `iglm` object by specifying the network structure
-and the attributes of interest. Here is a simple example:
+You can create a `iglm` object by specifying the network structure and
+the attributes of interest. Here is a simple example:
 
 ``` r
 n_actor <- 100
@@ -57,20 +57,20 @@ estimation and set all necessary parameters:
 ``` r
 # Parameters of edges(mode = "local"), attribute_y, and attribute_x
 gt_coef <- c(3, -1, -1)
-# Parameters for popularity effect
-gt_coef_pop <- c(rnorm(n = n_actor, -2, 1))
+# Parameters for degree effect
+gt_coef_degrees <- c(rnorm(n = n_actor, -2, 1))
 # Define the sampler
 sampler_tmp <- sampler.iglm(
   n_burn_in = 100, n_simulation = 10,
-  sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-  sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-  sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134),
+  sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
   init_empty = F
 )
 
 model_tmp_new <- iglm(
   formula = formula,
-  coef = gt_coef, coef_degrees = gt_coef_pop, sampler = sampler_tmp,
+  coef = gt_coef, coef_degrees = gt_coef_degrees, sampler = sampler_tmp,
   control = control.iglm(accelerated = F, max_it = 200, display_progress = F)
 )
 ```

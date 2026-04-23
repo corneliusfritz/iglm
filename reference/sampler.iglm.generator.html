@@ -72,15 +72,19 @@ parallelization options. It also holds references to component samplers
 
 
 <dt><code>n_simulation</code></dt>
-<dd><p>(`integer`) The number of simulations to generate after burn-in.</p></dd>
+<dd><p>(`integer`) The number of configurations to simulate.</p></dd>
 
 
 <dt><code>n_burn_in</code></dt>
-<dd><p>(`integer`) The number of burn-in iterations.</p></dd>
+<dd><p>(`integer`) The number of initial MCMC iterations to discard.</p></dd>
 
 
 <dt><code>init_empty</code></dt>
-<dd><p>(`logical`) Flag indicating whether simulations start from an empty state.</p></dd>
+<dd><p>(`logical`) Whether to initialize simulations from an empty state.</p></dd>
+
+
+<dt><code>seed</code></dt>
+<dd><p>(`integer`) Read-only. The random seed used for sampling.</p></dd>
 
 
 <dt><code>cluster</code></dt>
@@ -104,6 +108,7 @@ parallelization options. It also holds references to component samplers
 <li><p><a href="#method-sampler.iglm-set_x_sampler"><code>sampler.iglm.generator$set_x_sampler()</code></a></p></li>
 <li><p><a href="#method-sampler.iglm-set_y_sampler"><code>sampler.iglm.generator$set_y_sampler()</code></a></p></li>
 <li><p><a href="#method-sampler.iglm-set_z_sampler"><code>sampler.iglm.generator$set_z_sampler()</code></a></p></li>
+<li><p><a href="#method-sampler.iglm-set_seed"><code>sampler.iglm.generator$set_seed()</code></a></p></li>
 <li><p><a href="#method-sampler.iglm-print"><code>sampler.iglm.generator$print()</code></a></p></li>
 <li><p><a href="#method-sampler.iglm-gather"><code>sampler.iglm.generator$gather()</code></a></p></li>
 <li><p><a href="#method-sampler.iglm-save"><code>sampler.iglm.generator$save()</code></a></p></li>
@@ -121,6 +126,7 @@ and validates inputs.</p><div class="section">
 <span>  n_simulation <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  n_burn_in <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  init_empty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  file <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -159,6 +165,12 @@ to simulate and store after the burn-in period. Default is 100. Must be non-nega
 initialized from an empty state (e.g., empty network, attributes at mean).
 If `FALSE`, initialization might depend on the specific sampler implementation
 (e.g., starting from observed data).</p></dd>
+
+
+<dt><code>seed</code></dt>
+<dd><p>(integer or `NA`) A single integer seed for the random number
+generator, set once before sampling begins. If `NA` (default), a random
+seed is generated automatically.</p></dd>
 
 
 <dt><code>cluster</code></dt>
@@ -328,20 +340,37 @@ the internal cluster object reference to `NULL`.</p><div class="section">
 <p>None.</p>
 </div>
 
-</div><p></p><hr><a id="method-sampler.iglm-print"></a><div class="section">
-<h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
-<p>Prints a formatted summary of the sampler configuration to the console.
-Includes core parameters (simulation count, burn-in, etc.) and calls
-the `print` method for each component sampler (`sampler_x`, `sampler_y`, etc.).</p><div class="section">
+</div><p></p><hr><a id="method-sampler.iglm-set_seed"></a><div class="section">
+<h3 id="method-set-seed-">Method <code>set_seed()</code><a class="anchor" aria-label="anchor" href="#method-set-seed-"></a></h3>
+<p>Sets the random seed for this sampler.</p><div class="section">
 <h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.iglm.generator</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.iglm.generator</span><span class="op">$</span><span class="fu">set_seed</span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>seed</code></dt>
+<dd><p>(integer) The random seed to set.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<p>None.</p>
+</div>
+
+</div><p></p><hr><a id="method-sampler.iglm-print"></a><div class="section">
+<h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
+<p>Prints a formatted summary of the sampler configuration to the console.</p><div class="section">
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.iglm.generator</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>digits</code></dt>
-<dd><p>(integer) Number of digits for formatting numeric values
-(like `prob_nb`). Default: 3.</p></dd>
+<dd><p>(integer) Number of digits for formatting numeric values. Default: 3.</p></dd>
 
 
 <dt><code>...</code></dt>
@@ -351,19 +380,19 @@ the `print` method for each component sampler (`sampler_x`, `sampler_y`, etc.).<
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
 <p>The `sampler.iglm` object itself (`self`), invisibly.</p>
 </div>
 
 </div><p></p><hr><a id="method-sampler.iglm-gather"></a><div class="section">
 <h3 id="method-gather-">Method <code>gather()</code><a class="anchor" aria-label="anchor" href="#method-gather-"></a></h3>
 <p>Gathers all data from private fields into a list.</p><div class="section">
-<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.iglm.generator</span><span class="op">$</span><span class="fu">gather</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
+<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
 <p>A list containing all information of the sampler.</p>
 </div>
 
@@ -375,12 +404,12 @@ named 'sampler.iglm_state.rds' within the specified
 directory, and will also call the `save()` method for each
 nested sampler (.x, .y, .z), saving them into the same
 directory.</p><div class="section">
-<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.iglm.generator</span><span class="op">$</span><span class="fu">save</span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
+<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>file</code></dt>
 <dd><p>(character) The file to a directory where the
 state files will be saved. The directory will be created
@@ -390,19 +419,19 @@ if it does not exist.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
+<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
 <p>The object itself, invisibly.</p>
 </div>
 
 </div><p></p><hr><a id="method-sampler.iglm-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.iglm.generator</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
+<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

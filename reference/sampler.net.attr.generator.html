@@ -3,11 +3,13 @@
 `sampler.iglm` class. It holds the MCMC sampling parameters
 for a single component of the `iglm` model, such as one attribute
 (e.g., `x_attribute`) or a part of the network (e.g., `z_network` within
-the overlap). It primarily stores the number of proposals and a random seed."><meta property="og:description" content="The `sampler_net_attr` class is a simple R6 container used within the
+the overlap). It stores the number of proposals and the TNT flag.
+The random seed is managed centrally by the parent `sampler.iglm` object."><meta property="og:description" content="The `sampler_net_attr` class is a simple R6 container used within the
 `sampler.iglm` class. It holds the MCMC sampling parameters
 for a single component of the `iglm` model, such as one attribute
 (e.g., `x_attribute`) or a part of the network (e.g., `z_network` within
-the overlap). It primarily stores the number of proposals and a random seed."><meta property="og:image" content="/logo.png"></head><body>
+the overlap). It stores the number of proposals and the TNT flag.
+The random seed is managed centrally by the parent `sampler.iglm` object."><meta property="og:image" content="/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -44,22 +46,19 @@ the overlap). It primarily stores the number of proposals and a random seed."><m
 `sampler.iglm` class. It holds the MCMC sampling parameters
 for a single component of the `iglm` model, such as one attribute
 (e.g., `x_attribute`) or a part of the network (e.g., `z_network` within
-the overlap). It primarily stores the number of proposals and a random seed.</p>
+the overlap). It stores the number of proposals and the TNT flag.
+The random seed is managed centrally by the parent `sampler.iglm` object.</p>
     </div>
 
 
     <div class="section level2">
     <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
     <p></p><div class="r6-active-bindings"><dl><dt><code>n_proposals</code></dt>
-<dd><p>(`integer`) Read-only. The number of MCMC proposals per sampling step.</p></dd>
-
-
-<dt><code>seed</code></dt>
-<dd><p>(`integer`) Read-only. The random seed used for this component's sampler.</p></dd>
+<dd><p>(`integer`) Read-only. Number of MCMC proposals per step.</p></dd>
 
 
 <dt><code>tnt</code></dt>
-<dd><p>(`logical`) Read-only. Flag indicating whether TNT sampling is used.</p></dd>
+<dd><p>(`logical`) Read-only. Whether TNT sampling is used.</p></dd>
 
 
 </dl><p></p></div>
@@ -74,21 +73,14 @@ the overlap). It primarily stores the number of proposals and a random seed.</p>
 <li><p><a href="#method-sampler.net.attr-print"><code>sampler.net.attr.generator$print()</code></a></p></li>
 <li><p><a href="#method-sampler.net.attr-gather"><code>sampler.net.attr.generator$gather()</code></a></p></li>
 <li><p><a href="#method-sampler.net.attr-set_n_proposals"><code>sampler.net.attr.generator$set_n_proposals()</code></a></p></li>
-<li><p><a href="#method-sampler.net.attr-set_seed"><code>sampler.net.attr.generator$set_seed()</code></a></p></li>
 <li><p><a href="#method-sampler.net.attr-set_tnt"><code>sampler.net.attr.generator$set_tnt()</code></a></p></li>
 <li><p><a href="#method-sampler.net.attr-save"><code>sampler.net.attr.generator$save()</code></a></p></li>
 <li><p><a href="#method-sampler.net.attr-clone"><code>sampler.net.attr.generator$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-sampler.net.attr-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
-<p>Create a new `sampler_net_attr` object. Validates inputs and sets
-a random seed if none is provided.</p><div class="section">
+<p>Create a new `sampler_net_attr` object.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/sampler.net.attr.generator.html">sampler.net.attr.generator</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  n_proposals <span class="op">=</span> <span class="fl">10000</span>,</span>
-<span>  seed <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  file <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  tnt <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/sampler.net.attr.generator.html">sampler.net.attr.generator</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="fl">10000</span>, file <span class="op">=</span> <span class="cn">NULL</span>, tnt <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -97,12 +89,6 @@ a random seed if none is provided.</p><div class="section">
 <dd><p>(integer) The number of MCMC proposals (iterations)
 to perform for this specific component during each sampling step.
 Default is 10000. Must be a non-negative integer.</p></dd>
-
-
-<dt><code>seed</code></dt>
-<dd><p>(integer or `NA`) An integer seed for the random number
-generator to ensure reproducibility for this component's sampling.
-If `NA` (default), a random seed is generated automatically.</p></dd>
 
 
 <dt><code>file</code></dt>
@@ -131,32 +117,31 @@ the specified .rds file instead of initializing from parameters.</p></dd>
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>indent</code></dt>
-<dd><p>(character) A string used for indentation (e.g., spaces)
-when printing, useful for nested structures. Default is "  ".</p></dd>
+<dd><p>(character) Indentation string. Default is "  ".</p></dd>
 
 
 </dl><p></p></div>
 </div>
 <div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
-<p>The object itself, invisibly. Called for side effect.</p>
+<p>The object itself, invisibly.</p>
 </div>
 
 </div><p></p><hr><a id="method-sampler.net.attr-gather"></a><div class="section">
 <h3 id="method-gather-">Method <code>gather()</code><a class="anchor" aria-label="anchor" href="#method-gather-"></a></h3>
-<p>Gathers all data from private fields into a list.</p><div class="section">
+<p>Gathers all data into a list.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.net.attr.generator</span><span class="op">$</span><span class="fu">gather</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
-<p>A list containing all information of the sampler.</p>
+<p>A list with `n_proposals` and `tnt`.</p>
 </div>
 
 </div><p></p><hr><a id="method-sampler.net.attr-set_n_proposals"></a><div class="section">
 <h3 id="method-set-n-proposals-">Method <code>set_n_proposals()</code><a class="anchor" aria-label="anchor" href="#method-set-n-proposals-"></a></h3>
-<p>Sets the number of MCMC proposals for this component.</p><div class="section">
+<p>Sets the number of MCMC proposals.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.net.attr.generator</span><span class="op">$</span><span class="fu">set_n_proposals</span><span class="op">(</span><span class="va">n_proposals</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -164,85 +149,57 @@ when printing, useful for nested structures. Default is "  ".</p></dd>
 <div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>n_proposals</code></dt>
-<dd><p>(integer) The number of proposals to set.</p></dd>
+<dd><p>(integer) Number of proposals.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-sampler.net.attr-set_tnt"></a><div class="section">
+<h3 id="method-set-tnt-">Method <code>set_tnt()</code><a class="anchor" aria-label="anchor" href="#method-set-tnt-"></a></h3>
+<p>Sets whether to use TNT sampling.</p><div class="section">
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.net.attr.generator</span><span class="op">$</span><span class="fu">set_tnt</span><span class="op">(</span><span class="va">tnt</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>tnt</code></dt>
+<dd><p>(logical) `TRUE` to use TNT sampling.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-sampler.net.attr-save"></a><div class="section">
+<h3 id="method-save-">Method <code><a href="https://rdrr.io/r/base/save.html" class="external-link">save()</a></code><a class="anchor" aria-label="anchor" href="#method-save-"></a></h3>
+<p>Save state to an .rds file.</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.net.attr.generator</span><span class="op">$</span><span class="fu">save</span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>file</code></dt>
+<dd><p>(character) File path.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 <div class="section">
 <h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
-<p>None.</p>
-</div>
-
-</div><p></p><hr><a id="method-sampler.net.attr-set_seed"></a><div class="section">
-<h3 id="method-set-seed-">Method <code>set_seed()</code><a class="anchor" aria-label="anchor" href="#method-set-seed-"></a></h3>
-<p>Sets the random seed for this component's sampler.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.net.attr.generator</span><span class="op">$</span><span class="fu">set_seed</span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>seed</code></dt>
-<dd><p>(integer) The random seed to set.</p></dd>
-
-
-</dl><p></p></div>
-</div>
-<div class="section">
-<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
-<p>None.</p>
-</div>
-
-</div><p></p><hr><a id="method-sampler.net.attr-set_tnt"></a><div class="section">
-<h3 id="method-set-tnt-">Method <code>set_tnt()</code><a class="anchor" aria-label="anchor" href="#method-set-tnt-"></a></h3>
-<p>Sets whether to use TNT sampling for this component.</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.net.attr.generator</span><span class="op">$</span><span class="fu">set_tnt</span><span class="op">(</span><span class="va">tnt</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>tnt</code></dt>
-<dd><p>(logical) `TRUE` to use TNT sampling, `FALSE` otherwise.</p></dd>
-
-
-</dl><p></p></div>
-</div>
-<div class="section">
-<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
-<p>None.</p>
-</div>
-
-</div><p></p><hr><a id="method-sampler.net.attr-save"></a><div class="section">
-<h3 id="method-save-">Method <code><a href="https://rdrr.io/r/base/save.html" class="external-link">save()</a></code><a class="anchor" aria-label="anchor" href="#method-save-"></a></h3>
-<p>Save the object's state to an .rds file.</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.net.attr.generator</span><span class="op">$</span><span class="fu">save</span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>file</code></dt>
-<dd><p>(character) The file file where the state will be saved.</p></dd>
-
-
-</dl><p></p></div>
-</div>
-<div class="section">
-<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
 <p>The object itself, invisibly.</p>
 </div>
 
 </div><p></p><hr><a id="method-sampler.net.attr-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">sampler.net.attr.generator</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

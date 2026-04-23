@@ -28,16 +28,19 @@ sampling individual parts (attributes x, y, network z).
 
 - `n_simulation`:
 
-  (\`integer\`) The number of simulations to generate after burn-in.
+  (\`integer\`) The number of configurations to simulate.
 
 - `n_burn_in`:
 
-  (\`integer\`) The number of burn-in iterations.
+  (\`integer\`) The number of initial MCMC iterations to discard.
 
 - `init_empty`:
 
-  (\`logical\`) Flag indicating whether simulations start from an empty
-  state.
+  (\`logical\`) Whether to initialize simulations from an empty state.
+
+- `seed`:
+
+  (\`integer\`) Read-only. The random seed used for sampling.
 
 - `cluster`:
 
@@ -66,6 +69,8 @@ sampling individual parts (attributes x, y, network z).
 
 - [`sampler.iglm.generator$set_z_sampler()`](#method-sampler.iglm-set_z_sampler)
 
+- [`sampler.iglm.generator$set_seed()`](#method-sampler.iglm-set_seed)
+
 - [`sampler.iglm.generator$print()`](#method-sampler.iglm-print)
 
 - [`sampler.iglm.generator$gather()`](#method-sampler.iglm-gather)
@@ -91,6 +96,7 @@ provided, and validates inputs.
       n_simulation = 100,
       n_burn_in = 10,
       init_empty = TRUE,
+      seed = NA,
       cluster = NULL,
       file = NULL
     )
@@ -131,6 +137,12 @@ provided, and validates inputs.
   empty state (e.g., empty network, attributes at mean). If \`FALSE\`,
   initialization might depend on the specific sampler implementation
   (e.g., starting from observed data).
+
+- `seed`:
+
+  (integer or \`NA\`) A single integer seed for the random number
+  generator, set once before sampling begins. If \`NA\` (default), a
+  random seed is generated automatically.
 
 - `cluster`:
 
@@ -300,12 +312,29 @@ None.
 
 ------------------------------------------------------------------------
 
+### Method `set_seed()`
+
+Sets the random seed for this sampler.
+
+#### Usage
+
+    sampler.iglm.generator$set_seed(seed)
+
+#### Arguments
+
+- `seed`:
+
+  (integer) The random seed to set.
+
+#### Returns
+
+None.
+
+------------------------------------------------------------------------
+
 ### Method [`print()`](https://rdrr.io/r/base/print.html)
 
 Prints a formatted summary of the sampler configuration to the console.
-Includes core parameters (simulation count, burn-in, etc.) and calls the
-\`print\` method for each component sampler (\`sampler_x\`,
-\`sampler_y\`, etc.).
 
 #### Usage
 
@@ -315,8 +344,7 @@ Includes core parameters (simulation count, burn-in, etc.) and calls the
 
 - `digits`:
 
-  (integer) Number of digits for formatting numeric values (like
-  \`prob_nb\`). Default: 3.
+  (integer) Number of digits for formatting numeric values. Default: 3.
 
 - `...`:
 

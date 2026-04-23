@@ -1,10 +1,10 @@
-# Network GLM (Generalized Linear Model) Objects (R6 Class)
+# iglm Objects (R6 Class)
 
 The \`iglm.object\` class encapsulates all components required to
-define, estimate, and simulate from a network generalized linear model.
-This includes the model formula, coefficients, the underlying network
-and attribute data (via a \`iglm.data\` object), sampler controls,
-estimation controls, and storage for results.
+define, estimate, and simulate from a generalized linear model under
+interference. This includes the model formula, coefficients, the
+underlying network and attribute data (via a \`iglm.data\` object),
+sampler controls, estimation controls, and storage for results.
 
 ## References
 
@@ -259,7 +259,7 @@ available, they are printed in a standard coefficient table format.
 #### Usage
 
     iglm.object.generator$print(
-      digits = max(3, getOption("digits") - 3),
+      digits = 3,
       rows = c(1, 2),
       signif.stars = getOption("show.signif.stars"),
       eps.Pvalue = 1e-04,
@@ -457,7 +457,7 @@ estimated first.
 
 #### Usage
 
-    iglm.object.generator$summary(digits = max(3, getOption("digits") - 3), ...)
+    iglm.object.generator$summary(digits = 2, ...)
 
 #### Arguments
 
@@ -543,8 +543,7 @@ predictor and point estimates).
 
   - `"marginal"`: Computes predictions by aggregating over the MCMC
     samples stored in the internal results. If samples do not exist,
-    `self$simulate()` is triggered automatically. This represents the
-    expectation integrated over the uncertainty of the latent process.
+    `self$simulate()` is triggered automatically.
 
   - `"conditional"`: Computes predictions using the systematic component
     of the Generalized Linear Model (GLM). It calculates the linear
@@ -571,10 +570,11 @@ predictor and point estimates).
 
 **Marginal Predictions:** When `variant = "marginal"`, the function
 approximates the expected value via Monte Carlo integration:
-\$\$\hat{\mu} = \frac{1}{S} \sum\_{s=1}^{S} y^{(s)}\$\$ where
-\\y^{(s)}\\ are the realized values from the \\s\\-th simulation sample.
-For the network `z`, this results in an edge probability matrix averaged
-over all sampled networks.
+\$\$\hat{\mu} = \frac{1}{S} \sum\_{s=1}^{S} h^{(s)}\$\$ where
+\\h^{(s)}\\ are the realized values from the \\s\\-th simulation sample
+(being either attribute x, y or the connections z). For the network `z`,
+this results in a marginal edge probability matrix averaged over all
+sampled networks.
 
 **Conditional Predictions:** When `variant = "conditional"`, the
 function calculates the theoretical mean \\\mu\\ based on the estimated

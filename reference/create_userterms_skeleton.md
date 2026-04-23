@@ -1,4 +1,4 @@
-# Generate the Skeleton for an R package to implement additional iglm terms
+# Generate the Skeleton for an R Package to Implement Additional iglm Terms
 
 This function generates the directory structure and source files for a
 new R package named `iglm.userterms` (or whatever name is provided in
