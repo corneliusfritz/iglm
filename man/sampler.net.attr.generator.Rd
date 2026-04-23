@@ -9,16 +9,15 @@ The `sampler_net_attr` class is a simple R6 container used within the
 `sampler.iglm` class. It holds the MCMC sampling parameters
 for a single component of the `iglm` model, such as one attribute
 (e.g., `x_attribute`) or a part of the network (e.g., `z_network` within
-the overlap). It primarily stores the number of proposals and a random seed.
+the overlap). It stores the number of proposals and the TNT flag.
+The random seed is managed centrally by the parent `sampler.iglm` object.
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{n_proposals}}{(`integer`) Read-only. The number of MCMC proposals per sampling step.}
+\item{\code{n_proposals}}{(`integer`) Read-only. Number of MCMC proposals per step.}
 
-\item{\code{seed}}{(`integer`) Read-only. The random seed used for this component's sampler.}
-
-\item{\code{tnt}}{(`logical`) Read-only. Flag indicating whether TNT sampling is used.}
+\item{\code{tnt}}{(`logical`) Read-only. Whether TNT sampling is used.}
 }
 \if{html}{\out{</div>}}
 }
@@ -29,7 +28,6 @@ the overlap). It primarily stores the number of proposals and a random seed.
 \item \href{#method-sampler.net.attr-print}{\code{sampler.net.attr.generator$print()}}
 \item \href{#method-sampler.net.attr-gather}{\code{sampler.net.attr.generator$gather()}}
 \item \href{#method-sampler.net.attr-set_n_proposals}{\code{sampler.net.attr.generator$set_n_proposals()}}
-\item \href{#method-sampler.net.attr-set_seed}{\code{sampler.net.attr.generator$set_seed()}}
 \item \href{#method-sampler.net.attr-set_tnt}{\code{sampler.net.attr.generator$set_tnt()}}
 \item \href{#method-sampler.net.attr-save}{\code{sampler.net.attr.generator$save()}}
 \item \href{#method-sampler.net.attr-clone}{\code{sampler.net.attr.generator$clone()}}
@@ -39,15 +37,9 @@ the overlap). It primarily stores the number of proposals and a random seed.
 \if{html}{\out{<a id="method-sampler.net.attr-new"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.net.attr-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new `sampler_net_attr` object. Validates inputs and sets
-a random seed if none is provided.
+Create a new `sampler_net_attr` object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$new(
-  n_proposals = 10000,
-  seed = NA,
-  file = NULL,
-  tnt = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$new(n_proposals = 10000, file = NULL, tnt = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -56,10 +48,6 @@ a random seed if none is provided.
 \item{\code{n_proposals}}{(integer) The number of MCMC proposals (iterations)
 to perform for this specific component during each sampling step.
 Default is 10000. Must be a non-negative integer.}
-
-\item{\code{seed}}{(integer or `NA`) An integer seed for the random number
-generator to ensure reproducibility for this component's sampling.
-If `NA` (default), a random seed is generated automatically.}
 
 \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
 the specified .rds file instead of initializing from parameters.}
@@ -84,33 +72,32 @@ Print a summary of the sampler settings for this component.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{indent}}{(character) A string used for indentation (e.g., spaces)
-when printing, useful for nested structures. Default is "  ".}
+\item{\code{indent}}{(character) Indentation string. Default is "  ".}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The object itself, invisibly. Called for side effect.
+The object itself, invisibly.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.net.attr-gather"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.net.attr-gather}{}}}
 \subsection{Method \code{gather()}}{
-Gathers all data from private fields into a list.
+Gathers all data into a list.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$gather()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-A list containing all information of the sampler.
+A list with `n_proposals` and `tnt`.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.net.attr-set_n_proposals"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.net.attr-set_n_proposals}{}}}
 \subsection{Method \code{set_n_proposals()}}{
-Sets the number of MCMC proposals for this component.
+Sets the number of MCMC proposals.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$set_n_proposals(n_proposals)}\if{html}{\out{</div>}}
 }
@@ -118,39 +105,16 @@ Sets the number of MCMC proposals for this component.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n_proposals}}{(integer) The number of proposals to set.}
+\item{\code{n_proposals}}{(integer) Number of proposals.}
 }
 \if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-sampler.net.attr-set_seed"></a>}}
-\if{latex}{\out{\hypertarget{method-sampler.net.attr-set_seed}{}}}
-\subsection{Method \code{set_seed()}}{
-Sets the random seed for this component's sampler.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$set_seed(seed)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{seed}}{(integer) The random seed to set.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.net.attr-set_tnt"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.net.attr-set_tnt}{}}}
 \subsection{Method \code{set_tnt()}}{
-Sets whether to use TNT sampling for this component.
+Sets whether to use TNT sampling.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$set_tnt(tnt)}\if{html}{\out{</div>}}
 }
@@ -158,19 +122,16 @@ Sets whether to use TNT sampling for this component.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{tnt}}{(logical) `TRUE` to use TNT sampling, `FALSE` otherwise.}
+\item{\code{tnt}}{(logical) `TRUE` to use TNT sampling.}
 }
 \if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.net.attr-save"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.net.attr-save}{}}}
 \subsection{Method \code{save()}}{
-Save the object's state to an .rds file.
+Save state to an .rds file.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{sampler.net.attr.generator$save(file)}\if{html}{\out{</div>}}
 }
@@ -178,7 +139,7 @@ Save the object's state to an .rds file.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{file}}{(character) The file file where the state will be saved.}
+\item{\code{file}}{(character) File path.}
 }
 \if{html}{\out{</div>}}
 }

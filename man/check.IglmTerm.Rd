@@ -34,3 +34,4 @@ A modified \code{arglist} with defaults applied and validated values.
 This is an internal helper function used to validate and set defaults
 for arguments passed to iglm model terms.
 }
+\keyword{internal}

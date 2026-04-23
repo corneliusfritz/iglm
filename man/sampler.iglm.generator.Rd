@@ -23,11 +23,13 @@ parallelization options. It also holds references to component samplers
 
 \item{\code{sampler_z}}{(`sampler_net_attr`) The sampler configuration object for the z network (overlap region).}
 
-\item{\code{n_simulation}}{(`integer`) The number of simulations to generate after burn-in.}
+\item{\code{n_simulation}}{(`integer`) The number of configurations to simulate.}
 
-\item{\code{n_burn_in}}{(`integer`) The number of burn-in iterations.}
+\item{\code{n_burn_in}}{(`integer`) The number of initial MCMC iterations to discard.}
 
-\item{\code{init_empty}}{(`logical`) Flag indicating whether simulations start from an empty state.}
+\item{\code{init_empty}}{(`logical`) Whether to initialize simulations from an empty state.}
+
+\item{\code{seed}}{(`integer`) Read-only. The random seed used for sampling.}
 
 \item{\code{cluster}}{(`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.}
 }
@@ -45,6 +47,7 @@ parallelization options. It also holds references to component samplers
 \item \href{#method-sampler.iglm-set_x_sampler}{\code{sampler.iglm.generator$set_x_sampler()}}
 \item \href{#method-sampler.iglm-set_y_sampler}{\code{sampler.iglm.generator$set_y_sampler()}}
 \item \href{#method-sampler.iglm-set_z_sampler}{\code{sampler.iglm.generator$set_z_sampler()}}
+\item \href{#method-sampler.iglm-set_seed}{\code{sampler.iglm.generator$set_seed()}}
 \item \href{#method-sampler.iglm-print}{\code{sampler.iglm.generator$print()}}
 \item \href{#method-sampler.iglm-gather}{\code{sampler.iglm.generator$gather()}}
 \item \href{#method-sampler.iglm-save}{\code{sampler.iglm.generator$save()}}
@@ -66,6 +69,7 @@ and validates inputs.
   n_simulation = 100,
   n_burn_in = 10,
   init_empty = TRUE,
+  seed = NA,
   cluster = NULL,
   file = NULL
 )}\if{html}{\out{</div>}}
@@ -94,6 +98,10 @@ to simulate and store after the burn-in period. Default is 100. Must be non-nega
 initialized from an empty state (e.g., empty network, attributes at mean).
 If `FALSE`, initialization might depend on the specific sampler implementation
 (e.g., starting from observed data).}
+
+\item{\code{seed}}{(integer or `NA`) A single integer seed for the random number
+generator, set once before sampling begins. If `NA` (default), a random
+seed is generated automatically.}
 
 \item{\code{cluster}}{A parallel cluster object (e.g., from the `parallel` package)
 to use for running simulations in parallel. If `NULL` (default), simulations
@@ -260,12 +268,30 @@ None.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-sampler.iglm-set_seed"></a>}}
+\if{latex}{\out{\hypertarget{method-sampler.iglm-set_seed}{}}}
+\subsection{Method \code{set_seed()}}{
+Sets the random seed for this sampler.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_seed(seed)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{seed}}{(integer) The random seed to set.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-print"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-print}{}}}
 \subsection{Method \code{print()}}{
 Prints a formatted summary of the sampler configuration to the console.
-Includes core parameters (simulation count, burn-in, etc.) and calls
-the `print` method for each component sampler (`sampler_x`, `sampler_y`, etc.).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$print(digits = 3, ...)}\if{html}{\out{</div>}}
 }
@@ -273,8 +299,7 @@ the `print` method for each component sampler (`sampler_x`, `sampler_y`, etc.).
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{digits}}{(integer) Number of digits for formatting numeric values
-(like `prob_nb`). Default: 3.}
+\item{\code{digits}}{(integer) Number of digits for formatting numeric values. Default: 3.}
 
 \item{\code{...}}{Additional arguments (currently ignored).}
 }

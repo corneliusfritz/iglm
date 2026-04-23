@@ -18,10 +18,15 @@ public:
   std::vector<std::vector<int>> neighborhood;
   std::vector<std::vector<int>> adj_list_nb;
   std::vector<std::vector<int>> adj_list_in_nb;
+  std::vector<int> out_degrees_nb;
+  std::vector<int> in_degrees_nb;
   std::vector<char> overlap_bool_mat;
   std::vector<char> neighborhood_bool_mat;
   arma::mat overlap_mat;
   std::vector<int> all_actors;
+  
+  std::vector<std::pair<int, int>> active_edges_nb;
+  std::vector<int> active_edges_nb_idx;
 
   int N_total_overlap;
   int N_1_overlap;
@@ -44,7 +49,9 @@ public:
   void add_edge(int from, int to);
   void delete_edge(int from, int to);
 
-  inline bool get_val_overlap(int from, int to )const {
+  // Overlap is always undirected: the OR ensures (i,j) and (j,i) are treated
+  // identically regardless of which direction was stored in overlap_bool_mat.
+  inline bool get_val_overlap(int from, int to) const {
     return overlap_bool_mat[get_mat_idx(from, to)] || overlap_bool_mat[get_mat_idx(to, from)];
   }
 
@@ -64,7 +71,7 @@ public:
   
   bool check_if_full_neighborhood() const;
   void print();
-  void copy_from(XZ_class obj);
+  void copy_from(const XZ_class& obj);
   void set_neighborhood_from_mat(arma::mat mat);
   void neighborhood_initialize();
   void assign_neighborhood(const std::unordered_map< int, std::unordered_set<int>>& new_neighborhood);

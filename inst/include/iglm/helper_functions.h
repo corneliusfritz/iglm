@@ -55,10 +55,7 @@ inline void print_set(std::unordered_set<int> tmp){
   }
 }
 
-inline void set_seed(int seed) {
-  Rcpp::Function set_seed_r("set.seed");
-  set_seed_r(seed);
-}
+
 
 // This is a function to transform a map to one matrix
 inline arma::mat map_to_mat(std::unordered_map< int, std::unordered_set<int>> &adj_list,

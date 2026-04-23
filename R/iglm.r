@@ -1,8 +1,8 @@
 #' @docType class
-#' @title Network GLM (Generalized Linear Model) Objects (R6 Class)
+#' @title iglm Objects (R6 Class)
 #' @description
 #' The `iglm.object` class encapsulates all components required to define,
-#' estimate, and simulate from a network generalized linear model. This includes
+#' estimate, and simulate from a generalized linear model under interference. This includes
 #' the model formula, coefficients, the underlying network and attribute data
 #' (via a `iglm.data` object), sampler controls, estimation controls, and storage
 #' for results.
@@ -15,6 +15,7 @@
 #'
 #' @importFrom R6 R6Class
 #' @importFrom methods as
+#' @importFrom stats runif
 #' @importFrom stats as.formula pnorm terms quantile update printCoefmat na.omit sd
 #' @importFrom utils modifyList
 #' @export
@@ -248,16 +249,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         # --- Handle sampler ---
         if (is.null(sampler)) {
           sampler.x.obj <- sampler.net.attr(
-            n_proposals = self$iglm.data$n_actor * 10,
-            seed = 1
+            n_proposals = self$iglm.data$n_actor * 10
           )
           sampler.y.obj <- sampler.net.attr(
-            n_proposals = self$iglm.data$n_actor * 10,
-            seed = 2
+            n_proposals = self$iglm.data$n_actor * 10
           )
           sampler.z.obj <- sampler.net.attr(
-            n_proposals = nrow(self$iglm.data$overlap) * 10,
-            seed = 3
+            n_proposals = nrow(self$iglm.data$overlap) * 10
           )
           private$.sampler <- sampler.iglm(
             n_simulation = 100,
@@ -433,14 +431,14 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param print.coefmat (logical) If `TRUE` (default), prints the coefficient table.
     #' @param print.call (logical) If `TRUE` (default), prints the call that generated the object.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    print = function(digits = max(3, getOption("digits") - 3), 
-                  rows = c(1, 2), 
-                  signif.stars = getOption("show.signif.stars"),
-                  eps.Pvalue = 0.0001, 
-                  print.formula = TRUE, 
-                  print.fitinfo = TRUE,
-                  print.coefmat = TRUE, 
-                  print.call = TRUE, ...) {
+    print = function(digits = 3,
+                     rows = c(1, 2),
+                     signif.stars = getOption("show.signif.stars"),
+                     eps.Pvalue = 0.0001,
+                     print.formula = TRUE,
+                     print.fitinfo = TRUE,
+                     print.coefmat = TRUE,
+                     print.call = TRUE, ...) {
       # Validation
       if (length(digits) != 1 || !is.numeric(digits) || digits < 0) {
         stop("`digits` must be a single non-negative integer.", call. = FALSE)
@@ -450,7 +448,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       call_out <- if (print.call && !is.null(private$.results$call)) {
         paste0("Call:\n", paste(deparse(private$.results$call), sep = "\n", collapse = "\n"), "\n\n")
       }
-      
+
       formula_out <- if (print.formula) {
         paste0("Formula:\n", paste(deparse(private$.formula), sep = "\n", collapse = "\n"), "\n\n")
       }
@@ -464,16 +462,16 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         if (print.fitinfo) {
           results_header <- "Results: \n\n"
         }
-        names <- rownames(private$.coef)
-        est <- as.vector(private$.coef)
-        stderr <- sqrt(diag(private$.results$var))
+        names <- private$.preprocess$coef_names
+        est <- as.numeric(private$.coef)
+        stderr <- as.numeric(sqrt(diag(private$.results$var)))
         tvalue <- est / stderr
         pvalue <- 2 * pnorm(-abs(tvalue))
 
-        coef_table <- cbind(est, stderr, tvalue, pvalue)
+        coef_table <- matrix(c(est, stderr, tvalue, pvalue), ncol = 4)
         colnames(coef_table) <- c("Estimate", "S.E.", "t-value", "Pr(>|t|)")
         if (5 %in% rows) {
-          coef_table <- cbind(coef_table, "Suff. Statistic" = private$.sufficient_statistics)
+          coef_table <- cbind(coef_table, "Suff. Statistic" = as.numeric(private$.sufficient_statistics))
         }
         rownames(coef_table) <- names
 
@@ -484,8 +482,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
         if (print.coefmat) {
           # Capture output to determine width
+          coef_table_print <- coef_table[, cols_to_print, drop = FALSE]
+
           coefmat_out <- capture.output({
-            printCoefmat(coef_table[, cols_to_print, drop = FALSE],
+            printCoefmat(coef_table_print,
               digits = digits,
               has.Pvalue = has_p,
               P.values = has_p,
@@ -517,8 +517,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
         cat(paste(
           "\nTime for estimation: ",
-          format(round(as.numeric(private$.time_estimation), digits), nsmall = digits),
-          " ", attr(private$.time_estimation, "units"),
+          format(private$.time_estimation, digits = digits),
           "\n",
           sep = ""
         ))
@@ -527,7 +526,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           cat("\nDegree Parameters:\n")
           format_summary <- function(x, d) {
             s <- summary(x)
-            return(format(round(s, d), nsmall = d))
+            return(format(s, digits = d))
           }
           if (private$.iglm.data$directed) {
             cat("  Outdegrees:\n")
@@ -541,7 +540,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       } else {
         cat("\n")
         cat("Observed Sufficient Statistics:\n")
-        print(format(round(private$.sufficient_statistics, digits), nsmall = digits), quote = FALSE)
+        print(format(private$.sufficient_statistics, digits = digits), quote = FALSE)
       }
     },
     #' @description
@@ -756,24 +755,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         private$.validate()
 
         if (private$.control$display_progress) {
-          cat("\nResults: \n\n")
-          if (private$.preprocess$includes_degrees) {
-            names <- rownames(info$coefficients_nondegrees)
-            est <- as.vector(info$coefficients_nondegrees)
-            stderr <- sqrt(diag(info$var))
-            coef_table <- cbind(est, stderr)
-            colnames(coef_table) <- c("Estimate", "Std. Error")
-            rownames(coef_table) <- names
-            print(round(coef_table, 3), row.names = TRUE)
-          } else {
-            names <- rownames(info$coefficients)
-            est <- as.vector(info$coefficients)
-            stderr <- sqrt(diag(info$var))
-            coef_table <- cbind(est, stderr)
-            colnames(coef_table) <- c("Estimate", "Std. Error")
-            rownames(coef_table) <- names
-            print(round(coef_table, 3), row.names = TRUE)
-          }
+          self$print(print.formula = FALSE, print.call = FALSE)
         }
       } else {
         if (private$.control$display_progress) {
@@ -796,7 +778,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
     #' @return Prints the summary to the console and returns `NULL` invisibly.
-    summary = function(digits = max(3, getOption("digits") - 3), ...) {
+    summary = function(digits = 2, ...) {
       self$print(digits = digits, rows = c(1, 2, 3, 4), print.formula = FALSE, ...)
     },
     #' @description
@@ -858,7 +840,6 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'   \itemize{
     #'     \item \code{"marginal"}: Computes predictions by aggregating over the MCMC samples stored
     #'     in the internal results. If samples do not exist, \code{self$simulate()} is triggered automatically.
-    #'     This represents the expectation integrated over the uncertainty of the latent process.
     #'     \item \code{"conditional"}: Computes predictions using the systematic component of the
     #'     Generalized Linear Model (GLM). It calculates the linear predictor \eqn{\eta = X\beta}
     #'     (plus offset and degrees terms for the network) and applies the inverse link function
@@ -876,9 +857,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @details
     #' \strong{Marginal Predictions:}
     #' When \code{variant = "marginal"}, the function approximates the expected value via Monte Carlo integration:
-    #' \deqn{\hat{\mu} = \frac{1}{S} \sum_{s=1}^{S} y^{(s)}}
-    #' where \eqn{y^{(s)}} are the realized values from the \eqn{s}-th simulation sample.
-    #' For the network \code{z}, this results in an edge probability matrix averaged over all sampled networks.
+    #' \deqn{\hat{\mu} = \frac{1}{S} \sum_{s=1}^{S} h^{(s)}}
+    #' where \eqn{h^{(s)}} are the realized values from the \eqn{s}-th simulation sample (being either attribute x, y or the connections z).
+    #' For the network \code{z}, this results in a marginal edge probability matrix averaged over all sampled networks.
     #'
     #' \strong{Conditional Predictions:}
     #' When \code{variant = "conditional"}, the function calculates the theoretical mean \eqn{\mu} based on the
@@ -1222,9 +1203,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' # Define MCMC sampler
 #' sampler_new <- sampler.iglm(
 #'   n_burn_in = 100, n_simulation = 10,
-#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10, seed = 13),
-#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10, seed = 32),
-#'   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10, seed = 134),
+#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
+#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+#'   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
 #'   init_empty = FALSE
 #' )
 #' # Create iglm model specification

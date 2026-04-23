@@ -17,7 +17,6 @@ public:
   } 
   XYZ_class(int n_actor_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string type_x_,std::string type_y_, double scale_x_, double scale_y_): 
     XZ_class(n_actor_,directed_, neighborhood_, overlap_, type_x_, scale_x_), y_attribute(n_actor_, type_y_, scale_y_){
-    n_actor = n_actor_;
   }
   
   XYZ_class(int n_actor_, bool directed_, std::vector<std::vector<int>> neighborhood_,
@@ -25,7 +24,6 @@ public:
                        arma::mat overlap_mat_, 
                        std::string type_x_,std::string type_y_,
                        double scale_x_, double scale_y_): XZ_class(n_actor_,directed_, neighborhood_, overlap_, overlap_mat_, type_x_, scale_x_),  y_attribute(n_actor_, type_y_, scale_y_){
-    n_actor = n_actor_;
   }
   
   

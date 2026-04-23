@@ -1453,7 +1453,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 
       m_z <- nrow(private$.z_network)
       m_nb <- nrow(private$.neighborhood)
-      numfmt <- function(v) format(round(v, digits), nsmall = digits, trim = TRUE)
+      numfmt <- function(v) format(v, digits = digits, trim = TRUE)
 
       summarize_attr <- function(v, type, scale) {
         v <- as.vector(v)

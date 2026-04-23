@@ -3,10 +3,10 @@
 \docType{class}
 \name{iglm.object.generator}
 \alias{iglm.object.generator}
-\title{Network GLM (Generalized Linear Model) Objects (R6 Class)}
+\title{iglm Objects (R6 Class)}
 \description{
 The `iglm.object` class encapsulates all components required to define,
-estimate, and simulate from a network generalized linear model. This includes
+estimate, and simulate from a generalized linear model under interference. This includes
 the model formula, coefficients, the underlying network and attribute data
 (via a `iglm.data` object), sampler controls, estimation controls, and storage
 for results.
@@ -193,7 +193,7 @@ Print a summary of the `iglm.object`. If estimation results are
 available, they are printed in a standard coefficient table format.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$print(
-  digits = max(3, getOption("digits") - 3),
+  digits = 3,
   rows = c(1, 2),
   signif.stars = getOption("show.signif.stars"),
   eps.Pvalue = 1e-04,
@@ -365,7 +365,7 @@ Provides a summary of the estimation results with the following columns: Estimat
 t-value, and Pr(>|t|).
 Requires the model to have been estimated first.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$summary(digits = max(3, getOption("digits") - 3), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{iglm.object.generator$summary(digits = 2, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -442,7 +442,6 @@ Must be one of:
 \itemize{
   \item \code{"marginal"}: Computes predictions by aggregating over the MCMC samples stored
   in the internal results. If samples do not exist, \code{self$simulate()} is triggered automatically.
-  This represents the expectation integrated over the uncertainty of the latent process.
   \item \code{"conditional"}: Computes predictions using the systematic component of the
   Generalized Linear Model (GLM). It calculates the linear predictor \eqn{\eta = X\beta}
   (plus offset and degrees terms for the network) and applies the inverse link function
@@ -463,9 +462,9 @@ Defaults to \code{c("x", "y", "z")}.}
 \subsection{Details}{
 \strong{Marginal Predictions:}
 When \code{variant = "marginal"}, the function approximates the expected value via Monte Carlo integration:
-\deqn{\hat{\mu} = \frac{1}{S} \sum_{s=1}^{S} y^{(s)}}
-where \eqn{y^{(s)}} are the realized values from the \eqn{s}-th simulation sample.
-For the network \code{z}, this results in an edge probability matrix averaged over all sampled networks.
+\deqn{\hat{\mu} = \frac{1}{S} \sum_{s=1}^{S} h^{(s)}}
+where \eqn{h^{(s)}} are the realized values from the \eqn{s}-th simulation sample (being either attribute x, y or the connections z).
+For the network \code{z}, this results in a marginal edge probability matrix averaged over all sampled networks.
 
 \strong{Conditional Predictions:}
 When \code{variant = "conditional"}, the function calculates the theoretical mean \eqn{\mu} based on the

@@ -2,7 +2,7 @@
 % Please edit documentation in R/zzz.R
 \name{create_userterms_skeleton}
 \alias{create_userterms_skeleton}
-\title{Generate the Skeleton for an R package to implement additional iglm terms}
+\title{Generate the Skeleton for an R Package to Implement Additional iglm Terms}
 \usage{
 create_userterms_skeleton(path = ".", pkg_name = "iglm.userterms")
 }

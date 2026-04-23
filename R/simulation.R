@@ -1,4 +1,4 @@
-#' Simulate responses and connections
+#' @title Simulate Responses and Connections
 #'
 #' @description
 #' Simulate responses and connections.
@@ -39,7 +39,7 @@
 #'   ``parallel::makeCluster``. If provided and valid, the function performs a
 #'   single burn-in simulation on the main R process, then distributes the
 #'   remaining `n_simulation` tasks across the cluster workers using
-#'   ``parallel::parLapply``. Seeds for component samplers are offset
+#'   ``parallel::parLapply``. The master seed is offset
 #'   for each worker to ensure different random streams. If `NULL` (default),
 #'   all simulations are run sequentially in the main R process.
 #' @param fix_x Logical. If `TRUE`, the simulation holds the `x_attribute` fixed
@@ -158,11 +158,9 @@ simulate_iglm <- function(formula,
       data_list = preprocessed$data_list,
       type_list = preprocessed$type_list,
       n_burn_in = sampler$n_burn_in,
-      seed_x = sampler$sampler_x$seed,
+      seed = sampler$seed,
       n_proposals_x = sampler$sampler_x$n_proposals,
-      seed_y = sampler$sampler_y$seed,
       n_proposals_y = sampler$sampler_y$n_proposals,
-      seed_z = sampler$sampler_z$seed,
       n_proposals_z = sampler$sampler_z$n_proposals,
       n_simulation = sampler$n_simulation,
       only_stats = only_stats,
@@ -197,11 +195,9 @@ simulate_iglm <- function(formula,
       data_list = preprocessed$data_list,
       type_list = preprocessed$type_list,
       n_burn_in = sampler$n_burn_in,
-      seed_x = sampler$sampler_x$seed,
+      seed = sampler$seed,
       n_proposals_x = sampler$sampler_x$n_proposals,
-      seed_y = sampler$sampler_y$seed,
       n_proposals_y = sampler$sampler_y$n_proposals,
-      seed_z = sampler$sampler_z$seed,
       n_proposals_z = sampler$sampler_z$n_proposals,
       n_simulation = 1,
       only_stats = FALSE,
@@ -249,11 +245,9 @@ simulate_iglm <- function(formula,
           data_list = preprocessed$data_list,
           type_list = preprocessed$type_list,
           n_burn_in = sampler$n_burn_in,
-          seed_x = sampler$sampler_x$seed + min(x),
+          seed = sampler$seed + min(x),
           n_proposals_x = sampler$sampler_x$n_proposals,
-          seed_y = sampler$sampler_y$seed + 2 * min(x),
           n_proposals_y = sampler$sampler_y$n_proposals,
-          seed_z = sampler$sampler_z$seed + 3 * min(x),
           n_proposals_z = sampler$sampler_z$n_proposals,
           n_simulation = length(x),
           only_stats = only_stats,
