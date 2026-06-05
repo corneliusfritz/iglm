@@ -2,6 +2,9 @@ url: https://corneliusfritz.github.io/iglm/
 template:
   bootstrap: 5
   bootswatch: flatly
+  bslib:
+    primary: "#08696b"
+    secondary: "#8bcbc8"
   math-rendering: mathjax
 
 navbar:
