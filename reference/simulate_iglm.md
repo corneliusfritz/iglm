@@ -26,8 +26,8 @@ simulate_iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  [`iglm-terms`](iglm-terms.md) for details on specifying the right-hand
-  side terms.
+  [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+  for details on specifying the right-hand side terms.
 
 - basis:
 
@@ -95,17 +95,19 @@ simulate_iglm(
 - fix_x:
 
   Logical. If \`TRUE\`, the simulation holds the \`x_attribute\` fixed
-  at its initial state (from the [`iglm.data`](iglm.data.md) object) and
-  only simulates the \`y_attribute\` and \`z_network\`. If \`FALSE\`
-  (default), all components (x, y, z) are simulated according to the
-  model and sampler settings.
+  at its initial state (from the
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  object) and only simulates the \`y_attribute\` and \`z_network\`. If
+  \`FALSE\` (default), all components (x, y, z) are simulated according
+  to the model and sampler settings.
 
 - fix_z:
 
   Logical. If \`TRUE\`, the simulation holds the \`z_network\` fixed at
-  its initial state (from the [`iglm.data`](iglm.data.md) object). If
-  \`FALSE\` (default), the network component is simulated according to
-  the model and sampler settings.
+  its initial state (from the
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  object). If \`FALSE\` (default), the network component is simulated
+  according to the model and sampler settings.
 
 ## Value
 

@@ -12,6 +12,7 @@ You can create a `iglm` object by specifying the network structure and
 the attributes of interest. Here is a simple example:
 
 ``` r
+
 n_actor <- 100
 
 attribute_info <- rnorm(n_actor)
@@ -48,6 +49,7 @@ You can specify a model formula that includes various network statistics
 and attribute effects. For example:
 
 ``` r
+
 formula <- object ~ edges + attribute_y + attribute_x + degrees
 ```
 
@@ -55,6 +57,7 @@ To fully define the model, you need to set up a sampler for the MCMC
 estimation and set all necessary parameters:
 
 ``` r
+
 # Parameters of edges(mode = "local"), attribute_y, and attribute_x
 gt_coef <- c(3, -1, -1)
 # Parameters for degree effect
@@ -81,6 +84,7 @@ Once you have specified a model, you can simulate new data based on the
 fitted parameters:
 
 ``` r
+
 # Simulate new networks
 model_tmp_new$simulate()
 # Get the samples
@@ -92,6 +96,7 @@ tmp <- model_tmp_new$get_samples()
 You can estimate the model parameters using the `estimate` method:
 
 ``` r
+
 # First set the first simulated network as the target for estimation
 model_tmp_new$set_target(tmp[[1]])
 model_tmp_new$estimate()
@@ -106,6 +111,7 @@ After estimation, you can assess the model fit using various
 diagnostics:
 
 ``` r
+
 model_tmp_new$assess(formula = ~ degree_distribution +
   geodesic_distances_distribution + edgewise_shared_partner_distribution + mcmc_diagnostics)
 ```
@@ -113,6 +119,7 @@ model_tmp_new$assess(formula = ~ degree_distribution +
 ![](iglm_files/figure-html/unnamed-chunk-7-1.png)![](iglm_files/figure-html/unnamed-chunk-7-2.png)![](iglm_files/figure-html/unnamed-chunk-7-3.png)![](iglm_files/figure-html/unnamed-chunk-7-4.png)![](iglm_files/figure-html/unnamed-chunk-7-5.png)![](iglm_files/figure-html/unnamed-chunk-7-6.png)
 
 ``` r
+
 model_tmp_new$results$plot(model_assessment = T)
 ```
 

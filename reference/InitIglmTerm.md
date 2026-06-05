@@ -1,7 +1,9 @@
 # Initialize iglm Model Terms
 
 This is an internal generic function used to initialize mapping and data
-for terms in a [`iglm.object`](iglm.md) formula.
+for terms in a
+[`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
+formula.
 
 ## Usage
 
@@ -13,7 +15,9 @@ InitIglmTerm(data_object, arglist, ...)
 
 - data_object:
 
-  An [`iglm.data`](iglm.data.md) object.
+  An
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  object.
 
 - arglist:
 

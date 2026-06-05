@@ -7,8 +7,9 @@ legislators from 10 states (NY, CA, TX, FL, IL, PA, OH, GA, NC, MI) and
 is further subset to the largest connected component based on mention or
 retweet activity.
 
-This object contains the main [`iglm.data`](iglm.data.md) object and 5
-pre-computed dyadic covariates.
+This object contains the main
+[`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+object and 5 pre-computed dyadic covariates.
 
 ## Usage
 
@@ -23,8 +24,9 @@ legislators in the filtered 10-state subset.
 
 - iglm.data:
 
-  A [`iglm.data`](iglm.data.md) object (which is also a `list`)
-  parameterized as follows:
+  A
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  object (which is also a `list`) parameterized as follows:
 
   - `x_attribute`: A binary numeric vector of length N. Value is `1` if
     the legislator's party is 'Republican', `0` otherwise.

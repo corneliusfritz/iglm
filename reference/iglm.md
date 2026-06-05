@@ -28,8 +28,8 @@ iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  [`iglm-terms`](iglm-terms.md) for details on specifying the right-hand
-  side terms.
+  [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+  for details on specifying the right-hand side terms.
 
 - coef:
 
@@ -46,15 +46,17 @@ iglm(
 
 - sampler:
 
-  An object of class [`sampler.iglm`](sampler.iglm.md), controlling the
-  MCMC sampling scheme. If \`NULL\`, default sampler settings will be
-  used.
+  An object of class
+  [`sampler.iglm`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md),
+  controlling the MCMC sampling scheme. If \`NULL\`, default sampler
+  settings will be used.
 
 - control:
 
-  An object of class [`control.iglm`](control.iglm.md), specifying
-  parameters for the estimation algorithm. If \`NULL\`, default control
-  settings will be used.
+  An object of class
+  [`control.iglm`](https://corneliusfritz.github.io/iglm/reference/control.iglm.md),
+  specifying parameters for the estimation algorithm. If \`NULL\`,
+  default control settings will be used.
 
 - name:
 
@@ -96,8 +98,9 @@ dependencies (via \\h\_{i,j}\\), including local dependence limited to
 overlapping neighborhoods. This help page documents the various
 statistics available in 'iglm', corresponding to the \\g_i\\
 (attribute-level) and \\h\_{i,j}\\ (pair-level) components of the joint
-model. See [`iglm-terms`](iglm-terms.md) for details on specifying all
-model terms via the formula interface.
+model. See
+[`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+for details on specifying all model terms via the formula interface.
 
 ## References
 

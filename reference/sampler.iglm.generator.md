@@ -2,12 +2,14 @@
 
 The \`sampler.iglm\` class is an R6 container for specifying and storing
 the parameters that control the MCMC (Markov Chain Monte Carlo) sampling
-process used in [`iglm`](iglm.md) simulations and potentially during
-estimation. It includes settings for the number of simulations, burn-in
-period, initialization, and parallelization options. It also holds
-references to component samplers
-([`sampler.net.attr`](sampler.net.attr.md) objects) responsible for
-sampling individual parts (attributes x, y, network z).
+process used in
+[`iglm`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
+simulations and potentially during estimation. It includes settings for
+the number of simulations, burn-in period, initialization, and
+parallelization options. It also holds references to component samplers
+([`sampler.net.attr`](https://corneliusfritz.github.io/iglm/reference/sampler.net.attr.md)
+objects) responsible for sampling individual parts (attributes x, y,
+network z).
 
 ## Active bindings
 

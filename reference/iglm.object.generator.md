@@ -42,23 +42,27 @@ Methodology), 7, 647-676.
 
 - `results`:
 
-  (\`results\`) Read-only. The [`results`](results.md) R6 object
-  containing all estimation and simulation outputs.
+  (\`results\`) Read-only. The
+  [`results`](https://corneliusfritz.github.io/iglm/reference/results.md)
+  R6 object containing all estimation and simulation outputs.
 
 - `iglm.data`:
 
-  (\`iglm.data\`) The associated [`iglm.data`](iglm.data.md) R6 object
-  containing the network and attribute data.
+  (\`iglm.data\`) The associated
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  R6 object containing the network and attribute data.
 
 - `control`:
 
-  (\`control.iglm\`) The [`control.iglm`](control.iglm.md) object
-  specifying estimation parameters.
+  (\`control.iglm\`) The
+  [`control.iglm`](https://corneliusfritz.github.io/iglm/reference/control.iglm.md)
+  object specifying estimation parameters.
 
 - `sampler`:
 
-  (\`sampler.iglm\`) The [`sampler.iglm`](sampler.iglm.md) object
-  specifying MCMC sampling parameters.
+  (\`sampler.iglm\`) The
+  [`sampler.iglm`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md)
+  object specifying MCMC sampling parameters.
 
 - `name`:
 
@@ -143,9 +147,10 @@ and control objects, calculating initial statistics, and validating.
 - `formula`:
 
   A model \`formula\` object. The left-hand side should be the name of a
-  [`iglm.data`](iglm.data.md) object available in the calling
-  environment. See [`iglm-terms`](iglm-terms.md) for details on
-  specifying the right-hand side terms.
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  object available in the calling environment. See
+  [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+  for details on specifying the right-hand side terms.
 
 - `coef`:
 
@@ -160,13 +165,17 @@ and control objects, calculating initial statistics, and validating.
 
 - `sampler`:
 
-  A [`sampler.iglm`](sampler.iglm.md) object specifying the MCMC sampler
-  settings. If \`NULL\`, default settings are used.
+  A
+  [`sampler.iglm`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md)
+  object specifying the MCMC sampler settings. If \`NULL\`, default
+  settings are used.
 
 - `control`:
 
-  A [`control.iglm`](control.iglm.md) object specifying estimation
-  control parameters. If \`NULL\`, default settings are used.
+  A
+  [`control.iglm`](https://corneliusfritz.github.io/iglm/reference/control.iglm.md)
+  object specifying estimation control parameters. If \`NULL\`, default
+  settings are used.
 
 - `name`:
 
@@ -234,9 +243,9 @@ parameters. Requires simulations to have been run first (via
   A formula specifying the network statistics to assess (e.g., \`~
   degree_distribution() + geodesic_distances_distribution()\`). The
   terms should correspond to methods available in the
-  [`iglm.data`](iglm.data.md) object that end with \`distributions\`. If
-  the term mcmc_diagnostics is included, MCMC diagnostics will also be
-  computed.
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  object that end with \`distributions\`. If the term mcmc_diagnostics
+  is included, MCMC diagnostics will also be computed.
 
 - `plot`:
 
@@ -351,8 +360,9 @@ model assessment diagnostics if available.
 
 ### Method `gather()`
 
-Gathers all components of the [`iglm.object`](iglm.md) into a single
-list for easy saving or inspection.
+Gathers all components of the
+[`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
+into a single list for easy saving or inspection.
 
 #### Usage
 
@@ -360,16 +370,20 @@ list for easy saving or inspection.
 
 #### Returns
 
-A list containing all key components of the [`iglm.object`](iglm.md).
+A list containing all key components of the
+[`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md).
 This includes the formula, coefficients, sampler, control settings,
 preprocessing info, time taken for estimation, count statistics,
-results, and the underlying [`iglm.data`](iglm.data.md) data object.
+results, and the underlying
+[`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+data object.
 
 ------------------------------------------------------------------------
 
 ### Method `set_name()`
 
-Set the name of the [`iglm.object`](iglm.md).
+Set the name of the
+[`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md).
 
 #### Usage
 
@@ -399,8 +413,9 @@ Set control parameters for model estimation.
 
 - `control`:
 
-  A [`control.iglm`](control.iglm.md) object specifying new control
-  settings.
+  A
+  [`control.iglm`](https://corneliusfritz.github.io/iglm/reference/control.iglm.md)
+  object specifying new control settings.
 
 #### Returns
 
@@ -410,7 +425,9 @@ Invisibly returns \`NULL\`.
 
 ### Method [`save()`](https://rdrr.io/r/base/save.html)
 
-Save the [`iglm.object`](iglm.md) to a file in RDS format.
+Save the
+[`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
+to a file in RDS format.
 
 #### Usage
 
@@ -481,7 +498,7 @@ Prints the summary to the console and returns \`NULL\` invisibly.
 Simulate networks from the fitted model or a specified model. Stores the
 simulations and/or summary statistics internally. The simulation is
 carried out using the internal MCMC sampler described in
-[`simulate_iglm`](simulate_iglm.md).
+[`simulate_iglm`](https://corneliusfritz.github.io/iglm/reference/simulate_iglm.md).
 
 #### Usage
 
@@ -632,7 +649,9 @@ sensitivity analyses or applying the model to different scenarios.
 
 #### Returns
 
-The [`iglm.object`](iglm.md) itself, invisibly.
+The
+[`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
+itself, invisibly.
 
 ------------------------------------------------------------------------
 
@@ -647,8 +666,10 @@ Retrieve the simulated networks stored in the object. Requires
 
 #### Returns
 
-A list of [`iglm.data`](iglm.data.md) objects representing the simulated
-networks, invisibly. Returns an error if no samples are available.
+A list of
+[`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+objects representing the simulated networks, invisibly. Returns an error
+if no samples are available.
 
 ------------------------------------------------------------------------
 
@@ -665,8 +686,11 @@ changing the sampling scheme without redefining the entire model.
 
 - `sampler`:
 
-  A [`sampler.iglm`](sampler.iglm.md) object. @return The
-  [`iglm.object`](iglm.md) itself, invisibly.
+  A
+  [`sampler.iglm`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md)
+  object. @return The
+  [`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
+  itself, invisibly.
 
 ------------------------------------------------------------------------
 
@@ -684,12 +708,15 @@ count statistics and re-validates the object.
 
 - `x`:
 
-  A [`iglm.data`](iglm.data.md) “ object containing the new observed
-  data.
+  A
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  “ object containing the new observed data.
 
 #### Returns
 
-The [`iglm.object`](iglm.md) itself, invisibly.
+The
+[`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
+itself, invisibly.
 
 ------------------------------------------------------------------------
 

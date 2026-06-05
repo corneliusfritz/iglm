@@ -1,8 +1,10 @@
 # Model Specification for iglm Terms
 
-The help pages of [`iglm`](iglm.md) describe the model with details on
-model fitting and estimation. Generally, a model is specified via it's
-sufficient statistics, that can be further decomposed into two parts:
+The help pages of
+[`iglm`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
+describe the model with details on model fitting and estimation.
+Generally, a model is specified via it's sufficient statistics, that can
+be further decomposed into two parts:
 
 - **\\\mathbf{g}\_i(x_i^\*,y_i^\*) = \mathbf{g}\_i(x_i,y_i)=
   (g_i(x_i,y_i))\\**: A vector of unit-level functions (or "g-terms")
