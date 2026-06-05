@@ -1,3 +1,63 @@
+url: https://corneliusfritz.github.io/iglm/
 template:
   bootstrap: 5
-  preset: "flatly"
+  bootswatch: flatly
+  math-rendering: mathjax
+
+navbar:
+  structure:
+    left:  [home, reference, articles]
+    right: [github]
+  components:
+    articles:
+      text: Vignettes
+      menu:
+        - text: Joint Modeling of Networks and Attributes with iglm
+          href: articles/iglm.html
+
+reference:
+  - title: Model Estimation
+    desc: Main estimation functions and controls for fitting joint models of networks and attributes.
+    contents:
+      - iglm
+      - control.iglm
+      - iglm.object.generator
+
+  - title: Data Preparation & Setup
+    desc: Functions and R6 classes to manage network and attribute data.
+    contents:
+      - iglm.data
+      - iglm.data_generator
+
+  - title: Model Simulation
+    desc: Functions to simulate network and attribute outcomes from fitted models.
+    contents:
+      - simulate_iglm
+
+  - title: MCMC Samplers
+    desc: Sampler configurations and classes for network and attribute variables.
+    contents:
+      - sampler.iglm
+      - sampler.iglm.generator
+      - sampler.net.attr
+      - sampler.net.attr.generator
+
+  - title: Diagnostics & Results
+    desc: Classes and functions for retrieving results, statistics, and assessment.
+    contents:
+      - results
+      - results.generator
+      - statistics
+
+  - title: Model Specification & Custom Terms
+    desc: Utilities for defining custom terms and analyzing sufficient statistics.
+    contents:
+      - iglm-terms
+      - create_userterms_skeleton
+
+  - title: Datasets
+    desc: Example network and attribute datasets included in the package.
+    contents:
+      - copenhagen
+      - state_twitter
+#

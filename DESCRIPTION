@@ -17,3 +17,5 @@ Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: false
 SystemRequirements: C++17
+URL: https://corneliusfritz.github.io/iglm/
+BugReports: https://github.com/corneliusfritz/iglm/issues
