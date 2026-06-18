@@ -53,37 +53,37 @@ network z).
 
 ### Public methods
 
-- [`sampler.iglm.generator$new()`](#method-sampler.iglm-new)
+- [`sampler.iglm$new()`](#method-sampler.iglm-initialize)
 
-- [`sampler.iglm.generator$set_cluster()`](#method-sampler.iglm-set_cluster)
+- [`sampler.iglm$set_cluster()`](#method-sampler.iglm-set_cluster)
 
-- [`sampler.iglm.generator$deactive_cluster()`](#method-sampler.iglm-deactive_cluster)
+- [`sampler.iglm$deactive_cluster()`](#method-sampler.iglm-deactive_cluster)
 
-- [`sampler.iglm.generator$set_n_simulation()`](#method-sampler.iglm-set_n_simulation)
+- [`sampler.iglm$set_n_simulation()`](#method-sampler.iglm-set_n_simulation)
 
-- [`sampler.iglm.generator$set_n_burn_in()`](#method-sampler.iglm-set_n_burn_in)
+- [`sampler.iglm$set_n_burn_in()`](#method-sampler.iglm-set_n_burn_in)
 
-- [`sampler.iglm.generator$set_init_empty()`](#method-sampler.iglm-set_init_empty)
+- [`sampler.iglm$set_init_empty()`](#method-sampler.iglm-set_init_empty)
 
-- [`sampler.iglm.generator$set_x_sampler()`](#method-sampler.iglm-set_x_sampler)
+- [`sampler.iglm$set_x_sampler()`](#method-sampler.iglm-set_x_sampler)
 
-- [`sampler.iglm.generator$set_y_sampler()`](#method-sampler.iglm-set_y_sampler)
+- [`sampler.iglm$set_y_sampler()`](#method-sampler.iglm-set_y_sampler)
 
-- [`sampler.iglm.generator$set_z_sampler()`](#method-sampler.iglm-set_z_sampler)
+- [`sampler.iglm$set_z_sampler()`](#method-sampler.iglm-set_z_sampler)
 
-- [`sampler.iglm.generator$set_seed()`](#method-sampler.iglm-set_seed)
+- [`sampler.iglm$set_seed()`](#method-sampler.iglm-set_seed)
 
-- [`sampler.iglm.generator$print()`](#method-sampler.iglm-print)
+- [`sampler.iglm$print()`](#method-sampler.iglm-print)
 
-- [`sampler.iglm.generator$gather()`](#method-sampler.iglm-gather)
+- [`sampler.iglm$gather()`](#method-sampler.iglm-gather)
 
-- [`sampler.iglm.generator$save()`](#method-sampler.iglm-save)
+- [`sampler.iglm$save()`](#method-sampler.iglm-save)
 
-- [`sampler.iglm.generator$clone()`](#method-sampler.iglm-clone)
+- [`sampler.iglm$clone()`](#method-sampler.iglm-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `sampler.iglm$new()`
 
 Create a new \`sampler.iglm\` object. Initializes all sampler settings,
 using defaults for component samplers (\`sampler.net.attr\`) if not
@@ -91,7 +91,7 @@ provided, and validates inputs.
 
 #### Usage
 
-    sampler.iglm.generator$new(
+    sampler.iglm$new(
       sampler_x = NULL,
       sampler_y = NULL,
       sampler_z = NULL,
@@ -163,13 +163,13 @@ A new \`sampler.iglm\` object.
 
 ------------------------------------------------------------------------
 
-### Method `set_cluster()`
+### `sampler.iglm$set_cluster()`
 
 Sets the parallel cluster object to be used for simulations.
 
 #### Usage
 
-    sampler.iglm.generator$set_cluster(cluster)
+    sampler.iglm$set_cluster(cluster)
 
 #### Arguments
 
@@ -179,14 +179,14 @@ Sets the parallel cluster object to be used for simulations.
 
 ------------------------------------------------------------------------
 
-### Method `deactive_cluster()`
+### `sampler.iglm$deactive_cluster()`
 
 Deactivates parallel processing for this sampler instance by setting the
 internal cluster object reference to \`NULL\`.
 
 #### Usage
 
-    sampler.iglm.generator$deactive_cluster()
+    sampler.iglm$deactive_cluster()
 
 #### Returns
 
@@ -194,13 +194,13 @@ The \`sampler.iglm\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `set_n_simulation()`
+### `sampler.iglm$set_n_simulation()`
 
 Sets the number of simulations to generate after burn-in.
 
 #### Usage
 
-    sampler.iglm.generator$set_n_simulation(n_simulation)
+    sampler.iglm$set_n_simulation(n_simulation)
 
 #### Arguments
 
@@ -214,13 +214,13 @@ None.
 
 ------------------------------------------------------------------------
 
-### Method `set_n_burn_in()`
+### `sampler.iglm$set_n_burn_in()`
 
 Sets the number of burn-in iterations.
 
 #### Usage
 
-    sampler.iglm.generator$set_n_burn_in(n_burn_in)
+    sampler.iglm$set_n_burn_in(n_burn_in)
 
 #### Arguments
 
@@ -234,13 +234,13 @@ None.
 
 ------------------------------------------------------------------------
 
-### Method `set_init_empty()`
+### `sampler.iglm$set_init_empty()`
 
 Sets whether to initialize simulations from an empty state.
 
 #### Usage
 
-    sampler.iglm.generator$set_init_empty(init_empty)
+    sampler.iglm$set_init_empty(init_empty)
 
 #### Arguments
 
@@ -254,13 +254,13 @@ None.
 
 ------------------------------------------------------------------------
 
-### Method `set_x_sampler()`
+### `sampler.iglm$set_x_sampler()`
 
 Sets the sampler configuration for the x attribute.
 
 #### Usage
 
-    sampler.iglm.generator$set_x_sampler(sampler_x)
+    sampler.iglm$set_x_sampler(sampler_x)
 
 #### Arguments
 
@@ -274,13 +274,13 @@ None.
 
 ------------------------------------------------------------------------
 
-### Method `set_y_sampler()`
+### `sampler.iglm$set_y_sampler()`
 
 Sets the sampler configuration for the y attribute.
 
 #### Usage
 
-    sampler.iglm.generator$set_y_sampler(sampler_y)
+    sampler.iglm$set_y_sampler(sampler_y)
 
 #### Arguments
 
@@ -294,13 +294,13 @@ None.
 
 ------------------------------------------------------------------------
 
-### Method `set_z_sampler()`
+### `sampler.iglm$set_z_sampler()`
 
 Sets the sampler configuration for the z attribute.
 
 #### Usage
 
-    sampler.iglm.generator$set_z_sampler(sampler_z)
+    sampler.iglm$set_z_sampler(sampler_z)
 
 #### Arguments
 
@@ -314,13 +314,13 @@ None.
 
 ------------------------------------------------------------------------
 
-### Method `set_seed()`
+### `sampler.iglm$set_seed()`
 
 Sets the random seed for this sampler.
 
 #### Usage
 
-    sampler.iglm.generator$set_seed(seed)
+    sampler.iglm$set_seed(seed)
 
 #### Arguments
 
@@ -334,13 +334,13 @@ None.
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `sampler.iglm$print()`
 
 Prints a formatted summary of the sampler configuration to the console.
 
 #### Usage
 
-    sampler.iglm.generator$print(digits = 3, ...)
+    sampler.iglm$print(digits = 3, ...)
 
 #### Arguments
 
@@ -358,13 +358,13 @@ The \`sampler.iglm\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `gather()`
+### `sampler.iglm$gather()`
 
 Gathers all data from private fields into a list.
 
 #### Usage
 
-    sampler.iglm.generator$gather()
+    sampler.iglm$gather()
 
 #### Returns
 
@@ -372,7 +372,7 @@ A list containing all information of the sampler.
 
 ------------------------------------------------------------------------
 
-### Method [`save()`](https://rdrr.io/r/base/save.html)
+### `sampler.iglm$save()`
 
 Save the object's complete state to a directory. This will save the main
 sampler's settings to a file named 'sampler.iglm_state.rds' within the
@@ -381,7 +381,7 @@ nested sampler (.x, .y, .z), saving them into the same directory.
 
 #### Usage
 
-    sampler.iglm.generator$save(file)
+    sampler.iglm$save(file)
 
 #### Arguments
 
@@ -396,13 +396,13 @@ The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `sampler.iglm$clone()`
 
 The objects of this class are cloneable with this method.
 
 #### Usage
 
-    sampler.iglm.generator$clone(deep = FALSE)
+    sampler.iglm$clone(deep = FALSE)
 
 #### Arguments
 

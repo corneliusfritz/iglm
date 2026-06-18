@@ -80,80 +80,80 @@ connections (z_network).
 
 ### Public methods
 
-- [`iglm.data_generator$new()`](#method-iglm.data-new)
+- [`iglm.data$new()`](#method-iglm.data-initialize)
 
-- [`iglm.data_generator$set_z_network()`](#method-iglm.data-set_z_network)
+- [`iglm.data$set_z_network()`](#method-iglm.data-set_z_network)
 
-- [`iglm.data_generator$set_type_x()`](#method-iglm.data-set_type_x)
+- [`iglm.data$set_type_x()`](#method-iglm.data-set_type_x)
 
-- [`iglm.data_generator$set_type_y()`](#method-iglm.data-set_type_y)
+- [`iglm.data$set_type_y()`](#method-iglm.data-set_type_y)
 
-- [`iglm.data_generator$set_scale_x()`](#method-iglm.data-set_scale_x)
+- [`iglm.data$set_scale_x()`](#method-iglm.data-set_scale_x)
 
-- [`iglm.data_generator$set_scale_y()`](#method-iglm.data-set_scale_y)
+- [`iglm.data$set_scale_y()`](#method-iglm.data-set_scale_y)
 
-- [`iglm.data_generator$set_x_attribute()`](#method-iglm.data-set_x_attribute)
+- [`iglm.data$set_x_attribute()`](#method-iglm.data-set_x_attribute)
 
-- [`iglm.data_generator$set_y_attribute()`](#method-iglm.data-set_y_attribute)
+- [`iglm.data$set_y_attribute()`](#method-iglm.data-set_y_attribute)
 
-- [`iglm.data_generator$gather()`](#method-iglm.data-gather)
+- [`iglm.data$gather()`](#method-iglm.data-gather)
 
-- [`iglm.data_generator$set_fix_z_alocal()`](#method-iglm.data-set_fix_z_alocal)
+- [`iglm.data$set_fix_z_alocal()`](#method-iglm.data-set_fix_z_alocal)
 
-- [`iglm.data_generator$delete_isolates()`](#method-iglm.data-delete_isolates)
+- [`iglm.data$delete_isolates()`](#method-iglm.data-delete_isolates)
 
-- [`iglm.data_generator$save()`](#method-iglm.data-save)
+- [`iglm.data$save()`](#method-iglm.data-save)
 
-- [`iglm.data_generator$set_fix_x()`](#method-iglm.data-set_fix_x)
+- [`iglm.data$set_fix_x()`](#method-iglm.data-set_fix_x)
 
-- [`iglm.data_generator$set_fix_z()`](#method-iglm.data-set_fix_z)
+- [`iglm.data$set_fix_z()`](#method-iglm.data-set_fix_z)
 
-- [`iglm.data_generator$mean_z()`](#method-iglm.data-mean_z)
+- [`iglm.data$mean_z()`](#method-iglm.data-mean_z)
 
-- [`iglm.data_generator$mean_x()`](#method-iglm.data-mean_x)
+- [`iglm.data$mean_x()`](#method-iglm.data-mean_x)
 
-- [`iglm.data_generator$mean_y()`](#method-iglm.data-mean_y)
+- [`iglm.data$mean_y()`](#method-iglm.data-mean_y)
 
-- [`iglm.data_generator$x_distribution()`](#method-iglm.data-x_distribution)
+- [`iglm.data$x_distribution()`](#method-iglm.data-x_distribution)
 
-- [`iglm.data_generator$y_distribution()`](#method-iglm.data-y_distribution)
+- [`iglm.data$y_distribution()`](#method-iglm.data-y_distribution)
 
-- [`iglm.data_generator$edgewise_shared_partner()`](#method-iglm.data-edgewise_shared_partner)
+- [`iglm.data$edgewise_shared_partner()`](#method-iglm.data-edgewise_shared_partner)
 
-- [`iglm.data_generator$set_neighborhood_overlap()`](#method-iglm.data-set_neighborhood_overlap)
+- [`iglm.data$set_neighborhood_overlap()`](#method-iglm.data-set_neighborhood_overlap)
 
-- [`iglm.data_generator$dyadwise_shared_partner()`](#method-iglm.data-dyadwise_shared_partner)
+- [`iglm.data$dyadwise_shared_partner()`](#method-iglm.data-dyadwise_shared_partner)
 
-- [`iglm.data_generator$geodesic_distances_distribution()`](#method-iglm.data-geodesic_distances_distribution)
+- [`iglm.data$geodesic_distances_distribution()`](#method-iglm.data-geodesic_distances_distribution)
 
-- [`iglm.data_generator$geodesic_distances()`](#method-iglm.data-geodesic_distances)
+- [`iglm.data$geodesic_distances()`](#method-iglm.data-geodesic_distances)
 
-- [`iglm.data_generator$edgewise_shared_partner_distribution()`](#method-iglm.data-edgewise_shared_partner_distribution)
+- [`iglm.data$edgewise_shared_partner_distribution()`](#method-iglm.data-edgewise_shared_partner_distribution)
 
-- [`iglm.data_generator$dyadwise_shared_partner_distribution()`](#method-iglm.data-dyadwise_shared_partner_distribution)
+- [`iglm.data$dyadwise_shared_partner_distribution()`](#method-iglm.data-dyadwise_shared_partner_distribution)
 
-- [`iglm.data_generator$degree_distribution()`](#method-iglm.data-degree_distribution)
+- [`iglm.data$degree_distribution()`](#method-iglm.data-degree_distribution)
 
-- [`iglm.data_generator$degree()`](#method-iglm.data-degree)
+- [`iglm.data$degree()`](#method-iglm.data-degree)
 
-- [`iglm.data_generator$spillover_degree_distribution()`](#method-iglm.data-spillover_degree_distribution)
+- [`iglm.data$spillover_degree_distribution()`](#method-iglm.data-spillover_degree_distribution)
 
-- [`iglm.data_generator$plot()`](#method-iglm.data-plot)
+- [`iglm.data$plot()`](#method-iglm.data-plot)
 
-- [`iglm.data_generator$print()`](#method-iglm.data-print)
+- [`iglm.data$print()`](#method-iglm.data-print)
 
-- [`iglm.data_generator$clone()`](#method-iglm.data-clone)
+- [`iglm.data$clone()`](#method-iglm.data-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `iglm.data$new()`
 
 Create a new \`iglm.data\` object, that includes data on two attributes
 and one network.
 
 #### Usage
 
-    iglm.data_generator$new(
+    iglm.data$new(
       x_attribute = NULL,
       y_attribute = NULL,
       z_network = NULL,
@@ -259,13 +259,13 @@ A new \`iglm.data\` object.
 
 ------------------------------------------------------------------------
 
-### Method `set_z_network()`
+### `iglm.data$set_z_network()`
 
 Sets the \`z_network\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_z_network(z_network)
+    iglm.data$set_z_network(z_network)
 
 #### Arguments
 
@@ -277,13 +277,13 @@ Sets the \`z_network\` of the \`iglm.data\` object.
 
 ------------------------------------------------------------------------
 
-### Method `set_type_x()`
+### `iglm.data$set_type_x()`
 
 Sets the \`type_x\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_type_x(type_x)
+    iglm.data$set_type_x(type_x)
 
 #### Arguments
 
@@ -295,13 +295,13 @@ Sets the \`type_x\` of the \`iglm.data\` object.
 
 ------------------------------------------------------------------------
 
-### Method `set_type_y()`
+### `iglm.data$set_type_y()`
 
 Sets the \`type_y\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_type_y(type_y)
+    iglm.data$set_type_y(type_y)
 
 #### Arguments
 
@@ -316,13 +316,13 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `set_scale_x()`
+### `iglm.data$set_scale_x()`
 
 Sets the \`scale_x\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_scale_x(scale_x)
+    iglm.data$set_scale_x(scale_x)
 
 #### Arguments
 
@@ -337,13 +337,13 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `set_scale_y()`
+### `iglm.data$set_scale_y()`
 
 Sets the \`scale_y\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_scale_y(scale_y)
+    iglm.data$set_scale_y(scale_y)
 
 #### Arguments
 
@@ -358,13 +358,13 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `set_x_attribute()`
+### `iglm.data$set_x_attribute()`
 
 Sets the \`x_attribute\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_x_attribute(x_attribute)
+    iglm.data$set_x_attribute(x_attribute)
 
 #### Arguments
 
@@ -378,13 +378,13 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `set_y_attribute()`
+### `iglm.data$set_y_attribute()`
 
 Sets the \`y_attribute\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_y_attribute(y_attribute)
+    iglm.data$set_y_attribute(y_attribute)
 
 #### Arguments
 
@@ -398,7 +398,7 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `gather()`
+### `iglm.data$gather()`
 
 Gathers the current state of the \`iglm.data\` object into a list. This
 includes all attributes, network, and configuration details necessary to
@@ -406,7 +406,7 @@ reconstruct the object later.
 
 #### Usage
 
-    iglm.data_generator$gather()
+    iglm.data$gather()
 
 #### Returns
 
@@ -414,13 +414,13 @@ A list containing the current state of the \`iglm.data\` object.
 
 ------------------------------------------------------------------------
 
-### Method `set_fix_z_alocal()`
+### `iglm.data$set_fix_z_alocal()`
 
 Sets the option whether alocal edges are fixed or not.
 
 #### Usage
 
-    iglm.data_generator$set_fix_z_alocal(fix_z_alocal)
+    iglm.data$set_fix_z_alocal(fix_z_alocal)
 
 #### Arguments
 
@@ -431,7 +431,7 @@ Sets the option whether alocal edges are fixed or not.
 
 ------------------------------------------------------------------------
 
-### Method `delete_isolates()`
+### `iglm.data$delete_isolates()`
 
 Deletes isolates from the \`z_network\` and updates the attributes and
 neighborhood accordingly. Isolates are actors that do not have any
@@ -441,7 +441,7 @@ removes them from the attributes and neighborhood, and updates the
 
 #### Usage
 
-    iglm.data_generator$delete_isolates()
+    iglm.data$delete_isolates()
 
 #### Returns
 
@@ -449,7 +449,7 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method [`save()`](https://rdrr.io/r/base/save.html)
+### `iglm.data$save()`
 
 Saves the current state of the \`iglm.data\` object to a specified file
 path in RDS format. This includes all attributes, network, and
@@ -457,7 +457,7 @@ configuration details necessary to reconstruct the object later.
 
 #### Usage
 
-    iglm.data_generator$save(file)
+    iglm.data$save(file)
 
 #### Arguments
 
@@ -472,13 +472,13 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `set_fix_x()`
+### `iglm.data$set_fix_x()`
 
 Sets the \`fix_x\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_fix_x(fix_x)
+    iglm.data$set_fix_x(fix_x)
 
 #### Arguments
 
@@ -492,13 +492,13 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `set_fix_z()`
+### `iglm.data$set_fix_z()`
 
 Sets the \`fix_z\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_fix_z(fix_z)
+    iglm.data$set_fix_z(fix_z)
 
 #### Arguments
 
@@ -512,13 +512,13 @@ The \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `mean_z()`
+### `iglm.data$mean_z()`
 
 Calculates the density of the \`z_network\`.
 
 #### Usage
 
-    iglm.data_generator$mean_z()
+    iglm.data$mean_z()
 
 #### Returns
 
@@ -526,13 +526,13 @@ A numeric value for the network density.
 
 ------------------------------------------------------------------------
 
-### Method `mean_x()`
+### `iglm.data$mean_x()`
 
 Calculates the mean of the \`x_attribute\`.
 
 #### Usage
 
-    iglm.data_generator$mean_x()
+    iglm.data$mean_x()
 
 #### Returns
 
@@ -540,13 +540,13 @@ A numeric value for the mean of \`x_attribute\`.
 
 ------------------------------------------------------------------------
 
-### Method `mean_y()`
+### `iglm.data$mean_y()`
 
 Calculates the mean of the \`y_attribute\`.
 
 #### Usage
 
-    iglm.data_generator$mean_y()
+    iglm.data$mean_y()
 
 #### Returns
 
@@ -554,17 +554,13 @@ A numeric value for the mean of \`y_attribute\`.
 
 ------------------------------------------------------------------------
 
-### Method `x_distribution()`
+### `iglm.data$x_distribution()`
 
 Calculates the distribution of the \`x_attribute\`.
 
 #### Usage
 
-    iglm.data_generator$x_distribution(
-      value_range = NULL,
-      prob = TRUE,
-      plot = TRUE
-    )
+    iglm.data$x_distribution(value_range = NULL, prob = TRUE, plot = TRUE)
 
 #### Arguments
 
@@ -591,17 +587,13 @@ A numeric vector representing the distribution of \`x_attribute\`
 
 ------------------------------------------------------------------------
 
-### Method `y_distribution()`
+### `iglm.data$y_distribution()`
 
 Calculates the distribution of the \`y_attribute\`.
 
 #### Usage
 
-    iglm.data_generator$y_distribution(
-      value_range = NULL,
-      prob = TRUE,
-      plot = TRUE
-    )
+    iglm.data$y_distribution(value_range = NULL, prob = TRUE, plot = TRUE)
 
 #### Arguments
 
@@ -628,14 +620,14 @@ A numeric vector representing the distribution of \`y_attribute\`
 
 ------------------------------------------------------------------------
 
-### Method `edgewise_shared_partner()`
+### `iglm.data$edgewise_shared_partner()`
 
 Calculates the matrix of edgewise shared partners. This is a two-path
 matrix (e.g., \$A A^T\$ or \$A^T A\$).
 
 #### Usage
 
-    iglm.data_generator$edgewise_shared_partner(type = "ALL")
+    iglm.data$edgewise_shared_partner(type = "ALL")
 
 #### Arguments
 
@@ -655,13 +647,13 @@ A sparse matrix (\`dgCMatrix\`) of shared partner counts.
 
 ------------------------------------------------------------------------
 
-### Method `set_neighborhood_overlap()`
+### `iglm.data$set_neighborhood_overlap()`
 
 Sets the neighborhood and overlap matrices.
 
 #### Usage
 
-    iglm.data_generator$set_neighborhood_overlap(neighborhood, overlap)
+    iglm.data$set_neighborhood_overlap(neighborhood, overlap)
 
 #### Arguments
 
@@ -681,13 +673,13 @@ None. Updates the internal neighborhood and overlap matrices.
 
 ------------------------------------------------------------------------
 
-### Method `dyadwise_shared_partner()`
+### `iglm.data$dyadwise_shared_partner()`
 
 Calculates the matrix of dyadwise shared partners.
 
 #### Usage
 
-    iglm.data_generator$dyadwise_shared_partner(type = "ALL")
+    iglm.data$dyadwise_shared_partner(type = "ALL")
 
 #### Arguments
 
@@ -707,14 +699,14 @@ A sparse matrix (\`dgCMatrix\`) of shared partner counts.
 
 ------------------------------------------------------------------------
 
-### Method `geodesic_distances_distribution()`
+### `iglm.data$geodesic_distances_distribution()`
 
 Calculates the geodesic distance distribution of the symmetrized
 \`z_network\`.
 
 #### Usage
 
-    iglm.data_generator$geodesic_distances_distribution(
+    iglm.data$geodesic_distances_distribution(
       value_range = NULL,
       prob = TRUE,
       plot = TRUE
@@ -744,14 +736,14 @@ distances. Includes \`Inf\` for unreachable pairs.
 
 ------------------------------------------------------------------------
 
-### Method `geodesic_distances()`
+### `iglm.data$geodesic_distances()`
 
 Calculates the all-pairs geodesic distance matrix for the symmetrized
 \`z_network\` using a matrix-based BFS algorithm.
 
 #### Usage
 
-    iglm.data_generator$geodesic_distances()
+    iglm.data$geodesic_distances()
 
 #### Returns
 
@@ -760,13 +752,13 @@ distance from i to j. \`Inf\` indicates no path.
 
 ------------------------------------------------------------------------
 
-### Method `edgewise_shared_partner_distribution()`
+### `iglm.data$edgewise_shared_partner_distribution()`
 
 Calculates the distribution of edgewise shared partners.
 
 #### Usage
 
-    iglm.data_generator$edgewise_shared_partner_distribution(
+    iglm.data$edgewise_shared_partner_distribution(
       type = "ALL",
       value_range = NULL,
       prob = TRUE,
@@ -802,13 +794,13 @@ partner counts.
 
 ------------------------------------------------------------------------
 
-### Method `dyadwise_shared_partner_distribution()`
+### `iglm.data$dyadwise_shared_partner_distribution()`
 
 Calculates the distribution of dyadwise shared partners.
 
 #### Usage
 
-    iglm.data_generator$dyadwise_shared_partner_distribution(
+    iglm.data$dyadwise_shared_partner_distribution(
       type = "ALL",
       value_range = NULL,
       prob = TRUE,
@@ -844,17 +836,13 @@ partner counts.
 
 ------------------------------------------------------------------------
 
-### Method `degree_distribution()`
+### `iglm.data$degree_distribution()`
 
 Calculates the degree distribution of the \`z_network\`.
 
 #### Usage
 
-    iglm.data_generator$degree_distribution(
-      value_range = NULL,
-      prob = TRUE,
-      plot = TRUE
-    )
+    iglm.data$degree_distribution(value_range = NULL, prob = TRUE, plot = TRUE)
 
 #### Arguments
 
@@ -881,13 +869,13 @@ object with the degree distribution.
 
 ------------------------------------------------------------------------
 
-### Method `degree()`
+### `iglm.data$degree()`
 
 Calculates the degree sequence(s) of the \`z_network\`.
 
 #### Usage
 
-    iglm.data_generator$degree()
+    iglm.data$degree()
 
 #### Returns
 
@@ -897,14 +885,14 @@ containing the vector \`degree_seq\`.
 
 ------------------------------------------------------------------------
 
-### Method `spillover_degree_distribution()`
+### `iglm.data$spillover_degree_distribution()`
 
 Calculates the spillover degree distribution between actors with
 \`x_attribute == 1\` and actors with \`y_attribute == 1\`.
 
 #### Usage
 
-    iglm.data_generator$spillover_degree_distribution(
+    iglm.data$spillover_degree_distribution(
       prob = TRUE,
       value_range = NULL,
       plot = TRUE
@@ -934,7 +922,7 @@ x_i=1 to y_j=1) and \`in_spillover_degree\` (from y_i=1 to x_j=1).
 
 ------------------------------------------------------------------------
 
-### Method [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+### `iglm.data$plot()`
 
 Plot the network using \`igraph\`.
 
@@ -944,7 +932,7 @@ colored by \`x_attribute\` and sized by \`y_attribute\`.
 
 #### Usage
 
-    iglm.data_generator$plot(
+    iglm.data$plot(
       node_color = "x",
       node_size = "y",
       show_overlap = TRUE,
@@ -1044,13 +1032,13 @@ coordinates (\`coords\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `iglm.data$print()`
 
 Print a summary of the \`iglm.data\` object to the console.
 
 #### Usage
 
-    iglm.data_generator$print(digits = 3, ...)
+    iglm.data$print(digits = 3, ...)
 
 #### Arguments
 
@@ -1068,13 +1056,13 @@ The object's private environment, invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `iglm.data$clone()`
 
 The objects of this class are cloneable with this method.
 
 #### Usage
 
-    iglm.data_generator$clone(deep = FALSE)
+    iglm.data$clone(deep = FALSE)
 
 #### Arguments
 

@@ -78,45 +78,45 @@ Methodology), 7, 647-676.
 
 ### Public methods
 
-- [`iglm.object.generator$new()`](#method-iglm.object-new)
+- [`iglm.object$new()`](#method-iglm.object-initialize)
 
-- [`iglm.object.generator$is_equivalent()`](#method-iglm.object-is_equivalent)
+- [`iglm.object$is_equivalent()`](#method-iglm.object-is_equivalent)
 
-- [`iglm.object.generator$assess()`](#method-iglm.object-assess)
+- [`iglm.object$assess()`](#method-iglm.object-assess)
 
-- [`iglm.object.generator$print()`](#method-iglm.object-print)
+- [`iglm.object$print()`](#method-iglm.object-print)
 
-- [`iglm.object.generator$plot()`](#method-iglm.object-plot)
+- [`iglm.object$plot()`](#method-iglm.object-plot)
 
-- [`iglm.object.generator$gather()`](#method-iglm.object-gather)
+- [`iglm.object$gather()`](#method-iglm.object-gather)
 
-- [`iglm.object.generator$set_name()`](#method-iglm.object-set_name)
+- [`iglm.object$set_name()`](#method-iglm.object-set_name)
 
-- [`iglm.object.generator$set_control()`](#method-iglm.object-set_control)
+- [`iglm.object$set_control()`](#method-iglm.object-set_control)
 
-- [`iglm.object.generator$save()`](#method-iglm.object-save)
+- [`iglm.object$save()`](#method-iglm.object-save)
 
-- [`iglm.object.generator$estimate()`](#method-iglm.object-estimate)
+- [`iglm.object$estimate()`](#method-iglm.object-estimate)
 
-- [`iglm.object.generator$summary()`](#method-iglm.object-summary)
+- [`iglm.object$summary()`](#method-iglm.object-summary)
 
-- [`iglm.object.generator$simulate()`](#method-iglm.object-simulate)
+- [`iglm.object$simulate()`](#method-iglm.object-simulate)
 
-- [`iglm.object.generator$predict()`](#method-iglm.object-predict)
+- [`iglm.object$predict()`](#method-iglm.object-predict)
 
-- [`iglm.object.generator$set_coefficients()`](#method-iglm.object-set_coefficients)
+- [`iglm.object$set_coefficients()`](#method-iglm.object-set_coefficients)
 
-- [`iglm.object.generator$get_samples()`](#method-iglm.object-get_samples)
+- [`iglm.object$get_samples()`](#method-iglm.object-get_samples)
 
-- [`iglm.object.generator$set_sampler()`](#method-iglm.object-set_sampler)
+- [`iglm.object$set_sampler()`](#method-iglm.object-set_sampler)
 
-- [`iglm.object.generator$set_target()`](#method-iglm.object-set_target)
+- [`iglm.object$set_target()`](#method-iglm.object-set_target)
 
-- [`iglm.object.generator$clone()`](#method-iglm.object-clone)
+- [`iglm.object$clone()`](#method-iglm.object-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `iglm.object$new()`
 
 Internal method to calculate the observed count statistics based on the
 model formula and the data in the \`iglm.data\` object. Populates the
@@ -132,7 +132,7 @@ and control objects, calculating initial statistics, and validating.
 
 #### Usage
 
-    iglm.object.generator$new(
+    iglm.object$new(
       formula = NULL,
       coef = NULL,
       coef_degrees = NULL,
@@ -193,14 +193,14 @@ A new \`iglm.object\`.
 
 ------------------------------------------------------------------------
 
-### Method `is_equivalent()`
+### `iglm.object$is_equivalent()`
 
 Check if this iglm object is equivalent to another iglm object by
 comparing their defining features, data, and parameters.
 
 #### Usage
 
-    iglm.object.generator$is_equivalent(other, tol = 1e-05, check_results = FALSE)
+    iglm.object$is_equivalent(other, tol = 1e-05, check_results = FALSE)
 
 #### Arguments
 
@@ -224,7 +224,7 @@ comparing their defining features, data, and parameters.
 
 ------------------------------------------------------------------------
 
-### Method `assess()`
+### `iglm.object$assess()`
 
 Performs model assessment by calculating specified network statistics on
 the observed network and comparing their distribution to the
@@ -234,7 +234,7 @@ parameters. Requires simulations to have been run first (via
 
 #### Usage
 
-    iglm.object.generator$assess(formula, plot = TRUE)
+    iglm.object$assess(formula, plot = TRUE)
 
 #### Arguments
 
@@ -260,14 +260,14 @@ also stored internally.
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `iglm.object$print()`
 
 Print a summary of the \`iglm.object\`. If estimation results are
 available, they are printed in a standard coefficient table format.
 
 #### Usage
 
-    iglm.object.generator$print(
+    iglm.object$print(
       digits = 3,
       rows = c(1, 2),
       signif.stars = getOption("show.signif.stars"),
@@ -326,18 +326,14 @@ available, they are printed in a standard coefficient table format.
 
 ------------------------------------------------------------------------
 
-### Method [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+### `iglm.object$plot()`
 
 Plot the estimation results, including coefficient convergence paths and
 model assessment diagnostics if available.
 
 #### Usage
 
-    iglm.object.generator$plot(
-      stats = FALSE,
-      trace = FALSE,
-      model_assessment = FALSE
-    )
+    iglm.object$plot(stats = FALSE, trace = FALSE, model_assessment = FALSE)
 
 #### Arguments
 
@@ -358,7 +354,7 @@ model assessment diagnostics if available.
 
 ------------------------------------------------------------------------
 
-### Method `gather()`
+### `iglm.object$gather()`
 
 Gathers all components of the
 [`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
@@ -366,7 +362,7 @@ into a single list for easy saving or inspection.
 
 #### Usage
 
-    iglm.object.generator$gather()
+    iglm.object$gather()
 
 #### Returns
 
@@ -380,14 +376,14 @@ data object.
 
 ------------------------------------------------------------------------
 
-### Method `set_name()`
+### `iglm.object$set_name()`
 
 Set the name of the
 [`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md).
 
 #### Usage
 
-    iglm.object.generator$set_name(name)
+    iglm.object$set_name(name)
 
 #### Arguments
 
@@ -401,13 +397,13 @@ The name of the object as a character string.
 
 ------------------------------------------------------------------------
 
-### Method `set_control()`
+### `iglm.object$set_control()`
 
 Set control parameters for model estimation.
 
 #### Usage
 
-    iglm.object.generator$set_control(control)
+    iglm.object$set_control(control)
 
 #### Arguments
 
@@ -423,7 +419,7 @@ Invisibly returns \`NULL\`.
 
 ------------------------------------------------------------------------
 
-### Method [`save()`](https://rdrr.io/r/base/save.html)
+### `iglm.object$save()`
 
 Save the
 [`iglm.object`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
@@ -431,7 +427,7 @@ to a file in RDS format.
 
 #### Usage
 
-    iglm.object.generator$save(file = NULL)
+    iglm.object$save(file = NULL)
 
 #### Arguments
 
@@ -445,14 +441,14 @@ Invisibly returns \`NULL\`.
 
 ------------------------------------------------------------------------
 
-### Method `estimate()`
+### `iglm.object$estimate()`
 
 Estimate the model parameters using the specified control settings.
 Stores the results internally and updates the coefficient fields.
 
 #### Usage
 
-    iglm.object.generator$estimate()
+    iglm.object$estimate()
 
 #### Returns
 
@@ -466,7 +462,7 @@ time.
 
 ------------------------------------------------------------------------
 
-### Method [`summary()`](https://rdrr.io/r/base/summary.html)
+### `iglm.object$summary()`
 
 Provides a summary of the estimation results with the following columns:
 Estimate, SE, t-value, and Pr(\>\|t\|). Requires the model to have been
@@ -474,7 +470,7 @@ estimated first.
 
 #### Usage
 
-    iglm.object.generator$summary(digits = 2, ...)
+    iglm.object$summary(digits = 2, ...)
 
 #### Arguments
 
@@ -493,7 +489,7 @@ Prints the summary to the console and returns \`NULL\` invisibly.
 
 ------------------------------------------------------------------------
 
-### Method [`simulate()`](https://rdrr.io/r/stats/simulate.html)
+### `iglm.object$simulate()`
 
 Simulate networks from the fitted model or a specified model. Stores the
 simulations and/or summary statistics internally. The simulation is
@@ -502,7 +498,7 @@ carried out using the internal MCMC sampler described in
 
 #### Usage
 
-    iglm.object.generator$simulate(
+    iglm.object$simulate(
       only_stats = FALSE,
       display_progress = TRUE,
       offset_nonoverlap = 0
@@ -536,7 +532,7 @@ statistics (\`stats\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method [`predict()`](https://rdrr.io/r/stats/predict.html)
+### `iglm.object$predict()`
 
 Calculates predicted values for the nodal covariates (`x`), the outcome
 variable (`y`), and the network structure (`z`). The function supports
@@ -546,7 +542,7 @@ predictor and point estimates).
 
 #### Usage
 
-    iglm.object.generator$predict(
+    iglm.object$predict(
       variant = c("conditional", "marginal"),
       type = c("x", "y", "z")
     )
@@ -627,14 +623,14 @@ The results are also invisibly stored in the internal state
 
 ------------------------------------------------------------------------
 
-### Method `set_coefficients()`
+### `iglm.object$set_coefficients()`
 
 Manually set the model coefficients to new values. This is useful for
 sensitivity analyses or applying the model to different scenarios.
 
 #### Usage
 
-    iglm.object.generator$set_coefficients(coef, coef_degrees = NULL)
+    iglm.object$set_coefficients(coef, coef_degrees = NULL)
 
 #### Arguments
 
@@ -655,14 +651,14 @@ itself, invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `get_samples()`
+### `iglm.object$get_samples()`
 
 Retrieve the simulated networks stored in the object. Requires
 `simulate` or `estimate` to have been run first.
 
 #### Usage
 
-    iglm.object.generator$get_samples()
+    iglm.object$get_samples()
 
 #### Returns
 
@@ -673,14 +669,14 @@ if no samples are available.
 
 ------------------------------------------------------------------------
 
-### Method `set_sampler()`
+### `iglm.object$set_sampler()`
 
 Replace the internal MCMC sampler with a new one. This is useful for
 changing the sampling scheme without redefining the entire model.
 
 #### Usage
 
-    iglm.object.generator$set_sampler(sampler)
+    iglm.object$set_sampler(sampler)
 
 #### Arguments
 
@@ -694,7 +690,7 @@ changing the sampling scheme without redefining the entire model.
 
 ------------------------------------------------------------------------
 
-### Method `set_target()`
+### `iglm.object$set_target()`
 
 Replace the internal \`iglm.data\` data object with a new one. This is
 useful for applying a fitted model to new observed data. Recalculates
@@ -702,7 +698,7 @@ count statistics and re-validates the object.
 
 #### Usage
 
-    iglm.object.generator$set_target(x)
+    iglm.object$set_target(x)
 
 #### Arguments
 
@@ -720,13 +716,13 @@ itself, invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `iglm.object$clone()`
 
 The objects of this class are cloneable with this method.
 
 #### Usage
 
-    iglm.object.generator$clone(deep = FALSE)
+    iglm.object$clone(deep = FALSE)
 
 #### Arguments
 

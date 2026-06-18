@@ -21,29 +21,29 @@ random seed is managed centrally by the parent \`sampler.iglm\` object.
 
 ### Public methods
 
-- [`sampler.net.attr.generator$new()`](#method-sampler.net.attr-new)
+- [`sampler.net.attr$new()`](#method-sampler.net.attr-initialize)
 
-- [`sampler.net.attr.generator$print()`](#method-sampler.net.attr-print)
+- [`sampler.net.attr$print()`](#method-sampler.net.attr-print)
 
-- [`sampler.net.attr.generator$gather()`](#method-sampler.net.attr-gather)
+- [`sampler.net.attr$gather()`](#method-sampler.net.attr-gather)
 
-- [`sampler.net.attr.generator$set_n_proposals()`](#method-sampler.net.attr-set_n_proposals)
+- [`sampler.net.attr$set_n_proposals()`](#method-sampler.net.attr-set_n_proposals)
 
-- [`sampler.net.attr.generator$set_tnt()`](#method-sampler.net.attr-set_tnt)
+- [`sampler.net.attr$set_tnt()`](#method-sampler.net.attr-set_tnt)
 
-- [`sampler.net.attr.generator$save()`](#method-sampler.net.attr-save)
+- [`sampler.net.attr$save()`](#method-sampler.net.attr-save)
 
-- [`sampler.net.attr.generator$clone()`](#method-sampler.net.attr-clone)
+- [`sampler.net.attr$clone()`](#method-sampler.net.attr-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `sampler.net.attr$new()`
 
 Create a new \`sampler_net_attr\` object.
 
 #### Usage
 
-    sampler.net.attr.generator$new(n_proposals = 10000, file = NULL, tnt = TRUE)
+    sampler.net.attr$new(n_proposals = 10000, file = NULL, tnt = TRUE)
 
 #### Arguments
 
@@ -69,13 +69,13 @@ A new \`sampler_net_attr\` object.
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `sampler.net.attr$print()`
 
 Print a summary of the sampler settings for this component.
 
 #### Usage
 
-    sampler.net.attr.generator$print(indent = "  ")
+    sampler.net.attr$print(indent = "  ")
 
 #### Arguments
 
@@ -89,13 +89,13 @@ The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `gather()`
+### `sampler.net.attr$gather()`
 
 Gathers all data into a list.
 
 #### Usage
 
-    sampler.net.attr.generator$gather()
+    sampler.net.attr$gather()
 
 #### Returns
 
@@ -103,13 +103,13 @@ A list with \`n_proposals\` and \`tnt\`.
 
 ------------------------------------------------------------------------
 
-### Method `set_n_proposals()`
+### `sampler.net.attr$set_n_proposals()`
 
 Sets the number of MCMC proposals.
 
 #### Usage
 
-    sampler.net.attr.generator$set_n_proposals(n_proposals)
+    sampler.net.attr$set_n_proposals(n_proposals)
 
 #### Arguments
 
@@ -119,13 +119,13 @@ Sets the number of MCMC proposals.
 
 ------------------------------------------------------------------------
 
-### Method `set_tnt()`
+### `sampler.net.attr$set_tnt()`
 
 Sets whether to use TNT sampling.
 
 #### Usage
 
-    sampler.net.attr.generator$set_tnt(tnt)
+    sampler.net.attr$set_tnt(tnt)
 
 #### Arguments
 
@@ -135,13 +135,13 @@ Sets whether to use TNT sampling.
 
 ------------------------------------------------------------------------
 
-### Method [`save()`](https://rdrr.io/r/base/save.html)
+### `sampler.net.attr$save()`
 
 Save state to an .rds file.
 
 #### Usage
 
-    sampler.net.attr.generator$save(file)
+    sampler.net.attr$save(file)
 
 #### Arguments
 
@@ -155,13 +155,13 @@ The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `sampler.net.attr$clone()`
 
 The objects of this class are cloneable with this method.
 
 #### Usage
 
-    sampler.net.attr.generator$clone(deep = FALSE)
+    sampler.net.attr$clone(deep = FALSE)
 
 #### Arguments
 
