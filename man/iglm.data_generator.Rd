@@ -9,84 +9,85 @@ The `iglm.data` class is a container for storing, validating, and analyzing
 unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{x_attribute}}{(`numeric`) The vector for the first unit-level attribute.}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{x_attribute}}{(`numeric`) The vector for the first unit-level attribute.}
 
-\item{\code{y_attribute}}{(`numeric`) The vector for the second unit-level attribute.}
+    \item{\code{y_attribute}}{(`numeric`) The vector for the second unit-level attribute.}
 
-\item{\code{z_network}}{(`matrix`) The primary network structure as a 2-column integer edgelist.}
+    \item{\code{z_network}}{(`matrix`) The primary network structure as a 2-column integer edgelist.}
 
-\item{\code{neighborhood}}{(`matrix`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. An empty matrix if not provided.}
+    \item{\code{neighborhood}}{(`matrix`) Read-only. The secondary/neighborhood structure as a 2-column integer edgelist. An empty matrix if not provided.}
 
-\item{\code{overlap}}{(`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist. An empty matrix if overlap hasn't been computed or is not available.}
+    \item{\code{overlap}}{(`matrix`) Read-only. The calculated overlap relation (dyads with shared neighbors in `neighborhood`) as a 2-column integer edgelist. An empty matrix if overlap hasn't been computed or is not available.}
 
-\item{\code{directed}}{(`logical`) Indicates if the `z_network` is treated as directed.}
+    \item{\code{directed}}{(`logical`) Indicates if the `z_network` is treated as directed.}
 
-\item{\code{n_actor}}{(`integer`) The total number of actors (nodes) in the network.}
+    \item{\code{n_actor}}{(`integer`) The total number of actors (nodes) in the network.}
 
-\item{\code{type_x}}{(`character`) The specified distribution type for the `x_attribute`.}
+    \item{\code{type_x}}{(`character`) The specified distribution type for the `x_attribute`.}
 
-\item{\code{type_y}}{(`character`) The specified distribution type for the `y_attribute`.}
+    \item{\code{type_y}}{(`character`) The specified distribution type for the `y_attribute`.}
 
-\item{\code{scale_x}}{(`numeric`) The scale parameter associated with the `x_attribute`.}
+    \item{\code{scale_x}}{(`numeric`) The scale parameter associated with the `x_attribute`.}
 
-\item{\code{scale_y}}{(`numeric`) The scale parameter associated with the `y_attribute`.}
+    \item{\code{scale_y}}{(`numeric`) The scale parameter associated with the `y_attribute`.}
 
-\item{\code{fix_x}}{(`logical`) Indicates if the `x_attribute` is fixed during estimation/simulation.}
+    \item{\code{fix_x}}{(`logical`) Indicates if the `x_attribute` is fixed during estimation/simulation.}
 
-\item{\code{fix_z}}{(`logical`) RIndicates if the `z_network` is fixed during estimation/simulation.}
+    \item{\code{fix_z}}{(`logical`) RIndicates if the `z_network` is fixed during estimation/simulation.}
 
-\item{\code{descriptives}}{(`list`)A list storing computed descriptive statistics for the network and attributes.}
+    \item{\code{descriptives}}{(`list`)A list storing computed descriptive statistics for the network and attributes.}
 
-\item{\code{fix_z_alocal}}{(`logical`) Flag indicating whether nonoverlap edges are treated as random.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{fix_z_alocal}}{(`logical`) Flag indicating whether nonoverlap edges are treated as random.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-iglm.data-new}{\code{iglm.data_generator$new()}}
-\item \href{#method-iglm.data-set_z_network}{\code{iglm.data_generator$set_z_network()}}
-\item \href{#method-iglm.data-set_type_x}{\code{iglm.data_generator$set_type_x()}}
-\item \href{#method-iglm.data-set_type_y}{\code{iglm.data_generator$set_type_y()}}
-\item \href{#method-iglm.data-set_scale_x}{\code{iglm.data_generator$set_scale_x()}}
-\item \href{#method-iglm.data-set_scale_y}{\code{iglm.data_generator$set_scale_y()}}
-\item \href{#method-iglm.data-set_x_attribute}{\code{iglm.data_generator$set_x_attribute()}}
-\item \href{#method-iglm.data-set_y_attribute}{\code{iglm.data_generator$set_y_attribute()}}
-\item \href{#method-iglm.data-gather}{\code{iglm.data_generator$gather()}}
-\item \href{#method-iglm.data-set_fix_z_alocal}{\code{iglm.data_generator$set_fix_z_alocal()}}
-\item \href{#method-iglm.data-delete_isolates}{\code{iglm.data_generator$delete_isolates()}}
-\item \href{#method-iglm.data-save}{\code{iglm.data_generator$save()}}
-\item \href{#method-iglm.data-set_fix_x}{\code{iglm.data_generator$set_fix_x()}}
-\item \href{#method-iglm.data-set_fix_z}{\code{iglm.data_generator$set_fix_z()}}
-\item \href{#method-iglm.data-mean_z}{\code{iglm.data_generator$mean_z()}}
-\item \href{#method-iglm.data-mean_x}{\code{iglm.data_generator$mean_x()}}
-\item \href{#method-iglm.data-mean_y}{\code{iglm.data_generator$mean_y()}}
-\item \href{#method-iglm.data-x_distribution}{\code{iglm.data_generator$x_distribution()}}
-\item \href{#method-iglm.data-y_distribution}{\code{iglm.data_generator$y_distribution()}}
-\item \href{#method-iglm.data-edgewise_shared_partner}{\code{iglm.data_generator$edgewise_shared_partner()}}
-\item \href{#method-iglm.data-set_neighborhood_overlap}{\code{iglm.data_generator$set_neighborhood_overlap()}}
-\item \href{#method-iglm.data-dyadwise_shared_partner}{\code{iglm.data_generator$dyadwise_shared_partner()}}
-\item \href{#method-iglm.data-geodesic_distances_distribution}{\code{iglm.data_generator$geodesic_distances_distribution()}}
-\item \href{#method-iglm.data-geodesic_distances}{\code{iglm.data_generator$geodesic_distances()}}
-\item \href{#method-iglm.data-edgewise_shared_partner_distribution}{\code{iglm.data_generator$edgewise_shared_partner_distribution()}}
-\item \href{#method-iglm.data-dyadwise_shared_partner_distribution}{\code{iglm.data_generator$dyadwise_shared_partner_distribution()}}
-\item \href{#method-iglm.data-degree_distribution}{\code{iglm.data_generator$degree_distribution()}}
-\item \href{#method-iglm.data-degree}{\code{iglm.data_generator$degree()}}
-\item \href{#method-iglm.data-spillover_degree_distribution}{\code{iglm.data_generator$spillover_degree_distribution()}}
-\item \href{#method-iglm.data-plot}{\code{iglm.data_generator$plot()}}
-\item \href{#method-iglm.data-print}{\code{iglm.data_generator$print()}}
-\item \href{#method-iglm.data-clone}{\code{iglm.data_generator$clone()}}
-}
+  \itemize{
+    \item \href{#method-iglm.data-initialize}{\code{iglm.data$new()}}
+    \item \href{#method-iglm.data-set_z_network}{\code{iglm.data$set_z_network()}}
+    \item \href{#method-iglm.data-set_type_x}{\code{iglm.data$set_type_x()}}
+    \item \href{#method-iglm.data-set_type_y}{\code{iglm.data$set_type_y()}}
+    \item \href{#method-iglm.data-set_scale_x}{\code{iglm.data$set_scale_x()}}
+    \item \href{#method-iglm.data-set_scale_y}{\code{iglm.data$set_scale_y()}}
+    \item \href{#method-iglm.data-set_x_attribute}{\code{iglm.data$set_x_attribute()}}
+    \item \href{#method-iglm.data-set_y_attribute}{\code{iglm.data$set_y_attribute()}}
+    \item \href{#method-iglm.data-gather}{\code{iglm.data$gather()}}
+    \item \href{#method-iglm.data-set_fix_z_alocal}{\code{iglm.data$set_fix_z_alocal()}}
+    \item \href{#method-iglm.data-delete_isolates}{\code{iglm.data$delete_isolates()}}
+    \item \href{#method-iglm.data-save}{\code{iglm.data$save()}}
+    \item \href{#method-iglm.data-set_fix_x}{\code{iglm.data$set_fix_x()}}
+    \item \href{#method-iglm.data-set_fix_z}{\code{iglm.data$set_fix_z()}}
+    \item \href{#method-iglm.data-mean_z}{\code{iglm.data$mean_z()}}
+    \item \href{#method-iglm.data-mean_x}{\code{iglm.data$mean_x()}}
+    \item \href{#method-iglm.data-mean_y}{\code{iglm.data$mean_y()}}
+    \item \href{#method-iglm.data-x_distribution}{\code{iglm.data$x_distribution()}}
+    \item \href{#method-iglm.data-y_distribution}{\code{iglm.data$y_distribution()}}
+    \item \href{#method-iglm.data-edgewise_shared_partner}{\code{iglm.data$edgewise_shared_partner()}}
+    \item \href{#method-iglm.data-set_neighborhood_overlap}{\code{iglm.data$set_neighborhood_overlap()}}
+    \item \href{#method-iglm.data-dyadwise_shared_partner}{\code{iglm.data$dyadwise_shared_partner()}}
+    \item \href{#method-iglm.data-geodesic_distances_distribution}{\code{iglm.data$geodesic_distances_distribution()}}
+    \item \href{#method-iglm.data-geodesic_distances}{\code{iglm.data$geodesic_distances()}}
+    \item \href{#method-iglm.data-edgewise_shared_partner_distribution}{\code{iglm.data$edgewise_shared_partner_distribution()}}
+    \item \href{#method-iglm.data-dyadwise_shared_partner_distribution}{\code{iglm.data$dyadwise_shared_partner_distribution()}}
+    \item \href{#method-iglm.data-degree_distribution}{\code{iglm.data$degree_distribution()}}
+    \item \href{#method-iglm.data-degree}{\code{iglm.data$degree()}}
+    \item \href{#method-iglm.data-spillover_degree_distribution}{\code{iglm.data$spillover_degree_distribution()}}
+    \item \href{#method-iglm.data-plot}{\code{iglm.data$plot()}}
+    \item \href{#method-iglm.data-print}{\code{iglm.data$print()}}
+    \item \href{#method-iglm.data-clone}{\code{iglm.data$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-iglm.data-new"></a>}}
-\if{latex}{\out{\hypertarget{method-iglm.data-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new `iglm.data` object, that includes data on two attributes and one network.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$new(
+\if{html}{\out{<a id="method-iglm.data-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-initialize}{}}}
+\subsection{\code{iglm.data$new()}}{
+  Create a new `iglm.data` object, that includes data on two attributes and one network.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$new(
   x_attribute = NULL,
   y_attribute = NULL,
   z_network = NULL,
@@ -102,424 +103,436 @@ Create a new `iglm.data` object, that includes data on two attributes and one ne
   fix_z_alocal = TRUE,
   return_neighborhood = TRUE,
   file = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x_attribute}}{A numeric vector for the first unit-level attribute.}
-
-\item{\code{y_attribute}}{A numeric vector for the second unit-level attribute.}
-
-\item{\code{z_network}}{A matrix representing the network. Can be a 2-column
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{x_attribute}}{A numeric vector for the first unit-level attribute.}
+      \item{\code{y_attribute}}{A numeric vector for the second unit-level attribute.}
+      \item{\code{z_network}}{A matrix representing the network. Can be a 2-column
 edgelist or a square adjacency matrix.}
-
-\item{\code{neighborhood}}{An optional matrix for the neighborhood representing local dependence.
+      \item{\code{neighborhood}}{An optional matrix for the neighborhood representing local dependence.
 Can be a 2-column edgelist or a square adjacency matrix.
 A tie in `neighborhood` between actor i and j indicates that j is in the neighborhood of i,
 implying dependence between the respective actors.}
-
-\item{\code{directed}}{A logical value indicating if `z_network` is directed.
+      \item{\code{directed}}{A logical value indicating if `z_network` is directed.
 If `NA` (default), directedness is inferred from the symmetry of
 `z_network`.}
-
-\item{\code{n_actor}}{An integer for the number of actors in the system.
+      \item{\code{n_actor}}{An integer for the number of actors in the system.
 If `NA` (default), `n_actor` is inferred from the attributes or
 network matrices.}
-
-\item{\code{type_x}}{Character string for the type of `x_attribute`.
+      \item{\code{type_x}}{Character string for the type of `x_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 Default is `"binomial"`.}
-
-\item{\code{type_y}}{Character string for the type of `y_attribute`.
+      \item{\code{type_y}}{Character string for the type of `y_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 Default is `"binomial"`.}
-
-\item{\code{scale_x}}{A positive numeric value for scaling (e.g., variance
+      \item{\code{scale_x}}{A positive numeric value for scaling (e.g., variance
 for "normal" type). Default is 1.}
-
-\item{\code{scale_y}}{A positive numeric value for scaling (e.g., variance
+      \item{\code{scale_y}}{A positive numeric value for scaling (e.g., variance
 for "normal" type). Default is 1.}
-
-\item{\code{fix_x}}{Logical. If `TRUE`, the `x_attribute` is treated as fixed
+      \item{\code{fix_x}}{Logical. If `TRUE`, the `x_attribute` is treated as fixed
 during model estimation and simulation. Default is `FALSE`.}
-
-\item{\code{fix_z}}{Logical. If `TRUE`, the `z_network` is treated as fixed
+      \item{\code{fix_z}}{Logical. If `TRUE`, the `z_network` is treated as fixed
 during model estimation and simulation. Default is `FALSE`.}
-
-\item{\code{fix_z_alocal}}{Logical. If `TRUE` (default), alocal dyads in the neighborhood are fixed.}
-
-\item{\code{return_neighborhood}}{Logical. If `TRUE` (default) and
+      \item{\code{fix_z_alocal}}{Logical. If `TRUE` (default), alocal dyads in the neighborhood are fixed.}
+      \item{\code{return_neighborhood}}{Logical. If `TRUE` (default) and
 `neighborhood` is `NULL`, a full neighborhood (all dyads) is
 generated implying global dependence. If `FALSE`, no neighborhood is set.}
+      \item{\code{file}}{(character) Optional file path to load a saved `iglm.data` object state.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new `iglm.data` object.
+  }
+}
 
-\item{\code{file}}{(character) Optional file path to load a saved `iglm.data` object state.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new `iglm.data` object.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_z_network"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_z_network}{}}}
-\subsection{Method \code{set_z_network()}}{
-Sets the `z_network` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_z_network(z_network)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{z_network}}{A matrix representing the network. Can be a 2-column
+\subsection{\code{iglm.data$set_z_network()}}{
+  Sets the `z_network` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_z_network(z_network)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{z_network}}{A matrix representing the network. Can be a 2-column
 edgelist or a square adjacency matrix.
 @return The `iglm.data` object itself (`self`), invisibly.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_type_x"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_type_x}{}}}
-\subsection{Method \code{set_type_x()}}{
-Sets the `type_x` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_type_x(type_x)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type_x}}{A character string for the type of `x_attribute`.
+\subsection{\code{iglm.data$set_type_x()}}{
+  Sets the `type_x` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_type_x(type_x)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{type_x}}{A character string for the type of `x_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 @return The `iglm.data` object itself (`self`), invisibly.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_type_y"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_type_y}{}}}
-\subsection{Method \code{set_type_y()}}{
-Sets the `type_y` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_type_y(type_y)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_type_y()}}{
+  Sets the `type_y` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_type_y(type_y)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{type_y}}{A character string for the type of `y_attribute`.
+Must be one of `"binomial"`, `"poisson"`, or `"normal"`.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type_y}}{A character string for the type of `y_attribute`.
-Must be one of `"binomial"`, `"poisson"`, or `"normal"`.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_scale_x"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_scale_x}{}}}
-\subsection{Method \code{set_scale_x()}}{
-Sets the `scale_x` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_scale_x(scale_x)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_scale_x()}}{
+  Sets the `scale_x` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_scale_x(scale_x)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scale_x}}{A positive numeric value for scaling (e.g., variance
+for "normal" type).}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scale_x}}{A positive numeric value for scaling (e.g., variance
-for "normal" type).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_scale_y"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_scale_y}{}}}
-\subsection{Method \code{set_scale_y()}}{
-Sets the `scale_y` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_scale_y(scale_y)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_scale_y()}}{
+  Sets the `scale_y` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_scale_y(scale_y)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scale_y}}{A positive numeric value for scaling (e.g., variance
+for "normal" type).}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scale_y}}{A positive numeric value for scaling (e.g., variance
-for "normal" type).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_x_attribute"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_x_attribute}{}}}
-\subsection{Method \code{set_x_attribute()}}{
-Sets the `x_attribute` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_x_attribute(x_attribute)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_x_attribute()}}{
+  Sets the `x_attribute` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_x_attribute(x_attribute)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{x_attribute}}{A numeric vector for the first unit-level attribute.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x_attribute}}{A numeric vector for the first unit-level attribute.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_y_attribute"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_y_attribute}{}}}
-\subsection{Method \code{set_y_attribute()}}{
-Sets the `y_attribute` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_y_attribute(y_attribute)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_y_attribute()}}{
+  Sets the `y_attribute` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_y_attribute(y_attribute)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{y_attribute}}{A numeric vector for the first unit-level attribute.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{y_attribute}}{A numeric vector for the first unit-level attribute.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-gather"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-gather}{}}}
-\subsection{Method \code{gather()}}{
-Gathers the current state of the `iglm.data` object into a list.
+\subsection{\code{iglm.data$gather()}}{
+  Gathers the current state of the `iglm.data` object into a list.
 This includes all attributes, network, and configuration
 details necessary to reconstruct the object later.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$gather()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$gather()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A list containing the current state of the `iglm.data` object.
+  }
 }
 
-\subsection{Returns}{
-A list containing the current state of the `iglm.data` object.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_fix_z_alocal"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_fix_z_alocal}{}}}
-\subsection{Method \code{set_fix_z_alocal()}}{
-Sets the option whether alocal edges are fixed or not.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_fix_z_alocal(fix_z_alocal)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_fix_z_alocal()}}{
+  Sets the option whether alocal edges are fixed or not.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_fix_z_alocal(fix_z_alocal)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{fix_z_alocal}}{A logical value indicating whether alocal edges should be treated as fixed or not.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{fix_z_alocal}}{A logical value indicating whether alocal edges should be treated as fixed or not.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-delete_isolates"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-delete_isolates}{}}}
-\subsection{Method \code{delete_isolates()}}{
-Deletes isolates from the `z_network` and updates the attributes and neighborhood accordingly.
+\subsection{\code{iglm.data$delete_isolates()}}{
+  Deletes isolates from the `z_network` and updates the attributes and neighborhood accordingly.
 Isolates are actors that do not have any connections in the `z_network`. This method identifies such actors, removes them from the attributes and neighborhood, and updates the `z_network` to reflect the new actor indices.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$delete_isolates()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$delete_isolates()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-save"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-save}{}}}
-\subsection{Method \code{save()}}{
-Saves the current state of the `iglm.data` object to a specified file path
+\subsection{\code{iglm.data$save()}}{
+  Saves the current state of the `iglm.data` object to a specified file path
 in RDS format. This includes all attributes, network, and configuration
 details necessary to reconstruct the object later.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$save(file)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$save(file)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{file}}{(character) The file where the object state should be saved. Must have a .rds extension.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{file}}{(character) The file where the object state should be saved. Must have a .rds extension.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_fix_x"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_fix_x}{}}}
-\subsection{Method \code{set_fix_x()}}{
-Sets the `fix_x` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_fix_x(fix_x)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_fix_x()}}{
+  Sets the `fix_x` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_fix_x(fix_x)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{fix_x}}{A logical value indicating if `x_attribute` is fixed or random.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{fix_x}}{A logical value indicating if `x_attribute` is fixed or random.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_fix_z"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_fix_z}{}}}
-\subsection{Method \code{set_fix_z()}}{
-Sets the `fix_z` of the `iglm.data` object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_fix_z(fix_z)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_fix_z()}}{
+  Sets the `fix_z` of the `iglm.data` object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_fix_z(fix_z)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{fix_z}}{A logical value indicating if `z_network` is fixed or random.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `iglm.data` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{fix_z}}{A logical value indicating if `z_network` is fixed or random.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `iglm.data` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-mean_z"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-mean_z}{}}}
-\subsection{Method \code{mean_z()}}{
-Calculates the density of the `z_network`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$mean_z()}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$mean_z()}}{
+  Calculates the density of the `z_network`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$mean_z()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A numeric value for the network density.
+  }
 }
 
-\subsection{Returns}{
-A numeric value for the network density.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-mean_x"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-mean_x}{}}}
-\subsection{Method \code{mean_x()}}{
-Calculates the mean of the `x_attribute`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$mean_x()}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$mean_x()}}{
+  Calculates the mean of the `x_attribute`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$mean_x()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A numeric value for the mean of `x_attribute`.
+  }
 }
 
-\subsection{Returns}{
-A numeric value for the mean of `x_attribute`.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-mean_y"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-mean_y}{}}}
-\subsection{Method \code{mean_y()}}{
-Calculates the mean of the `y_attribute`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$mean_y()}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$mean_y()}}{
+  Calculates the mean of the `y_attribute`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$mean_y()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A numeric value for the mean of `y_attribute`.
+  }
 }
 
-\subsection{Returns}{
-A numeric value for the mean of `y_attribute`.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-x_distribution"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-x_distribution}{}}}
-\subsection{Method \code{x_distribution()}}{
-Calculates the distribution of the `x_attribute`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$x_distribution(
-  value_range = NULL,
-  prob = TRUE,
-  plot = TRUE
-)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$x_distribution()}}{
+  Calculates the distribution of the `x_attribute`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$x_distribution(value_range = NULL, prob = TRUE, plot = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{value_range}}{(numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.}
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.}
+      \item{\code{plot}}{(logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A numeric vector representing the distribution of `x_attribute` (invisible).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{value_range}}{(numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.}
-
-\item{\code{prob}}{(logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.}
-
-\item{\code{plot}}{(logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A numeric vector representing the distribution of `x_attribute` (invisible).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-y_distribution"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-y_distribution}{}}}
-\subsection{Method \code{y_distribution()}}{
-Calculates the distribution of the `y_attribute`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$y_distribution(
-  value_range = NULL,
-  prob = TRUE,
-  plot = TRUE
-)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$y_distribution()}}{
+  Calculates the distribution of the `y_attribute`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$y_distribution(value_range = NULL, prob = TRUE, plot = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{value_range}}{(numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.}
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.}
+      \item{\code{plot}}{(logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A numeric vector representing the distribution of `y_attribute` (invisible).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{value_range}}{(numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.}
-
-\item{\code{prob}}{(logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.}
-
-\item{\code{plot}}{(logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A numeric vector representing the distribution of `y_attribute` (invisible).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-edgewise_shared_partner"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-edgewise_shared_partner}{}}}
-\subsection{Method \code{edgewise_shared_partner()}}{
-Calculates the matrix of edgewise shared partners.
+\subsection{\code{iglm.data$edgewise_shared_partner()}}{
+  Calculates the matrix of edgewise shared partners.
 This is a two-path matrix (e.g., $A A^T$ or $A^T A$).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$edgewise_shared_partner(type = "ALL")}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type}}{(character) The type of two-path to calculate for directed
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$edgewise_shared_partner(type = "ALL")}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{type}}{(character) The type of two-path to calculate for directed
 networks. Ignored if network is undirected.
 Must be one of:
 `"OTP"` (Outgoing Two-Path, \eqn{z_{i,j}\, z_{i,h} \, z_{j,h}} ),
@@ -528,50 +541,53 @@ Must be one of:
 `"ITP"` (Incoming Two-Path, \eqn{z_{i,j}\, z_{h,i} \, z_{j,h}}),
 `"ALL"` (Any one of the above).
 Default is `"ALL"`.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A sparse matrix (`dgCMatrix`) of shared partner counts.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A sparse matrix (`dgCMatrix`) of shared partner counts.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-set_neighborhood_overlap"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-set_neighborhood_overlap}{}}}
-\subsection{Method \code{set_neighborhood_overlap()}}{
-Sets the neighborhood and overlap matrices.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$set_neighborhood_overlap(neighborhood, overlap)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$set_neighborhood_overlap()}}{
+  Sets the neighborhood and overlap matrices.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$set_neighborhood_overlap(neighborhood, overlap)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{neighborhood}}{A matrix for a secondary neighborhood.
+Can be a 2-column edgelist or a square adjacency matrix.}
+      \item{\code{overlap}}{A matrix for the overlap network.
+Can be a 2-column edgelist or a square adjacency matrix.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    None. Updates the internal neighborhood and overlap matrices.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{neighborhood}}{A matrix for a secondary neighborhood.
-Can be a 2-column edgelist or a square adjacency matrix.}
-
-\item{\code{overlap}}{A matrix for the overlap network.
-Can be a 2-column edgelist or a square adjacency matrix.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None. Updates the internal neighborhood and overlap matrices.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-dyadwise_shared_partner"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-dyadwise_shared_partner}{}}}
-\subsection{Method \code{dyadwise_shared_partner()}}{
-Calculates the matrix of dyadwise shared partners.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$dyadwise_shared_partner(type = "ALL")}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type}}{(character) The type of two-path to calculate for directed
+\subsection{\code{iglm.data$dyadwise_shared_partner()}}{
+  Calculates the matrix of dyadwise shared partners.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$dyadwise_shared_partner(type = "ALL")}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{type}}{(character) The type of two-path to calculate for directed
 networks. Ignored if network is undirected.
 Must be one of:
 `"OTP"` (Outgoing Two-Path, \eqn{z_{i,h} \, z_{j,h}} ),
@@ -580,226 +596,226 @@ Must be one of:
 `"ITP"` (Incoming Two-Path, \eqn{z_{h,i} \, z_{j,h}}),
 `"ALL"` (Any one of the above).
 Default is `"ALL"`.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A sparse matrix (`dgCMatrix`) of shared partner counts.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A sparse matrix (`dgCMatrix`) of shared partner counts.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-geodesic_distances_distribution"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-geodesic_distances_distribution}{}}}
-\subsection{Method \code{geodesic_distances_distribution()}}{
-Calculates the geodesic distance distribution of the symmetrized
+\subsection{\code{iglm.data$geodesic_distances_distribution()}}{
+  Calculates the geodesic distance distribution of the symmetrized
 `z_network`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$geodesic_distances_distribution(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$geodesic_distances_distribution(
   value_range = NULL,
   prob = TRUE,
   plot = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of distances to tabulate. If `NULL` (default), the range
 is inferred from the data.}
-
-\item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
-
-\item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A named vector (a `table` object) with the distribution of
+      \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A named vector (a `table` object) with the distribution of
   geodesic distances. Includes `Inf` for unreachable pairs.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-geodesic_distances"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-geodesic_distances}{}}}
-\subsection{Method \code{geodesic_distances()}}{
-Calculates the all-pairs geodesic distance matrix for the
+\subsection{\code{iglm.data$geodesic_distances()}}{
+  Calculates the all-pairs geodesic distance matrix for the
 symmetrized `z_network` using a matrix-based BFS algorithm.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$geodesic_distances()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$geodesic_distances()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A sparse matrix (`dgCMatrix`) where `D[i, j]` is the
+  shortest path distance from i to j. `Inf` indicates no path.
+  }
 }
 
-\subsection{Returns}{
-A sparse matrix (`dgCMatrix`) where `D[i, j]` is the
-  shortest path distance from i to j. `Inf` indicates no path.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-edgewise_shared_partner_distribution"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-edgewise_shared_partner_distribution}{}}}
-\subsection{Method \code{edgewise_shared_partner_distribution()}}{
-Calculates the distribution of edgewise shared partners.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$edgewise_shared_partner_distribution(
+\subsection{\code{iglm.data$edgewise_shared_partner_distribution()}}{
+  Calculates the distribution of edgewise shared partners.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$edgewise_shared_partner_distribution(
   type = "ALL",
   value_range = NULL,
   prob = TRUE,
   plot = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type}}{(character) The type of shared partner matrix to use.
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{type}}{(character) The type of shared partner matrix to use.
 See `edgewise_shared_partner` for details. Default is `"ALL"`.}
-
-\item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
+      \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of counts to tabulate. If `NULL` (default), the range
 is inferred from the data.}
-
-\item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
-
-\item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A named vector (a `table` object) with the distribution of
+      \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A named vector (a `table` object) with the distribution of
   shared partner counts.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-dyadwise_shared_partner_distribution"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-dyadwise_shared_partner_distribution}{}}}
-\subsection{Method \code{dyadwise_shared_partner_distribution()}}{
-Calculates the distribution of dyadwise shared partners.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$dyadwise_shared_partner_distribution(
+\subsection{\code{iglm.data$dyadwise_shared_partner_distribution()}}{
+  Calculates the distribution of dyadwise shared partners.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$dyadwise_shared_partner_distribution(
   type = "ALL",
   value_range = NULL,
   prob = TRUE,
   plot = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type}}{(character) The type of shared partner matrix to use.
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{type}}{(character) The type of shared partner matrix to use.
 See `dyadwise_shared_partner` for details. Default is `"ALL"`.}
-
-\item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
+      \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of counts to tabulate. If `NULL` (default), the range
 is inferred from the data.}
-
-\item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
-
-\item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A named vector (a `table` object) with the distribution of
+      \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A named vector (a `table` object) with the distribution of
   shared partner counts.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-degree_distribution"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-degree_distribution}{}}}
-\subsection{Method \code{degree_distribution()}}{
-Calculates the degree distribution of the `z_network`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$degree_distribution(
-  value_range = NULL,
-  prob = TRUE,
-  plot = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
+\subsection{\code{iglm.data$degree_distribution()}}{
+  Calculates the degree distribution of the `z_network`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$degree_distribution(value_range = NULL, prob = TRUE, plot = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of degrees to tabulate. If `NULL` (default), the range
 is inferred from the data.}
-
-\item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
-
-\item{\code{plot}}{(logical) If `TRUE`, plots the degree distribution.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-If the network is directed, a list containing two `table`
+      \item{\code{plot}}{(logical) If `TRUE`, plots the degree distribution.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    If the network is directed, a list containing two `table`
   objects: `in_degree` and `out_degree`. If undirected, a single
   `table` object with the degree distribution.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-degree"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-degree}{}}}
-\subsection{Method \code{degree()}}{
-Calculates the degree sequence(s) of the `z_network`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$degree()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-If the network is directed, a list containing two vectors:
+\subsection{\code{iglm.data$degree()}}{
+  Calculates the degree sequence(s) of the `z_network`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$degree()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    If the network is directed, a list containing two vectors:
   `in_degree_seq` and `out_degree_seq`. If undirected, a single
   list containing the vector `degree_seq`.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-spillover_degree_distribution"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-spillover_degree_distribution}{}}}
-\subsection{Method \code{spillover_degree_distribution()}}{
-Calculates the spillover degree distribution between actors with
+\subsection{\code{iglm.data$spillover_degree_distribution()}}{
+  Calculates the spillover degree distribution between actors with
 `x_attribute == 1` and actors with `y_attribute == 1`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$spillover_degree_distribution(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$spillover_degree_distribution(
   prob = TRUE,
   value_range = NULL,
   plot = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
-
-\item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
+      \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of degrees to tabulate. If `NULL` (default), the range
 is inferred from the data.}
-
-\item{\code{plot}}{(logical) If `TRUE`, plots the distributions.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A list containing two `table` objects:
+      \item{\code{plot}}{(logical) If `TRUE`, plots the distributions.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A list containing two `table` objects:
   `out_spillover_degree` (from x_i=1 to y_j=1) and
   `in_spillover_degree` (from y_i=1 to x_j=1).
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-plot"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-plot}{}}}
-\subsection{Method \code{plot()}}{
-Plot the network using `igraph`.
+\subsection{\code{iglm.data$plot()}}{
+  Plot the network using `igraph`.
 
 Visualizes the `z_network` using the `igraph` package.
 Nodes can be colored by `x_attribute` and sized by `y_attribute`.
 `neighborhood` edges can be plotted as a background layer.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$plot(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$plot(
   node_color = "x",
   node_size = "y",
   show_overlap = TRUE,
@@ -817,93 +833,81 @@ Nodes can be colored by `x_attribute` and sized by `y_attribute`.
   coords = NULL,
   legend_size = 0.5,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{node_color}}{(character) Attribute to map to node color.
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{node_color}}{(character) Attribute to map to node color.
 One of `"x"` (default), `"y"`, or `"none"`.}
-
-\item{\code{node_size}}{(character) Attribute to map to node size.
+      \item{\code{node_size}}{(character) Attribute to map to node size.
 One of `"y"` (default), `"x"`, or `"constant"`.}
-
-\item{\code{show_overlap}}{(logical) If `TRUE` (default), plot the
+      \item{\code{show_overlap}}{(logical) If `TRUE` (default), plot the
 `neighborhood` edges as a background layer.}
-
-\item{\code{layout}}{An `igraph` layout function (e.g., `igraph::layout_with_fr`).}
-
-\item{\code{network_edges_col}}{(character) Color for the `z_network` edges.}
-
-\item{\code{neighborhood_edges_col}}{(character) Color for the `neighborhood` edges.}
-
-\item{\code{main}}{(character) The main title for the plot.}
-
-\item{\code{legend_col_n_levels}}{(integer) Number of levels for the color legend.}
-
-\item{\code{legend_size_n_levels}}{(integer) Number of levels for the size legend.}
-
-\item{\code{legend_pos}}{(character) Position of the legend (e.g., `"right"`).}
-
-\item{\code{alpha_neighborhood}}{(numeric) Alpha transparency for neighborhood edges.}
-
-\item{\code{edge.width}}{(numeric) Width of the network edges.}
-
-\item{\code{edge.arrow.size}}{(numeric) Size of the arrowheads for directed edges.}
-
-\item{\code{vertex.frame.width}}{(numeric) Width of the vertex frame.}
-
-\item{\code{coords}}{(matrix) Optional matrix of x-y coordinates for node layout.}
-
-\item{\code{legend_size}}{(numeric) Scaling factor for the size legend.}
-
-\item{\code{...}}{Additional arguments passed to `plot.igraph`.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A list containing the `igraph` object (`graph`) and the
+      \item{\code{layout}}{An `igraph` layout function (e.g., `igraph::layout_with_fr`).}
+      \item{\code{network_edges_col}}{(character) Color for the `z_network` edges.}
+      \item{\code{neighborhood_edges_col}}{(character) Color for the `neighborhood` edges.}
+      \item{\code{main}}{(character) The main title for the plot.}
+      \item{\code{legend_col_n_levels}}{(integer) Number of levels for the color legend.}
+      \item{\code{legend_size_n_levels}}{(integer) Number of levels for the size legend.}
+      \item{\code{legend_pos}}{(character) Position of the legend (e.g., `"right"`).}
+      \item{\code{alpha_neighborhood}}{(numeric) Alpha transparency for neighborhood edges.}
+      \item{\code{edge.width}}{(numeric) Width of the network edges.}
+      \item{\code{edge.arrow.size}}{(numeric) Size of the arrowheads for directed edges.}
+      \item{\code{vertex.frame.width}}{(numeric) Width of the vertex frame.}
+      \item{\code{coords}}{(matrix) Optional matrix of x-y coordinates for node layout.}
+      \item{\code{legend_size}}{(numeric) Scaling factor for the size legend.}
+      \item{\code{...}}{Additional arguments passed to `plot.igraph`.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A list containing the `igraph` object (`graph`) and the
   layout coordinates (`coords`), invisibly.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-print"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-print}{}}}
-\subsection{Method \code{print()}}{
-Print a summary of the `iglm.data` object to the console.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$print(digits = 3, ...)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$print()}}{
+  Print a summary of the `iglm.data` object to the console.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$print(digits = 3, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{digits}}{(integer) Number of digits to round numeric output to.}
+      \item{\code{...}}{Additional arguments (not used).}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The object's private environment, invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{digits}}{(integer) Number of digits to round numeric output to.}
-
-\item{\code{...}}{Additional arguments (not used).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The object's private environment, invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-iglm.data-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.data-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{iglm.data_generator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{iglm.data$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -15,54 +15,55 @@ parallelization options. It also holds references to component samplers
 (attributes x, y, network z).
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{sampler_x}}{(`sampler_net_attr`) The sampler configuration object for the x attribute.}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{sampler_x}}{(`sampler_net_attr`) The sampler configuration object for the x attribute.}
 
-\item{\code{sampler_y}}{(`sampler_net_attr`) The sampler configuration object for the y attribute.}
+    \item{\code{sampler_y}}{(`sampler_net_attr`) The sampler configuration object for the y attribute.}
 
-\item{\code{sampler_z}}{(`sampler_net_attr`) The sampler configuration object for the z network (overlap region).}
+    \item{\code{sampler_z}}{(`sampler_net_attr`) The sampler configuration object for the z network (overlap region).}
 
-\item{\code{n_simulation}}{(`integer`) The number of configurations to simulate.}
+    \item{\code{n_simulation}}{(`integer`) The number of configurations to simulate.}
 
-\item{\code{n_burn_in}}{(`integer`) The number of initial MCMC iterations to discard.}
+    \item{\code{n_burn_in}}{(`integer`) The number of initial MCMC iterations to discard.}
 
-\item{\code{init_empty}}{(`logical`) Whether to initialize simulations from an empty state.}
+    \item{\code{init_empty}}{(`logical`) Whether to initialize simulations from an empty state.}
 
-\item{\code{seed}}{(`integer`) Read-only. The random seed used for sampling.}
+    \item{\code{seed}}{(`integer`) Read-only. The random seed used for sampling.}
 
-\item{\code{cluster}}{(`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{cluster}}{(`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-sampler.iglm-new}{\code{sampler.iglm.generator$new()}}
-\item \href{#method-sampler.iglm-set_cluster}{\code{sampler.iglm.generator$set_cluster()}}
-\item \href{#method-sampler.iglm-deactive_cluster}{\code{sampler.iglm.generator$deactive_cluster()}}
-\item \href{#method-sampler.iglm-set_n_simulation}{\code{sampler.iglm.generator$set_n_simulation()}}
-\item \href{#method-sampler.iglm-set_n_burn_in}{\code{sampler.iglm.generator$set_n_burn_in()}}
-\item \href{#method-sampler.iglm-set_init_empty}{\code{sampler.iglm.generator$set_init_empty()}}
-\item \href{#method-sampler.iglm-set_x_sampler}{\code{sampler.iglm.generator$set_x_sampler()}}
-\item \href{#method-sampler.iglm-set_y_sampler}{\code{sampler.iglm.generator$set_y_sampler()}}
-\item \href{#method-sampler.iglm-set_z_sampler}{\code{sampler.iglm.generator$set_z_sampler()}}
-\item \href{#method-sampler.iglm-set_seed}{\code{sampler.iglm.generator$set_seed()}}
-\item \href{#method-sampler.iglm-print}{\code{sampler.iglm.generator$print()}}
-\item \href{#method-sampler.iglm-gather}{\code{sampler.iglm.generator$gather()}}
-\item \href{#method-sampler.iglm-save}{\code{sampler.iglm.generator$save()}}
-\item \href{#method-sampler.iglm-clone}{\code{sampler.iglm.generator$clone()}}
-}
+  \itemize{
+    \item \href{#method-sampler.iglm-initialize}{\code{sampler.iglm$new()}}
+    \item \href{#method-sampler.iglm-set_cluster}{\code{sampler.iglm$set_cluster()}}
+    \item \href{#method-sampler.iglm-deactive_cluster}{\code{sampler.iglm$deactive_cluster()}}
+    \item \href{#method-sampler.iglm-set_n_simulation}{\code{sampler.iglm$set_n_simulation()}}
+    \item \href{#method-sampler.iglm-set_n_burn_in}{\code{sampler.iglm$set_n_burn_in()}}
+    \item \href{#method-sampler.iglm-set_init_empty}{\code{sampler.iglm$set_init_empty()}}
+    \item \href{#method-sampler.iglm-set_x_sampler}{\code{sampler.iglm$set_x_sampler()}}
+    \item \href{#method-sampler.iglm-set_y_sampler}{\code{sampler.iglm$set_y_sampler()}}
+    \item \href{#method-sampler.iglm-set_z_sampler}{\code{sampler.iglm$set_z_sampler()}}
+    \item \href{#method-sampler.iglm-set_seed}{\code{sampler.iglm$set_seed()}}
+    \item \href{#method-sampler.iglm-print}{\code{sampler.iglm$print()}}
+    \item \href{#method-sampler.iglm-gather}{\code{sampler.iglm$gather()}}
+    \item \href{#method-sampler.iglm-save}{\code{sampler.iglm$save()}}
+    \item \href{#method-sampler.iglm-clone}{\code{sampler.iglm$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-sampler.iglm-new"></a>}}
-\if{latex}{\out{\hypertarget{method-sampler.iglm-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new `sampler.iglm` object. Initializes all sampler settings,
+\if{html}{\out{<a id="method-sampler.iglm-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-sampler.iglm-initialize}{}}}
+\subsection{\code{sampler.iglm$new()}}{
+  Create a new `sampler.iglm` object. Initializes all sampler settings,
 using defaults for component samplers (`sampler.net.attr`) if not provided,
 and validates inputs.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$new(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$new(
   sampler_x = NULL,
   sampler_y = NULL,
   sampler_z = NULL,
@@ -72,298 +73,316 @@ and validates inputs.
   seed = NA,
   cluster = NULL,
   file = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{sampler_x}}{An object of class `sampler.net.attr` controlling
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{sampler_x}}{An object of class `sampler.net.attr` controlling
 sampling for the x attribute. If `NULL`, defaults from `sampler.net.attr()` are used.}
-
-\item{\code{sampler_y}}{An object of class `sampler.net.attr` controlling
+      \item{\code{sampler_y}}{An object of class `sampler.net.attr` controlling
 sampling for the y attribute. If `NULL`, defaults from `sampler.net.attr()` are used.}
-
-\item{\code{sampler_z}}{An object of class `sampler.net.attr` controlling
+      \item{\code{sampler_z}}{An object of class `sampler.net.attr` controlling
 sampling for the z network (within the defined neighborhood/overlap).
 If `NULL`, defaults from `sampler.net.attr()` are used.}
-
-\item{\code{n_simulation}}{(integer) The number of network/attribute configurations
+      \item{\code{n_simulation}}{(integer) The number of network/attribute configurations
 to simulate and store after the burn-in period. Default is 100. Must be non-negative.}
-
-\item{\code{n_burn_in}}{(integer) The number of initial MCMC iterations to discard
+      \item{\code{n_burn_in}}{(integer) The number of initial MCMC iterations to discard
 (burn-in) before starting to collect simulations. Default is 10. Must be non-negative.}
-
-\item{\code{init_empty}}{(logical) If `TRUE` (default), the MCMC chain is
+      \item{\code{init_empty}}{(logical) If `TRUE` (default), the MCMC chain is
 initialized from an empty state (e.g., empty network, attributes at mean).
 If `FALSE`, initialization might depend on the specific sampler implementation
 (e.g., starting from observed data).}
-
-\item{\code{seed}}{(integer or `NA`) A single integer seed for the random number
+      \item{\code{seed}}{(integer or `NA`) A single integer seed for the random number
 generator, set once before sampling begins. If `NA` (default), a random
 seed is generated automatically.}
-
-\item{\code{cluster}}{A parallel cluster object (e.g., from the `parallel` package)
+      \item{\code{cluster}}{A parallel cluster object (e.g., from the `parallel` package)
 to use for running simulations in parallel. If `NULL` (default), simulations
 are run sequentially.}
-
-\item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
+      \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
 the specified .rds file instead of initializing from parameters.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new `sampler.iglm` object.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new `sampler.iglm` object.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-set_cluster"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-set_cluster}{}}}
-\subsection{Method \code{set_cluster()}}{
-Sets the parallel cluster object to be used for simulations.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_cluster(cluster)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$set_cluster()}}{
+  Sets the parallel cluster object to be used for simulations.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$set_cluster(cluster)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{cluster}}{A parallel cluster object from the `parallel` package.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{cluster}}{A parallel cluster object from the `parallel` package.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-deactive_cluster"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-deactive_cluster}{}}}
-\subsection{Method \code{deactive_cluster()}}{
-Deactivates parallel processing for this sampler instance by setting
+\subsection{\code{sampler.iglm$deactive_cluster()}}{
+  Deactivates parallel processing for this sampler instance by setting
 the internal cluster object reference to `NULL`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$deactive_cluster()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$deactive_cluster()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `sampler.iglm` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Returns}{
-The `sampler.iglm` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-set_n_simulation"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-set_n_simulation}{}}}
-\subsection{Method \code{set_n_simulation()}}{
-Sets the number of simulations to generate after burn-in.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_n_simulation(n_simulation)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$set_n_simulation()}}{
+  Sets the number of simulations to generate after burn-in.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$set_n_simulation(n_simulation)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{n_simulation}}{(integer) The number of simulations to set.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    None.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{n_simulation}}{(integer) The number of simulations to set.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-set_n_burn_in"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-set_n_burn_in}{}}}
-\subsection{Method \code{set_n_burn_in()}}{
-Sets the number of burn-in iterations.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_n_burn_in(n_burn_in)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$set_n_burn_in()}}{
+  Sets the number of burn-in iterations.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$set_n_burn_in(n_burn_in)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{n_burn_in}}{(integer) The number of burn-in iterations to set.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    None.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{n_burn_in}}{(integer) The number of burn-in iterations to set.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-set_init_empty"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-set_init_empty}{}}}
-\subsection{Method \code{set_init_empty()}}{
-Sets whether to initialize simulations from an empty state.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_init_empty(init_empty)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$set_init_empty()}}{
+  Sets whether to initialize simulations from an empty state.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$set_init_empty(init_empty)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{init_empty}}{(logical) `TRUE` to initialize from empty, `FALSE` otherwise.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    None.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{init_empty}}{(logical) `TRUE` to initialize from empty, `FALSE` otherwise.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-set_x_sampler"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-set_x_sampler}{}}}
-\subsection{Method \code{set_x_sampler()}}{
-Sets the sampler configuration for the x attribute.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_x_sampler(sampler_x)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$set_x_sampler()}}{
+  Sets the sampler configuration for the x attribute.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$set_x_sampler(sampler_x)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{sampler_x}}{An object of class `sampler_net_attr`.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    None.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{sampler_x}}{An object of class `sampler_net_attr`.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-set_y_sampler"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-set_y_sampler}{}}}
-\subsection{Method \code{set_y_sampler()}}{
-Sets the sampler configuration for the y attribute.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_y_sampler(sampler_y)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$set_y_sampler()}}{
+  Sets the sampler configuration for the y attribute.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$set_y_sampler(sampler_y)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{sampler_y}}{An object of class `sampler_net_attr`.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    None.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{sampler_y}}{An object of class `sampler_net_attr`.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-set_z_sampler"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-set_z_sampler}{}}}
-\subsection{Method \code{set_z_sampler()}}{
-Sets the sampler configuration for the z attribute.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_z_sampler(sampler_z)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$set_z_sampler()}}{
+  Sets the sampler configuration for the z attribute.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$set_z_sampler(sampler_z)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{sampler_z}}{An object of class `sampler_net_attr`.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    None.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{sampler_z}}{An object of class `sampler_net_attr`.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-set_seed"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-set_seed}{}}}
-\subsection{Method \code{set_seed()}}{
-Sets the random seed for this sampler.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$set_seed(seed)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$set_seed()}}{
+  Sets the random seed for this sampler.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$set_seed(seed)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{seed}}{(integer) The random seed to set.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    None.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{seed}}{(integer) The random seed to set.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-None.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-print"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-print}{}}}
-\subsection{Method \code{print()}}{
-Prints a formatted summary of the sampler configuration to the console.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$print(digits = 3, ...)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$print()}}{
+  Prints a formatted summary of the sampler configuration to the console.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$print(digits = 3, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{digits}}{(integer) Number of digits for formatting numeric values. Default: 3.}
+      \item{\code{...}}{Additional arguments (currently ignored).}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The `sampler.iglm` object itself (`self`), invisibly.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{digits}}{(integer) Number of digits for formatting numeric values. Default: 3.}
-
-\item{\code{...}}{Additional arguments (currently ignored).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The `sampler.iglm` object itself (`self`), invisibly.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-gather"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-gather}{}}}
-\subsection{Method \code{gather()}}{
-Gathers all data from private fields into a list.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$gather()}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$gather()}}{
+  Gathers all data from private fields into a list.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$gather()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A list containing all information of the sampler.
+  }
 }
 
-\subsection{Returns}{
-A list containing all information of the sampler.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-save"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-save}{}}}
-\subsection{Method \code{save()}}{
-Save the object's complete state to a directory.
+\subsection{\code{sampler.iglm$save()}}{
+  Save the object's complete state to a directory.
 This will save the main sampler's settings to a file
 named 'sampler.iglm_state.rds' within the specified
 directory, and will also call the `save()` method for each
 nested sampler (.x, .y, .z), saving them into the same
 directory.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$save(file)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{file}}{(character) The file to a directory where the
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$save(file)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{file}}{(character) The file to a directory where the
 state files will be saved. The directory will be created
 if it does not exist.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The object itself, invisibly.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The object itself, invisibly.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sampler.iglm-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-sampler.iglm-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sampler.iglm.generator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{sampler.iglm$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{sampler.iglm$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

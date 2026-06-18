@@ -17,6 +17,8 @@ navbar:
       menu:
         - text: Joint Modeling of Networks and Attributes with iglm
           href: articles/iglm.html
+        - text: Model Terms in iglm
+          href: articles/model-terms.html
 
 reference:
   - title: Model Estimation

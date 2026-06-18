@@ -12,10 +12,10 @@ Imports: Rcpp (>= 1.0.8), R6, MASS, RcppArmadillo, Matrix, parallel, methods, co
 Suggests: rmarkdown, knitr, testthat
 Depends: RcppProgress, R (>= 3.5.0)
 LinkingTo: Rcpp, RcppProgress, RcppArmadillo, Matrix
-RoxygenNote: 7.3.3
 Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: false
 SystemRequirements: C++17
 URL: https://corneliusfritz.github.io/iglm/
 BugReports: https://github.com/corneliusfritz/iglm/issues
+Config/roxygen2/version: 8.0.0
