@@ -1,0 +1,135 @@
+name: Build Binaries
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }})
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # Windows
+          - {os: windows-latest, r: '3.5'}
+          - {os: windows-latest, r: '3.6'}
+          - {os: windows-latest, r: '4.0'}
+          - {os: windows-latest, r: '4.1'}
+          - {os: windows-latest, r: '4.2'}
+          - {os: windows-latest, r: '4.3'}
+          - {os: windows-latest, r: '4.4'}
+          - {os: windows-latest, r: 'devel'}
+          # macOS Intel
+          - {os: macos-13, r: '3.5'}
+          - {os: macos-13, r: '3.6'}
+          - {os: macos-13, r: '4.0'}
+          - {os: macos-13, r: '4.1'}
+          - {os: macos-13, r: '4.2'}
+          - {os: macos-13, r: '4.3'}
+          - {os: macos-13, r: '4.4'}
+          # macOS ARM64
+          - {os: macos-latest, r: '4.1'}
+          - {os: macos-latest, r: '4.2'}
+          - {os: macos-latest, r: '4.3'}
+          - {os: macos-latest, r: '4.4'}
+          - {os: macos-latest, r: 'devel'}
+          # Ubuntu 20.04 (Focal)
+          - {os: ubuntu-20.04, r: '3.5'}
+          - {os: ubuntu-20.04, r: '3.6'}
+          - {os: ubuntu-20.04, r: '4.0'}
+          - {os: ubuntu-20.04, r: '4.1'}
+          - {os: ubuntu-20.04, r: '4.2'}
+          # Ubuntu 22.04 (Jammy)
+          - {os: ubuntu-22.04, r: '4.0'}
+          - {os: ubuntu-22.04, r: '4.1'}
+          - {os: ubuntu-22.04, r: '4.2'}
+          - {os: ubuntu-22.04, r: '4.3'}
+          - {os: ubuntu-22.04, r: '4.4'}
+          # Ubuntu Latest (24.04 Noble)
+          - {os: ubuntu-latest, r: '4.3'}
+          - {os: ubuntu-latest, r: '4.4'}
+          - {os: ubuntu-latest, r: 'devel', http-user-agent: 'release'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - name: Install dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          needs: check
+
+      - name: Build Binary Package
+        run: |
+          R CMD INSTALL . --build
+        shell: bash
+
+      - name: Rename and Move Binary Package
+        run: |
+          Rscript -e '
+            files <- list.files(".", pattern = "^iglm_.*\\.(zip|tgz|tar\\.gz)$")
+            if (length(files) == 0) stop("No built binary package found!")
+            binary_file <- files[1]
+            ext <- tools::file_ext(binary_file)
+            if (endsWith(binary_file, ".tar.gz")) ext <- "tar.gz"
+            desc_version <- read.dcf("DESCRIPTION")[, "Version"]
+            os <- "${{ matrix.config.os }}"
+            r_ver <- "${{ matrix.config.r }}"
+            arch <- R.version$arch
+            new_name <- sprintf("iglm_%s_%s_R-%s_%s.%s", desc_version, os, r_ver, arch, ext)
+            dir.create("binaries", showWarnings = FALSE)
+            file.copy(binary_file, file.path("binaries", new_name), overwrite = TRUE)
+            message("Saved binary as: binaries/", new_name)
+          '
+        shell: bash
+
+      - name: Upload Binary Package Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iglm-${{ matrix.config.os }}-R-${{ matrix.config.r }}
+          path: binaries/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-binaries
+          pattern: iglm-*
+          merge-multiple: true
+
+      - name: Display downloaded files
+        run: ls -R all-binaries
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: all-binaries/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
