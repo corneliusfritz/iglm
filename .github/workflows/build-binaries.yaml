@@ -90,7 +90,8 @@ jobs:
       - name: Rename and Move Binary Package
         run: |
           Rscript -e '
-            files <- list.files(".", pattern = "^iglm_.*\\.(zip|tgz|tar\\.gz)$")
+            files <- list.files(".", pattern = "^iglm_")
+            files <- files[endsWith(files, ".zip") | endsWith(files, ".tgz") | endsWith(files, ".tar.gz")]
             if (length(files) == 0) stop("No built binary package found!")
             binary_file <- files[1]
             ext <- tools::file_ext(binary_file)
