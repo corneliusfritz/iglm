@@ -70,41 +70,30 @@ jobs:
       - name: Set up Pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
-      - name: Set up Fortran compiler (macOS only)
-        if: runner.os == 'macOS'
+      - name: Set up Fortran compiler (macOS Intel only)
+        if: runner.os == 'macOS' && matrix.config.os == 'macos-13'
+        uses: fortran-lang/setup-fortran@v1
+        with:
+          compiler: gcc
+          version: 'latest'
+
+      - name: Set up Fortran compiler (macOS Apple Silicon only)
+        if: runner.os == 'macOS' && matrix.config.os == 'macos-latest'
         run: |
           R_VER="${{ matrix.config.r }}"
-          ARCH=$(uname -m)
-          echo "Setting up Fortran compiler for macOS $ARCH, R $R_VER"
-          if [ "$ARCH" = "arm64" ]; then
-            if [ "$R_VER" = "4.1" ] || [ "$R_VER" = "4.2" ]; then
-              echo "Downloading gfortran 11.0.0 for macOS arm64"
-              curl -LO https://mac.r-project.org/tools/gfortran-11.0.0-darwin20-aarch64.tar.gz
-              sudo tar -xf gfortran-11.0.0-darwin20-aarch64.tar.gz -C /
-            elif [ "$R_VER" = "4.3" ] || [ "$R_VER" = "4.4" ]; then
-              echo "Downloading gfortran 12.2 (universal) for macOS"
-              curl -LO https://mac.r-project.org/tools/gfortran-12.2-universal.pkg
-              sudo installer -pkg gfortran-12.2-universal.pkg -target /
-            else
-              echo "Downloading gfortran 14.2 (universal) for macOS"
-              curl -LO https://mac.r-project.org/tools/gfortran-14.2-universal.pkg
-              sudo installer -pkg gfortran-14.2-universal.pkg -target /
-            fi
+          echo "Setting up Fortran compiler for macOS Apple Silicon, R $R_VER"
+          if [ "$R_VER" = "4.1" ] || [ "$R_VER" = "4.2" ]; then
+            echo "Downloading gfortran 11.0.0 (darwin20) for macOS arm64"
+            curl -LO https://mac.r-project.org/libs-arm64/gfortran-f51f1da0-darwin20.0-arm64.tar.gz
+            sudo tar -xf gfortran-f51f1da0-darwin20.0-arm64.tar.gz -C /
+          elif [ "$R_VER" = "4.3" ] || [ "$R_VER" = "4.4" ]; then
+            echo "Downloading gfortran 12.2 (universal) for macOS"
+            curl -LO https://mac.r-project.org/tools/gfortran-12.2-universal.pkg
+            sudo installer -pkg gfortran-12.2-universal.pkg -target /
           else
-            # Intel macOS (macos-13 runner)
-            if [ "$R_VER" = "4.1" ] || [ "$R_VER" = "4.2" ]; then
-              echo "Downloading gfortran 8.2 for macOS Intel"
-              curl -LO https://mac.r-project.org/tools/gfortran-8.2-big-sur-intel.tar.gz
-              sudo tar -xf gfortran-8.2-big-sur-intel.tar.gz -C /
-            elif [ "$R_VER" = "4.3" ] || [ "$R_VER" = "4.4" ]; then
-              echo "Downloading gfortran 12.2 (universal) for macOS"
-              curl -LO https://mac.r-project.org/tools/gfortran-12.2-universal.pkg
-              sudo installer -pkg gfortran-12.2-universal.pkg -target /
-            else
-              echo "Downloading gfortran 14.2 (universal) for macOS"
-              curl -LO https://mac.r-project.org/tools/gfortran-14.2-universal.pkg
-              sudo installer -pkg gfortran-14.2-universal.pkg -target /
-            fi
+            echo "Downloading gfortran 14.2 (universal) for macOS"
+            curl -LO https://mac.r-project.org/tools/gfortran-14.2-universal.pkg
+            sudo installer -pkg gfortran-14.2-universal.pkg -target /
           fi
         shell: bash
 
