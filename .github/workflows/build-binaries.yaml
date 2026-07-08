@@ -28,12 +28,12 @@ jobs:
           - {os: windows-latest, r: '4.6'}
           - {os: windows-latest, r: 'devel'}
           # macOS Intel
-          - {os: macos-13, r: '4.1'}
-          - {os: macos-13, r: '4.2'}
-          - {os: macos-13, r: '4.3'}
-          - {os: macos-13, r: '4.4'}
-          - {os: macos-13, r: '4.5'}
-          - {os: macos-13, r: '4.6'}
+          - {os: macos-15-intel, r: '4.1'}
+          - {os: macos-15-intel, r: '4.2'}
+          - {os: macos-15-intel, r: '4.3'}
+          - {os: macos-15-intel, r: '4.4'}
+          - {os: macos-15-intel, r: '4.5'}
+          - {os: macos-15-intel, r: '4.6'}
           # macOS ARM64
           - {os: macos-latest, r: '4.1'}
           - {os: macos-latest, r: '4.2'}
@@ -71,7 +71,7 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v2
 
       - name: Set up Fortran compiler (macOS Intel only)
-        if: runner.os == 'macOS' && matrix.config.os == 'macos-13'
+        if: runner.os == 'macOS' && matrix.config.os == 'macos-15-intel'
         uses: fortran-lang/setup-fortran@v1
         with:
           compiler: gcc
@@ -82,10 +82,16 @@ jobs:
         run: |
           R_VER="${{ matrix.config.r }}"
           echo "Setting up Fortran compiler for macOS Apple Silicon, R $R_VER"
-          if [ "$R_VER" = "4.1" ] || [ "$R_VER" = "4.2" ]; then
+          if [ "$R_VER" = "4.1" ]; then
             echo "Downloading gfortran 11.0.0 (darwin20) for macOS arm64"
             curl -LO https://mac.r-project.org/libs-arm64/gfortran-f51f1da0-darwin20.0-arm64.tar.gz
             sudo tar -xf gfortran-f51f1da0-darwin20.0-arm64.tar.gz -C /
+            sudo gfortran-update-sdk || true
+          elif [ "$R_VER" = "4.2" ]; then
+            echo "Downloading gfortran 12.0.1 (darwin20) for macOS arm64"
+            curl -LO https://mac.r-project.org/tools/gfortran-12.0.1-20220312-is-darwin20-arm64.tar.xz
+            sudo tar -xf gfortran-12.0.1-20220312-is-darwin20-arm64.tar.xz -C /
+            sudo gfortran-update-sdk || true
           elif [ "$R_VER" = "4.3" ] || [ "$R_VER" = "4.4" ]; then
             echo "Downloading gfortran 12.2 (universal) for macOS"
             curl -LO https://mac.r-project.org/tools/gfortran-12.2-universal.pkg
