@@ -537,10 +537,12 @@ iglm.object.generator <- R6::R6Class("iglm.object",
             print(format_summary(as.vector(private$.coef_degrees), digits), quote = FALSE)
           }
         }
+        invisible(coef_table)
       } else {
         cat("\n")
         cat("Observed Sufficient Statistics:\n")
         print(format(private$.sufficient_statistics, digits = digits), quote = FALSE)
+        invisible(NULL)
       }
     },
     #' @description
