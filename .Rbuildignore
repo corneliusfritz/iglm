@@ -1,8 +1,10 @@
 ^.*\.Rproj$
+^Rplots\.pdf$
 ^\.Rproj\.user$
 ^\.github$
 ^pkgdown/
 ^doc/
+^docs$
 _pkgdown.yml
 readme.Rmd
 ^man/figures

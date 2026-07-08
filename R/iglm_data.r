@@ -551,7 +551,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         names(tmp_density$y) <- tmp_density$x
 
         if (plot) {
-          plot(las  = 1,tmp_density,
+          graphics::plot(las = 1, tmp_density,
             main = "Density of x_attribute",
             xlab = "x_attribute values", ylab = "Density"
           )
@@ -594,7 +594,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         tmp_density <- density(private$.y_attribute, from = value_range[1], to = value_range[2])
         names(tmp_density$y) <- tmp_density$x
         if (plot) {
-          plot(las  = 1,tmp_density,
+          graphics::plot(las = 1, tmp_density,
             main = "Density of y_attribute",
             xlab = "y_attribute values", ylab = "Density"
           )
@@ -1655,7 +1655,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #' @examples
 #' \donttest{
 #' data("state_twitter")
-#' state_twitter
 #' state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
 #' state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
 #' state_twitter$iglm.data$mean_x()
