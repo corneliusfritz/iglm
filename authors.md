@@ -9,7 +9,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/corneliusfritz/iglm/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/corneliusfritz/iglm/blob/1.2.5/DESCRIPTION)
 
 Fritz C, Schweinberger M (2026). *iglm: Regression under Interference in
 Connected Populations*. R package version 1.2.5,
