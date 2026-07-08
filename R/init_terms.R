@@ -127,31 +127,79 @@ InitIglmTerm <- function(data_object, arglist, ...) {
 #' @return A modified \code{arglist} with defaults applied and validated values.
 #' @keywords internal
 check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expected = list(), defaults = list(), directed = NULL) {
-  if (!is.null(directed) && data_object$directed != directed) {
-    stop(sprintf("Term is only for %s networks.", if (directed) "directed" else "undirected"))
+  term_name <- if (!is.null(arglist$base_name)) {
+    arglist$base_name
+  } else if (!is.null(arglist$term_name)) {
+    arglist$term_name
+  } else if (!is.null(arglist$label)) {
+    sub("\\(.*$", "", arglist$label)
+  } else {
+    # Check the call stack
+    caller_term <- NULL
+    if (sys.nframe() > 1) {
+      caller_call <- sys.call(-1)
+      if (!is.null(caller_call) && length(caller_call) >= 1) {
+        caller_name <- as.character(caller_call[[1]])[1]
+        if (startsWith(caller_name, "InitIglmTerm.")) {
+          caller_term <- sub("^InitIglmTerm\\.", "", caller_name)
+        }
+      }
+    }
+    caller_term
   }
-  for (name in mandatory) {
-    if (is.null(arglist[[name]])) {
-      stop(sprintf("Argument '%s' is mandatory for this term.", name))
+
+  if (!is.null(directed) && data_object$directed != directed) {
+    if (!is.null(term_name)) {
+      stop(sprintf("Term '%s' is only for %s networks.", term_name, if (directed) "directed" else "undirected"))
+    } else {
+      stop(sprintf("Term is only for %s networks.", if (directed) "directed" else "undirected"))
     }
   }
+
+  for (name in mandatory) {
+    if (is.null(arglist[[name]])) {
+      if (!is.null(term_name)) {
+        stop(sprintf("Argument '%s' is mandatory for term '%s'.", name, term_name))
+      } else {
+        stop(sprintf("Argument '%s' is mandatory for this term.", name))
+      }
+    }
+  }
+
   for (name in names(defaults)) {
     if (is.null(arglist[[name]])) {
       arglist[[name]] <- defaults[[name]]
     }
   }
+
   for (name in names(expected)) {
     val <- arglist[[name]]
     if (is.null(val)) next
     spec <- expected[[name]]
     if (is.character(spec) && length(spec) >= 1 && !(length(spec) == 1 && spec %in% c("numeric", "matrix"))) {
       if (!val %in% spec) {
-        stop(sprintf("Argument '%s' must be one of: %s", name, paste(spec, collapse = ", ")))
+        if (!is.null(term_name)) {
+          stop(sprintf("Argument '%s' of term '%s' must be one of: %s", name, term_name, paste(spec, collapse = ", ")))
+        } else {
+          stop(sprintf("Argument '%s' must be one of: %s", name, paste(spec, collapse = ", ")))
+        }
       }
     } else if (!is.null(spec) && spec == "numeric") {
-      if (!is.numeric(val)) stop(sprintf("Argument '%s' must be numeric.", name))
+      if (!is.numeric(val)) {
+        if (!is.null(term_name)) {
+          stop(sprintf("Argument '%s' of term '%s' must be numeric.", name, term_name))
+        } else {
+          stop(sprintf("Argument '%s' must be numeric.", name))
+        }
+      }
     } else if (!is.null(spec) && spec == "matrix") {
-      if (!is.matrix(val) && !is.numeric(val)) stop(sprintf("Argument '%s' must be a matrix or numeric vector.", name))
+      if (!is.matrix(val) && !is.numeric(val)) {
+        if (!is.null(term_name)) {
+          stop(sprintf("Argument '%s' of term '%s' must be a matrix or numeric vector.", name, term_name))
+        } else {
+          stop(sprintf("Argument '%s' must be a matrix or numeric vector.", name))
+        }
+      }
     }
   }
   return(arglist)

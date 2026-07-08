@@ -219,6 +219,9 @@ only the corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value, 4:
     }
     \if{html}{\out{</div>}}
   }
+  \subsection{Returns}{
+    Prints the summary/object to the console and returns the coefficient matrix invisibly (or `NULL` if the model has not been estimated).
+  }
 }
 
 \if{html}{\out{<hr>}}
@@ -375,7 +378,7 @@ Requires the model to have been estimated first.
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    Prints the summary to the console and returns `NULL` invisibly.
+    Prints the summary to the console and returns the coefficient matrix invisibly (or `NULL` if the model has not been estimated).
   }
 }
 

@@ -2261,25 +2261,11 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
   }
   
   double res = 0.0;
-  const auto &overlap_i = object.overlap.at(unit_i);
-  if (!object.get_val_overlap(unit_i, unit_j)) return 0.0; // same_group check
   
   const auto &neighborhood_i = object.neighborhood.at(unit_i);
   const auto &neighborhood_j = object.neighborhood.at(unit_j);
   const auto &out_i_all = object.z_network.adj_list.at(unit_i);
   const auto &out_j_all = object.z_network.adj_list.at(unit_j);
-  
-  std::vector<int> intersect_group_nb; // only used if !is_full_neighborhood
-  if (!is_full_neighborhood) {
-    const auto &overlap_j = object.overlap.at(unit_j);
-    const auto *small_ov = (&overlap_i);
-    const auto *large_ov = (&overlap_j);
-    if (overlap_j.size() < overlap_i.size()) { small_ov = &overlap_j; large_ov = &overlap_i; }
-    intersect_group_nb.reserve(std::min<size_t>(small_ov->size(), large_ov->size()));
-    for (int h : *small_ov) {
-      if (std::find(large_ov->begin(), large_ov->end(), h) != large_ov->end()) intersect_group_nb.push_back(h);
-    }
-  }
   
   if (object.z_network.directed) {
     const auto &in_i_all = object.z_network.adj_list_in.at(unit_i);
@@ -2317,7 +2303,6 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
       for (int h : *small_in) {
         if (h == unit_i || h == unit_j) continue;
         if (std::find(large_in->begin(), large_in->end(), h) == large_in->end()) continue;
-        if (!is_full_neighborhood && std::find(intersect_group_nb.begin(), intersect_group_nb.end(), h) == intersect_group_nb.end()) continue;
         if (std::find(object.neighborhood.at(h).begin(), object.neighborhood.at(h).end(), unit_i) == object.neighborhood.at(h).end()) continue;
         
         if (!has_alternative_h_to_j(h, unit_i, unit_j, object, in_connections_of_j_nb,
@@ -2337,7 +2322,6 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
       for (int h : *small_out) {
         if (h == unit_i || h == unit_j) continue;
         if (std::find(large_out->begin(), large_out->end(), h) == large_out->end()) continue;
-        if (!is_full_neighborhood && std::find(intersect_group_nb.begin(), intersect_group_nb.end(), h) == intersect_group_nb.end()) continue;
         if (std::find(object.neighborhood.at(h).begin(), object.neighborhood.at(h).end(), unit_j) == object.neighborhood.at(h).end()) continue;
         
         if (!has_alternative_i_to_h(unit_i, unit_j, h, object, out_connections_of_i_nb,
@@ -2359,7 +2343,6 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
     for (int h : *small_conn) {
       if (h == unit_i || h == unit_j) continue;
       if (std::find(large_conn->begin(), large_conn->end(), h) == large_conn->end()) continue;
-      if (!is_full_neighborhood && std::find(intersect_group_nb.begin(), intersect_group_nb.end(), h) == intersect_group_nb.end()) continue;
       common_neighbors.push_back(h);
       if (std::find(neighborhood_i.begin(), neighborhood_i.end(), h) != neighborhood_i.end() && std::find(neighborhood_j.begin(), neighborhood_j.end(), h) != neighborhood_j.end()) {
         simple_triangle_count = 1;
@@ -2376,15 +2359,15 @@ auto xyz_stat_transitive_edges = CHANGESTAT {
       for (int n : out_j_all) if (std::find(neighborhood_j.begin(), neighborhood_j.end(), n) != neighborhood_j.end()) connections_of_j_nb.push_back(n);
       
       for (int h : common_neighbors) {
-        if (std::find(object.neighborhood.at(h).begin(), object.neighborhood.at(h).end(), unit_i) != object.neighborhood.at(h).end()) {
-          if (!has_alternative_h_to_j(h, unit_i, unit_j, object, connections_of_j_nb,
-                                      object.neighborhood.at(h), neighborhood_j)) {
-            res += 1;
-          }
-        }
         if (std::find(object.neighborhood.at(h).begin(), object.neighborhood.at(h).end(), unit_j) != object.neighborhood.at(h).end()) {
           if (!has_alternative_h_to_j(h, unit_j, unit_i, object, connections_of_i_nb,
                                       object.neighborhood.at(h), neighborhood_i)) {
+            res += 1;
+          }
+        }
+        if (std::find(object.neighborhood.at(h).begin(), object.neighborhood.at(h).end(), unit_i) != object.neighborhood.at(h).end()) {
+          if (!has_alternative_h_to_j(h, unit_i, unit_j, object, connections_of_j_nb,
+                                      object.neighborhood.at(h), neighborhood_j)) {
             res += 1;
           }
         }

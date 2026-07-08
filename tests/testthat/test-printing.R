@@ -12,6 +12,10 @@ test_that("iglm.object print and summary works as expected", {
     control = control.iglm(estimate_model = FALSE)
   )
   
+  # Test return value when model is not estimated (should be NULL)
+  expect_null(model$print())
+  expect_null(model$summary())
+
   # Manually inject mock results since we skipped estimation
   # Use the results$update() method
   model$results$update(
@@ -30,7 +34,18 @@ test_that("iglm.object print and summary works as expected", {
   assign(".time_estimation", structure(1.23456, units = "secs", class = "difftime"), 
          envir = model$.__enclos_env__$private)
   
-  # Test default summary
+  # Test return value of print and summary (should be the coefficient matrix)
+  coef_sum <- model$summary()
+  expect_true(is.matrix(coef_sum))
+  expect_equal(dim(coef_sum), c(2, 4))
+  expect_equal(colnames(coef_sum), c("Estimate", "S.E.", "t-value", "Pr(>|t|)"))
+  expect_equal(rownames(coef_sum), c("edges(mode = 'local')", "attribute_y"))
+
+  coef_print <- model$print()
+  expect_true(is.matrix(coef_print))
+  expect_equal(dim(coef_print), c(2, 4))
+
+  # Test default summary printing
   out_sum <- capture.output(model$summary())
   expect_true(any(grepl("Results:", out_sum)))
   expect_true(any(grepl("edges", out_sum)))
