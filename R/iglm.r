@@ -431,7 +431,6 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param print.coefmat (logical) If `TRUE` (default), prints the coefficient table.
     #' @param print.call (logical) If `TRUE` (default), prints the call that generated the object.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    #' @return Prints the summary/object to the console and returns the coefficient matrix invisibly (or `NULL` if the model has not been estimated).
     print = function(digits = 3,
                      rows = c(1, 2),
                      signif.stars = getOption("show.signif.stars"),
@@ -538,12 +537,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
             print(format_summary(as.vector(private$.coef_degrees), digits), quote = FALSE)
           }
         }
-        invisible(coef_table)
       } else {
         cat("\n")
         cat("Observed Sufficient Statistics:\n")
         print(format(private$.sufficient_statistics, digits = digits), quote = FALSE)
-        invisible(NULL)
       }
     },
     #' @description
@@ -780,10 +777,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' Requires the model to have been estimated first.
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    #' @return Prints the summary to the console and returns the coefficient matrix invisibly (or `NULL` if the model has not been estimated).
+    #' @return Prints the summary to the console and returns `NULL` invisibly.
     summary = function(digits = 2, ...) {
-      res <- self$print(digits = digits, rows = c(1, 2, 3, 4), print.formula = FALSE, ...)
-      invisible(res)
+      self$print(digits = digits, rows = c(1, 2, 3, 4), print.formula = FALSE, ...)
     },
     #' @description
     #' Simulate networks from the fitted model or a specified model. Stores

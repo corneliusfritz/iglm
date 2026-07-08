@@ -134,7 +134,6 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
   } else if (!is.null(arglist$label)) {
     sub("\\(.*$", "", arglist$label)
   } else {
-    # Check the call stack
     caller_term <- NULL
     if (sys.nframe() > 1) {
       caller_call <- sys.call(-1)

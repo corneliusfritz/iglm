@@ -46,7 +46,7 @@ statistics <- function(formula) {
     counts <- lapply(formula_list, function(x) {
       statistics(x)
     })
-    counts <- do.call(counts, what = "rbind")
+    counts <- do.call("rbind", counts)
     return(counts)
   } else {
     preprocessed <- formula_preprocess(formula)

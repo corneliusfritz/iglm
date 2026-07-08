@@ -551,7 +551,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         names(tmp_density$y) <- tmp_density$x
 
         if (plot) {
-          graphics::plot(las = 1, tmp_density,
+          plot(las = 1, tmp_density,
             main = "Density of x_attribute",
             xlab = "x_attribute values", ylab = "Density"
           )
@@ -594,7 +594,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         tmp_density <- density(private$.y_attribute, from = value_range[1], to = value_range[2])
         names(tmp_density$y) <- tmp_density$x
         if (plot) {
-          graphics::plot(las = 1, tmp_density,
+          plot(las = 1, tmp_density,
             main = "Density of y_attribute",
             xlab = "y_attribute values", ylab = "Density"
           )
