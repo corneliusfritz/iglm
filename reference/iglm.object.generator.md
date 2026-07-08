@@ -324,6 +324,11 @@ available, they are printed in a standard coefficient table format.
   Additional arguments passed to
   [`printCoefmat`](https://rdrr.io/r/stats/printCoefmat.html).
 
+#### Returns
+
+Prints the summary/object to the console and returns the coefficient
+matrix invisibly (or \`NULL\` if the model has not been estimated).
+
 ------------------------------------------------------------------------
 
 ### `iglm.object$plot()`
@@ -485,7 +490,8 @@ estimated first.
 
 #### Returns
 
-Prints the summary to the console and returns \`NULL\` invisibly.
+Prints the summary to the console and returns the coefficient matrix
+invisibly (or \`NULL\` if the model has not been estimated).
 
 ------------------------------------------------------------------------
 

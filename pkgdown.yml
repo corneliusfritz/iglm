@@ -1,10 +1,10 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   iglm: iglm.html
   model-terms: model-terms.html
-last_built: 2026-07-07T13:33Z
+last_built: 2026-07-08T12:43Z
 urls:
   reference: https://corneliusfritz.github.io/iglm/reference
   article: https://corneliusfritz.github.io/iglm/articles
