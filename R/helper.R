@@ -179,8 +179,9 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
   out
 }
 
-#' @method print iglm_formulainfo
-print.iglm_formulainfo <- function(x, ..., max_items = 5) {
+#' @export
+#' @method print iglm.formulainfo
+print.iglm.formulainfo <- function(x, ..., max_items = 5) {
   n_terms <- length(x)
   cat(
     "<iglm.formulainfo> object with", n_terms,

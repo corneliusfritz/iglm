@@ -111,6 +111,13 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      - name: Fix OBJCXX for macOS arm64 (R 4.1/4.2)
+        if: runner.os == 'macOS' && matrix.config.os == 'macos-latest' && (matrix.config.r == '4.1' || matrix.config.r == '4.2')
+        run: |
+          mkdir -p ~/.R
+          echo 'OBJCXX = clang++ -std=gnu++14 -fobjc-arc' >> ~/.R/Makevars
+        shell: bash
+
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
