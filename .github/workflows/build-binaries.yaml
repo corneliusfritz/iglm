@@ -42,9 +42,6 @@ jobs:
           - {os: macos-latest, r: '4.5'}
           - {os: macos-latest, r: '4.6'}
           - {os: macos-latest, r: 'devel'}
-          # Ubuntu 20.04 (Focal)
-          - {os: ubuntu-20.04, r: '4.1'}
-          - {os: ubuntu-20.04, r: '4.2'}
           # Ubuntu 22.04 (Jammy)
           - {os: ubuntu-22.04, r: '4.1'}
           - {os: ubuntu-22.04, r: '4.2'}
