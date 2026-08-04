@@ -98,3 +98,21 @@ test_that("Define a iglm object, simulate, estimate, assess", {
 
   file.remove(tmp_name)
 })
+
+test_that("iglm throws error when covariate object does not exist", {
+  n_actor <- 4
+  z <- matrix(0, n_actor, n_actor)
+  x <- c(0, 1, 1, 0)
+  y <- c(1, 0, 1, 0)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = 4, type_x = "binomial", type_y = "binomial")
+
+  expect_error(
+    iglm(
+      formula = data_obj ~ cov_x(data = non_existent_covariate_var),
+      coef = c(1),
+      sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
+    ),
+    pattern = "Could not evaluate argument 'data' in term 'cov_x': object 'non_existent_covariate_var' not found"
+  )
+})
+

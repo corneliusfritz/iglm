@@ -200,6 +200,17 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
         }
       }
     }
+    
+    # Check for missing (NA/NaN) values in numeric/matrix arguments
+    if (is.numeric(val) || is.matrix(val)) {
+      if (any(is.na(val))) {
+        if (!is.null(term_name)) {
+          stop(sprintf("Argument '%s' of term '%s' contains missing (NA/NaN) values.", name, term_name), call. = FALSE)
+        } else {
+          stop(sprintf("Argument '%s' contains missing (NA/NaN) values.", name), call. = FALSE)
+        }
+      }
+    }
   }
   return(arglist)
 }

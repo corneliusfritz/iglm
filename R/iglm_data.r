@@ -63,22 +63,30 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         errors <- c(errors, "'descriptives' must be a list.")
       }
 
+      # Check for missing values in attributes
+      if (any(is.na(private$.x_attribute))) {
+        errors <- c(errors, "'x_attribute' contains missing (NA/NaN) values.")
+      }
+      if (any(is.na(private$.y_attribute))) {
+        errors <- c(errors, "'y_attribute' contains missing (NA/NaN) values.")
+      }
+
       # Check attribute value constraints
-      if (private$.type_x == "binomial" && !all(private$.x_attribute %in% c(0, 1))) {
+      if (private$.type_x == "binomial" && !any(is.na(private$.x_attribute)) && !all(private$.x_attribute %in% c(0, 1))) {
         errors <- c(errors, "For 'binomial' type, 'x_attribute' must be a binary vector.")
       }
       # browser()
-      if (private$.type_x == "poisson" && !all(floor(private$.x_attribute) == private$.x_attribute & private$.x_attribute >= 0)) {
+      if (private$.type_x == "poisson" && !any(is.na(private$.x_attribute)) && !all(floor(private$.x_attribute) == private$.x_attribute & private$.x_attribute >= 0)) {
         errors <- c(errors, "For 'poisson' type, 'x_attribute' must be a vector of non-negative integers.")
       }
-      if (private$.type_y == "binomial" && !all(private$.y_attribute %in% c(0, 1))) {
+      if (private$.type_y == "binomial" && !any(is.na(private$.y_attribute)) && !all(private$.y_attribute %in% c(0, 1))) {
         errors <- c(errors, "For 'binomial' type, 'y_attribute' must be a binary vector.")
       }
 
       if (!is.logical(private$.fix_z_alocal)) {
         stop("`fix_z_alocal` must be a logical value (TRUE or FALSE).", call. = FALSE)
       }
-      if (private$.type_y == "poisson" && !all(floor(private$.y_attribute) == private$.y_attribute & private$.y_attribute >= 0)) {
+      if (private$.type_y == "poisson" && !any(is.na(private$.y_attribute)) && !all(floor(private$.y_attribute) == private$.y_attribute & private$.y_attribute >= 0)) {
         errors <- c(errors, "For 'poisson' type, 'y_attribute' must be a vector of non-negative integers.")
       }
       # Check z_network format
@@ -92,8 +100,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           if (any(private$.z_network < 1) || any(private$.z_network > private$.n_actor)) {
             errors <- c(errors, "'z_network' edge list contains invalid actor indices.")
           }
-        } else if (ncol(private$.z_network) != private$.n_actor) {
-          errors <- c(errors, "'z_network' must be either an edge list with 2 columns or an adjacency matrix of size n_actor x n_actor.")
+        } else {
+          if (any(is.na(private$.z_network))) {
+            errors <- c(errors, "'z_network' contains missing (NA/NaN) values.")
+          }
+          if (ncol(private$.z_network) != private$.n_actor) {
+            errors <- c(errors, "'z_network' must be either an edge list with 2 columns or an adjacency matrix of size n_actor x n_actor.")
+          }
         }
       }
       # Check neighborhood format
@@ -101,16 +114,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         if (!is.matrix(private$.neighborhood) && !inherits(private$.neighborhood, "Matrix")) {
           errors <- c(errors, "'neighborhood' must be a matrix or a sparse Matrix object.")
         } else {
-          if (sum(is.na(private$.neighborhood)) > 0) {
-            errors <- c(errors, "'neighborhood' edge list contains NA values.")
-          }
-
           if (ncol(private$.neighborhood) == 2) {
+            if (sum(is.na(private$.neighborhood)) > 0) {
+              errors <- c(errors, "'neighborhood' edge list contains NA values.")
+            }
             if (any(private$.neighborhood < 1) || any(private$.neighborhood > private$.n_actor)) {
               errors <- c(errors, "'neighborhood' edge list contains invalid actor indices.")
             }
-          } else if (ncol(private$.neighborhood) != private$.n_actor) {
-            errors <- c(errors, "'neighborhood' must be either an edge list with 2 columns or an adjacency matrix of size n_actor x n_actor.")
+          } else {
+            if (any(is.na(private$.neighborhood))) {
+              errors <- c(errors, "'neighborhood' contains missing (NA/NaN) values.")
+            }
+            if (ncol(private$.neighborhood) != private$.n_actor) {
+              errors <- c(errors, "'neighborhood' must be either an edge list with 2 columns or an adjacency matrix of size n_actor x n_actor.")
+            }
           }
         }
       }
@@ -206,6 +223,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         fix_x <- data_loaded$fix_x
         fix_z <- data_loaded$fix_z
         fix_z_alocal <- data_loaded$fix_z_alocal
+      }
+      if (!is.null(z_network) && any(is.na(z_network))) {
+        stop("'z_network' contains missing (NA/NaN) values.", call. = FALSE)
+      }
+      if (!is.null(neighborhood) && any(is.na(neighborhood))) {
+        stop("'neighborhood' contains missing (NA/NaN) values.", call. = FALSE)
       }
       private$.type_x <- type_x
       private$.type_y <- type_y

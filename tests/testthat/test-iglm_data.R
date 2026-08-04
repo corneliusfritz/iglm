@@ -138,3 +138,37 @@ test_that("Define a directed iglm.data object and check all functions", {
   )
   file.remove(tmp_name)
 })
+
+test_that("iglm.data validation throws error when attributes or networks contain NA", {
+  x_na <- c(0, 1, NA, 0)
+  x_clean <- c(0, 1, 0, 0)
+  y_na <- c(1, NA, 1, 0)
+  y_clean <- c(1, 0, 1, 0)
+  z_clean <- matrix(0, 4, 4)
+  z_na <- matrix(c(0, NA, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), nrow = 4)
+
+  # Check x_attribute NA
+  expect_error(
+    iglm.data(x_attribute = x_na, y_attribute = y_clean, z_network = z_clean, n_actor = 4, type_x = "normal", type_y = "binomial"),
+    pattern = "'x_attribute' contains missing \\(NA/NaN\\) values."
+  )
+
+  # Check y_attribute NA
+  expect_error(
+    iglm.data(x_attribute = x_clean, y_attribute = y_na, z_network = z_clean, n_actor = 4, type_x = "normal", type_y = "binomial"),
+    pattern = "'y_attribute' contains missing \\(NA/NaN\\) values."
+  )
+
+  # Check z_network matrix NA
+  expect_error(
+    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_na, n_actor = 4, type_x = "normal", type_y = "binomial"),
+    pattern = "'z_network' contains missing \\(NA/NaN\\) values."
+  )
+
+  # Check neighborhood matrix NA
+  expect_error(
+    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_clean, neighborhood = z_na, n_actor = 4, type_x = "normal", type_y = "binomial"),
+    pattern = "'neighborhood' contains missing \\(NA/NaN\\) values."
+  )
+})
+

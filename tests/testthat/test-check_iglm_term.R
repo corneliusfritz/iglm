@@ -55,4 +55,11 @@ test_that("check.IglmTerm generates informative error messages with term name", 
     check.IglmTerm(data_obj_directed, arglist_non_numeric, expected = list(z_matrix = "matrix")),
     pattern = "Argument 'z_matrix' of term 'cov_z' must be a matrix or numeric vector."
   )
+
+  # Test expected NA/NaN error
+  arglist_na_numeric <- list(base_name = "cov_z", z_matrix = c(1, NA, 3))
+  expect_error(
+    check.IglmTerm(data_obj_directed, arglist_na_numeric, expected = list(z_matrix = "numeric")),
+    pattern = "Argument 'z_matrix' of term 'cov_z' contains missing \\(NA/NaN\\) values."
+  )
 })
