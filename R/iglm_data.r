@@ -225,10 +225,18 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         fix_z_alocal <- data_loaded$fix_z_alocal
       }
       if (!is.null(z_network) && any(is.na(z_network))) {
-        stop("'z_network' contains missing (NA/NaN) values.", call. = FALSE)
+        if ((is.matrix(z_network) || inherits(z_network, "Matrix")) && ncol(z_network) == 2) {
+          stop("'z_network' edge list contains NA values.", call. = FALSE)
+        } else {
+          stop("'z_network' contains missing (NA/NaN) values.", call. = FALSE)
+        }
       }
       if (!is.null(neighborhood) && any(is.na(neighborhood))) {
-        stop("'neighborhood' contains missing (NA/NaN) values.", call. = FALSE)
+        if ((is.matrix(neighborhood) || inherits(neighborhood, "Matrix")) && ncol(neighborhood) == 2) {
+          stop("'neighborhood' edge list contains NA values.", call. = FALSE)
+        } else {
+          stop("'neighborhood' contains missing (NA/NaN) values.", call. = FALSE)
+        }
       }
       private$.type_x <- type_x
       private$.type_y <- type_y

@@ -152,6 +152,24 @@ test_that("iglm throws error when covariate object does not exist", {
     pattern = "Formula must contain at least one term"
   )
 
+  # Control parameter bounds & type checks
+  expect_error(
+    control.iglm(max_it = 10.5),
+    pattern = "`max_it` must be a positive integer"
+  )
+  expect_error(
+    control.iglm(max_it = Inf),
+    pattern = "`max_it` must be a positive integer"
+  )
+  expect_error(
+    control.iglm(tol = Inf),
+    pattern = "`tol` must be a positive number"
+  )
+  expect_error(
+    control.iglm(offset_nonoverlap = Inf),
+    pattern = "`offset_nonoverlap` must be a single numeric value"
+  )
+
   # Pure degree model check
   m_degrees_only <- iglm(
     formula = data_obj ~ degrees,

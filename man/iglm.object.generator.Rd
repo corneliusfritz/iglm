@@ -375,7 +375,7 @@ Requires the model to have been estimated first.
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    Prints the summary to the console and returns `NULL` invisibly.
+    Prints the summary to the console and invisibly returns the coefficient table (or \code{NULL} if the model has not been estimated).
   }
 }
 

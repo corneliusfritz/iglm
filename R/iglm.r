@@ -785,7 +785,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' Requires the model to have been estimated first.
     #' @param digits (integer) Number of digits for rounding numeric output.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    #' @return Prints the summary to the console and returns `NULL` invisibly.
+    #' @return Prints the summary to the console and invisibly returns the coefficient table (or \code{NULL} if the model has not been estimated).
     summary = function(digits = 2, ...) {
       self$print(digits = digits, rows = c(1, 2, 3, 4), print.formula = FALSE, ...)
     },

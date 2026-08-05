@@ -77,13 +77,13 @@ control.iglm <- function(estimate_model = TRUE,
   if (!var_method %in% c("Godambe", "Mean-value", "Hessian")) {
     stop("var_method must be one of 'Godambe', 'Mean-value', or 'Hessian'")
   }
-  if (!is.numeric(max_it) || length(max_it) != 1 || is.na(max_it) || max_it <= 0) {
+  if (!is.numeric(max_it) || length(max_it) != 1 || !is.finite(max_it) || max_it <= 0 || max_it != as.integer(max_it)) {
     stop("`max_it` must be a positive integer.", call. = FALSE)
   }
-  if (!is.numeric(tol) || length(tol) != 1 || is.na(tol) || tol <= 0) {
+  if (!is.numeric(tol) || length(tol) != 1 || !is.finite(tol) || tol <= 0) {
     stop("`tol` must be a positive number.", call. = FALSE)
   }
-  if (!is.numeric(offset_nonoverlap) || length(offset_nonoverlap) != 1 || is.na(offset_nonoverlap)) {
+  if (!is.numeric(offset_nonoverlap) || length(offset_nonoverlap) != 1 || !is.finite(offset_nonoverlap)) {
     stop("`offset_nonoverlap` must be a single numeric value.", call. = FALSE)
   }
   if (var_method == "Mean-value") {
