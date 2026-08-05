@@ -133,8 +133,10 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
         } else {
           val <- try(eval(val_expr, envir = env), silent = TRUE)
           if (inherits(val, "try-error")) {
+            cond <- attr(val, "condition")
+            err_msg <- if (!is.null(cond)) conditionMessage(cond) else as.character(val)
             stop(sprintf("Could not evaluate argument '%s' in term '%s': %s", 
-                         pos_names[i], base_name, trimws(as.character(val))), call. = FALSE)
+                         pos_names[i], base_name, trimws(err_msg)), call. = FALSE)
           }
         }
         
