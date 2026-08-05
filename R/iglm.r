@@ -220,6 +220,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         if (is.null(coef)) {
           private$.coef <- rep(0, length(private$.preprocess$coef_names))
         } else {
+          if (!is.numeric(coef) || any(!is.finite(coef))) {
+            stop("`coef` must contain finite numeric values (no NA, NaN, or Inf).", call. = FALSE)
+          }
           private$.coef <- coef
         }
         if (is.null(coef_degrees)) {
@@ -231,6 +234,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         } else {
           if (private$.preprocess$includes_degrees == FALSE) {
             stop("The formula does not include degrees terms, so `coef_degrees` should be NULL.")
+          }
+          if (!is.numeric(coef_degrees) || any(!is.finite(coef_degrees))) {
+            stop("`coef_degrees` must contain finite numeric values (no NA, NaN, or Inf).", call. = FALSE)
           }
           private$.coef_degrees <- coef_degrees
         }

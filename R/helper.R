@@ -449,6 +449,9 @@ formula_preprocess <- function(formula) {
   includes_degrees <- "degrees" %in% all.vars(formula)
   formula <- stats::update(formula, . ~ . - degrees)
   formula_info <- rhs_terms_as_list(formula)
+  if (length(formula_info) == 0 && !includes_degrees) {
+    stop("Formula must contain at least one term on the right-hand side.", call. = FALSE)
+  }
 
   term_names <- character(length(formula_info))
   data_list <- list()

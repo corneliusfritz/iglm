@@ -2943,22 +2943,22 @@ List outerloop_estimation_pl(arma::vec coef,
     //                                                      type_x, type_y,  
     //                                                      attr_x_scale, attr_y_scale, fix_x);
     // Rcout << std::get<0>(res_nondegrees_alt)<< std::endl;
-    res_nondegrees = cond_estimation_nondegrees_pl(coef_nondegrees, 
-                                                   i_vec, 
-                                                   j_vec,
-                                                   overlap_vec,
-                                                   directed,
-                                                   pseudo_lh, 
-                                                   max_iteration_inner_nondegrees, 
-                                                   tol, 
-                                                   coef_degrees, 
-                                                   offset_nonoverlap, 
-                                                   non_stop, 
-                                                   type_x, type_y, 
-                                                   attr_x_scale, attr_y_scale, fix_x);
-    // Rcout << std::get<0>(res_nondegrees)<< std::endl;
-    // Rcout << "Done 2. Stage"<< std::endl;
-    coef_nondegrees = std::get<0>(res_nondegrees);
+    if (terms.size() > 0) {
+      res_nondegrees = cond_estimation_nondegrees_pl(coef_nondegrees, 
+                                                     i_vec, 
+                                                     j_vec,
+                                                     overlap_vec,
+                                                     directed,
+                                                     pseudo_lh, 
+                                                     max_iteration_inner_nondegrees, 
+                                                     tol, 
+                                                     coef_degrees, 
+                                                     offset_nonoverlap, 
+                                                     non_stop, 
+                                                     type_x, type_y, 
+                                                     attr_x_scale, attr_y_scale, fix_x);
+      coef_nondegrees = std::get<0>(res_nondegrees);
+    }
     llh.at(k) = calculate_llh(coef_nondegrees, 
            coef_degrees,
            i_vec,
@@ -2973,7 +2973,6 @@ List outerloop_estimation_pl(arma::vec coef,
            attr_y_scale,
            n_actor,
            fix_x, false, nonoverlap_random);
-    // Rcout << coef_nondegrees<< std::endl;
     coefs.row(k) = join_cols(coef_nondegrees, coef_degrees).t();
     if(k == max_iteration_outer){
       non_converged = false;
@@ -2982,14 +2981,15 @@ List outerloop_estimation_pl(arma::vec coef,
       non_converged = false;
     }
     k++;
-    // Rcout << "Check done"<< std::endl;
   }
   if(display_progress) {
     Rcpp::Rcout.flush();  
     Rcout << "Done with the estimation" << std::endl;
   }
   
-  std::tie(coef_nondegrees,score_nondegrees,fisher_nondegrees,coefs_nondegrees) = res_nondegrees;
+  if (terms.size() > 0) {
+    std::tie(coef_nondegrees,score_nondegrees,fisher_nondegrees,coefs_nondegrees) = res_nondegrees;
+  }
   std::tie(coef_degrees,score_degrees,fisher_degrees,coefs_degrees) = res_degrees;
   
   if(var){
@@ -3468,9 +3468,17 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
     // Compute inverse blocks
     arma::mat M22_inv = S_inv;
     arma::mat M12_inv = -X * S_inv;
-    res_vec = join_cols(M12_inv.t()*score_degrees + M22_inv*score_nondegrees, score_degrees); 
+    if (n_coef > 0) {
+      res_vec = join_cols(M12_inv.t()*score_degrees + M22_inv*score_nondegrees, score_degrees); 
+    } else {
+      res_vec = score_degrees;
+    }
   } else {
-    res_vec = join_cols(score_nondegrees, score_degrees); 
+    if (n_coef > 0) {
+      res_vec = join_cols(score_nondegrees, score_degrees); 
+    } else {
+      res_vec = score_degrees;
+    }
   }
   return(res_vec);
 } 

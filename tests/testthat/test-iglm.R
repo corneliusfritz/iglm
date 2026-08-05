@@ -114,5 +114,52 @@ test_that("iglm throws error when covariate object does not exist", {
     ),
     pattern = "Could not evaluate argument 'data' in term 'cov_x': object 'non_existent_covariate_var' not found"
   )
+
+  expect_error(
+    iglm(
+      formula = data_obj ~ cov_x(non_existent_covariate_var),
+      coef = c(1),
+      sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
+    ),
+    pattern = "Could not evaluate argument '..1' in term 'cov_x': object 'non_existent_covariate_var' not found"
+  )
+
+  expect_error(
+    iglm(
+      formula = data_obj ~ cov_x(data = stop("custom error message")),
+      coef = c(1),
+      sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
+    ),
+    pattern = "Could not evaluate argument 'data' in term 'cov_x': custom error message"
+  )
+
+  # Finite coefficient checks
+  expect_error(
+    iglm(
+      formula = data_obj ~ edges(mode = "local"),
+      coef = c(NA),
+      sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
+    ),
+    pattern = "coef.*must contain finite numeric values"
+  )
+
+  # Empty formula RHS check
+  expect_error(
+    iglm(
+      formula = data_obj ~ 1,
+      coef = c(1)
+    ),
+    pattern = "Formula must contain at least one term"
+  )
+
+  # Pure degree model check
+  m_degrees_only <- iglm(
+    formula = data_obj ~ degrees,
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
+  )
+  expect_equal(inherits(m_degrees_only, "iglm.object"), TRUE)
 })
+
+
+
 
