@@ -56,3 +56,63 @@ test_that("check.IglmTerm generates informative error messages with term name", 
     pattern = "Argument 'z_matrix' of term 'cov_z' must be a matrix or numeric vector."
   )
 })
+
+test_that("check.IglmTerm warns about arguments the term does not use", {
+  data_obj <- list(directed = FALSE)
+  class(data_obj) <- "iglm.data"
+
+  # An argument the term never declares is dropped by the InitIglmTerm.* method.
+  # It should not disappear quietly.
+  expect_warning(
+    iglm:::check.IglmTerm(data_obj,
+      list(base_name = "spillover_yy", mode = "local", data = matrix(1)),
+      expected = list(mode = "local"), defaults = list(mode = "local")
+    ),
+    "Term 'spillover_yy' does not use argument"
+  )
+
+  # Declared arguments must not warn, whether supplied or defaulted.
+  expect_silent(
+    iglm:::check.IglmTerm(data_obj,
+      list(base_name = "cov_z", mode = "local", data = matrix(1), type = 1),
+      expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
+      defaults = list(mode = "global", data = matrix(1), type = 1)
+    )
+  )
+  expect_silent(
+    iglm:::check.IglmTerm(data_obj, list(base_name = "spillover_yy"),
+      expected = list(mode = "local"), defaults = list(mode = "local")
+    )
+  )
+
+  # Mandatory arguments count as known.
+  expect_silent(
+    iglm:::check.IglmTerm(data_obj, list(base_name = "cov_y", data = 1:3),
+      mandatory = "data"
+    )
+  )
+
+  # Metadata attached by InitIglmTerm is never reported.
+  expect_silent(
+    iglm:::check.IglmTerm(data_obj,
+      list(base_name = "spillover_yy", term_name = "spillover_yy",
+           label = "spillover_yy(mode = 'local')", mode = "local"),
+      expected = list(mode = "local"), defaults = list(mode = "local")
+    )
+  )
+
+  # Several unknown arguments are reported together.
+  expect_warning(
+    iglm:::check.IglmTerm(data_obj,
+      list(base_name = "spillover_yy", mode = "local", data = matrix(1), decay = 0.5),
+      expected = list(mode = "local"), defaults = list(mode = "local")
+    ),
+    "data, decay"
+  )
+
+  # Falls back to a term-less message when no name can be recovered.
+  expect_warning(
+    iglm:::check.IglmTerm(data_obj, list(bogus = 1)),
+    "^Term does not use argument"
+  )
+})

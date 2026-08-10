@@ -201,6 +201,28 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
       }
     }
   }
+
+  # Arguments a term does not declare are silently dropped by the InitIglmTerm.*
+  # methods, which build their return value from named arglist entries only. That
+  # makes a typo, or an argument borrowed from a similar term, look like it took
+  # effect. Warn instead of erroring: erroring would break working code that
+  # passes harmless extras, while a warning is enough to make the failure visible.
+  # `label`, `base_name` and `term_name` are metadata attached by InitIglmTerm and
+  # are always present, so they are never reported.
+  known <- unique(c(mandatory, names(expected), names(defaults),
+                    "label", "base_name", "term_name"))
+  supplied <- names(arglist)
+  unknown <- if (is.null(supplied)) character(0) else setdiff(supplied[nzchar(supplied)], known)
+  if (length(unknown) > 0) {
+    if (!is.null(term_name)) {
+      warning(sprintf("Term '%s' does not use argument(s): %s. They are ignored.",
+                      term_name, paste(unknown, collapse = ", ")), call. = FALSE)
+    } else {
+      warning(sprintf("Term does not use argument(s): %s. They are ignored.",
+                      paste(unknown, collapse = ", ")), call. = FALSE)
+    }
+  }
+
   return(arglist)
 }
 
