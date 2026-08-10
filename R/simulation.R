@@ -135,6 +135,12 @@ simulate_iglm <- function(formula,
     coef_degrees <- numeric(0)
   }
 
+  # A Gaussian reference measure for Y admits a joint distribution only while the
+  # outcome-outcome coupling stays below a spectral threshold; past it the sampler
+  # diverges silently. Checked once here so both the serial and the cluster path
+  # are covered.
+  .check_gaussian_propriety(preprocessed, coef)
+
   if (!is_cluster_active(cluster)) {
     cluster <- NULL
   }
@@ -276,6 +282,12 @@ simulate_iglm <- function(formula,
       x$stats
     }))
   }
+
+  # Backstop for specifications the a-priori check does not cover.
+  .check_simulation_finite(
+    if (only_stats) res$stats else res$simulation_attributes_y,
+    preprocessed$data_object$type_y
+  )
 
   if (only_stats) {
     colnames(res$stats) <- preprocessed$coef_names
