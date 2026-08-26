@@ -735,13 +735,34 @@ InitIglmTerm.gwdegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
       mode = c("global", "local"),
-      decay = "numeric"
+      decay = "numeric",
+      x_i = "numeric",
+      x_j = "numeric",
+      y_i = "numeric",
+      y_j = "numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
+
+  has_xi <- if (!is.null(arglist$x_i)) 1.0 else 0.0
+  xi_val <- if (!is.null(arglist$x_i)) as.numeric(arglist$x_i) else 0.0
+  has_xj <- if (!is.null(arglist$x_j)) 1.0 else 0.0
+  xj_val <- if (!is.null(arglist$x_j)) as.numeric(arglist$x_j) else 0.0
+  has_yi <- if (!is.null(arglist$y_i)) 1.0 else 0.0
+  yi_val <- if (!is.null(arglist$y_i)) as.numeric(arglist$y_i) else 0.0
+  has_yj <- if (!is.null(arglist$y_j)) 1.0 else 0.0
+  yj_val <- if (!is.null(arglist$y_j)) as.numeric(arglist$y_j) else 0.0
+  has_constraints <- if (has_xi > 0 || has_xj > 0 || has_yi > 0 || has_yj > 0) 1.0 else 0.0
+
+  data_mat <- if (has_constraints > 0) {
+    matrix(c(arglist$decay, has_xi, xi_val, has_xj, xj_val, has_yi, yi_val, has_yj, yj_val, has_constraints), nrow = 1)
+  } else {
+    matrix(arglist$decay)
+  }
+
   list(
     term_name = paste0("gwdegree_", arglist$mode),
-    data = matrix(arglist$decay),
+    data = data_mat,
     type = 0,
     coef_name = arglist$label
   )
@@ -757,13 +778,34 @@ InitIglmTerm.gwidegree <- function(data_object, arglist, ...) {
     directed = TRUE,
     expected = list(
       mode = c("global", "local"),
-      decay = "numeric"
+      decay = "numeric",
+      x_i = "numeric",
+      x_j = "numeric",
+      y_i = "numeric",
+      y_j = "numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
+
+  has_xi <- if (!is.null(arglist$x_i)) 1.0 else 0.0
+  xi_val <- if (!is.null(arglist$x_i)) as.numeric(arglist$x_i) else 0.0
+  has_xj <- if (!is.null(arglist$x_j)) 1.0 else 0.0
+  xj_val <- if (!is.null(arglist$x_j)) as.numeric(arglist$x_j) else 0.0
+  has_yi <- if (!is.null(arglist$y_i)) 1.0 else 0.0
+  yi_val <- if (!is.null(arglist$y_i)) as.numeric(arglist$y_i) else 0.0
+  has_yj <- if (!is.null(arglist$y_j)) 1.0 else 0.0
+  yj_val <- if (!is.null(arglist$y_j)) as.numeric(arglist$y_j) else 0.0
+  has_constraints <- if (has_xi > 0 || has_xj > 0 || has_yi > 0 || has_yj > 0) 1.0 else 0.0
+
+  data_mat <- if (has_constraints > 0) {
+    matrix(c(arglist$decay, has_xi, xi_val, has_xj, xj_val, has_yi, yi_val, has_yj, yj_val, has_constraints), nrow = 1)
+  } else {
+    matrix(arglist$decay)
+  }
+
   list(
     term_name = paste0("gwidegree_", arglist$mode),
-    data = matrix(arglist$decay),
+    data = data_mat,
     type = 0,
     coef_name = arglist$label
   )
@@ -778,13 +820,34 @@ InitIglmTerm.gwodegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
       mode = c("global", "local"),
-      decay = "numeric"
+      decay = "numeric",
+      x_i = "numeric",
+      x_j = "numeric",
+      y_i = "numeric",
+      y_j = "numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
+
+  has_xi <- if (!is.null(arglist$x_i)) 1.0 else 0.0
+  xi_val <- if (!is.null(arglist$x_i)) as.numeric(arglist$x_i) else 0.0
+  has_xj <- if (!is.null(arglist$x_j)) 1.0 else 0.0
+  xj_val <- if (!is.null(arglist$x_j)) as.numeric(arglist$x_j) else 0.0
+  has_yi <- if (!is.null(arglist$y_i)) 1.0 else 0.0
+  yi_val <- if (!is.null(arglist$y_i)) as.numeric(arglist$y_i) else 0.0
+  has_yj <- if (!is.null(arglist$y_j)) 1.0 else 0.0
+  yj_val <- if (!is.null(arglist$y_j)) as.numeric(arglist$y_j) else 0.0
+  has_constraints <- if (has_xi > 0 || has_xj > 0 || has_yi > 0 || has_yj > 0) 1.0 else 0.0
+
+  data_mat <- if (has_constraints > 0) {
+    matrix(c(arglist$decay, has_xi, xi_val, has_xj, xj_val, has_yi, yi_val, has_yj, yj_val, has_constraints), nrow = 1)
+  } else {
+    matrix(arglist$decay)
+  }
+
   list(
     term_name = paste0("gwodegree_", arglist$mode),
-    data = matrix(arglist$decay),
+    data = data_mat,
     type = 0,
     coef_name = arglist$label
   )

@@ -560,8 +560,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'  paths. Default is `FALSE`.
     #' @param model_assessment (logical) If `TRUE`, plot diagnostics from the
     #'  model assessment (if already carried out). Default is `FALSE`.
-    plot = function(stats = FALSE, trace = FALSE, model_assessment = FALSE) {
-      private$.results$plot(stats = stats, trace = trace, model_assessment = model_assessment)
+    #' @param ... If the plot of the model_assessment is wanted, additional fits with identical model_assessment terms are currently identified from this argument.
+    #'    The names of the arguments are shown as the legend in the model assessment plots. 
+    plot = function(stats = FALSE, trace = FALSE, model_assessment = FALSE, ... ) {
+      private$.results$plot(stats = stats, trace = trace, model_assessment = model_assessment, ...)
     },
     #' @description
     #' Gathers all components of the \code{\link{iglm.object}} into a single list for

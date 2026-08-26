@@ -135,11 +135,13 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
           if (inherits(val, "try-error")) {
             cond <- attr(val, "condition")
             err_msg <- if (!is.null(cond)) conditionMessage(cond) else as.character(val)
-            stop(sprintf("Could not evaluate argument '%s' in term '%s': %s", 
-                         pos_names[i], base_name, trimws(err_msg)), call. = FALSE)
+            stop(sprintf(
+              "Could not evaluate argument '%s' in term '%s': %s",
+              pos_names[i], base_name, trimws(err_msg)
+            ), call. = FALSE)
           }
         }
-        
+
         nm <- arg_names[i]
         if (nm == "") {
           arg_vals[[paste0("..", i)]] <- val
@@ -161,21 +163,21 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
         list(base_name = base_name)
       )
       if (!is.null(evaluated)) entry$.evaluated <- evaluated
-      
-      # For the elt_name (key in the output list), we still want the full name 
+
+      # For the elt_name (key in the output list), we still want the full name
       # but we MUST NOT change base_name in the entry list
       name_addon <- ""
       if (!is.null(arg_exprs$type)) name_addon <- paste0(name_addon, "_", .deparse1(arg_exprs$type))
       if (!is.null(arg_exprs$data)) name_addon <- paste0(name_addon, "_", .deparse1(arg_exprs$data))
       if (!is.null(arg_exprs$mode)) name_addon <- paste0(name_addon, "_", .deparse1(arg_exprs$mode))
       if (!is.null(arg_exprs$variant)) name_addon <- paste0(name_addon, "_", .deparse1(arg_exprs$variant))
-      
+
       elt_name <- paste0(base_name, name_addon)
       # Ensure uniqueness
       if (elt_name %in% names(out)) {
-         suffix <- 2
-         while(paste0(elt_name, ".", suffix) %in% names(out)) suffix <- suffix + 1
-         elt_name <- paste0(elt_name, ".", suffix)
+        suffix <- 2
+        while (paste0(elt_name, ".", suffix) %in% names(out)) suffix <- suffix + 1
+        elt_name <- paste0(elt_name, ".", suffix)
       }
       out[[elt_name]] <- entry
     }
@@ -462,7 +464,7 @@ formula_preprocess <- function(formula) {
     arglist <- formula_info[[i]]
     # Call the modular initialization system
     init <- InitIglmTerm(data_object = data_object, arglist = arglist)
-    
+
     term_names[i] <- init$term_name
     data_list[[i]] <- if (is.null(init$data)) matrix(1) else init$data
     type_list[i] <- if (is.null(init$type)) 1L else init$type
@@ -510,4 +512,173 @@ is_string_a_function_execution <- function(s) {
   }
 
   return(TRUE)
+}
+
+#' @noRd
+draw_simulation_envelope <- function(x, sim_matrix, color, alpha = 0.4, lwd_mean = 2) {
+  x_poly <- c(x, rev(x))
+  y_poly <- c(colMins(sim_matrix), rev(colMaxs(sim_matrix)))
+  graphics::polygon(x_poly, y_poly, col = add_alpha(color, alpha_level = alpha), border = NA)
+  graphics::lines(x, colMeans(sim_matrix), type = "l", col = color, lwd = lwd_mean)
+  graphics::lines(x, colMins(sim_matrix), type = "l", col = color, lwd = 1)
+  graphics::lines(x, colMaxs(sim_matrix), type = "l", col = color, lwd = 1)
+}
+
+#' @noRd
+extract_assessment_matrix <- function(sim_list, metric, subkey = NULL) {
+  sims <- lapply(sim_list, function(x) {
+    val <- x[[metric]]
+    if (!is.null(subkey)) val <- val[[subkey]]
+    val
+  })
+  do.call("rbind", sims)
+}
+
+#' @noRd
+plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
+                                  model_names, colors, xlab, ylab = "Percentage",
+                                  x_at = NULL, x_labels = NULL, x_positions = NULL,
+                                  x_margin = 0.3, lwd_mean = 2) {
+  all_sims <- c(list(sim_main), sim_dots)
+  
+  # Check if observed or simulation matrices have column names to align on
+  all_names <- names(observed)
+  for (s in all_sims) {
+    if (!is.null(colnames(s))) all_names <- union(all_names, colnames(s))
+  }
+  
+  if (!is.null(all_names) && is.null(x_positions)) {
+    # If all names are numeric, sort them numerically
+    num_names <- suppressWarnings(as.numeric(all_names))
+    if (!any(is.na(num_names))) {
+      all_names <- as.character(sort(num_names))
+      x <- as.numeric(all_names)
+    } else {
+      x <- seq_along(all_names)
+    }
+    
+    obs_aligned <- stats::setNames(rep(0, length(all_names)), all_names)
+    common_obs <- intersect(names(observed), all_names)
+    obs_aligned[common_obs] <- as.numeric(observed[common_obs])
+    observed <- obs_aligned
+    
+    all_sims <- lapply(all_sims, function(sim_mat) {
+      if (!is.null(colnames(sim_mat))) {
+        aligned <- matrix(0, nrow = nrow(sim_mat), ncol = length(all_names), dimnames = list(NULL, all_names))
+        common <- intersect(colnames(sim_mat), all_names)
+        aligned[, common] <- sim_mat[, common]
+        aligned
+      } else {
+        sim_mat
+      }
+    })
+  } else {
+    x <- if (!is.null(x_positions)) {
+      as.numeric(x_positions)
+    } else if (!is.null(names(observed))) {
+      as.numeric(names(observed))
+    } else {
+      seq_along(observed)
+    }
+  }
+  
+  xlim <- c(min(x) - x_margin, max(x) + x_margin)
+  all_vals <- c(as.numeric(observed), unlist(all_sims))
+  ylim <- range(all_vals, na.rm = TRUE)
+  
+  plot(x, as.vector(observed),
+       type = "n", xlab = xlab, ylab = ylab,
+       xlim = xlim, ylim = ylim, las = 1, axes = FALSE
+  )
+  
+  if (is.null(x_at)) {
+    x_at <- pretty(range(x), n = 10)
+  }
+  
+  if (is.null(x_labels)) {
+    axis(side = 1, at = x_at, lwd = 0, lwd.ticks = 1)
+  } else {
+    axis(side = 1, at = x_at, labels = x_labels, lwd = 0, lwd.ticks = 1)
+  }
+  axis(side = 2, las = 1, lwd = 0, lwd.ticks = 1)
+  
+  box(bty = "l", lwd = 1)
+  
+  draw_simulation_envelope(x, all_sims[[1]], color = colors[1], alpha = 0.1, lwd_mean = lwd_mean)
+  
+  if (length(all_sims) > 1) {
+    for (m in 2:length(all_sims)) {
+      draw_simulation_envelope(x, all_sims[[m]], color = colors[m], alpha = 0.1, lwd_mean = lwd_mean)
+    }
+  }
+  lines(x, as.vector(observed), type = "l", col = "black", lwd = 2)
+  
+  legend("topright",
+         legend = c("Observed", model_names),
+         col = c("black", colors),
+         lty = c(1, 1, rep(1, max(0, length(model_names) - 1))),
+         lwd = c(2, rep(lwd_mean, length(model_names))),
+         bty = "n"
+  )
+}
+
+#' @noRd
+plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentage",
+                                   box_col = "#87CEEB80", line_col = "#D55E00",
+                                   x_at = NULL, x_labels = NULL, x_positions = NULL,
+                                   x_margin = 0.3, use_envelope = FALSE) {
+  ylim <- range(c(sim_matrix, as.numeric(observed)), na.rm = TRUE)
+  
+  if (is.null(x_positions)) {
+    x <- if (!is.null(names(observed))) as.numeric(names(observed)) else seq_along(observed)
+  } else {
+    x <- as.numeric(x_positions)
+  }
+  
+  xlim <- c(min(x) - x_margin, max(x) + x_margin)
+  
+  # 1. Initialize plot (axes = FALSE suppresses default axes and box)
+  plot(x, as.vector(observed),
+       type = "n", xlab = xlab, ylab = ylab,
+       xlim = xlim, ylim = ylim, las = 1, axes = FALSE
+  )
+  
+  if (is.null(x_at)) {
+    x_at <- pretty(range(x), n = 10)
+  }
+  
+  # 2. Draw ticks and labels directly on the plot boundary (suppress axis lines)
+  if (is.null(x_labels)) {
+    axis(side = 1, at = x_at, lwd = 0, lwd.ticks = 1)
+  } else {
+    axis(side = 1, at = x_at, labels = x_labels, lwd = 0, lwd.ticks = 1)
+  }
+  axis(side = 2, las = 1, lwd = 0, lwd.ticks = 1)
+  
+  # 3. Draw the exact continuous L-shaped corner along the plot boundary
+  box(bty = "l", lwd = 1)
+  
+  # 4. Plot data layers
+  if (use_envelope) {
+    draw_simulation_envelope(x, sim_matrix, color = box_col, alpha = 0.4, lwd_mean = 2)
+  } else {
+    boxplot(sim_matrix,
+            at = x, boxwex = 0.5,
+            add = TRUE, col = box_col, axes = FALSE, las = 1
+    )
+  }
+  
+  lines(x, as.vector(observed), type = "l", col = line_col, lwd = 2)
+}
+
+#' @noRd
+plot_multitrace <- function(mat, xlab = "Iteration", ylab = "Coefficients", las = 1, bty = "l", ...) {
+  mat <- as.matrix(mat)
+  plot(NA,
+    xlim = c(1, nrow(mat)), ylim = range(mat, na.rm = TRUE),
+    xlab = xlab, ylab = ylab, las = las, bty = bty, ...
+  )
+  for (tmp in seq_len(ncol(mat))) {
+    lines(y = mat[, tmp], x = seq_len(nrow(mat)), col = tmp)
+  }
 }

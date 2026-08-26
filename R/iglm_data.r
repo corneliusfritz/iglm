@@ -577,6 +577,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @param plot (logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.
     #' @return A numeric vector representing the distribution of `x_attribute` (invisible).
     x_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE) {
+      if (is.null(value_range)) {
+        value_range <- range(private$.x_attribute)
+      }
       if (private$.type_x == "normal") {
         tmp_density <- density(private$.x_attribute, from = value_range[1], to = value_range[2])
         names(tmp_density$y) <- tmp_density$x
@@ -589,9 +592,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         }
         private$.descriptives$x_distribution <- tmp_density$y
       } else {
-        if (is.null(value_range)) {
-          value_range <- range(private$.x_attribute)
-        }
         info <- factor(as.numeric(private$.x_attribute),
           levels = seq(from = value_range[1], to = value_range[2])
         )
@@ -663,41 +663,38 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'   `"ITP"` (Incoming Two-Path, \eqn{z_{i,j}\, z_{h,i} \, z_{j,h}}),
     #'   `"ALL"` (Any one of the above).
     #'   Default is `"ALL"`.
-    #' @return A sparse matrix (`dgCMatrix`) of shared partner counts.
-    edgewise_shared_partner = function(type = "ALL") {
+    #' @param mode (character) Either `"global"` (default) to evaluate across all edges,
+    #'   or `"local"` to evaluate only edges with overlapping neighborhoods (from `overlap`).
+    #' @return A numeric vector of shared partner counts for edges.
+    edgewise_shared_partner = function(type = "ALL", mode = "global") {
+      if (!mode %in% c("global", "local")) {
+        stop("'mode' must be either 'global' or 'local'.")
+      }
+      if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL", "symm")) {
+        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+      }
+      if (!private$.directed && type %in% c("OTP", "ITP", "ISP", "OSP")) {
+        stop(sprintf("Type '%s' is only for directed networks. For undirected networks, use type = 'ALL'.", type))
+      }
+      if (private$.directed && type == "symm") {
+        stop("Type 'symm' is only for undirected networks.")
+      }
       if (is.null(private$.descriptives$edgewise_shared_partner)) {
         private$.descriptives$edgewise_shared_partner <- list()
       }
-      if (!private$.directed) {
-        res <- self$dyadwise_shared_partner(type = "ALL")
-        res <- res[private$.z_network]
-        private$.descriptives$edgewise_shared_partner$ALL <- res
-      } else {
-        if (type == "OTP") {
-          res <- self$dyadwise_shared_partner(type = "OTP")
-          res <- res[private$.z_network]
-          private$.descriptives$edgewise_shared_partner$OTP <- res
-          return(res)
-        } else if (type == "ISP") {
-          res <- self$dyadwise_shared_partner(type = "ISP")
-          res <- res[private$.z_network]
-          private$.descriptives$edgewise_shared_partner$ISP <- res
-        } else if (type == "OSP") {
-          res <- self$dyadwise_shared_partner(type = "OSP")
-          res <- res[private$.z_network]
-          private$.descriptives$edgewise_shared_partner$OSP <- res
-        } else if (type == "ITP") {
-          res <- self$dyadwise_shared_partner(type = "ITP")
-          res <- res[private$.z_network]
-          private$.descriptives$edgewise_shared_partner$ITP <- res
-        } else if (type == "ALL") {
-          res <- self$dyadwise_shared_partner(type = "ALL")
-          res <- res[private$.z_network]
-          private$.descriptives$edgewise_shared_partner$ALL <- res
-        } else {
-          stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+      key <- if (mode == "local") paste0(type, "_local") else type
+
+      res_dsp <- self$dyadwise_shared_partner(type = type, mode = mode)
+      if (nrow(private$.z_network) > 0) {
+        res <- res_dsp[private$.z_network]
+        if (mode == "local") {
+          res <- res[!is.na(res)]
         }
+      } else {
+        res <- numeric(0)
       }
+
+      private$.descriptives$edgewise_shared_partner[[key]] <- res
       return(res)
     },
     #' @description
@@ -738,45 +735,63 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'   `"ITP"` (Incoming Two-Path, \eqn{z_{h,i} \, z_{j,h}}),
     #'   `"ALL"` (Any one of the above).
     #'   Default is `"ALL"`.
+    #' @param mode (character) Either `"global"` (default) to evaluate across all dyads,
+    #'   or `"local"` to evaluate only dyads with overlapping neighborhoods.
     #' @return A sparse matrix (`dgCMatrix`) of shared partner counts.
-    dyadwise_shared_partner = function(type = "ALL") {
+    dyadwise_shared_partner = function(type = "ALL", mode = "global") {
+      if (!mode %in% c("global", "local")) {
+        stop("'mode' must be either 'global' or 'local'.")
+      }
+      if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL", "symm")) {
+        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+      }
+      if (!private$.directed && type %in% c("OTP", "ITP", "ISP", "OSP")) {
+        stop(sprintf("Type '%s' is only for directed networks. For undirected networks, use type = 'ALL'.", type))
+      }
+      if (private$.directed && type == "symm") {
+        stop("Type 'symm' is only for undirected networks.")
+      }
+      if (is.null(private$.descriptives$dyadwise_shared_partner)) {
+        private$.descriptives$dyadwise_shared_partner <- list()
+      }
+      key <- if (mode == "local") paste0(type, "_local") else type
+
       adj_mat <- sparseMatrix(
         i = private$.z_network[, 1],
         j = private$.z_network[, 2],
         symmetric = !private$.directed,
         dims = c(private$.n_actor, private$.n_actor)
       )
-      if (is.null(private$.descriptives$dyadwise_shared_partner)) {
-        private$.descriptives$dyadwise_shared_partner <- list()
-      }
+
       if (!private$.directed) {
-        # browser()
         res <- Matrix::t(adj_mat) %*% t(adj_mat)
         diag(res) <- NA
         res[lower.tri(res)] <- NA
-        private$.descriptives$dyadwise_shared_partner$ALL <- res
       } else {
         if (type == "OTP") {
           res <- adj_mat %*% Matrix::t(adj_mat)
-          private$.descriptives$dyadwise_shared_partner$OTP <- res
-          return(res)
         } else if (type == "ISP") {
           res <- adj_mat %*% adj_mat
-          private$.descriptives$dyadwise_shared_partner$ISP <- res
         } else if (type == "OSP") {
           res <- Matrix::t(adj_mat) %*% Matrix::t(adj_mat)
-          private$.descriptives$dyadwise_shared_partner$OSP <- res
         } else if (type == "ITP") {
           res <- Matrix::t(adj_mat) %*% adj_mat
-          private$.descriptives$dyadwise_shared_partner$ITP <- res
         } else if (type == "ALL") {
           adj_mat_symm <- pmax(adj_mat, t(adj_mat))
           res <- Matrix::t(adj_mat_symm) %*% adj_mat_symm
-          private$.descriptives$dyadwise_shared_partner$ALL <- res
-        } else {
-          stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
         }
+        diag(res) <- NA
       }
+      # Only look at the local connections if asked to do so. 
+      if (mode == "local") {
+        overlap_mat <- matrix(FALSE, nrow = private$.n_actor, ncol = private$.n_actor)
+        if (!is.null(private$.overlap) && nrow(private$.overlap) > 0) {
+          overlap_mat[private$.overlap] <- TRUE
+        }
+        res[!overlap_mat] <- NA
+      }
+
+      private$.descriptives$dyadwise_shared_partner[[key]] <- res
       return(res)
     },
     #' @description
@@ -859,6 +874,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'
     #' @param type (character) The type of shared partner matrix to use.
     #'   See `edgewise_shared_partner` for details. Default is `"ALL"`.
+    #' @param mode (character) Either `"global"` (default) to evaluate across all edges,
+    #'   or `"local"` to evaluate only edges with overlapping neighborhoods.
     #' @param value_range (numeric vector) A vector `c(min, max)` specifying
     #'   the range of counts to tabulate. If `NULL` (default), the range
     #'   is inferred from the data.
@@ -868,11 +885,21 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return A named vector (a `table` object) with the distribution of
     #'   shared partner counts.
     edgewise_shared_partner_distribution = function(type = "ALL",
+                                                    mode = "global",
                                                     value_range = NULL,
                                                     prob = TRUE,
                                                     plot = TRUE) {
-      if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL")) {
+      if (!mode %in% c("global", "local")) {
+        stop("'mode' must be either 'global' or 'local'.")
+      }
+      if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL", "symm")) {
         stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+      }
+      if (!private$.directed && type %in% c("OTP", "ITP", "ISP", "OSP")) {
+        stop(sprintf("Type '%s' is only for directed networks. For undirected networks, use type = 'ALL'.", type))
+      }
+      if (private$.directed && type == "symm") {
+        stop("Type 'symm' is only for undirected networks.")
       }
       if (length(value_range) != 2 & !is.null(value_range)) {
         stop("'value_range' must be a numeric vector of length 2.")
@@ -880,74 +907,54 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (sum(value_range < 0) > 0) {
         stop("'value_range' values must be non-negative.")
       }
-      if (is.null(private$.descriptives$edgewise_shared_partner_dist)) {
-        private$.descriptives$edgewise_shared_partner_dist <- list()
+      if (is.null(private$.descriptives$edgewise_shared_partner_distribution)) {
+        private$.descriptives$edgewise_shared_partner_distribution <- list()
       }
 
-      if (type == "OTP") {
-        # Calculate the ESP if not already done so
-        if (is.null(private$.descriptives$edgewise_shared_partner$OTP)) {
-          self$edgewise_shared_partner(type = "OTP")
-        }
-        info <- private$.descriptives$edgewise_shared_partner$OTP
-      } else if (type == "ITP") {
-        if (is.null(private$.descriptives$edgewise_shared_partner$ITP)) {
-          self$edgewise_shared_partner(type = "ITP")
-        }
-        info <- private$.descriptives$edgewise_shared_partner$ITP
-      } else if (type == "ISP") {
-        if (is.null(private$.descriptives$edgewise_shared_partner$ISP)) {
-          self$edgewise_shared_partner(type = "ISP")
-        }
-        info <- private$.descriptives$edgewise_shared_partner$ISP
-      } else if (type == "OSP") {
-        if (is.null(private$.descriptives$edgewise_shared_partner$OSP)) {
-          self$edgewise_shared_partner(type = "OSP")
-        }
-        info <- private$.descriptives$edgewise_shared_partner$OSP
-      } else if (type == "ALL") {
-        if (is.null(private$.descriptives$edgewise_shared_partner$ALL)) {
-          self$edgewise_shared_partner(type = "ALL")
-        }
-        info <- private$.descriptives$edgewise_shared_partner$ALL
+      key <- if (mode == "local") paste0(type, "_local") else type
+
+      if (is.null(private$.descriptives$edgewise_shared_partner[[key]])) {
+        self$edgewise_shared_partner(type = type, mode = mode)
       }
+      info <- private$.descriptives$edgewise_shared_partner[[key]]
+
+      vals <- as.numeric(info)
+      vals <- vals[!is.na(vals)]
+
       if (is.null(value_range)) {
-        value_range <- range(as.numeric(info))
+        if (length(vals) > 0) {
+          value_range <- range(vals)
+        } else {
+          value_range <- c(0, 0)
+        }
       }
-      info <- factor(as.numeric(info),
+      info_factor <- factor(vals,
         levels = seq(from = value_range[1], to = value_range[2])
       )
-      info <- table(info)
+      info_table <- table(info_factor)
       # Transform to probability from frequency
-      if (sum(info) > 0) {
-        info <- info / (sum(info) * prob + (!prob))
+      if (sum(info_table) > 0) {
+        info_table <- info_table / (sum(info_table) * prob + (!prob))
       }
-      if (type == "OTP") {
-        private$.descriptives$edgewise_shared_partner_distribution$OTP <- info
-      } else if (type == "ITP") {
-        private$.descriptives$edgewise_shared_partner_distribution$ITP <- info
-      } else if (type == "ISP") {
-        private$.descriptives$edgewise_shared_partner_distribution$ISP <- info
-      } else if (type == "OSP") {
-        private$.descriptives$edgewise_shared_partner_distribution$OSP <- info
-      } else if (type == "ALL") {
-        private$.descriptives$edgewise_shared_partner_distribution$ALL <- info
-      }
+
+      private$.descriptives$edgewise_shared_partner_distribution[[key]] <- info_table
       if (plot) {
-        barplot(info,
-          ylim = c(0, max(info) * 1.2),
-          xlab = paste0("Number of ", type, "- Edgewise Shared Partners"),
+        barplot(info_table,
+          ylim = c(0, max(info_table) * 1.2),
+          xlab = paste0("Number of ", type, if (mode == "local") " (Local)" else "", "- Edgewise Shared Partners"),
           ylab = ifelse(prob, "Proportion", "Count"),
           las = 1
         )
       }
-      invisible(info)
+      invisible(info_table)
     },
     #' @description
     #' Calculates the distribution of dyadwise shared partners.
     #'
     #' @param type (character) The type of shared partner matrix to use.
     #'   See `dyadwise_shared_partner` for details. Default is `"ALL"`.
+    #' @param mode (character) Either `"global"` (default) to evaluate across all dyads,
+    #'   or `"local"` to evaluate only dyads with overlapping neighborhoods.
     #' @param value_range (numeric vector) A vector `c(min, max)` specifying
     #'   the range of counts to tabulate. If `NULL` (default), the range
     #'   is inferred from the data.
@@ -957,10 +964,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return A named vector (a `table` object) with the distribution of
     #'   shared partner counts.
     dyadwise_shared_partner_distribution = function(type = "ALL",
+                                                    mode = "global",
                                                     value_range = NULL,
                                                     prob = TRUE, plot = TRUE) {
-      if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL")) {
+      if (!mode %in% c("global", "local")) {
+        stop("'mode' must be either 'global' or 'local'.")
+      }
+      if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL", "symm")) {
         stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+      }
+      if (!private$.directed && type %in% c("OTP", "ITP", "ISP", "OSP")) {
+        stop(sprintf("Type '%s' is only for directed networks. For undirected networks, use type = 'ALL'.", type))
+      }
+      if (private$.directed && type == "symm") {
+        stop("Type 'symm' is only for undirected networks.")
       }
       if (length(value_range) != 2 & !is.null(value_range)) {
         stop("'value_range' must be a numeric vector of length 2.")
@@ -968,68 +985,45 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (sum(value_range < 0) > 0) {
         stop("'value_range' values must be non-negative.")
       }
-      if (is.null(private$.descriptives$dyadwise_shared_partner_dist)) {
-        private$.descriptives$dyadwise_shared_partner_dist <- list()
+      if (is.null(private$.descriptives$dyadwise_shared_partner_distribution)) {
+        private$.descriptives$dyadwise_shared_partner_distribution <- list()
       }
 
-      if (type == "OTP") {
-        # Calculate the ESP if not already done so
-        if (is.null(private$.descriptives$dyadwise_shared_partner$OTP)) {
-          self$dyadwise_shared_partner(type = "OTP")
-        }
-        info <- private$.descriptives$dyadwise_shared_partner$OTP
-      } else if (type == "ITP") {
-        if (is.null(private$.descriptives$dyadwise_shared_partner$ITP)) {
-          self$dyadwise_shared_partner(type = "ITP")
-        }
-        info <- private$.descriptives$dyadwise_shared_partner$ITP
-      } else if (type == "ISP") {
-        if (is.null(private$.descriptives$dyadwise_shared_partner$ISP)) {
-          self$dyadwise_shared_partner(type = "ISP")
-        }
-        info <- private$.descriptives$dyadwise_shared_partner$ISP
-      } else if (type == "OSP") {
-        if (is.null(private$.descriptives$dyadwise_shared_partner$OSP)) {
-          self$dyadwise_shared_partner(type = "OSP")
-        }
-        info <- private$.descriptives$dyadwise_shared_partner$OSP
-      } else if (type == "ALL") {
-        if (is.null(private$.descriptives$dyadwise_shared_partner$ALL)) {
-          self$dyadwise_shared_partner(type = "ALL")
-        }
-        info <- private$.descriptives$dyadwise_shared_partner$ALL
+      key <- if (mode == "local") paste0(type, "_local") else type
+
+      if (is.null(private$.descriptives$dyadwise_shared_partner[[key]])) {
+        self$dyadwise_shared_partner(type = type, mode = mode)
       }
+      info <- private$.descriptives$dyadwise_shared_partner[[key]]
+
+      vals <- as.numeric(info)
+      vals <- vals[!is.na(vals)]
+
       if (is.null(value_range)) {
-        value_range <- range(as.numeric(info), na.rm = TRUE)
+        if (length(vals) > 0) {
+          value_range <- range(vals)
+        } else {
+          value_range <- c(0, 0)
+        }
       }
-      info <- factor(as.numeric(info),
+      info_factor <- factor(vals,
         levels = seq(from = value_range[1], to = value_range[2])
       )
-      info <- table(info)
+      info_table <- table(info_factor)
       # Transform to probability from frequency
-      if (sum(info) > 0) {
-        info <- info / (sum(info) * prob + (!prob))
+      if (sum(info_table) > 0) {
+        info_table <- info_table / (sum(info_table) * prob + (!prob))
       }
 
-      if (type == "OTP") {
-        private$.descriptives$dyadwise_shared_partner_distribution$OTP <- info
-      } else if (type == "ITP") {
-        private$.descriptives$dyadwise_shared_partner_distribution$ITP <- info
-      } else if (type == "ISP") {
-        private$.descriptives$dyadwise_shared_partner_distribution$ISP <- info
-      } else if (type == "OSP") {
-        private$.descriptives$dyadwise_shared_partner_distribution$OSP <- info
-      } else if (type == "ALL") {
-        private$.descriptives$dyadwise_shared_partner_distribution$ALL <- info
-      }
+      private$.descriptives$dyadwise_shared_partner_distribution[[key]] <- info_table
       if (plot) {
-        barplot(info,
-          xlab = paste0("Number of ", type, "- Dyadwise Shared Partners"),
+        barplot(info_table,
+          xlab = paste0("Number of ", type, if (mode == "local") " (Local)" else "", "- Dyadwise Shared Partners"),
           ylab = ifelse(prob, "Proportion", "Count"),
-          las = 1, ylim = c(0, max(info) * 1.2)
+          las = 1, ylim = c(0, max(info_table) * 1.2)
         )
       }
-      invisible(info)
+      invisible(info_table)
     },
     #' @description
     #' Calculates the degree distribution of the `z_network`.
@@ -1037,25 +1031,38 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @param value_range (numeric vector) A vector `c(min, max)` specifying
     #'   the range of degrees to tabulate. If `NULL` (default), the range
     #'   is inferred from the data.
+    #' @param x_i (optional) Exact value, vector, or predicate function for sender attribute `x_i`.
+    #' @param x_j (optional) Exact value, vector, or predicate function for receiver attribute `x_j`.
+    #' @param y_i (optional) Exact value, vector, or predicate function for sender attribute `y_i`.
+    #' @param y_j (optional) Exact value, vector, or predicate function for receiver attribute `y_j`.
     #' @param prob (logical) If `TRUE` (default), returns a probability
     #'   distribution (proportions). If `FALSE`, returns raw counts.
     #' @param plot (logical) If `TRUE`, plots the degree distribution.
     #' @return If the network is directed, a list containing two `table`
     #'   objects: `in_degree` and `out_degree`. If undirected, a single
     #'   `table` object with the degree distribution.
-    degree_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE) {
-      if (is.null(private$.descriptives$degree)) {
-        self$degree()
+    degree_distribution = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
+                                  value_range = NULL, prob = TRUE, plot = TRUE) {
+      has_constraints <- !is.null(x_i) || !is.null(x_j) || !is.null(y_i) || !is.null(y_j)
+      deg_data <- if (has_constraints) {
+        self$degree(x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j)
+      } else {
+        if (is.null(private$.descriptives$degree)) {
+          self$degree()
+        }
+        private$.descriptives$degree
       }
+
       if (is.null(value_range)) {
-        value_range <- range(unlist(private$.descriptives$degree))
+        unlisted <- unlist(deg_data)
+        value_range <- if (length(unlisted) > 0) range(unlisted) else c(0, 0)
       }
       if (private$.directed) {
-        info_in <- factor(private$.descriptives$degree$in_degree_seq,
+        info_in <- factor(deg_data$in_degree_seq,
           levels = seq(from = value_range[1], to = value_range[2])
         )
 
-        info_out <- factor(private$.descriptives$degree$out_degree_seq,
+        info_out <- factor(deg_data$out_degree_seq,
           levels = seq(from = value_range[1], to = value_range[2])
         )
         info_in <- table(info_in)
@@ -1071,19 +1078,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           in_degree = info_in,
           out_degree = info_out
         )
-        private$.descriptives$degree_distribution <- info
+        if (!has_constraints) {
+          private$.descriptives$degree_distribution <- info
+        }
       } else {
-        info <- factor(private$.descriptives$degree$degree_seq,
+        info <- factor(deg_data$degree_seq,
           levels = seq(from = value_range[1], to = value_range[2])
         )
-        if (is.null(value_range)) {
-          value_range <- range(as.numeric(info))
-        }
         info <- table(info)
         if (sum(info) > 0) {
           info <- info / (sum(info) * prob + (!prob))
         }
-        private$.descriptives$degree_distribution <- info
+        if (!has_constraints) {
+          private$.descriptives$degree_distribution <- info
+        }
       }
       if (plot) {
         if (private$.directed) {
@@ -1110,49 +1118,109 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @description
     #' Calculates the degree sequence(s) of the `z_network`.
     #'
+    #' @param x_i (optional) Exact value, vector, or predicate function for sender attribute `x_i`.
+    #' @param x_j (optional) Exact value, vector, or predicate function for receiver attribute `x_j`.
+    #' @param y_i (optional) Exact value, vector, or predicate function for sender attribute `y_i`.
+    #' @param y_j (optional) Exact value, vector, or predicate function for receiver attribute `y_j`.
     #' @return If the network is directed, a list containing two vectors:
     #'   `in_degree_seq` and `out_degree_seq`. If undirected, a single
     #'   list containing the vector `degree_seq`.
-    degree = function() {
+    degree = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL) {
+      has_constraints <- !is.null(x_i) || !is.null(x_j) || !is.null(y_i) || !is.null(y_j)
       res <- list()
-      if (private$.directed) {
-        if (ncol(private$.z_network) == 2) {
-          in_degree_seq_res <- table(private$.z_network[, 2])
-          out_degree_seq_res <- table(private$.z_network[, 1])
-          in_degree_seq <- numeric(private$.n_actor)
-          in_degree_seq[as.numeric(names(in_degree_seq_res))] <- in_degree_seq_res
 
-          out_degree_seq <- numeric(private$.n_actor)
-          out_degree_seq[as.numeric(names(out_degree_seq_res))] <- out_degree_seq_res
-          # in_zero_values = which(! (1:private$.n_actor %in% names(in_degree_seq)))
-          # in_degree_seq = c(in_degree_seq, rep(0, length(in_zero_values)))
-          # out_zero_values = which(! (1:private$.n_actor %in% names(out_degree_seq)))
-          # out_degree_seq = c(in_degree_seq, rep(0, length(out_zero_values)))
+      if (!has_constraints) {
+        if (private$.directed) {
+          if (ncol(private$.z_network) == 2) {
+            in_degree_seq_res <- table(private$.z_network[, 2])
+            out_degree_seq_res <- table(private$.z_network[, 1])
+            in_degree_seq <- numeric(private$.n_actor)
+            in_degree_seq[as.numeric(names(in_degree_seq_res))] <- in_degree_seq_res
+
+            out_degree_seq <- numeric(private$.n_actor)
+            out_degree_seq[as.numeric(names(out_degree_seq_res))] <- out_degree_seq_res
+          } else {
+            in_degree_seq <- colSums(private$.z_network)
+            out_degree_seq <- rowSums(private$.z_network)
+          }
+          res$in_degree_seq <- in_degree_seq
+          res$out_degree_seq <- out_degree_seq
         } else {
-          in_degree_seq <- colSums(private$.z_network)
-          out_degree_seq <- rowSums(private$.z_network)
-          in_zero_values <- which(in_degree_seq == 0)
-          out_zero_values <- which(out_degree_seq == 0)
+          if (ncol(private$.z_network) == 2) {
+            tmp <- table(private$.z_network)
+            degree_seq <- numeric(private$.n_actor)
+            degree_seq[as.numeric(names(tmp))] <- tmp
+          } else {
+            degree_seq <- colSums(private$.z_network)
+          }
+          res$degree_seq <- degree_seq
         }
-        res$in_degree_seq <- in_degree_seq
-        res$out_degree_seq <- out_degree_seq
-      } else {
-        if (ncol(private$.z_network) == 2) {
-          tmp <- table(private$.z_network)
-          degree_seq <- numeric(private$.n_actor)
-          degree_seq[as.numeric(names(tmp))] <- tmp
-        } else {
-          degree_seq <- colSums(private$.z_network)
-        }
-        res$degree_seq <- degree_seq
+        private$.descriptives$degree <- res
+        return(res)
       }
-      private$.descriptives$degree <- res
+
+      # Constrained calculation
+      filter_nodes <- function(attr_vec, spec, type = "binomial") {
+        if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
+        if (is.function(spec)) return(as.logical(spec(attr_vec)))
+        if (type == "binomial") {
+          attr_vec %in% spec
+        } else {
+          m <- mean(attr_vec)
+          res <- rep(FALSE, length(attr_vec))
+          if (1 %in% spec) res <- res | (attr_vec > m)
+          if (0 %in% spec) res <- res | (attr_vec <= m)
+          other_spec <- spec[!spec %in% c(0, 1)]
+          if (length(other_spec) > 0) res <- res | (attr_vec %in% other_spec)
+          res
+        }
+      }
+
+      cond_sender <- filter_nodes(private$.x_attribute, x_i, private$.type_x) & filter_nodes(private$.y_attribute, y_i, private$.type_y)
+      cond_receiver <- filter_nodes(private$.x_attribute, x_j, private$.type_x) & filter_nodes(private$.y_attribute, y_j, private$.type_y)
+      actors_sender <- which(cond_sender)
+      actors_receiver <- which(cond_receiver)
+
+      z_mat <- if (ncol(private$.z_network) == 2) {
+        mat <- matrix(0, nrow = private$.n_actor, ncol = private$.n_actor)
+        if (nrow(private$.z_network) > 0) {
+          mat[private$.z_network] <- 1
+        }
+        mat
+      } else {
+        private$.z_network
+      }
+
+      if (private$.directed) {
+        out_deg <- numeric(private$.n_actor)
+        in_deg <- numeric(private$.n_actor)
+        if (length(actors_sender) > 0 && length(actors_receiver) > 0) {
+          out_deg[actors_sender] <- rowSums(matrix(z_mat[actors_sender, actors_receiver, drop = FALSE], nrow = length(actors_sender)))
+          in_deg[actors_receiver] <- colSums(matrix(z_mat[actors_sender, actors_receiver, drop = FALSE], ncol = length(actors_receiver)))
+        }
+        res$in_degree_seq <- in_deg[actors_receiver]
+        res$out_degree_seq <- out_deg[actors_sender]
+      } else {
+        deg_seq <- numeric(private$.n_actor)
+        if (length(actors_sender) > 0 && length(actors_receiver) > 0) {
+          # Symmetric edge counts between sender and receiver sets
+          sub_mat <- matrix(z_mat[actors_sender, actors_receiver, drop = FALSE], nrow = length(actors_sender))
+          deg_seq[actors_sender] <- rowSums(sub_mat)
+        }
+        res$degree_seq <- deg_seq[actors_sender]
+      }
+
       return(res)
     },
     #' @description
     #' Calculates the spillover degree distribution between actors with
-    #' `x_attribute == 1` and actors with `y_attribute == 1`.
+    #' specified values of sender attributes (`x_i`, `y_i`) and receiver
+    #' attributes (`x_j`, `y_j`).
     #'
+    #' @param x_i Optional value(s) or predicate function for attribute `x` of sender actor `i`.
+    #' @param x_j Optional value(s) or predicate function for attribute `x` of receiver actor `j`.
+    #' @param y_i Optional value(s) or predicate function for attribute `y` of sender actor `i`.
+    #' @param y_j Optional value(s) or predicate function for attribute `y` of receiver actor `j`.
     #' @param prob (logical) If `TRUE` (default), returns a probability
     #'   distribution (proportions). If `FALSE`, returns raw counts.
     #' @param value_range (numeric vector) A vector `c(min, max)` specifying
@@ -1160,51 +1228,126 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'   is inferred from the data.
     #' @param plot (logical) If `TRUE`, plots the distributions.
     #' @return A list containing two `table` objects:
-    #'   `out_spillover_degree` (from x_i=1 to y_j=1) and
-    #'   `in_spillover_degree` (from y_i=1 to x_j=1).
-    spillover_degree_distribution = function(prob = TRUE, value_range = NULL, plot = TRUE) {
-      actors_x <- which(private$.x_attribute > self$mean_x())
-      actors_y <- which(private$.y_attribute > self$mean_y())
+    #'   `out_spillover_degree` (spillover out-degree from senders to receivers) and
+    #'   `in_spillover_degree` (spillover in-degree at receivers from senders).
+    spillover_degree_distribution = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
+                                            prob = TRUE, value_range = NULL, plot = TRUE) {
+      binarize_filter <- function(attr_vec, spec, type = "binomial") {
+        if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
+        if (is.function(spec)) return(as.logical(spec(attr_vec)))
+        if (type == "binomial") {
+          attr_vec %in% spec
+        } else {
+          m <- mean(attr_vec)
+          res <- rep(FALSE, length(attr_vec))
+          if (1 %in% spec) res <- res | (attr_vec > m)
+          if (0 %in% spec) res <- res | (attr_vec <= m)
+          other_spec <- spec[!spec %in% c(0, 1)]
+          if (length(other_spec) > 0) res <- res | (attr_vec %in% other_spec)
+          res
+        }
+      }
+
+      if (!is.null(x_i) || !is.null(y_i)) {
+        cond_i <- rep(TRUE, private$.n_actor)
+        if (!is.null(x_i)) {
+          cond_i <- cond_i & binarize_filter(private$.x_attribute, x_i, private$.type_x)
+        }
+        if (!is.null(y_i)) {
+          cond_i <- cond_i & binarize_filter(private$.y_attribute, y_i, private$.type_y)
+        }
+        actors_sender <- which(cond_i)
+      } else {
+        actors_sender <- which(private$.x_attribute > self$mean_x())
+      }
+
+      if (!is.null(x_j) || !is.null(y_j)) {
+        cond_j <- rep(TRUE, private$.n_actor)
+        if (!is.null(x_j)) {
+          cond_j <- cond_j & binarize_filter(private$.x_attribute, x_j, private$.type_x)
+        }
+        if (!is.null(y_j)) {
+          cond_j <- cond_j & binarize_filter(private$.y_attribute, y_j, private$.type_y)
+        }
+        actors_receiver <- which(cond_j)
+      } else {
+        actors_receiver <- which(private$.y_attribute > self$mean_y())
+      }
+
+      if (length(actors_sender) == 0 || length(actors_receiver) == 0) {
+        if (is.null(value_range)) {
+          value_range <- c(0, 1)
+        }
+        out_degree_x_y <- table(factor(0, levels = seq(from = value_range[1], to = value_range[2])))
+        in_degree_x_y <- table(factor(0, levels = seq(from = value_range[1], to = value_range[2])))
+        res <- list(
+          out_spillover_degree = out_degree_x_y,
+          in_spillover_degree = in_degree_x_y
+        )
+        private$.descriptives$spillover_degree_distribution <- res
+        if (plot) {
+          barplot(out_degree_x_y,
+            xlab = "Spillover Outdegree",
+            ylab = ifelse(prob, "Proportion", "Count"),
+            las = 1, ylim = c(0, max(out_degree_x_y) * 1.2)
+          )
+          barplot(in_degree_x_y,
+            xlab = "Spillover Indegree",
+            ylab = ifelse(prob, "Proportion", "Count"),
+            las = 1, ylim = c(0, max(in_degree_x_y) * 1.2)
+          )
+        }
+        return(invisible(res))
+      }
 
       adj_mat_x_y <- matrix(
-        data = NA, nrow = length(actors_x),
-        ncol = length(actors_y),
-        dimnames = list(actors_x, actors_y)
+        data = NA, nrow = length(actors_sender),
+        ncol = length(actors_receiver),
+        dimnames = list(actors_sender, actors_receiver)
       )
 
-      overlap_tmp <- private$.overlap[(private$.overlap[, 1] %in% actors_x) & (private$.overlap[, 2] %in% actors_y), ]
-      overlap_tmp[, 1] <- match(overlap_tmp[, 1], rownames(adj_mat_x_y))
-      overlap_tmp[, 2] <- match(overlap_tmp[, 2], colnames(adj_mat_x_y))
-      adj_mat_x_y[overlap_tmp] <- 0
+      overlap_tmp <- matrix(
+        private$.overlap[(private$.overlap[, 1] %in% actors_sender) & (private$.overlap[, 2] %in% actors_receiver), ],
+        ncol = 2
+      )
+      if (nrow(overlap_tmp) > 0) {
+        row_idx <- match(overlap_tmp[, 1], rownames(adj_mat_x_y))
+        col_idx <- match(overlap_tmp[, 2], colnames(adj_mat_x_y))
+        valid <- !is.na(row_idx) & !is.na(col_idx)
+        if (any(valid)) {
+          adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 0
+        }
+      }
       # Exclude the units that do not have any overlaps so they cannot have spillover edges
       has_valid_overlap_row <- rowSums(!is.na(adj_mat_x_y)) > 0
       has_valid_overlap_col <- colSums(!is.na(adj_mat_x_y)) > 0
       adj_mat_x_y <- adj_mat_x_y[has_valid_overlap_row, has_valid_overlap_col, drop = FALSE]
 
-      edges_x_y <- matrix(private$.z_network[(private$.z_network[, 1] %in% actors_x) & (private$.z_network[, 2] %in% actors_y), ],
+      edges_x_y <- matrix(
+        private$.z_network[(private$.z_network[, 1] %in% actors_sender) & (private$.z_network[, 2] %in% actors_receiver), ],
         ncol = 2
       )
-      if (nrow(edges_x_y) > 0) {
+      if (nrow(edges_x_y) > 0 && nrow(adj_mat_x_y) > 0 && ncol(adj_mat_x_y) > 0) {
         which_overlap <- check_overlap(edges_x_y, private$.overlap)
         edges_x_y_overlap <- matrix(edges_x_y[which_overlap, ], ncol = 2)
-        edges_x_y_overlap[, 1] <- match(edges_x_y_overlap[, 1], rownames(adj_mat_x_y))
-        edges_x_y_overlap[, 2] <- match(edges_x_y_overlap[, 2], colnames(adj_mat_x_y))
-
-
-        # edges_x_y_nonoverlap <- edges_x_y[!which_overlap,]
-
-        adj_mat_x_y[edges_x_y_overlap] <- 1
-        # adj_mat_x_y[edges_x_y_nonoverlap] = NA
-
-        tmp1 <- rowSums(adj_mat_x_y, na.rm = T)
-        tmp2 <- colSums(adj_mat_x_y, na.rm = T)
-        if (is.null(value_range)) {
-          value_range <- range(unique(c(tmp1, tmp2)))
+        if (nrow(edges_x_y_overlap) > 0) {
+          row_idx <- match(edges_x_y_overlap[, 1], rownames(adj_mat_x_y))
+          col_idx <- match(edges_x_y_overlap[, 2], colnames(adj_mat_x_y))
+          valid <- !is.na(row_idx) & !is.na(col_idx)
+          if (any(valid)) {
+            adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 1
+          }
         }
-        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2]))) /
-          (nrow(adj_mat_x_y) * prob + (!prob))
-        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2]))) /
-          (ncol(adj_mat_x_y) * prob + (!prob))
+
+        tmp1 <- rowSums(adj_mat_x_y, na.rm = TRUE)
+        tmp2 <- colSums(adj_mat_x_y, na.rm = TRUE)
+        if (is.null(value_range)) {
+          value_range <- range(unique(c(tmp1, tmp2, 0)))
+        }
+        denom_out <- if (prob) max(1, nrow(adj_mat_x_y)) else 1
+        denom_in <- if (prob) max(1, ncol(adj_mat_x_y)) else 1
+        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2]))) / denom_out
+        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2]))) / denom_in
         res <- list(
           out_spillover_degree = out_degree_x_y,
           in_spillover_degree = in_degree_x_y
@@ -1489,28 +1632,18 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       summarize_attr <- function(v, type, scale) {
         v <- as.vector(v)
         if (type == "binomial") {
-          n1 <- sum(v == 1, na.rm = TRUE)
-          n0 <- sum(v == 0, na.rm = TRUE)
           p1 <- mean(v == 1, na.rm = TRUE)
-          paste0("binomial 1s=", n1, ", 0s=", n0, ", P(1)=", numfmt(p1))
+          paste0("binomial mean = ", numfmt(p1))
         } else if (type == "poisson") {
-          qs <- stats::quantile(v, c(.00, .25, .50, .75, 1), na.rm = TRUE, names = FALSE)
-          paste0(
-            "poisson min=", numfmt(qs[1]),
-            ", q1=", numfmt(qs[2]),
-            ", med=", numfmt(qs[3]),
-            ", q3=", numfmt(qs[4]),
-            ", max=", numfmt(qs[5]),
-            ", mean=", numfmt(mean(v, na.rm = TRUE))
-          )
+          paste0("poisson mean = ", numfmt(mean(v, na.rm = TRUE)))
         } else if (type == "normal") {
           paste0(
-            "normal mean=", numfmt(mean(v, na.rm = TRUE)),
-            ", sd=", numfmt(stats::sd(v, na.rm = TRUE)),
-            ", scale= ", numfmt(scale)
+            "normal mean = ", numfmt(mean(v, na.rm = TRUE)),
+            ", sd = ", numfmt(stats::sd(v, na.rm = TRUE)),
+            ", scale = ", numfmt(scale)
           )
         } else {
-          paste0("unknown type; length=", length(v))
+          paste0("unknown type; length = ", length(v))
         }
       }
 

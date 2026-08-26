@@ -109,61 +109,21 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
                                       std::string type_y, 
                                       double attr_x_scale, 
                                       double attr_y_scale) {
-  // Generate empty network that we will fill as we go through all observed edges in the network
-  XYZ_class alt_object(object.n_actor,object.z_network.directed, 
+  // Start with empty network and zero attributes, filling them incrementally
+  XYZ_class alt_object(object.n_actor, object.z_network.directed, 
                        object.neighborhood, 
                        object.overlap,
                        object.overlap_mat,
-                       type_x, type_y,attr_x_scale, attr_y_scale);
-  // XYZ_class alt_object(object.n_actor, object.z_network.directed, neighborhood);
+                       type_x, type_y, attr_x_scale, attr_y_scale);
   bool is_full_neighborhood = object.check_if_full_neighborhood();
   arma::vec res(functions.size());
+  res.fill(0);
   arma::vec change_stat(functions.size());
-  // arma::vec tmp_row;
   std::vector<int> tmp_js;
   std::string z = "z", x = "x", y = "y";
-  // Go through all actors i and switch them incrementally from 0 to 1
-  for (int i = 1; i <= object.n_actor; i++){
-    tmp_js = object.z_network.adj_list.at(i);
-    if(tmp_js.size()>0){
-      auto it = tmp_js.begin();
-      while (it != tmp_js.end()) {
-        if(*it == i){ 
-        } else if(!object.z_network.directed){
-          if(*it>i){
-            xyz_calculate_change_stats(change_stat, i,
-                                       *it,
-                                       alt_object,
-                                       data_list,
-                                       type_list,
-                                       z,
-                                       is_full_neighborhood,
-                                       functions);
-            alt_object.add_edge(i,*it);
-            res +=change_stat;
-          }
-        } else {
-          // Rcout << "directed" << std::endl;
-          xyz_calculate_change_stats(change_stat, i,
-                                     *it,
-                                     alt_object,
-                                     data_list,
-                                     type_list,
-                                     z,
-                                     is_full_neighborhood,
-                                     functions);
-          alt_object.add_edge(i,*it);
-          res +=change_stat;
-        }
-        it++;
-        
-      }
-    }
-  }
-  // Rcout << "X Attr" << std::endl;
-  // Rcout << object.x_attribute.attribute.size() << std::endl;
-  for(int i = 1; i <= object.x_attribute.attribute.size(); i++){
-    // Rcout << i << std::endl;
+
+  // 1. Attribute loop for X (on empty network and zero Y)
+  for(int i = 1; i <= (int)object.x_attribute.attribute.size(); i++){
     xyz_calculate_change_stats(change_stat, i,
                                i,
                                alt_object,
@@ -172,18 +132,13 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
                                x,
                                is_full_neighborhood,
                                functions);
-    // Rcout << change_stat << std::endl;
-    // Rcout << "Here" << std::endl;
-    // Rcout << object.x_attribute.attribute.size() << std::endl;
-    // Rcout << object.x_attribute.attribute(i-1) << std::endl;
     
     alt_object.x_attribute.set_attr_value(i, object.x_attribute.attribute.at(i-1));
-    res +=change_stat*object.x_attribute.get_val(i);
+    res += change_stat * object.x_attribute.get_val(i);
   }
-  // Rcout << "Y Attr" << std::endl;
   
-  for(int i = 1; i <= object.y_attribute.attribute.size(); i++){
-    // Rcout << i << std::endl;
+  // 2. Attribute loop for Y (on empty network with observed X)
+  for(int i = 1; i <= (int)object.y_attribute.attribute.size(); i++){
     xyz_calculate_change_stats(change_stat, i,
                                i,
                                alt_object,
@@ -192,11 +147,47 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
                                y,
                                is_full_neighborhood,
                                functions);
-    // Rcout << change_stat << std::endl;
-    // Rcout << "Here" << std::endl;
     alt_object.y_attribute.set_attr_value(i, object.y_attribute.attribute.at(i-1));
-    res +=change_stat*object.y_attribute.get_val(i);
+    res += change_stat * object.y_attribute.get_val(i);
   }
+
+  // 3. Network edge loop (with full observed X and Y attributes)
+  for (int i = 1; i <= object.n_actor; i++){
+    tmp_js = object.z_network.adj_list.at(i);
+    if(tmp_js.size() > 0){
+      auto it = tmp_js.begin();
+      while (it != tmp_js.end()) {
+        if(*it == i){ 
+        } else if(!object.z_network.directed){
+          if(*it > i){
+            xyz_calculate_change_stats(change_stat, i,
+                                       *it,
+                                       alt_object,
+                                       data_list,
+                                       type_list,
+                                       z,
+                                       is_full_neighborhood,
+                                       functions);
+            alt_object.add_edge(i, *it);
+            res += change_stat;
+          }
+        } else {
+          xyz_calculate_change_stats(change_stat, i,
+                                     *it,
+                                     alt_object,
+                                     data_list,
+                                     type_list,
+                                     z,
+                                     is_full_neighborhood,
+                                     functions);
+          alt_object.add_edge(i, *it);
+          res += change_stat;
+        }
+        it++;
+      }
+    }
+  }
+  
   return(res);
 }
 

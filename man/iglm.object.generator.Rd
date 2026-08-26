@@ -229,7 +229,7 @@ only the corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value, 4:
 paths and model assessment diagnostics if available.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.object$plot(stats = FALSE, trace = FALSE, model_assessment = FALSE)}
+    \preformatted{iglm.object$plot(stats = FALSE, trace = FALSE, model_assessment = FALSE, ...)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -241,6 +241,8 @@ statistics from model assessment. Default is `FALSE`.}
 paths. Default is `FALSE`.}
       \item{\code{model_assessment}}{(logical) If `TRUE`, plot diagnostics from the
 model assessment (if already carried out). Default is `FALSE`.}
+      \item{\code{...}}{If the plot of the model_assessment is wanted, additional fits with identical model_assessment terms are currently identified from this argument.
+The names of the arguments are shown as the legend in the model assessment plots.}
     }
     \if{html}{\out{</div>}}
   }

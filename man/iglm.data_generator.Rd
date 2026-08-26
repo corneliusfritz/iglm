@@ -526,7 +526,7 @@ details necessary to reconstruct the object later.
 This is a two-path matrix (e.g., $A A^T$ or $A^T A$).
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$edgewise_shared_partner(type = "ALL")}
+    \preformatted{iglm.data$edgewise_shared_partner(type = "ALL", mode = "global")}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -541,11 +541,13 @@ Must be one of:
 `"ITP"` (Incoming Two-Path, \eqn{z_{i,j}\, z_{h,i} \, z_{j,h}}),
 `"ALL"` (Any one of the above).
 Default is `"ALL"`.}
+      \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all edges,
+or `"local"` to evaluate only edges with overlapping neighborhoods (from `overlap`).}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    A sparse matrix (`dgCMatrix`) of shared partner counts.
+    A numeric vector of shared partner counts for edges.
   }
 }
 
@@ -581,7 +583,7 @@ Can be a 2-column edgelist or a square adjacency matrix.}
   Calculates the matrix of dyadwise shared partners.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$dyadwise_shared_partner(type = "ALL")}
+    \preformatted{iglm.data$dyadwise_shared_partner(type = "ALL", mode = "global")}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -596,6 +598,8 @@ Must be one of:
 `"ITP"` (Incoming Two-Path, \eqn{z_{h,i} \, z_{j,h}}),
 `"ALL"` (Any one of the above).
 Default is `"ALL"`.}
+      \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all dyads,
+or `"local"` to evaluate only dyads with overlapping neighborhoods.}
     }
     \if{html}{\out{</div>}}
   }
@@ -663,6 +667,7 @@ symmetrized `z_network` using a matrix-based BFS algorithm.
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$edgewise_shared_partner_distribution(
   type = "ALL",
+  mode = "global",
   value_range = NULL,
   prob = TRUE,
   plot = TRUE
@@ -674,6 +679,8 @@ symmetrized `z_network` using a matrix-based BFS algorithm.
     \describe{
       \item{\code{type}}{(character) The type of shared partner matrix to use.
 See `edgewise_shared_partner` for details. Default is `"ALL"`.}
+      \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all edges,
+or `"local"` to evaluate only edges with overlapping neighborhoods.}
       \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of counts to tabulate. If `NULL` (default), the range
 is inferred from the data.}
@@ -698,6 +705,7 @@ distribution (proportions). If `FALSE`, returns raw counts.}
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$dyadwise_shared_partner_distribution(
   type = "ALL",
+  mode = "global",
   value_range = NULL,
   prob = TRUE,
   plot = TRUE
@@ -709,6 +717,8 @@ distribution (proportions). If `FALSE`, returns raw counts.}
     \describe{
       \item{\code{type}}{(character) The type of shared partner matrix to use.
 See `dyadwise_shared_partner` for details. Default is `"ALL"`.}
+      \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all dyads,
+or `"local"` to evaluate only dyads with overlapping neighborhoods.}
       \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of counts to tabulate. If `NULL` (default), the range
 is inferred from the data.}
@@ -731,12 +741,24 @@ distribution (proportions). If `FALSE`, returns raw counts.}
   Calculates the degree distribution of the `z_network`.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$degree_distribution(value_range = NULL, prob = TRUE, plot = TRUE)}
+    \preformatted{iglm.data$degree_distribution(
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
+  value_range = NULL,
+  prob = TRUE,
+  plot = TRUE
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
+      \item{\code{x_i}}{(optional) Exact value, vector, or predicate function for sender attribute `x_i`.}
+      \item{\code{x_j}}{(optional) Exact value, vector, or predicate function for receiver attribute `x_j`.}
+      \item{\code{y_i}}{(optional) Exact value, vector, or predicate function for sender attribute `y_i`.}
+      \item{\code{y_j}}{(optional) Exact value, vector, or predicate function for receiver attribute `y_j`.}
       \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of degrees to tabulate. If `NULL` (default), the range
 is inferred from the data.}
@@ -760,7 +782,17 @@ distribution (proportions). If `FALSE`, returns raw counts.}
   Calculates the degree sequence(s) of the `z_network`.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$degree()}
+    \preformatted{iglm.data$degree(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{x_i}}{(optional) Exact value, vector, or predicate function for sender attribute `x_i`.}
+      \item{\code{x_j}}{(optional) Exact value, vector, or predicate function for receiver attribute `x_j`.}
+      \item{\code{y_i}}{(optional) Exact value, vector, or predicate function for sender attribute `y_i`.}
+      \item{\code{y_j}}{(optional) Exact value, vector, or predicate function for receiver attribute `y_j`.}
+    }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
@@ -775,10 +807,15 @@ distribution (proportions). If `FALSE`, returns raw counts.}
 \if{latex}{\out{\hypertarget{method-iglm.data-spillover_degree_distribution}{}}}
 \subsection{\code{iglm.data$spillover_degree_distribution()}}{
   Calculates the spillover degree distribution between actors with
-`x_attribute == 1` and actors with `y_attribute == 1`.
+specified values of sender attributes (`x_i`, `y_i`) and receiver
+attributes (`x_j`, `y_j`).
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$spillover_degree_distribution(
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
   prob = TRUE,
   value_range = NULL,
   plot = TRUE
@@ -788,6 +825,10 @@ distribution (proportions). If `FALSE`, returns raw counts.}
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
+      \item{\code{x_i}}{Optional value(s) or predicate function for attribute `x` of sender actor `i`.}
+      \item{\code{x_j}}{Optional value(s) or predicate function for attribute `x` of receiver actor `j`.}
+      \item{\code{y_i}}{Optional value(s) or predicate function for attribute `y` of sender actor `i`.}
+      \item{\code{y_j}}{Optional value(s) or predicate function for attribute `y` of receiver actor `j`.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
       \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
@@ -799,8 +840,8 @@ is inferred from the data.}
   }
   \subsection{Returns}{
     A list containing two `table` objects:
-  `out_spillover_degree` (from x_i=1 to y_j=1) and
-  `in_spillover_degree` (from y_i=1 to x_j=1).
+  `out_spillover_degree` (spillover out-degree from senders to receivers) and
+  `in_spillover_degree` (spillover in-degree at receivers from senders).
   }
 }
 

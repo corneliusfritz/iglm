@@ -77,13 +77,13 @@ control.iglm <- function(estimate_model = TRUE,
   if (!var_method %in% c("Godambe", "Mean-value", "Hessian")) {
     stop("var_method must be one of 'Godambe', 'Mean-value', or 'Hessian'")
   }
-  if (!is.numeric(max_it) || length(max_it) != 1 || !is.finite(max_it) || max_it <= 0 || max_it != as.integer(max_it)) {
+  if (!is.numeric(max_it) || length(max_it) != 1 || is.na(max_it) || !is.finite(max_it) || max_it <= 0 || max_it %% 1 != 0) {
     stop("`max_it` must be a positive integer.", call. = FALSE)
   }
-  if (!is.numeric(tol) || length(tol) != 1 || !is.finite(tol) || tol <= 0) {
+  if (!is.numeric(tol) || length(tol) != 1 || is.na(tol) || !is.finite(tol) || tol <= 0) {
     stop("`tol` must be a positive number.", call. = FALSE)
   }
-  if (!is.numeric(offset_nonoverlap) || length(offset_nonoverlap) != 1 || !is.finite(offset_nonoverlap)) {
+  if (!is.numeric(offset_nonoverlap) || length(offset_nonoverlap) != 1 || is.na(offset_nonoverlap) || !is.finite(offset_nonoverlap)) {
     stop("`offset_nonoverlap` must be a single numeric value.", call. = FALSE)
   }
   if (var_method == "Mean-value") {
@@ -388,16 +388,6 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
             }
           )
         }
-
-
-        #
-        # G = sweep(res$B_mat, 2, 1/res$A_diag, "*")
-        # # cor(sweep(G, 2, diag(V_11), "*")[1,], (G%*%V_11_full)[1,])
-        # part_1 = solve(res$fisher_nondegrees - res$B_mat%*%t(G))
-        # part_2 =  sweep(G, 2, diag(V_11), "*")%*%t(G) - 2*G%*%t(V_12) + V_22
-        # part_2 =  G%*%V_11_full%*%t(G) - 2*G%*%t(V_12) + V_22
-        # # Corrected variance
-        # res$var = part_1%*%part_2%*%part_1
       }
 
       if (data_object$directed) {

@@ -3023,95 +3023,211 @@ auto xyz_stat_gwdsp_OSP_local= CHANGESTAT{
 
 EFFECT_REGISTER("gwdsp_local_OSP", ::xyz_stat_gwdsp_OSP_local, "gwdsp_local_OSP",0.0);
 
-auto xyz_stat_gwidegree= CHANGESTAT{
-  if(!object.z_network.directed){
+// Has the term any contraints on x or y?
+inline bool gwdegree_has_constraints(const arma::mat& data) {
+  return data.n_elem >= 10 && data.at(0, 9) > 0.5;
+}
+
+// Helper to match attribute value with binarization for non-binary types
+inline bool gwdegree_match_attr_val(const Attribute& attr, int node, double target) {
+  double val = attr.get_val(node);
+  if (attr.type == "binomial") {
+    return val == target;
+  }
+  // For non-binary attributes, binarize relative to the mean:
+  // target == 1 matches val > mean; target == 0 matches val <= mean
+  double mean_val = attr.attribute.n_elem > 0 ? (arma::mean(attr.attribute) / attr.scale) : 0.0;
+  if (target == 1.0) {
+    return val > mean_val;
+  } else if (target == 0.0) {
+    return val <= mean_val;
+  } else {
+    return val == target;
+  }
+}
+
+// Does the node as a sender satisfy the constraints?
+inline bool gwdegree_match_sender(const XYZ_class& object, int node, const arma::mat& data) {
+  if (data.n_elem < 10 || data.at(0, 9) <= 0.5) return true;
+  if (data.at(0, 1) > 0.5 && !gwdegree_match_attr_val(object.x_attribute, node, data.at(0, 2))) return false;
+  if (data.at(0, 5) > 0.5 && !gwdegree_match_attr_val(object.y_attribute, node, data.at(0, 6))) return false;
+  return true;
+}
+
+// Does the node as a receiver satisfy the constraints?
+inline bool gwdegree_match_receiver(const XYZ_class& object, int node, const arma::mat& data) {
+  if (data.n_elem < 10 || data.at(0, 9) <= 0.5) return true;
+  if (data.at(0, 3) > 0.5 && !gwdegree_match_attr_val(object.x_attribute, node, data.at(0, 4))) return false;
+  if (data.at(0, 7) > 0.5 && !gwdegree_match_attr_val(object.y_attribute, node, data.at(0, 8))) return false;
+  return true;
+}
+
+auto xyz_stat_gwidegree = CHANGESTAT {
+  if (!object.z_network.directed) {
     Rcpp::stop("This statistic is only for directed networks");  
   }
   
-  if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
-    bool edge_exists = object.z_network.get_val(unit_i, unit_j);
-    double tmp_count = object.z_network.in_degrees[unit_j];
-    if (edge_exists) {
-      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
+  if (mode == "z") {
+    if (!gwdegree_match_sender(object, unit_i, data) || !gwdegree_match_receiver(object, unit_j, data)) {
+      return 0.0;
     }
-    return(pow(expo_min, tmp_count));
-  }else {  
-    return(0);
-  }
-}; 
-EFFECT_REGISTER("gwidegree_global", ::xyz_stat_gwidegree, "gwidegree_global",0.0);
-
-auto xyz_stat_gwodegree= CHANGESTAT{
-  if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));
+    double decay = (data.n_elem >= 1) ? data.at(0, 0) : 0.0;
+    double expo_min = (1.0 - exp(-decay));  
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
-    double tmp_count = object.z_network.out_degrees[unit_i];
-    if (edge_exists) {
-      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
-    }
-    double res = pow(expo_min, tmp_count);
-    // Add Node j contribution for undirected networks
-    if (!object.z_network.directed) {
-      double tmp_count_j = object.z_network.out_degrees[unit_j];
-      if (edge_exists) {
-        tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1) : 0.0; 
+    double tmp_count = 0.0;
+    if (!gwdegree_has_constraints(data)) {
+      tmp_count = object.z_network.in_degrees[unit_j];
+    } else {
+      const auto& in_nbrs = object.z_network.adj_list_in[unit_j];
+      for (int k : in_nbrs) {
+        if (gwdegree_match_sender(object, k, data)) tmp_count += 1.0;
       }
-      res += pow(expo_min, tmp_count_j);
     }
-    return(res);
-  }else {  
-    return(0.0);
+    if (edge_exists) {
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1.0) : 0.0; 
+    }
+    return pow(expo_min, tmp_count);
+  } else {  
+    return 0.0;
   }
 }; 
-EFFECT_REGISTER("gwodegree_global", ::xyz_stat_gwodegree, "gwodegree_global",0.0);
-EFFECT_REGISTER("gwdegree_global", ::xyz_stat_gwodegree, "gwdegree_global",0.0);
+EFFECT_REGISTER("gwidegree_global", ::xyz_stat_gwidegree, "gwidegree_global", 0.0);
 
-auto xyz_stat_gwidegree_local= CHANGESTAT{
-  if(!object.z_network.directed){
+auto xyz_stat_gwodegree = CHANGESTAT {
+  if (mode == "z") {
+    double decay = (data.n_elem >= 1) ? data.at(0, 0) : 0.0;
+    double expo_min = (1.0 - exp(-decay));
+    bool edge_exists = object.z_network.get_val(unit_i, unit_j);
+    bool has_constraints = gwdegree_has_constraints(data);
+    double res = 0.0;
+
+    // Node i as sender, Node j as receiver
+    if (gwdegree_match_sender(object, unit_i, data) && gwdegree_match_receiver(object, unit_j, data)) {
+      double tmp_count = 0.0;
+      if (!has_constraints) {
+        tmp_count = object.z_network.out_degrees[unit_i];
+      } else {
+        const auto& nbrs = object.z_network.adj_list[unit_i];
+        for (int k : nbrs) {
+          if (gwdegree_match_receiver(object, k, data)) tmp_count += 1.0;
+        }
+      }
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1.0) : 0.0; 
+      }
+      res += pow(expo_min, tmp_count);
+    }
+
+    // Add Node j as sender for undirected networks
+    if (!object.z_network.directed) {
+      if (gwdegree_match_sender(object, unit_j, data) && gwdegree_match_receiver(object, unit_i, data)) {
+        double tmp_count_j = 0.0;
+        if (!has_constraints) {
+          tmp_count_j = object.z_network.out_degrees[unit_j];
+        } else {
+          const auto& nbrs = object.z_network.adj_list[unit_j];
+          for (int k : nbrs) {
+            if (gwdegree_match_receiver(object, k, data)) tmp_count_j += 1.0;
+          }
+        }
+        if (edge_exists) {
+          tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1.0) : 0.0; 
+        }
+        res += pow(expo_min, tmp_count_j);
+      }
+    }
+    return res;
+  } else {  
+    return 0.0;
+  }
+}; 
+EFFECT_REGISTER("gwodegree_global", ::xyz_stat_gwodegree, "gwodegree_global", 0.0);
+EFFECT_REGISTER("gwdegree_global", ::xyz_stat_gwodegree, "gwdegree_global", 0.0);
+
+auto xyz_stat_gwidegree_local = CHANGESTAT {
+  if (!object.z_network.directed) {
     Rcpp::stop("This statistic is only for directed networks");  
   }
-  if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
-    if(object.get_val_overlap(unit_i, unit_j) == false){
-      return(0);
+  if (mode == "z") {
+    if (!object.get_val_overlap(unit_i, unit_j)) {
+      return 0.0;
     }
+    if (!gwdegree_match_sender(object, unit_i, data) || !gwdegree_match_receiver(object, unit_j, data)) {
+      return 0.0;
+    }
+    double decay = (data.n_elem >= 1) ? data.at(0, 0) : 0.0;
+    double expo_min = (1.0 - exp(-decay));  
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
-    double tmp_count = object.in_degrees_nb[unit_j];
-    if (edge_exists) {
-      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
-    }
-    return(pow(expo_min, tmp_count));
-  }else {  
-    return(0);
-  }
-}; 
-EFFECT_REGISTER("gwidegree_local", ::xyz_stat_gwidegree_local, "gwidegree_local",0.0);
-
-auto xyz_stat_gwodegree_local= CHANGESTAT{
-  if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
-    if(object.get_val_overlap(unit_i, unit_j) == false){
-      return(0);
-    }
-    bool edge_exists = object.z_network.get_val(unit_i, unit_j);
-    double tmp_count = object.out_degrees_nb[unit_i];
-    if (edge_exists) {
-      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
-    }
-    double res = pow(expo_min, tmp_count);
-    // Add Node j contribution for undirected networks
-    if (!object.z_network.directed) {
-      double tmp_count_j = object.out_degrees_nb[unit_j];
-      if (edge_exists) {
-        tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1) : 0.0; 
+    double tmp_count = 0.0;
+    if (!gwdegree_has_constraints(data)) {
+      tmp_count = object.in_degrees_nb[unit_j];
+    } else {
+      const auto& in_nbrs = object.adj_list_in_nb[unit_j];
+      for (int k : in_nbrs) {
+        if (object.z_network.get_val(k, unit_j) && gwdegree_match_sender(object, k, data)) tmp_count += 1.0;
       }
-      res += pow(expo_min, tmp_count_j);
     }
-    return(res);
-  }else {  
-    return(0);
+    if (edge_exists) {
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1.0) : 0.0; 
+    }
+    return pow(expo_min, tmp_count);
+  } else {  
+    return 0.0;
   }
 }; 
-EFFECT_REGISTER("gwodegree_local", ::xyz_stat_gwodegree_local, "gwodegree_local",0.0);
-EFFECT_REGISTER("gwdegree_local", ::xyz_stat_gwodegree_local, "gwdegree_local",0.0);
+EFFECT_REGISTER("gwidegree_local", ::xyz_stat_gwidegree_local, "gwidegree_local", 0.0);
+
+auto xyz_stat_gwodegree_local = CHANGESTAT {
+  if (mode == "z") {
+    if (!object.get_val_overlap(unit_i, unit_j)) {
+      return 0.0;
+    }
+    double decay = (data.n_elem >= 1) ? data.at(0, 0) : 0.0;
+    double expo_min = (1.0 - exp(-decay));  
+    bool edge_exists = object.z_network.get_val(unit_i, unit_j);
+    bool has_constraints = gwdegree_has_constraints(data);
+    double res = 0.0;
+
+    // Node i as sender, Node j as receiver
+    if (gwdegree_match_sender(object, unit_i, data) && gwdegree_match_receiver(object, unit_j, data)) {
+      double tmp_count = 0.0;
+      if (!has_constraints) {
+        tmp_count = object.out_degrees_nb[unit_i];
+      } else {
+        const auto& nbrs = object.adj_list_nb[unit_i];
+        for (int k : nbrs) {
+          if (object.z_network.get_val(unit_i, k) && gwdegree_match_receiver(object, k, data)) tmp_count += 1.0;
+        }
+      }
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1.0) : 0.0; 
+      }
+      res += pow(expo_min, tmp_count);
+    }
+
+    // Add Node j as sender for undirected networks
+    if (!object.z_network.directed) {
+      if (gwdegree_match_sender(object, unit_j, data) && gwdegree_match_receiver(object, unit_i, data)) {
+        double tmp_count_j = 0.0;
+        if (!has_constraints) {
+          tmp_count_j = object.out_degrees_nb[unit_j];
+        } else {
+          const auto& nbrs = object.adj_list_nb[unit_j];
+          for (int k : nbrs) {
+            if (object.z_network.get_val(unit_j, k) && gwdegree_match_receiver(object, k, data)) tmp_count_j += 1.0;
+          }
+        }
+        if (edge_exists) {
+          tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1.0) : 0.0; 
+        }
+        res += pow(expo_min, tmp_count_j);
+      }
+    }
+    return res;
+  } else {  
+    return 0.0;
+  }
+}; 
+EFFECT_REGISTER("gwodegree_local", ::xyz_stat_gwodegree_local, "gwodegree_local", 0.0);
+EFFECT_REGISTER("gwdegree_local", ::xyz_stat_gwodegree_local, "gwdegree_local", 0.0);
+

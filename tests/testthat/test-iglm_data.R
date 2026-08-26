@@ -172,3 +172,79 @@ test_that("iglm.data validation throws error when attributes or networks contain
   )
 })
 
+test_that("spillover_degree_distribution works with custom x_i, x_j, y_i, y_j parameters", {
+  n_actor <- 6
+  z <- matrix(c(
+    0, 1, 1, 0, 0, 0,
+    1, 0, 1, 0, 0, 0,
+    1, 1, 0, 1, 0, 0,
+    0, 0, 1, 0, 1, 1,
+    0, 0, 0, 1, 0, 1,
+    0, 0, 0, 1, 1, 0
+  ), nrow = 6, byrow = TRUE)
+
+  x <- c(1, 1, 0, 0, 1, 0)
+  y <- c(0, 1, 1, 0, 0, 1)
+
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial")
+
+  # Default (backward compatibility)
+  res_def <- data_obj$spillover_degree_distribution(plot = FALSE)
+  expect_true(is.list(res_def))
+  expect_true("out_spillover_degree" %in% names(res_def))
+  expect_true("in_spillover_degree" %in% names(res_def))
+
+  # Custom x_i = 1, y_j = 0
+  res_x1_y0 <- data_obj$spillover_degree_distribution(x_i = 1, y_j = 0, plot = FALSE)
+  expect_true(is.list(res_x1_y0))
+  expect_equal(sum(res_x1_y0$out_spillover_degree), 1)
+
+  # Custom x_i = 0, x_j = 1
+  res_x0_x1 <- data_obj$spillover_degree_distribution(x_i = 0, x_j = 1, plot = FALSE)
+  expect_true(is.list(res_x0_x1))
+
+  # Custom y_i = 1, y_j = 1
+  res_yy <- data_obj$spillover_degree_distribution(y_i = 1, y_j = 1, plot = FALSE)
+  expect_true(is.list(res_yy))
+
+  # Custom predicate function
+  res_pred <- data_obj$spillover_degree_distribution(x_i = function(val) val == 1, y_j = function(val) val == 0, plot = FALSE)
+  expect_equal(res_pred, res_x1_y0)
+})
+
+test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters", {
+  n_actor <- 6
+  z <- matrix(c(
+    0, 1, 1, 0, 0, 0,
+    1, 0, 1, 0, 0, 0,
+    1, 1, 0, 1, 0, 0,
+    0, 0, 1, 0, 1, 1,
+    0, 0, 0, 1, 0, 1,
+    0, 0, 0, 1, 1, 0
+  ), nrow = 6, byrow = TRUE)
+
+  x <- c(1, 1, 0, 0, 1, 0)
+  y <- c(0, 1, 1, 0, 0, 1)
+
+  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+
+  # Directed default vs constrained
+  deg_dir_def <- data_dir$degree_distribution(plot = FALSE)
+  expect_true(is.list(deg_dir_def))
+  expect_true("in_degree" %in% names(deg_dir_def))
+  expect_true("out_degree" %in% names(deg_dir_def))
+
+  deg_dir_sub <- data_dir$degree_distribution(x_i = 1, y_j = 1, plot = FALSE)
+  expect_true(is.list(deg_dir_sub))
+
+  # Undirected default vs constrained
+  deg_undir_def <- data_undir$degree_distribution(plot = FALSE)
+  expect_true(inherits(deg_undir_def, "table"))
+
+  deg_undir_sub <- data_undir$degree_distribution(x_i = 1, y_j = 1, plot = FALSE)
+  expect_true(inherits(deg_undir_sub, "table"))
+})
+
+
+
