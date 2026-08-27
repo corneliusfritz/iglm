@@ -210,6 +210,16 @@ test_that("spillover_degree_distribution works with custom x_i, x_j, y_i, y_j pa
   # Custom predicate function
   res_pred <- data_obj$spillover_degree_distribution(x_i = function(val) val == 1, y_j = function(val) val == 0, plot = FALSE)
   expect_equal(res_pred, res_x1_y0)
+
+  # When constraints produce 0 matching senders
+  res_zero_senders <- data_obj$spillover_degree_distribution(x_i = 999, y_j = 0, prob = FALSE, plot = FALSE)
+  expect_equal(sum(res_zero_senders$out_spillover_degree), 0)
+  expect_equal(sum(res_zero_senders$in_spillover_degree), 3) # 3 matching receivers, all degree 0
+
+  # When constraints produce 0 matching senders and receivers
+  res_zero_both <- data_obj$spillover_degree_distribution(x_i = 999, y_j = 999, prob = FALSE, plot = FALSE)
+  expect_equal(sum(res_zero_both$out_spillover_degree), 0)
+  expect_equal(sum(res_zero_both$in_spillover_degree), 0)
 })
 
 test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters", {

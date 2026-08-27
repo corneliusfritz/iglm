@@ -671,7 +671,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         stop("'mode' must be either 'global' or 'local'.")
       }
       if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL", "symm")) {
-        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', 'ALL', or 'symm'.")
       }
       if (!private$.directed && type %in% c("OTP", "ITP", "ISP", "OSP")) {
         stop(sprintf("Type '%s' is only for directed networks. For undirected networks, use type = 'ALL'.", type))
@@ -743,7 +743,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         stop("'mode' must be either 'global' or 'local'.")
       }
       if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL", "symm")) {
-        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', 'ALL', or 'symm'.")
       }
       if (!private$.directed && type %in% c("OTP", "ITP", "ISP", "OSP")) {
         stop(sprintf("Type '%s' is only for directed networks. For undirected networks, use type = 'ALL'.", type))
@@ -893,7 +893,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         stop("'mode' must be either 'global' or 'local'.")
       }
       if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL", "symm")) {
-        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', 'ALL', or 'symm'.")
       }
       if (!private$.directed && type %in% c("OTP", "ITP", "ISP", "OSP")) {
         stop(sprintf("Type '%s' is only for directed networks. For undirected networks, use type = 'ALL'.", type))
@@ -971,7 +971,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         stop("'mode' must be either 'global' or 'local'.")
       }
       if (!type %in% c("OTP", "ITP", "ISP", "OSP", "ALL", "symm")) {
-        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+        stop("type must be one of 'OTP', 'ISP', 'OSP', 'ITP', 'ALL', or 'symm'.")
       }
       if (!private$.directed && type %in% c("OTP", "ITP", "ISP", "OSP")) {
         stop(sprintf("Type '%s' is only for directed networks. For undirected networks, use type = 'ALL'.", type))
@@ -1278,8 +1278,16 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         if (is.null(value_range)) {
           value_range <- c(0, 1)
         }
-        out_degree_x_y <- table(factor(0, levels = seq(from = value_range[1], to = value_range[2])))
-        in_degree_x_y <- table(factor(0, levels = seq(from = value_range[1], to = value_range[2])))
+        tmp1 <- if (length(actors_sender) > 0) rep(0, length(actors_sender)) else numeric(0)
+        tmp2 <- if (length(actors_receiver) > 0) rep(0, length(actors_receiver)) else numeric(0)
+        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2])))
+        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2])))
+        if (sum(out_degree_x_y) > 0) {
+          out_degree_x_y <- out_degree_x_y / (sum(out_degree_x_y) * prob + (!prob))
+        }
+        if (sum(in_degree_x_y) > 0) {
+          in_degree_x_y <- in_degree_x_y / (sum(in_degree_x_y) * prob + (!prob))
+        }
         res <- list(
           out_spillover_degree = out_degree_x_y,
           in_spillover_degree = in_degree_x_y
@@ -1289,12 +1297,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           barplot(out_degree_x_y,
             xlab = "Spillover Outdegree",
             ylab = ifelse(prob, "Proportion", "Count"),
-            las = 1, ylim = c(0, max(out_degree_x_y) * 1.2)
+            las = 1, ylim = c(0, max(c(as.numeric(out_degree_x_y), 1)) * 1.2)
           )
           barplot(in_degree_x_y,
             xlab = "Spillover Indegree",
             ylab = ifelse(prob, "Proportion", "Count"),
-            las = 1, ylim = c(0, max(in_degree_x_y) * 1.2)
+            las = 1, ylim = c(0, max(c(as.numeric(in_degree_x_y), 1)) * 1.2)
           )
         }
         return(invisible(res))
@@ -1344,10 +1352,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         if (is.null(value_range)) {
           value_range <- range(unique(c(tmp1, tmp2, 0)))
         }
-        denom_out <- if (prob) max(1, nrow(adj_mat_x_y)) else 1
-        denom_in <- if (prob) max(1, ncol(adj_mat_x_y)) else 1
-        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2]))) / denom_out
-        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2]))) / denom_in
+        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2])))
+        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2])))
+        if (sum(out_degree_x_y) > 0) {
+          out_degree_x_y <- out_degree_x_y / (sum(out_degree_x_y) * prob + (!prob))
+        }
+        if (sum(in_degree_x_y) > 0) {
+          in_degree_x_y <- in_degree_x_y / (sum(in_degree_x_y) * prob + (!prob))
+        }
         res <- list(
           out_spillover_degree = out_degree_x_y,
           in_spillover_degree = in_degree_x_y
@@ -1356,8 +1368,16 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         if (is.null(value_range)) {
           value_range <- c(0, 1)
         }
-        out_degree_x_y <- table(factor(0, levels = seq(from = value_range[1], to = value_range[2])))
-        in_degree_x_y <- table(factor(0, levels = seq(from = value_range[1], to = value_range[2])))
+        tmp1 <- if (nrow(adj_mat_x_y) > 0) rep(0, nrow(adj_mat_x_y)) else numeric(0)
+        tmp2 <- if (ncol(adj_mat_x_y) > 0) rep(0, ncol(adj_mat_x_y)) else numeric(0)
+        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2])))
+        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2])))
+        if (sum(out_degree_x_y) > 0) {
+          out_degree_x_y <- out_degree_x_y / (sum(out_degree_x_y) * prob + (!prob))
+        }
+        if (sum(in_degree_x_y) > 0) {
+          in_degree_x_y <- in_degree_x_y / (sum(in_degree_x_y) * prob + (!prob))
+        }
         res <- list(
           out_spillover_degree = out_degree_x_y,
           in_spillover_degree = in_degree_x_y
@@ -1369,12 +1389,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         barplot(out_degree_x_y,
           xlab = "Spillover Outdegree",
           ylab = ifelse(prob, "Proportion", "Count"),
-          las = 1, ylim = c(0, max(out_degree_x_y) * 1.2)
+          las = 1, ylim = c(0, max(c(as.numeric(out_degree_x_y), 1)) * 1.2)
         )
         barplot(in_degree_x_y,
           xlab = "Spillover Indegree",
           ylab = ifelse(prob, "Proportion", "Count"),
-          las = 1, ylim = c(0, max(in_degree_x_y) * 1.2)
+          las = 1, ylim = c(0, max(c(as.numeric(in_degree_x_y), 1)) * 1.2)
         )
       }
       invisible(res)

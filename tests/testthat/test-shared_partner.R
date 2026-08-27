@@ -218,10 +218,10 @@ test_that("dyadwise and edgewise shared partner functions validate inputs proper
   expect_error(data_obj$edgewise_shared_partner_distribution(mode = "foo"), "'mode' must be either 'global' or 'local'.")
 
   # Invalid type
-  expect_error(data_obj$dyadwise_shared_partner(type = "INVALID"), "type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
-  expect_error(data_obj$edgewise_shared_partner(type = "INVALID"), "type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
-  expect_error(data_obj$dyadwise_shared_partner_distribution(type = "INVALID"), "type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
-  expect_error(data_obj$edgewise_shared_partner_distribution(type = "INVALID"), "type must be one of 'OTP', 'ISP', 'OSP', 'ITP', or 'ALL'.")
+  expect_error(data_obj$dyadwise_shared_partner(type = "INVALID"), "type must be one of 'OTP', 'ISP', 'OSP', 'ITP', 'ALL', or 'symm'.")
+  expect_error(data_obj$edgewise_shared_partner(type = "INVALID"), "type must be one of 'OTP', 'ISP', 'OSP', 'ITP', 'ALL', or 'symm'.")
+  expect_error(data_obj$dyadwise_shared_partner_distribution(type = "INVALID"), "type must be one of 'OTP', 'ISP', 'OSP', 'ITP', 'ALL', or 'symm'.")
+  expect_error(data_obj$edgewise_shared_partner_distribution(type = "INVALID"), "type must be one of 'OTP', 'ISP', 'OSP', 'ITP', 'ALL', or 'symm'.")
 
   # Directed types on undirected network
   expect_error(data_obj$dyadwise_shared_partner(type = "OTP"), "Type 'OTP' is only for directed networks.")
