@@ -684,16 +684,67 @@ plot_multitrace <- function(mat, xlab = "Iteration", ylab = "Coefficients", las 
 }
 
 #' @noRd
-get_assessment_constraint_suffix <- function(name, base_name) {
+build_constrained_xlab <- function(base_label, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
+                                   type_x = "binomial", type_y = "binomial") {
+  format_token <- function(spec, var_name, idx, type) {
+    if (is.null(spec)) return(NULL)
+    if (type != "binomial" && identical(spec, 1)) {
+      paste0(var_name, "[", idx, "] > mean(", var_name, ")")
+    } else if (type != "binomial" && identical(spec, 0)) {
+      paste0(var_name, "[", idx, "] <= mean(", var_name, ")")
+    } else {
+      paste0(var_name, "[", idx, "] == ", deparse(spec))
+    }
+  }
+  parts <- c(
+    format_token(x_i, "x", "i", type_x),
+    format_token(x_j, "x", "j", type_x),
+    format_token(y_i, "y", "i", type_y),
+    format_token(y_j, "y", "j", type_y)
+  )
+  if (length(parts) == 0) return(base_label)
+  expr_str <- paste0('paste("', base_label, ' (", ', paste(parts, collapse = ', ", ", '), ', ")")')
+  parse(text = expr_str)[[1]]
+}
+
+#' @noRd
+get_assessment_constraint_xlab <- function(base_label, name, base_name,
+                                           type_x = "binomial", type_y = "binomial") {
   raw_suffix <- sub(paste0("^", base_name, "_?"), "", name)
-  if (!nzchar(raw_suffix)) return("")
-  matches <- gregexpr("(x_i|x_j|y_i|y_j|mode)_([^_]+)", raw_suffix)
-  reg_matches <- regmatches(raw_suffix, matches)[[1]]
-  if (length(reg_matches) > 0) {
-    formatted <- sub("^([a-z_]+)_(.+)$", "\\1 = \\2", reg_matches)
-    return(paste0(" (", paste(formatted, collapse = ", "), ")"))
+  if (!nzchar(raw_suffix)) return(base_label)
+  
+  tokens <- unlist(strsplit(raw_suffix, "[,]+"))
+  parts <- c()
+  for (token in tokens) {
+    if (grepl("^(x|y)_(i|j)_(.+)$", token)) {
+      var_base <- sub("^(x|y)_(i|j)_(.+)$", "\\1", token)
+      idx <- sub("^(x|y)_(i|j)_(.+)$", "\\2", token)
+      val <- sub("^(x|y)_(i|j)_(.+)$", "\\3", token)
+      type <- if (var_base == "x") type_x else type_y
+      
+      if (type != "binomial" && val == "1") {
+        parts <- c(parts, paste0(var_base, "[", idx, "] > mean(", var_base, ")"))
+      } else if (type != "binomial" && val == "0") {
+        parts <- c(parts, paste0(var_base, "[", idx, "] <= mean(", var_base, ")"))
+      } else {
+        parts <- c(parts, paste0(var_base, "[", idx, "] == ", val))
+      }
+    } else if (grepl("^mode_(.+)$", token)) {
+      val <- sub("^mode_(.+)$", "\\1", token)
+      if (val != "local") {
+        parts <- c(parts, paste0('"', val, '"'))
+      }
+    } else if (nzchar(token)) {
+      parts <- c(parts, paste0('"', gsub("_", " ", token), '"'))
+    }
+  }
+  if (length(parts) > 0) {
+    expr_str <- paste0('paste("', base_label, ' (", ', paste(parts, collapse = ', ", ", '), ', ")")')
+    return(parse(text = expr_str)[[1]])
   } else {
-    return(paste0(" (", gsub("_", " ", raw_suffix), ")"))
+    return(base_label)
   }
 }
+
+
 
