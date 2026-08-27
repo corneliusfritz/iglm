@@ -684,12 +684,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       }
       key <- if (mode == "local") paste0(type, "_local") else type
 
-      res_dsp <- self$dyadwise_shared_partner(type = type, mode = mode)
+      if (is.null(private$.descriptives$dyadwise_shared_partner[[type]])) {
+        self$dyadwise_shared_partner(type = type, mode = "global")
+      }
+      res_dsp <- private$.descriptives$dyadwise_shared_partner[[type]]
+
       if (nrow(private$.z_network) > 0) {
-        res <- res_dsp[private$.z_network]
         if (mode == "local") {
-          res <- res[!is.na(res)]
+          which_overlap <- check_overlap(private$.z_network, private$.overlap)
+          edges_overlap <- private$.z_network[which_overlap, , drop = FALSE]
+          res <- if (nrow(edges_overlap) > 0) as.numeric(res_dsp[edges_overlap]) else numeric(0)
+        } else {
+          res <- as.numeric(res_dsp[private$.z_network])
         }
+        res <- res[!is.na(res)]
       } else {
         res <- numeric(0)
       }
@@ -785,7 +793,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       # Only look at the local connections if asked to do so.
       if (mode == "local") {
         if (is.null(private$.overlap) || nrow(private$.overlap) == 0) {
-          res <- Matrix::Matrix(NA_real_, nrow = private$.n_actor, ncol = private$.n_actor, sparse = TRUE)
+          res <- Matrix::sparseMatrix(
+            i = integer(0), j = integer(0), x = numeric(0),
+            dims = c(private$.n_actor, private$.n_actor)
+          )
         } else {
           overlap_idx <- private$.overlap
           if (!private$.directed) {
@@ -793,10 +804,19 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           } else {
             overlap_idx <- overlap_idx[overlap_idx[, 1] != overlap_idx[, 2], , drop = FALSE]
           }
-          overlap_vals <- if (nrow(overlap_idx) > 0) as.numeric(res[overlap_idx]) else numeric(0)
-          res <- Matrix::Matrix(NA_real_, nrow = private$.n_actor, ncol = private$.n_actor, sparse = TRUE)
           if (nrow(overlap_idx) > 0) {
-            res[overlap_idx] <- overlap_vals
+            overlap_sp <- Matrix::sparseMatrix(
+              i = overlap_idx[, 1],
+              j = overlap_idx[, 2],
+              x = 1,
+              dims = c(private$.n_actor, private$.n_actor)
+            )
+            res <- res * overlap_sp
+          } else {
+            res <- Matrix::sparseMatrix(
+              i = integer(0), j = integer(0), x = numeric(0),
+              dims = c(private$.n_actor, private$.n_actor)
+            )
           }
         }
       }
@@ -1001,13 +1021,31 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 
       key <- if (mode == "local") paste0(type, "_local") else type
 
-      if (is.null(private$.descriptives$dyadwise_shared_partner[[key]])) {
-        self$dyadwise_shared_partner(type = type, mode = mode)
+      if (mode == "local") {
+        if (is.null(private$.overlap) || nrow(private$.overlap) == 0) {
+          vals <- numeric(0)
+        } else {
+          if (is.null(private$.descriptives$dyadwise_shared_partner[[type]])) {
+            self$dyadwise_shared_partner(type = type, mode = "global")
+          }
+          info_global <- private$.descriptives$dyadwise_shared_partner[[type]]
+          overlap_idx <- private$.overlap
+          if (!private$.directed) {
+            overlap_idx <- overlap_idx[overlap_idx[, 1] < overlap_idx[, 2], , drop = FALSE]
+          } else {
+            overlap_idx <- overlap_idx[overlap_idx[, 1] != overlap_idx[, 2], , drop = FALSE]
+          }
+          vals <- if (nrow(overlap_idx) > 0) as.numeric(info_global[overlap_idx]) else numeric(0)
+          vals <- vals[!is.na(vals)]
+        }
+      } else {
+        if (is.null(private$.descriptives$dyadwise_shared_partner[[key]])) {
+          self$dyadwise_shared_partner(type = type, mode = mode)
+        }
+        info <- private$.descriptives$dyadwise_shared_partner[[key]]
+        vals <- as.numeric(info)
+        vals <- vals[!is.na(vals)]
       }
-      info <- private$.descriptives$dyadwise_shared_partner[[key]]
-
-      vals <- as.numeric(info)
-      vals <- vals[!is.na(vals)]
 
       if (is.null(value_range)) {
         if (length(vals) > 0) {

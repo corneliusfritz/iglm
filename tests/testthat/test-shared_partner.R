@@ -47,9 +47,9 @@ test_that("dyadwise_shared_partner and edgewise_shared_partner work with mode in
   expect_equal(dsp_local[1, 2], 1)
   expect_equal(dsp_local[1, 3], 1)
   expect_equal(dsp_local[2, 3], 1)
-  expect_true(is.na(dsp_local[1, 4]))
-  expect_true(is.na(dsp_local[2, 4]))
-  expect_true(is.na(dsp_local[3, 4]))
+  expect_equal(dsp_local[1, 4], 0)
+  expect_equal(dsp_local[2, 4], 0)
+  expect_equal(dsp_local[3, 4], 0)
 
   # Dyadwise distributions
   dist_global <- data_obj$dyadwise_shared_partner_distribution(mode = "global", value_range = c(0, 1), prob = FALSE, plot = FALSE)
@@ -119,8 +119,8 @@ test_that("dyadwise_shared_partner and edgewise_shared_partner work with mode in
   expect_equal(otp_local[3, 1], 0)
   expect_equal(otp_local[2, 3], 0)
   expect_equal(otp_local[3, 2], 0)
-  expect_true(is.na(otp_local[1, 4]))
-  expect_true(is.na(otp_local[4, 1]))
+  expect_equal(otp_local[1, 4], 0)
+  expect_equal(otp_local[4, 1], 0)
 
   otp_dist_local <- data_obj$dyadwise_shared_partner_distribution(type = "OTP", mode = "local", prob = FALSE, plot = FALSE)
   expect_equal(as.numeric(otp_dist_local["0"]), 4)
@@ -143,8 +143,8 @@ test_that("dyadwise_shared_partner and edgewise_shared_partner work with mode in
   expect_equal(isp_local[3, 1], 0)
   expect_equal(isp_local[2, 3], 0)
   expect_equal(isp_local[3, 2], 0)
-  expect_true(is.na(isp_local[1, 4]))
-  expect_true(is.na(isp_local[2, 4]))
+  expect_equal(isp_local[1, 4], 0)
+  expect_equal(isp_local[2, 4], 0)
 
   isp_dist_local <- data_obj$dyadwise_shared_partner_distribution(type = "ISP", mode = "local", prob = FALSE, plot = FALSE)
   expect_equal(as.numeric(isp_dist_local["0"]), 5)
@@ -164,7 +164,7 @@ test_that("dyadwise_shared_partner and edgewise_shared_partner work with mode in
   expect_equal(itp_local[2, 1], 0)
   expect_equal(itp_local[1, 3], 0)
   expect_equal(itp_local[3, 1], 0)
-  expect_true(is.na(itp_local[1, 4]))
+  expect_equal(itp_local[1, 4], 0)
 
   itp_dist_local <- data_obj$dyadwise_shared_partner_distribution(type = "ITP", mode = "local", prob = FALSE, plot = FALSE)
   expect_equal(as.numeric(itp_dist_local["0"]), 4)
@@ -182,7 +182,7 @@ test_that("dyadwise_shared_partner and edgewise_shared_partner work with mode in
   osp_local <- as.matrix(data_obj$dyadwise_shared_partner(type = "OSP", mode = "local"))
   expect_equal(osp_local[3, 1], 1)
   expect_equal(osp_local[1, 3], 0)
-  expect_true(is.na(osp_local[4, 1]))
+  expect_equal(osp_local[4, 1], 0)
 
   osp_dist_local <- data_obj$dyadwise_shared_partner_distribution(type = "OSP", mode = "local", prob = FALSE, plot = FALSE)
   expect_equal(as.numeric(osp_dist_local["0"]), 5)
