@@ -393,7 +393,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       if (data_object$directed) {
         rownames(res$coefficients_degrees) <- c(paste(c("out-degrees"), 1:n_actor), paste(c("in-degrees"), 1:n_actor))
         rownames(res$coefficients_nondegrees) <- preprocessed$coef_names
-        if (control$var) {
+        if (control$var && length(preprocessed$term_names) > 0) {
           colnames(res$var) <- preprocessed$coef_names
           rownames(res$var) <- preprocessed$coef_names
         }
@@ -402,7 +402,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       } else {
         rownames(res$coefficients_degrees) <- paste(c("degrees"), 1:n_actor)
         rownames(res$coefficients_nondegrees) <- preprocessed$coef_names
-        if (control$var) {
+        if (control$var && length(preprocessed$term_names) > 0) {
           colnames(res$var) <- preprocessed$coef_names
           rownames(res$var) <- preprocessed$coef_names
         }

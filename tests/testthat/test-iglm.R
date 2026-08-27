@@ -173,9 +173,21 @@ test_that("iglm throws error when covariate object does not exist", {
   # Pure degree model check
   m_degrees_only <- iglm(
     formula = data_obj ~ degrees,
-    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2, init_empty = FALSE),
+    control = control.iglm(max_it = 2, display_progress = FALSE, var_method = "Godambe")
   )
   expect_equal(inherits(m_degrees_only, "iglm.object"), TRUE)
+  expect_no_error(m_degrees_only$estimate())
+  expect_equal(dim(m_degrees_only$results$var), c(0, 0))
+
+  # Pure degree model with Mean-value variance method
+  m_degrees_updated <- iglm(
+    formula = data_obj ~ degrees,
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2, init_empty = FALSE),
+    control = control.iglm(max_it = 2, display_progress = FALSE, var_method = "Mean-value")
+  )
+  expect_no_error(m_degrees_updated$estimate())
+  expect_equal(dim(m_degrees_updated$results$var), c(0, 0))
 })
 
 

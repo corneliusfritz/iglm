@@ -3688,18 +3688,17 @@ List xyz_approximate_variability(arma::vec& coef,
     
   }
   if(degrees){
-    arma::uvec ind_nondegrees, ind_degrees;
-    if(directed) {
-      ind_nondegrees = arma::regspace<arma::uvec>(0, terms.size() -1); 
-      ind_degrees = arma::regspace<arma::uvec>(terms.size(), terms.size() +n_actor*2-1); 
-    } else {
-      ind_nondegrees = arma::regspace<arma::uvec>(0, terms.size() -1); 
-      ind_degrees = arma::regspace<arma::uvec>(terms.size(), terms.size() +n_actor-1); 
-    }
+    int n_deg_terms = directed ? (n_actor * 2) : n_actor;
+    arma::uvec ind_degrees = arma::regspace<arma::uvec>(terms.size(), terms.size() + n_deg_terms - 1);
     
-    arma::mat gradients_degrees,gradients_nondegrees;
-    gradients_degrees = gradients.cols(ind_degrees);
-    gradients_nondegrees = gradients.cols(ind_nondegrees);
+    arma::mat gradients_degrees = gradients.cols(ind_degrees);
+    arma::mat gradients_nondegrees;
+    if (terms.size() > 0) {
+      arma::uvec ind_nondegrees = arma::regspace<arma::uvec>(0, terms.size() - 1);
+      gradients_nondegrees = gradients.cols(ind_nondegrees);
+    } else {
+      gradients_nondegrees = arma::mat(gradients.n_rows, 0);
+    }
     if(return_samples){
       return(List::create(_["simulation_x_attributes"] =res_x,
                           _["simulation_y_attributes"] =res_y,

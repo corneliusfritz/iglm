@@ -280,9 +280,9 @@ XYZ_to_R <- function(x_attribute, y_attribute, z_network, n_actor, return_adj_ma
         return(cbind(x, tmp))
       }
     }))
-    z_network_tmp <- z_network_tmp[!is.na(z_network_tmp[, 1]), ]
-    if (length(z_network_tmp) == 0) {
-      z_network_tmp <- matrix(numeric(0), ncol = 2)
+    z_network_tmp <- z_network_tmp[!is.na(z_network_tmp[, 1]), , drop = FALSE]
+    if (length(z_network_tmp) == 0 || !is.matrix(z_network_tmp)) {
+      z_network_tmp <- matrix(numeric(0), nrow = 0, ncol = 2)
     }
     colnames(z_network_tmp) <- c("from", "to")
   }
