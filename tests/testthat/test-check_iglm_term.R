@@ -63,11 +63,16 @@ test_that("check.IglmTerm generates informative error messages with term name", 
     pattern = "Argument 'z_matrix' of term 'cov_z' contains missing \\(NA/NaN\\) values."
   )
 
-  # Test expected NA/NaN error for sparse Matrix
-  sp_mat_na <- Matrix::sparseMatrix(i = c(1, 2), j = c(1, 2), x = c(1, NA), dims = c(3, 3))
-  arglist_na_sparse <- list(base_name = "cov_z", z_matrix = sp_mat_na)
+  # Test expected type error (scalar_numeric)
+  arglist_vector_numeric <- list(base_name = "gwdegree", decay = c(0.1, 0.2))
   expect_error(
-    check.IglmTerm(data_obj_directed, arglist_na_sparse, expected = list(z_matrix = "matrix")),
-    pattern = "Argument 'z_matrix' of term 'cov_z' contains missing \\(NA/NaN\\) values."
+    check.IglmTerm(data_obj_directed, arglist_vector_numeric, expected = list(decay = "scalar_numeric")),
+    pattern = "Argument 'decay' of term 'gwdegree' must be a single numeric value."
+  )
+
+  arglist_vector_xi <- list(base_name = "gwdegree", x_i = c(1, 2))
+  expect_error(
+    check.IglmTerm(data_obj_directed, arglist_vector_xi, expected = list(x_i = "scalar_numeric")),
+    pattern = "Argument 'x_i' of term 'gwdegree' must be a single numeric value."
   )
 })

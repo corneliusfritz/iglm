@@ -175,7 +175,7 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
     val <- arglist[[name]]
     if (is.null(val)) next
     spec <- expected[[name]]
-    if (is.character(spec) && length(spec) >= 1 && !(length(spec) == 1 && spec %in% c("numeric", "matrix"))) {
+    if (is.character(spec) && length(spec) >= 1 && !(length(spec) == 1 && spec %in% c("numeric", "scalar_numeric", "numeric_scalar", "matrix"))) {
       if (!val %in% spec) {
         if (!is.null(term_name)) {
           stop(sprintf("Argument '%s' of term '%s' must be one of: %s", name, term_name, paste(spec, collapse = ", ")))
@@ -183,12 +183,19 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
           stop(sprintf("Argument '%s' must be one of: %s", name, paste(spec, collapse = ", ")))
         }
       }
-    } else if (!is.null(spec) && spec == "numeric") {
+    } else if (!is.null(spec) && spec %in% c("numeric", "scalar_numeric", "numeric_scalar")) {
       if (!is.numeric(val)) {
         if (!is.null(term_name)) {
           stop(sprintf("Argument '%s' of term '%s' must be numeric.", name, term_name))
         } else {
           stop(sprintf("Argument '%s' must be numeric.", name))
+        }
+      }
+      if (spec %in% c("scalar_numeric", "numeric_scalar") && length(val) != 1) {
+        if (!is.null(term_name)) {
+          stop(sprintf("Argument '%s' of term '%s' must be a single numeric value.", name, term_name))
+        } else {
+          stop(sprintf("Argument '%s' must be a single numeric value.", name))
         }
       }
     } else if (!is.null(spec) && spec == "matrix") {
@@ -200,7 +207,7 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
         }
       }
     }
-    
+
     # Check for missing (NA/NaN) values in numeric/matrix arguments
     if (is.numeric(val) || is.matrix(val) || inherits(val, "Matrix")) {
       if (any(is.na(val))) {
@@ -677,7 +684,7 @@ InitIglmTerm.gwesp <- function(data_object, arglist, ...) {
     expected = list(
       mode = c("global", "local"),
       variant = c("ITP", "ISP", "OTP", "OSP", "symm"),
-      decay = "numeric"
+      decay = "scalar_numeric"
     ),
     defaults = list(
       mode = "global",
@@ -707,7 +714,7 @@ InitIglmTerm.gwdsp <- function(data_object, arglist, ...) {
     expected = list(
       mode = c("global", "local"),
       variant = c("ITP", "ISP", "OTP", "OSP", "symm"),
-      decay = "numeric"
+      decay = "scalar_numeric"
     ),
     defaults = list(
       mode = "global",
@@ -726,7 +733,10 @@ InitIglmTerm.gwdsp <- function(data_object, arglist, ...) {
   )
 }
 
-#' @description \code{gwdegree(mode = "global", decay = 0)}: Geometrically Weighted Degree: Captures the degree distribution utilizing an exponential decay parameter.
+#' @description \code{gwdegree(mode = "global", decay = 0, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}: Geometrically Weighted Degree: Captures the degree distribution utilizing an exponential decay parameter.
+#'   Optional scalar constraint arguments (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) restrict degree calculations to nodal attribute sub-populations.
+#'   For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with (or without) that binary value.
+#'   For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
 #' @name gwdegree-term
 #' @rdname iglm-terms
 NULL
@@ -735,11 +745,11 @@ InitIglmTerm.gwdegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
       mode = c("global", "local"),
-      decay = "numeric",
-      x_i = "numeric",
-      x_j = "numeric",
-      y_i = "numeric",
-      y_j = "numeric"
+      decay = "scalar_numeric",
+      x_i = "scalar_numeric",
+      x_j = "scalar_numeric",
+      y_i = "scalar_numeric",
+      y_j = "scalar_numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
@@ -768,7 +778,10 @@ InitIglmTerm.gwdegree <- function(data_object, arglist, ...) {
   )
 }
 
-#' @description \code{gwidegree(mode = "global", decay = 0)}: Geometrically Weighted In-Degree: Captures the in-degree distribution utilizing an exponential decay parameter.
+#' @description \code{gwidegree(mode = "global", decay = 0, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}: Geometrically Weighted In-Degree: Captures the in-degree distribution utilizing an exponential decay parameter.
+#'   Optional scalar constraint arguments (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) restrict in-degree calculations to nodal attribute sub-populations.
+#'   For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with that binary value.
+#'   For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
 #' @name gwidegree-term
 #' @rdname iglm-terms
 NULL
@@ -778,11 +791,11 @@ InitIglmTerm.gwidegree <- function(data_object, arglist, ...) {
     directed = TRUE,
     expected = list(
       mode = c("global", "local"),
-      decay = "numeric",
-      x_i = "numeric",
-      x_j = "numeric",
-      y_i = "numeric",
-      y_j = "numeric"
+      decay = "scalar_numeric",
+      x_i = "scalar_numeric",
+      x_j = "scalar_numeric",
+      y_i = "scalar_numeric",
+      y_j = "scalar_numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
@@ -811,7 +824,10 @@ InitIglmTerm.gwidegree <- function(data_object, arglist, ...) {
   )
 }
 
-#' @description \code{gwodegree(mode = "global", decay = 0)}: Geometrically Weighted Out-Degree: Captures the out-degree distribution utilizing an exponential decay parameter.
+#' @description \code{gwodegree(mode = "global", decay = 0, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}: Geometrically Weighted Out-Degree: Captures the out-degree distribution utilizing an exponential decay parameter.
+#'   Optional scalar constraint arguments (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) restrict out-degree calculations to nodal attribute sub-populations.
+#'   For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with that binary value.
+#'   For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
 #' @name gwodegree-term
 #' @rdname iglm-terms
 NULL
@@ -820,11 +836,11 @@ InitIglmTerm.gwodegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
       mode = c("global", "local"),
-      decay = "numeric",
-      x_i = "numeric",
-      x_j = "numeric",
-      y_i = "numeric",
-      y_j = "numeric"
+      decay = "scalar_numeric",
+      x_i = "scalar_numeric",
+      x_j = "scalar_numeric",
+      y_i = "scalar_numeric",
+      y_j = "scalar_numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
