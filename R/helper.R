@@ -682,3 +682,18 @@ plot_multitrace <- function(mat, xlab = "Iteration", ylab = "Coefficients", las 
     lines(y = mat[, tmp], x = seq_len(nrow(mat)), col = tmp)
   }
 }
+
+#' @noRd
+get_assessment_constraint_suffix <- function(name, base_name) {
+  raw_suffix <- sub(paste0("^", base_name, "_?"), "", name)
+  if (!nzchar(raw_suffix)) return("")
+  matches <- gregexpr("(x_i|x_j|y_i|y_j|mode)_([^_]+)", raw_suffix)
+  reg_matches <- regmatches(raw_suffix, matches)[[1]]
+  if (length(reg_matches) > 0) {
+    formatted <- sub("^([a-z_]+)_(.+)$", "\\1 = \\2", reg_matches)
+    return(paste0(" (", paste(formatted, collapse = ", "), ")"))
+  } else {
+    return(paste0(" (", gsub("_", " ", raw_suffix), ")"))
+  }
+}
+

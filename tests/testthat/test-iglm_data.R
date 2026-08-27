@@ -256,5 +256,27 @@ test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters",
   expect_true(inherits(deg_undir_sub, "table"))
 })
 
+test_that("spillover_degree_distribution does not overwrite cached descriptives when constraints are passed", {
+  n_actor <- 6
+  z <- matrix(c(
+    0, 1, 1, 0, 0, 0,
+    1, 0, 1, 0, 0, 0,
+    1, 1, 0, 1, 0, 0,
+    0, 0, 1, 0, 1, 1,
+    0, 0, 0, 1, 0, 1,
+    0, 0, 0, 1, 1, 0
+  ), nrow = 6, byrow = TRUE)
 
+  x <- c(1, 1, 0, 0, 1, 0)
+  y <- c(0, 1, 1, 0, 0, 1)
 
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+
+  # 1. Unconstrained call populates descriptives
+  res_def <- data_obj$spillover_degree_distribution(plot = FALSE)
+  expect_equal(data_obj$descriptives$spillover_degree_distribution, res_def)
+
+  # 2. Constrained call does not overwrite cached descriptives
+  res_constrained <- data_obj$spillover_degree_distribution(x_i = 1, y_j = 0, plot = FALSE)
+  expect_equal(data_obj$descriptives$spillover_degree_distribution, res_def)
+})

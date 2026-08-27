@@ -782,13 +782,23 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         }
         diag(res) <- NA
       }
-      # Only look at the local connections if asked to do so. 
+      # Only look at the local connections if asked to do so.
       if (mode == "local") {
-        overlap_mat <- matrix(FALSE, nrow = private$.n_actor, ncol = private$.n_actor)
-        if (!is.null(private$.overlap) && nrow(private$.overlap) > 0) {
-          overlap_mat[private$.overlap] <- TRUE
+        if (is.null(private$.overlap) || nrow(private$.overlap) == 0) {
+          res <- Matrix::Matrix(NA_real_, nrow = private$.n_actor, ncol = private$.n_actor, sparse = TRUE)
+        } else {
+          overlap_idx <- private$.overlap
+          if (!private$.directed) {
+            overlap_idx <- overlap_idx[overlap_idx[, 1] < overlap_idx[, 2], , drop = FALSE]
+          } else {
+            overlap_idx <- overlap_idx[overlap_idx[, 1] != overlap_idx[, 2], , drop = FALSE]
+          }
+          overlap_vals <- if (nrow(overlap_idx) > 0) as.numeric(res[overlap_idx]) else numeric(0)
+          res <- Matrix::Matrix(NA_real_, nrow = private$.n_actor, ncol = private$.n_actor, sparse = TRUE)
+          if (nrow(overlap_idx) > 0) {
+            res[overlap_idx] <- overlap_vals
+          }
         }
-        res[!overlap_mat] <- NA
       }
 
       private$.descriptives$dyadwise_shared_partner[[key]] <- res
@@ -1094,20 +1104,38 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         }
       }
       if (plot) {
+        format_spec <- function(spec, name, type) {
+          if (is.null(spec)) return(NULL)
+          if (type != "binomial" && identical(spec, 1)) {
+            paste0(name, " > mean(", substr(name, 1, 1), ")")
+          } else if (type != "binomial" && identical(spec, 0)) {
+            paste0(name, " <= mean(", substr(name, 1, 1), ")")
+          } else {
+            paste0(name, " = ", deparse(spec))
+          }
+        }
+        constraints <- c(
+          format_spec(x_i, "x_i", private$.type_x),
+          format_spec(x_j, "x_j", private$.type_x),
+          format_spec(y_i, "y_i", private$.type_y),
+          format_spec(y_j, "y_j", private$.type_y)
+        )
+        suffix <- if (length(constraints) > 0) paste0(" (", paste(constraints, collapse = ", "), ")") else ""
+
         if (private$.directed) {
           barplot(info$in_degree,
-            xlab = "In-Degree",
+            xlab = paste0("In-Degree", suffix),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(info$in_degree) * 1.2)
           )
           barplot(info$out_degree,
-            xlab = "Out-Degree",
+            xlab = paste0("Out-Degree", suffix),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(info$out_degree) * 1.2)
           )
         } else {
           barplot(info,
-            xlab = "Degree",
+            xlab = paste0("Degree", suffix),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(info) * 1.2)
           )
@@ -1231,7 +1259,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'   `out_spillover_degree` (spillover out-degree from senders to receivers) and
     #'   `in_spillover_degree` (spillover in-degree at receivers from senders).
     spillover_degree_distribution = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
-                                            prob = TRUE, value_range = NULL, plot = TRUE) {
+                                             prob = TRUE, value_range = NULL, plot = TRUE) {
+      has_constraints <- !is.null(x_i) || !is.null(x_j) || !is.null(y_i) || !is.null(y_j)
       binarize_filter <- function(attr_vec, spec, type = "binomial") {
         if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
         if (is.function(spec)) return(as.logical(spec(attr_vec)))
@@ -1292,15 +1321,35 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           out_spillover_degree = out_degree_x_y,
           in_spillover_degree = in_degree_x_y
         )
-        private$.descriptives$spillover_degree_distribution <- res
+        if (!has_constraints) {
+          private$.descriptives$spillover_degree_distribution <- res
+        }
         if (plot) {
+          format_spec <- function(spec, name, type) {
+            if (is.null(spec)) return(NULL)
+            if (type != "binomial" && identical(spec, 1)) {
+              paste0(name, " > mean(", substr(name, 1, 1), ")")
+            } else if (type != "binomial" && identical(spec, 0)) {
+              paste0(name, " <= mean(", substr(name, 1, 1), ")")
+            } else {
+              paste0(name, " = ", deparse(spec))
+            }
+          }
+          constraints <- c(
+            format_spec(x_i, "x_i", private$.type_x),
+            format_spec(x_j, "x_j", private$.type_x),
+            format_spec(y_i, "y_i", private$.type_y),
+            format_spec(y_j, "y_j", private$.type_y)
+          )
+          suffix <- if (length(constraints) > 0) paste0(" (", paste(constraints, collapse = ", "), ")") else ""
+
           barplot(out_degree_x_y,
-            xlab = "Spillover Outdegree",
+            xlab = paste0("Spillover Outdegree", suffix),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(c(as.numeric(out_degree_x_y), 1)) * 1.2)
           )
           barplot(in_degree_x_y,
-            xlab = "Spillover Indegree",
+            xlab = paste0("Spillover Indegree", suffix),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(c(as.numeric(in_degree_x_y), 1)) * 1.2)
           )
@@ -1384,15 +1433,35 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         )
       }
 
-      private$.descriptives$spillover_degree_distribution <- res
+      if (!has_constraints) {
+        private$.descriptives$spillover_degree_distribution <- res
+      }
       if (plot) {
+        format_spec <- function(spec, name, type) {
+          if (is.null(spec)) return(NULL)
+          if (type != "binomial" && identical(spec, 1)) {
+            paste0(name, " > mean(", substr(name, 1, 1), ")")
+          } else if (type != "binomial" && identical(spec, 0)) {
+            paste0(name, " <= mean(", substr(name, 1, 1), ")")
+          } else {
+            paste0(name, " = ", deparse(spec))
+          }
+        }
+        constraints <- c(
+          format_spec(x_i, "x_i", private$.type_x),
+          format_spec(x_j, "x_j", private$.type_x),
+          format_spec(y_i, "y_i", private$.type_y),
+          format_spec(y_j, "y_j", private$.type_y)
+        )
+        suffix <- if (length(constraints) > 0) paste0(" (", paste(constraints, collapse = ", "), ")") else ""
+
         barplot(out_degree_x_y,
-          xlab = "Spillover Outdegree",
+          xlab = paste0("Spillover Outdegree", suffix),
           ylab = ifelse(prob, "Proportion", "Count"),
           las = 1, ylim = c(0, max(c(as.numeric(out_degree_x_y), 1)) * 1.2)
         )
         barplot(in_degree_x_y,
-          xlab = "Spillover Indegree",
+          xlab = paste0("Spillover Indegree", suffix),
           ylab = ifelse(prob, "Proportion", "Count"),
           las = 1, ylim = c(0, max(c(as.numeric(in_degree_x_y), 1)) * 1.2)
         )

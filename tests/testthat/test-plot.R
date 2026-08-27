@@ -160,7 +160,13 @@ test_that("results$plot works for directed model with in/out degrees and continu
   pdf(NULL)
   expect_silent(model_fit$results$plot(model_assessment = TRUE, res2))
   dev.off()
+  # Constrained degree distributions in assess formula
+  model_fit$assess(
+    formula = ~ degree_distribution(x_i = 1, x_j = 1) +
+      degree_distribution(y_i = 1, y_j = 1),
+    plot = FALSE
+  )
+  pdf(NULL)
+  expect_silent(model_fit$results$plot(model_assessment = TRUE))
+  dev.off()
 })
-
-
-

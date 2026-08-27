@@ -373,10 +373,11 @@ results.generator <- R6::R6Class("results",
           k <- k + 1
           if (i == "degree_distribution") {
             # Degree -----
+            suffix_deg <- get_assessment_constraint_suffix(tmp_names[k], "degree_distribution")
             if (is.list(private$.model_assessment$observed[[tmp_names[k]]])) {
               # Directed in_degree & out_degree
               for (degree_type in c("in_degree", "out_degree")) {
-                xlab_deg <- if (degree_type == "in_degree") "Indegree" else "Outdegree"
+                xlab_deg <- paste0(if (degree_type == "in_degree") "Indegree" else "Outdegree", suffix_deg)
                 obs_deg <- private$.model_assessment$observed[[tmp_names[k]]][[degree_type]]
                 sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k], degree_type)
 
@@ -394,6 +395,7 @@ results.generator <- R6::R6Class("results",
               }
             } else {
               # Undirected
+              xlab_deg <- paste0("Degree", suffix_deg)
               obs_deg <- private$.model_assessment$observed[[tmp_names[k]]]
               sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -403,10 +405,10 @@ results.generator <- R6::R6Class("results",
                 })
                 plot_assessment_multi(
                   observed = obs_deg, sim_main = sim_deg, sim_dots = sim_dots,
-                  model_names = names_tmp, colors = colors_tmp, xlab = "Degree", lwd_mean = 1
+                  model_names = names_tmp, colors = colors_tmp, xlab = xlab_deg, lwd_mean = 1
                 )
               } else {
-                plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = "Degree")
+                plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
               }
             }
           } else if (i %in% c("dyadwise_shared_partner_distribution", "edgewise_shared_partner_distribution")) {
@@ -429,8 +431,9 @@ results.generator <- R6::R6Class("results",
               plot_assessment_single(observed = obs_sp, sim_matrix = sim_sp, xlab = xlab_sp)
             }
           } else if (i == "spillover_degree_distribution") {
+            suffix_spill <- get_assessment_constraint_suffix(tmp_names[k], "spillover_degree_distribution")
             for (spill_type in c("in_spillover_degree", "out_spillover_degree")) {
-              xlab_spill <- if (spill_type == "in_spillover_degree") "Spillover Indegree" else "Spillover Outdegree"
+              xlab_spill <- paste0(if (spill_type == "in_spillover_degree") "Spillover Indegree" else "Spillover Outdegree", suffix_spill)
               obs_spill <- private$.model_assessment$observed[[tmp_names[k]]][[spill_type]]
               sim_spill <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k], spill_type)
 
