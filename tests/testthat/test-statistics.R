@@ -428,7 +428,7 @@ test_that("Test the spillover effects", {
   expect_equal(count_values_iglm[4], model_tmp_new$results$stats[1, 2])
 })
 
-test_that("Test gwdegree, gwodegree, gwidegree with subnetwork constraints (x_i, x_j, y_i, y_j) vs hand calculation", {
+test_that("Test gwdegree, gwodegree, gwidegree vs hand calculation", {
   n_actor <- 8
   z <- matrix(c(
     0, 1, 1, 0, 0, 0, 0, 0,
@@ -455,44 +455,21 @@ test_that("Test gwdegree, gwodegree, gwidegree with subnetwork constraints (x_i,
     if (d == 0) 0 else sum(expo_min^(0:(d - 1)))
   }))
 
-  # 2. Constrained out-degree (x_i = 1, y_j = 1):
-  senders <- which(x == 1)
-  receivers <- which(y == 1)
-  z_sub <- matrix(0, nrow = 8, ncol = 8)
-  z_sub[senders, receivers] <- z[senders, receivers]
-  out_degs_sub <- rowSums(z_sub)[senders]
-  hand_gwodegree_sub <- sum(sapply(out_degs_sub, function(d) {
-    if (d == 0) 0 else sum(expo_min^(0:(d - 1)))
-  }))
-
-  # 3. Constrained in-degree (x_i = 1, y_j = 1):
-  in_degs_sub <- colSums(z_sub)[receivers]
-  hand_gwidegree_sub <- sum(sapply(in_degs_sub, function(d) {
-    if (d == 0) 0 else sum(expo_min^(0:(d - 1)))
-  }))
-
-  # 4. Constrained out-degree (x_i = 1, y_j = 0):
-  receivers_y0 <- which(y == 0)
-  z_sub_y0 <- matrix(0, nrow = 8, ncol = 8)
-  z_sub_y0[senders, receivers_y0] <- z[senders, receivers_y0]
-  out_degs_sub_y0 <- rowSums(z_sub_y0)[senders]
-  hand_gwodegree_sub_y0 <- sum(sapply(out_degs_sub_y0, function(d) {
+  # 2. Global in-degree:
+  in_degs <- colSums(z)
+  hand_gwidegree_global <- sum(sapply(in_degs, function(d) {
     if (d == 0) 0 else sum(expo_min^(0:(d - 1)))
   }))
 
   s_dir <- statistics(data_dir ~ gwodegree(mode = "global", decay = decay) +
-                                gwodegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                                gwidegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                                gwodegree(mode = "global", decay = decay, x_i = 1, y_j = 0) +
-                                gwodegree(mode = "local", decay = decay, x_i = 1, y_j = 1) +
-                                gwidegree(mode = "local", decay = decay, x_i = 1, y_j = 1))
+                                gwidegree(mode = "global", decay = decay) +
+                                gwodegree(mode = "local", decay = decay) +
+                                gwidegree(mode = "local", decay = decay))
 
   expect_equal(unname(s_dir[1]), hand_gwodegree_global)
-  expect_equal(unname(s_dir[2]), hand_gwodegree_sub)
-  expect_equal(unname(s_dir[3]), hand_gwidegree_sub)
-  expect_equal(unname(s_dir[4]), hand_gwodegree_sub_y0)
-  expect_equal(unname(s_dir[5]), hand_gwodegree_sub) # full neighborhood so local == global
-  expect_equal(unname(s_dir[6]), hand_gwidegree_sub)
+  expect_equal(unname(s_dir[2]), hand_gwidegree_global)
+  expect_equal(unname(s_dir[3]), hand_gwodegree_global) # full neighborhood so local == global
+  expect_equal(unname(s_dir[4]), hand_gwidegree_global)
 
   # Hand calculations for undirected statistics
   z_undir <- ((z + t(z)) > 0) * 1
@@ -502,20 +479,13 @@ test_that("Test gwdegree, gwodegree, gwidegree with subnetwork constraints (x_i,
     if (d == 0) 0 else sum(expo_min^(0:(d - 1)))
   }))
 
-  degs_undir_sub <- rowSums(matrix(z_undir[senders, receivers, drop = FALSE], nrow = length(senders)))
-  hand_gwdegree_sub <- sum(sapply(degs_undir_sub, function(d) {
-    if (d == 0) 0 else sum(expo_min^(0:(d - 1)))
-  }))
-
   data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
 
   s_undir <- statistics(data_undir ~ gwdegree(mode = "global", decay = decay) +
-                                     gwdegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                                     gwdegree(mode = "local", decay = decay, x_i = 1, y_j = 1))
+                                     gwdegree(mode = "local", decay = decay))
 
   expect_equal(unname(s_undir[1]), hand_gwdegree_global)
-  expect_equal(unname(s_undir[2]), hand_gwdegree_sub)
-  expect_equal(unname(s_undir[3]), hand_gwdegree_sub)
+  expect_equal(unname(s_undir[2]), hand_gwdegree_global)
 })
 
 test_that("Test that tracked global statistics during simulation match exact statistics at all points", {
@@ -538,8 +508,8 @@ test_that("Test that tracked global statistics during simulation match exact sta
   )
 
   formula_dir <- data_dir ~ edges(mode = "local") +
-    gwodegree(mode = "global", decay = 0.5, x_i = 1, y_j = 0) +
-    gwidegree(mode = "global", decay = 0.5, x_i = 0, y_j = 1)
+    gwodegree(mode = "global", decay = 0.5) +
+    gwidegree(mode = "global", decay = 0.5)
 
   model_fit <- iglm(
     formula = formula_dir,
@@ -553,8 +523,8 @@ test_that("Test that tracked global statistics during simulation match exact sta
 
   for (s in seq_along(samples)) {
     sample_stats <- statistics(samples[[s]] ~ edges(mode = "local") +
-                                 gwodegree(mode = "global", decay = 0.5, x_i = 1, y_j = 0) +
-                                 gwidegree(mode = "global", decay = 0.5, x_i = 0, y_j = 1))
+                                 gwodegree(mode = "global", decay = 0.5) +
+                                 gwidegree(mode = "global", decay = 0.5))
     expect_equal(unname(stats_matrix[s, ]), unname(sample_stats), tolerance = 1e-10)
   }
 
@@ -566,7 +536,7 @@ test_that("Test that tracked global statistics during simulation match exact sta
   data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
 
   formula_undir <- data_undir ~ edges(mode = "local") +
-    gwdegree(mode = "global", decay = 0.5, x_i = 1, y_j = 0)
+    gwdegree(mode = "global", decay = 0.5)
 
   model_undir <- iglm(
     formula = formula_undir,
@@ -580,12 +550,12 @@ test_that("Test that tracked global statistics during simulation match exact sta
 
   for (s in seq_along(samples_undir)) {
     sample_undir_stats <- statistics(samples_undir[[s]] ~ edges(mode = "local") +
-                                       gwdegree(mode = "global", decay = 0.5, x_i = 1, y_j = 0))
+                                       gwdegree(mode = "global", decay = 0.5))
     expect_equal(unname(stats_undir_mat[s, ]), unname(sample_undir_stats), tolerance = 1e-10)
   }
 })
 
-test_that("Test gwdegree, gwodegree, gwidegree with nonbinary (continuous) attributes binarized at the mean", {
+test_that("Test iglm.data degree and spillover distributions with continuous attributes binarized at the mean", {
   set.seed(42)
   n_actor <- 8
   z <- matrix(c(
@@ -608,22 +578,11 @@ test_that("Test gwdegree, gwodegree, gwidegree with nonbinary (continuous) attri
   y_bin <- as.numeric(y_cont > mean(y_cont))
   
   neighborhood <- matrix(1, nrow = 8, ncol = 8)
-  decay <- 0.5
   
   data_cont <- iglm.data(x_attribute = x_cont, y_attribute = y_cont, z_network = z, neighborhood = neighborhood, n_actor = n_actor, type_x = "normal", type_y = "normal", directed = TRUE)
   data_bin <- iglm.data(x_attribute = x_bin, y_attribute = y_bin, z_network = z, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
   
-  s_cont <- statistics(data_cont ~ gwodegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                                  gwidegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                                  gwodegree(mode = "global", decay = decay, x_i = 1, y_j = 0))
-  
-  s_bin <- statistics(data_bin ~ gwodegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                                 gwidegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                                 gwodegree(mode = "global", decay = decay, x_i = 1, y_j = 0))
-  
-  expect_equal(unname(s_cont), unname(s_bin))
-  
-  # Also test iglm_data degree and spillover_degree_distribution
+  # Test iglm_data degree and spillover_degree_distribution
   deg_cont <- data_cont$degree(x_i = 1, y_j = 0)
   deg_bin <- data_bin$degree(x_i = 1, y_j = 0)
   expect_equal(deg_cont, deg_bin)
@@ -664,8 +623,8 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
                      edges_y_match(mode = "global") +
                      spillover_xy(mode = "local") +
                      spillover_yy(mode = "local") +
-                     gwodegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                     gwidegree(mode = "global", decay = decay, x_i = 0, y_j = 1)
+                     gwodegree(mode = "global", decay = decay) +
+                     gwidegree(mode = "global", decay = decay)
   
   # 1. Hand calculation function for any state (z_mat, x_vec, y_vec)
   calc_hand_stats <- function(z_mat, x_vec, y_vec) {
@@ -693,23 +652,12 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
     stat_spillover_xy <- sum(outer(x_vec, y_vec) * z_mat)
     # spillover_yy (local with full neighborhood): sum_{i != j} y_i * y_j * z_{ij}
     stat_spillover_yy <- sum(outer(y_vec, y_vec) * z_mat)
-    # gwodegree(x_i = 1, y_j = 1)
-    senders_x1 <- which(x_vec == 1)
-    receivers_y1 <- which(y_vec == 1)
-    z_sub_out <- matrix(0, nrow = n_actor, ncol = n_actor)
-    if (length(senders_x1) > 0 && length(receivers_y1) > 0) {
-      z_sub_out[senders_x1, receivers_y1] <- z_mat[senders_x1, receivers_y1]
-    }
-    out_degs_sub <- rowSums(z_sub_out)[senders_x1]
-    stat_gwodegree <- sum(sapply(out_degs_sub, function(d) if (d == 0) 0 else sum(expo_min^(0:(d - 1)))))
-    # gwidegree(x_i = 0, y_j = 1)
-    senders_x0 <- which(x_vec == 0)
-    z_sub_in <- matrix(0, nrow = n_actor, ncol = n_actor)
-    if (length(senders_x0) > 0 && length(receivers_y1) > 0) {
-      z_sub_in[senders_x0, receivers_y1] <- z_mat[senders_x0, receivers_y1]
-    }
-    in_degs_sub <- colSums(z_sub_in)[receivers_y1]
-    stat_gwidegree <- sum(sapply(in_degs_sub, function(d) if (d == 0) 0 else sum(expo_min^(0:(d - 1)))))
+    # gwodegree
+    out_degs <- rowSums(z_mat)
+    stat_gwodegree <- sum(sapply(out_degs, function(d) if (d == 0) 0 else sum(expo_min^(0:(d - 1)))))
+    # gwidegree
+    in_degs <- colSums(z_mat)
+    stat_gwidegree <- sum(sapply(in_degs, function(d) if (d == 0) 0 else sum(expo_min^(0:(d - 1)))))
     
     c(
       stat_edges, stat_mutual, stat_x, stat_y, stat_xy,
@@ -764,8 +712,8 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
                                          edges_y_match(mode = "global") +
                                          spillover_xy(mode = "local") +
                                          spillover_yy(mode = "local") +
-                                         gwodegree(mode = "global", decay = decay, x_i = 1, y_j = 1) +
-                                         gwidegree(mode = "global", decay = decay, x_i = 0, y_j = 1))
+                                         gwodegree(mode = "global", decay = decay) +
+                                         gwidegree(mode = "global", decay = decay))
     tracked_val <- tracked_stats_mat[s, ]
     
     expect_equal(unname(tracked_val), hand_val, tolerance = 1e-10)
@@ -799,7 +747,7 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
                      attribute_x +
                      attribute_y +
                      attribute_xy +
-                     gwdegree(mode = "global", decay = decay, x_i = 1, y_j = 0)
+                     gwdegree(mode = "global", decay = decay)
   
   # Hand calculation for undirected continuous data
   calc_hand_undir <- function(z_mat, x_vec, y_vec) {
@@ -809,17 +757,9 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
     stat_y <- sum(y_vec)
     stat_xy <- sum(x_vec * y_vec)
     
-    # gwdegree with x_i = 1 (> mean) and y_j = 0 (<= mean)
-    m_x <- mean(x_vec)
-    m_y <- mean(y_vec)
-    senders_x1 <- which(x_vec > m_x)
-    receivers_y0 <- which(y_vec <= m_y)
-    z_sub <- matrix(0, nrow = n_actor, ncol = n_actor)
-    if (length(senders_x1) > 0 && length(receivers_y0) > 0) {
-      z_sub[senders_x1, receivers_y0] <- z_mat[senders_x1, receivers_y0]
-    }
-    degs_sub <- rowSums(z_sub)[senders_x1]
-    stat_gwdegree <- sum(sapply(degs_sub, function(d) if (d == 0) 0 else sum(expo_min^(0:(d - 1)))))
+    # gwdegree
+    degs <- rowSums(z_mat)
+    stat_gwdegree <- sum(sapply(degs, function(d) if (d == 0) 0 else sum(expo_min^(0:(d - 1)))))
     
     c(stat_edges, stat_x, stat_y, stat_xy, stat_gwdegree)
   }
@@ -863,7 +803,7 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
                                          attribute_x +
                                          attribute_y +
                                          attribute_xy +
-                                         gwdegree(mode = "global", decay = decay, x_i = 1, y_j = 0))
+                                         gwdegree(mode = "global", decay = decay))
     tracked_val <- tracked_stats_mat[s, ]
     
     expect_equal(unname(tracked_val), hand_val, tolerance = 1e-10)

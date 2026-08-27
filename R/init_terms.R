@@ -219,6 +219,19 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
       }
     }
   }
+
+  # Check for unexpected arguments
+  allowed_args <- unique(c("base_name", "term_name", "label", mandatory, names(defaults), names(expected)))
+  for (arg in names(arglist)) {
+    if (!arg %in% allowed_args) {
+      if (!is.null(term_name)) {
+        stop(sprintf("Unexpected argument '%s' passed to term '%s'.", arg, term_name), call. = FALSE)
+      } else {
+        stop(sprintf("Unexpected argument '%s' passed to term.", arg), call. = FALSE)
+      }
+    }
+  }
+
   return(arglist)
 }
 
@@ -745,43 +758,20 @@ InitIglmTerm.gwdegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
       mode = c("global", "local"),
-      decay = "scalar_numeric",
-      x_i = "scalar_numeric",
-      x_j = "scalar_numeric",
-      y_i = "scalar_numeric",
-      y_j = "scalar_numeric"
+      decay = "scalar_numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
 
-  has_xi <- if (!is.null(arglist$x_i)) 1.0 else 0.0
-  xi_val <- if (!is.null(arglist$x_i)) as.numeric(arglist$x_i) else 0.0
-  has_xj <- if (!is.null(arglist$x_j)) 1.0 else 0.0
-  xj_val <- if (!is.null(arglist$x_j)) as.numeric(arglist$x_j) else 0.0
-  has_yi <- if (!is.null(arglist$y_i)) 1.0 else 0.0
-  yi_val <- if (!is.null(arglist$y_i)) as.numeric(arglist$y_i) else 0.0
-  has_yj <- if (!is.null(arglist$y_j)) 1.0 else 0.0
-  yj_val <- if (!is.null(arglist$y_j)) as.numeric(arglist$y_j) else 0.0
-  has_constraints <- if (has_xi > 0 || has_xj > 0 || has_yi > 0 || has_yj > 0) 1.0 else 0.0
-
-  data_mat <- if (has_constraints > 0) {
-    matrix(c(arglist$decay, has_xi, xi_val, has_xj, xj_val, has_yi, yi_val, has_yj, yj_val, has_constraints), nrow = 1)
-  } else {
-    matrix(arglist$decay)
-  }
-
   list(
     term_name = paste0("gwdegree_", arglist$mode),
-    data = data_mat,
+    data = matrix(arglist$decay),
     type = 0,
     coef_name = arglist$label
   )
 }
 
-#' @description \code{gwidegree(mode = "global", decay = 0, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}: Geometrically Weighted In-Degree: Captures the in-degree distribution utilizing an exponential decay parameter.
-#'   Optional scalar constraint arguments (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) restrict in-degree calculations to nodal attribute sub-populations.
-#'   For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with (or without) that binary value.
-#'   For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
+#' @description \code{gwidegree(mode = "global", decay = 0)}: Geometrically Weighted In-Degree: Captures the in-degree distribution utilizing an exponential decay parameter.
 #' @name gwidegree-term
 #' @rdname iglm-terms
 NULL
@@ -791,43 +781,20 @@ InitIglmTerm.gwidegree <- function(data_object, arglist, ...) {
     directed = TRUE,
     expected = list(
       mode = c("global", "local"),
-      decay = "scalar_numeric",
-      x_i = "scalar_numeric",
-      x_j = "scalar_numeric",
-      y_i = "scalar_numeric",
-      y_j = "scalar_numeric"
+      decay = "scalar_numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
 
-  has_xi <- if (!is.null(arglist$x_i)) 1.0 else 0.0
-  xi_val <- if (!is.null(arglist$x_i)) as.numeric(arglist$x_i) else 0.0
-  has_xj <- if (!is.null(arglist$x_j)) 1.0 else 0.0
-  xj_val <- if (!is.null(arglist$x_j)) as.numeric(arglist$x_j) else 0.0
-  has_yi <- if (!is.null(arglist$y_i)) 1.0 else 0.0
-  yi_val <- if (!is.null(arglist$y_i)) as.numeric(arglist$y_i) else 0.0
-  has_yj <- if (!is.null(arglist$y_j)) 1.0 else 0.0
-  yj_val <- if (!is.null(arglist$y_j)) as.numeric(arglist$y_j) else 0.0
-  has_constraints <- if (has_xi > 0 || has_xj > 0 || has_yi > 0 || has_yj > 0) 1.0 else 0.0
-
-  data_mat <- if (has_constraints > 0) {
-    matrix(c(arglist$decay, has_xi, xi_val, has_xj, xj_val, has_yi, yi_val, has_yj, yj_val, has_constraints), nrow = 1)
-  } else {
-    matrix(arglist$decay)
-  }
-
   list(
     term_name = paste0("gwidegree_", arglist$mode),
-    data = data_mat,
+    data = matrix(arglist$decay),
     type = 0,
     coef_name = arglist$label
   )
 }
 
-#' @description \code{gwodegree(mode = "global", decay = 0, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}: Geometrically Weighted Out-Degree: Captures the out-degree distribution utilizing an exponential decay parameter.
-#'   Optional scalar constraint arguments (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) restrict out-degree calculations to nodal attribute sub-populations.
-#'   For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with (or without) that binary value.
-#'   For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
+#' @description \code{gwodegree(mode = "global", decay = 0)}: Geometrically Weighted Out-Degree: Captures the out-degree distribution utilizing an exponential decay parameter.
 #' @name gwodegree-term
 #' @rdname iglm-terms
 NULL
@@ -836,34 +803,14 @@ InitIglmTerm.gwodegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
       mode = c("global", "local"),
-      decay = "scalar_numeric",
-      x_i = "scalar_numeric",
-      x_j = "scalar_numeric",
-      y_i = "scalar_numeric",
-      y_j = "scalar_numeric"
+      decay = "scalar_numeric"
     ),
     defaults = list(mode = "global", decay = 0)
   )
 
-  has_xi <- if (!is.null(arglist$x_i)) 1.0 else 0.0
-  xi_val <- if (!is.null(arglist$x_i)) as.numeric(arglist$x_i) else 0.0
-  has_xj <- if (!is.null(arglist$x_j)) 1.0 else 0.0
-  xj_val <- if (!is.null(arglist$x_j)) as.numeric(arglist$x_j) else 0.0
-  has_yi <- if (!is.null(arglist$y_i)) 1.0 else 0.0
-  yi_val <- if (!is.null(arglist$y_i)) as.numeric(arglist$y_i) else 0.0
-  has_yj <- if (!is.null(arglist$y_j)) 1.0 else 0.0
-  yj_val <- if (!is.null(arglist$y_j)) as.numeric(arglist$y_j) else 0.0
-  has_constraints <- if (has_xi > 0 || has_xj > 0 || has_yi > 0 || has_yj > 0) 1.0 else 0.0
-
-  data_mat <- if (has_constraints > 0) {
-    matrix(c(arglist$decay, has_xi, xi_val, has_xj, xj_val, has_yi, yi_val, has_yj, yj_val, has_constraints), nrow = 1)
-  } else {
-    matrix(arglist$decay)
-  }
-
   list(
     term_name = paste0("gwodegree_", arglist$mode),
-    data = data_mat,
+    data = matrix(arglist$decay),
     type = 0,
     coef_name = arglist$label
   )

@@ -70,9 +70,9 @@ test_that("check.IglmTerm generates informative error messages with term name", 
     pattern = "Argument 'decay' of term 'gwdegree' must be a single numeric value."
   )
 
-  arglist_vector_xi <- list(base_name = "gwdegree", x_i = c(1, 2))
+  # Test unexpected argument error on gwdegree
   expect_error(
-    check.IglmTerm(data_obj_directed, arglist_vector_xi, expected = list(x_i = "scalar_numeric")),
-    pattern = "Argument 'x_i' of term 'gwdegree' must be a single numeric value."
+    InitIglmTerm.gwdegree(data_obj_directed, list(base_name = "gwdegree", x_i = 1)),
+    pattern = "Unexpected argument 'x_i' passed to term 'gwdegree'."
   )
 })
