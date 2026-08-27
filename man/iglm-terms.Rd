@@ -200,15 +200,9 @@ Types dictate path constraint: OTP, ITP, OSP, ISP for directed; symm for undirec
   For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with (or without) that binary value.
   For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
 
-\code{gwidegree(mode = "global", decay = 0, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}: Geometrically Weighted In-Degree: Captures the in-degree distribution utilizing an exponential decay parameter.
-  Optional scalar constraint arguments (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) restrict in-degree calculations to nodal attribute sub-populations.
-  For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with (or without) that binary value.
-  For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
+\code{gwidegree(mode = "global", decay = 0)}: Geometrically Weighted In-Degree: Captures the in-degree distribution utilizing an exponential decay parameter.
 
-\code{gwodegree(mode = "global", decay = 0, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}: Geometrically Weighted Out-Degree: Captures the out-degree distribution utilizing an exponential decay parameter.
-  Optional scalar constraint arguments (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) restrict out-degree calculations to nodal attribute sub-populations.
-  For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with (or without) that binary value.
-  For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
+\code{gwodegree(mode = "global", decay = 0)}: Geometrically Weighted Out-Degree: Captures the out-degree distribution utilizing an exponential decay parameter.
 
 \code{spillover_yc_symm(data = v, mode = "local")}: Symmetric Y-C-Z Treatment Spillover: Bidirectional mapping of exogenous covariate \eqn{v} and endogenous trait \eqn{y} interaction.
 

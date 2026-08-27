@@ -667,10 +667,10 @@ symmetrized `z_network` using a matrix-based BFS algorithm.
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$edgewise_shared_partner_distribution(
   type = "ALL",
-  mode = "global",
   value_range = NULL,
   prob = TRUE,
-  plot = TRUE
+  plot = TRUE,
+  mode = "global"
 )}
     \if{html}{\out{</div>}}
   }
@@ -679,14 +679,14 @@ symmetrized `z_network` using a matrix-based BFS algorithm.
     \describe{
       \item{\code{type}}{(character) The type of shared partner matrix to use.
 See `edgewise_shared_partner` for details. Default is `"ALL"`.}
-      \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all edges,
-or `"local"` to evaluate only edges with overlapping neighborhoods.}
       \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of counts to tabulate. If `NULL` (default), the range
 is inferred from the data.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all edges,
+or `"local"` to evaluate only edges with overlapping neighborhoods.}
     }
     \if{html}{\out{</div>}}
   }
@@ -705,10 +705,10 @@ distribution (proportions). If `FALSE`, returns raw counts.}
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$dyadwise_shared_partner_distribution(
   type = "ALL",
-  mode = "global",
   value_range = NULL,
   prob = TRUE,
-  plot = TRUE
+  plot = TRUE,
+  mode = "global"
 )}
     \if{html}{\out{</div>}}
   }
@@ -717,14 +717,14 @@ distribution (proportions). If `FALSE`, returns raw counts.}
     \describe{
       \item{\code{type}}{(character) The type of shared partner matrix to use.
 See `dyadwise_shared_partner` for details. Default is `"ALL"`.}
-      \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all dyads,
-or `"local"` to evaluate only dyads with overlapping neighborhoods.}
       \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of counts to tabulate. If `NULL` (default), the range
 is inferred from the data.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all dyads,
+or `"local"` to evaluate only dyads with overlapping neighborhoods.}
     }
     \if{html}{\out{</div>}}
   }
@@ -742,29 +742,29 @@ distribution (proportions). If `FALSE`, returns raw counts.}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$degree_distribution(
+  value_range = NULL,
+  prob = TRUE,
+  plot = TRUE,
   x_i = NULL,
   x_j = NULL,
   y_i = NULL,
-  y_j = NULL,
-  value_range = NULL,
-  prob = TRUE,
-  plot = TRUE
+  y_j = NULL
 )}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{x_i}}{(optional) Exact value, vector, or predicate function for sender attribute `x_i`.}
-      \item{\code{x_j}}{(optional) Exact value, vector, or predicate function for receiver attribute `x_j`.}
-      \item{\code{y_i}}{(optional) Exact value, vector, or predicate function for sender attribute `y_i`.}
-      \item{\code{y_j}}{(optional) Exact value, vector, or predicate function for receiver attribute `y_j`.}
       \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of degrees to tabulate. If `NULL` (default), the range
 is inferred from the data.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the degree distribution.}
+      \item{\code{x_i}}{(optional) Exact value, vector, or predicate function for sender attribute `x_i`.}
+      \item{\code{x_j}}{(optional) Exact value, vector, or predicate function for receiver attribute `x_j`.}
+      \item{\code{y_i}}{(optional) Exact value, vector, or predicate function for sender attribute `y_i`.}
+      \item{\code{y_j}}{(optional) Exact value, vector, or predicate function for receiver attribute `y_j`.}
     }
     \if{html}{\out{</div>}}
   }
@@ -812,29 +812,29 @@ attributes (`x_j`, `y_j`).
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$spillover_degree_distribution(
+  prob = TRUE,
+  value_range = NULL,
+  plot = TRUE,
   x_i = NULL,
   x_j = NULL,
   y_i = NULL,
-  y_j = NULL,
-  prob = TRUE,
-  value_range = NULL,
-  plot = TRUE
+  y_j = NULL
 )}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{x_i}}{Optional value(s) or predicate function for attribute `x` of sender actor `i`.}
-      \item{\code{x_j}}{Optional value(s) or predicate function for attribute `x` of receiver actor `j`.}
-      \item{\code{y_i}}{Optional value(s) or predicate function for attribute `y` of sender actor `i`.}
-      \item{\code{y_j}}{Optional value(s) or predicate function for attribute `y` of receiver actor `j`.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
       \item{\code{value_range}}{(numeric vector) A vector `c(min, max)` specifying
 the range of degrees to tabulate. If `NULL` (default), the range
 is inferred from the data.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distributions.}
+      \item{\code{x_i}}{Optional value(s) or predicate function for attribute `x` of sender actor `i`.}
+      \item{\code{x_j}}{Optional value(s) or predicate function for attribute `x` of receiver actor `j`.}
+      \item{\code{y_i}}{Optional value(s) or predicate function for attribute `y` of sender actor `i`.}
+      \item{\code{y_j}}{Optional value(s) or predicate function for attribute `y` of receiver actor `j`.}
     }
     \if{html}{\out{</div>}}
   }

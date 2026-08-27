@@ -915,10 +915,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return A named vector (a `table` object) with the distribution of
     #'   shared partner counts.
     edgewise_shared_partner_distribution = function(type = "ALL",
-                                                    mode = "global",
                                                     value_range = NULL,
                                                     prob = TRUE,
-                                                    plot = TRUE) {
+                                                    plot = TRUE,
+                                                    mode = "global") {
       if (!mode %in% c("global", "local")) {
         stop("'mode' must be either 'global' or 'local'.")
       }
@@ -994,9 +994,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return A named vector (a `table` object) with the distribution of
     #'   shared partner counts.
     dyadwise_shared_partner_distribution = function(type = "ALL",
-                                                    mode = "global",
                                                     value_range = NULL,
-                                                    prob = TRUE, plot = TRUE) {
+                                                    prob = TRUE,
+                                                    plot = TRUE,
+                                                    mode = "global") {
       if (!mode %in% c("global", "local")) {
         stop("'mode' must be either 'global' or 'local'.")
       }
@@ -1089,8 +1090,23 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return If the network is directed, a list containing two `table`
     #'   objects: `in_degree` and `out_degree`. If undirected, a single
     #'   `table` object with the degree distribution.
-    degree_distribution = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
-                                  value_range = NULL, prob = TRUE, plot = TRUE) {
+    degree_distribution = function(value_range = NULL,
+                                   prob = TRUE,
+                                   plot = TRUE,
+                                   x_i = NULL,
+                                   x_j = NULL,
+                                   y_i = NULL,
+                                   y_j = NULL) {
+      if (!private$.directed) {
+        has_i_constr <- !is.null(x_i) || !is.null(y_i)
+        has_j_constr <- !is.null(x_j) || !is.null(y_j)
+        if (!has_i_constr && has_j_constr) {
+          x_i <- x_j
+          y_i <- y_j
+          x_j <- NULL
+          y_j <- NULL
+        }
+      }
       has_constraints <- !is.null(x_i) || !is.null(x_j) || !is.null(y_i) || !is.null(y_j)
       deg_data <- if (has_constraints) {
         self$degree(x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j)
@@ -1224,6 +1240,17 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         }
       }
 
+      if (!private$.directed) {
+        has_i_constr <- !is.null(x_i) || !is.null(y_i)
+        has_j_constr <- !is.null(x_j) || !is.null(y_j)
+        if (!has_i_constr && has_j_constr) {
+          x_i <- x_j
+          y_i <- y_j
+          x_j <- NULL
+          y_j <- NULL
+        }
+      }
+
       cond_sender <- filter_nodes(private$.x_attribute, x_i, private$.type_x) & filter_nodes(private$.y_attribute, y_i, private$.type_y)
       cond_receiver <- filter_nodes(private$.x_attribute, x_j, private$.type_x) & filter_nodes(private$.y_attribute, y_j, private$.type_y)
       actors_sender <- which(cond_sender)
@@ -1237,6 +1264,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         mat
       } else {
         private$.z_network
+      }
+
+      if (!private$.directed) {
+        z_mat <- pmax(z_mat, t(z_mat))
       }
 
       if (private$.directed) {
@@ -1278,8 +1309,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return A list containing two `table` objects:
     #'   `out_spillover_degree` (spillover out-degree from senders to receivers) and
     #'   `in_spillover_degree` (spillover in-degree at receivers from senders).
-    spillover_degree_distribution = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
-                                             prob = TRUE, value_range = NULL, plot = TRUE) {
+    spillover_degree_distribution = function(prob = TRUE,
+                                             value_range = NULL,
+                                             plot = TRUE,
+                                             x_i = NULL,
+                                             x_j = NULL,
+                                             y_i = NULL,
+                                             y_j = NULL) {
       has_constraints <- !is.null(x_i) || !is.null(x_j) || !is.null(y_i) || !is.null(y_j)
       binarize_filter <- function(attr_vec, spec, type = "binomial") {
         if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
@@ -1382,8 +1418,14 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       has_valid_overlap_col <- colSums(!is.na(adj_mat_x_y)) > 0
       adj_mat_x_y <- adj_mat_x_y[has_valid_overlap_row, has_valid_overlap_col, drop = FALSE]
 
+      z_net_all <- if (!private$.directed && ncol(private$.z_network) == 2 && nrow(private$.z_network) > 0) {
+        rbind(private$.z_network, private$.z_network[, c(2, 1), drop = FALSE])
+      } else {
+        private$.z_network
+      }
+
       edges_x_y <- matrix(
-        private$.z_network[(private$.z_network[, 1] %in% actors_sender) & (private$.z_network[, 2] %in% actors_receiver), ],
+        z_net_all[(z_net_all[, 1] %in% actors_sender) & (z_net_all[, 2] %in% actors_receiver), ],
         ncol = 2
       )
       if (nrow(edges_x_y) > 0 && nrow(adj_mat_x_y) > 0 && ncol(adj_mat_x_y) > 0) {

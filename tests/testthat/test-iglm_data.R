@@ -280,3 +280,80 @@ test_that("spillover_degree_distribution does not overwrite cached descriptives 
   res_constrained <- data_obj$spillover_degree_distribution(x_i = 1, y_j = 0, plot = FALSE)
   expect_equal(data_obj$descriptives$spillover_degree_distribution, res_def)
 })
+
+test_that("Positional arguments work for distribution methods", {
+  n_actor <- 5
+  z <- matrix(c(
+    0, 1, 1, 0, 0,
+    1, 0, 1, 0, 0,
+    1, 1, 0, 1, 0,
+    0, 0, 1, 0, 1,
+    0, 0, 0, 1, 0
+  ), nrow = 5, byrow = TRUE)
+  x <- c(1, 0, 1, 0, 1)
+  y <- c(0, 1, 0, 1, 0)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
+
+  expect_no_error(data_obj$edgewise_shared_partner_distribution("OTP", c(0, 3), FALSE, FALSE))
+  expect_no_error(data_obj$dyadwise_shared_partner_distribution("OTP", c(0, 3), FALSE, FALSE))
+  expect_no_error(data_obj$degree_distribution(c(0, 4), FALSE, FALSE))
+  expect_no_error(data_obj$spillover_degree_distribution(FALSE, c(0, 3), FALSE))
+})
+
+test_that("Undirected constrained degree accounts for canonical edge orientation", {
+  n_actor <- 4
+  # Only edge is between actor 1 and actor 4 (stored as 1 -> 4)
+  z <- matrix(0, nrow = 4, ncol = 4)
+  z[1, 4] <- z[4, 1] <- 1
+  x <- c(1, 0, 0, 0) # actor 1 has x=1
+  y <- c(0, 0, 0, 1) # actor 4 has y=1
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+
+  # Degree of actor 1 connecting to y=1 receivers (actor 4)
+  deg_1 <- data_obj$degree(x_i = 1, y_j = 1)
+  expect_equal(unname(deg_1$degree_seq), 1)
+
+  # Degree of actor 4 (x=0, y=1) connecting to x=1 receivers (actor 1)
+  deg_4 <- data_obj$degree(y_i = 1, x_j = 1)
+  expect_equal(unname(deg_4$degree_seq), 1)
+})
+
+test_that("Undirected degree and degree_distribution are equivalent for x_i = 1 vs x_j = 1", {
+  n_actor <- 5
+  z <- matrix(c(
+    0, 1, 1, 0, 0,
+    1, 0, 1, 0, 1,
+    1, 1, 0, 1, 0,
+    0, 0, 1, 0, 1,
+    0, 1, 0, 1, 0
+  ), nrow = 5, byrow = TRUE)
+  x <- c(1, 1, 0, 0, 1) # nodes 1, 2, 5 have x=1
+  y <- c(0, 1, 1, 0, 0)
+
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+
+  # Single constraint equivalence
+  deg_xi <- data_undir$degree(x_i = 1)
+  deg_xj <- data_undir$degree(x_j = 1)
+  expect_equal(deg_xi, deg_xj)
+
+  # Single constraint degree distribution equivalence
+  dist_xi <- data_undir$degree_distribution(x_i = 1, plot = FALSE)
+  dist_xj <- data_undir$degree_distribution(x_j = 1, plot = FALSE)
+  expect_equal(dist_xi, dist_xj)
+
+  # Double constraint x_i = 1, x_j = 1 implies both ends have x = 1 (subgraph on nodes 1, 2, 5)
+  # Edges among {1, 2, 5}: (1,2), (2,5) -> node 1 deg=1, node 2 deg=2, node 5 deg=1
+  deg_both <- data_undir$degree(x_i = 1, x_j = 1)
+  expect_equal(unname(deg_both$degree_seq), c(1, 2, 1))
+
+  # Single constraint counts full degrees for actors with x=1:
+  # Node 1: edges to 2, 3 -> deg = 2
+  # Node 2: edges to 1, 3, 5 -> deg = 3
+  # Node 5: edges to 2, 4 -> deg = 2
+  expect_equal(unname(deg_xi$degree_seq), c(2, 3, 2))
+})
+
+
+
+
