@@ -170,3 +170,46 @@ test_that("results$plot works for directed model with in/out degrees and continu
   expect_silent(model_fit$results$plot(model_assessment = TRUE))
   dev.off()
 })
+
+test_that("Plotting distribution methods with predicate functions works without error", {
+  n_actor <- 5
+  z <- matrix(c(
+    0, 1, 1, 0, 0,
+    1, 0, 1, 0, 1,
+    1, 1, 0, 1, 0,
+    0, 0, 1, 0, 1,
+    0, 1, 0, 1, 0
+  ), nrow = 5, byrow = TRUE)
+  x <- c(1.2, -0.5, 0.8, -1.1, 0.4)
+  y <- c(-0.3, 0.9, -0.7, 1.4, -0.1)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = 5, type_x = "normal", type_y = "normal", directed = FALSE)
+
+  pdf(NULL)
+  expect_no_error(data_obj$degree_distribution(x_i = function(v) v > 0, plot = TRUE))
+  expect_no_error(data_obj$degree_distribution(x_i = c(1, 2), plot = TRUE))
+  expect_no_error(data_obj$spillover_degree_distribution(x_i = function(v) v > 0, plot = TRUE))
+  dev.off()
+})
+
+test_that("Trace plot works on pure degree models", {
+  n_actor <- 5
+  z <- matrix(0, 5, 5)
+  z[1, 2] <- z[2, 1] <- z[3, 4] <- z[4, 3] <- 1
+  data_obj <- iglm.data(z_network = z, n_actor = 5, directed = FALSE, type_x = "binomial", type_y = "binomial")
+
+  model_fit <- iglm(
+    formula = data_obj ~ degrees,
+    coef_degrees = rep(-1, 5),
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 4, init_empty = FALSE),
+    control = control.iglm(max_it = 2, display_progress = FALSE)
+  )
+  model_fit$simulate()
+  model_fit$set_target(model_fit$get_samples()[[1]])
+  model_fit$estimate()
+
+  pdf(NULL)
+  expect_silent(model_fit$results$plot(trace = TRUE))
+  dev.off()
+})
+
+

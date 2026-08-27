@@ -313,7 +313,9 @@ results.generator <- R6::R6Class("results",
           )
 
           plot_multitrace(coefficients_path_p, xlab = "Iteration", ylab = "Degree Coefficients")
-          plot_multitrace(coefficients_path_np, xlab = "Iteration", ylab = "Coefficients")
+          if (ncol(coefficients_path_np) > 0) {
+            plot_multitrace(coefficients_path_np, xlab = "Iteration", ylab = "Coefficients")
+          }
         } else {
           plot_multitrace(private$.coefficients_path, xlab = "Iteration", ylab = "Coefficients")
         }

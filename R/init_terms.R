@@ -746,10 +746,7 @@ InitIglmTerm.gwdsp <- function(data_object, arglist, ...) {
   )
 }
 
-#' @description \code{gwdegree(mode = "global", decay = 0, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}: Geometrically Weighted Degree: Captures the degree distribution utilizing an exponential decay parameter.
-#'   Optional scalar constraint arguments (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) restrict degree calculations to nodal attribute sub-populations.
-#'   For binary attributes, setting \code{x_i = 1} (or \code{0}) selects actors with (or without) that binary value.
-#'   For continuous (non-binary) attributes, \code{x_i = 1} selects actors whose attribute value is strictly greater than the sample mean (\eqn{x_i > \text{mean}(x)}), while \code{x_i = 0} selects actors with \eqn{x_i \le \text{mean}(x)}. The same binarization rule applies to \code{x_j}, \code{y_i}, and \code{y_j}.
+#' @description \code{gwdegree(mode = "global", decay = 0)}: Geometrically Weighted Degree: Captures the degree distribution utilizing an exponential decay parameter.
 #' @name gwdegree-term
 #' @rdname iglm-terms
 NULL

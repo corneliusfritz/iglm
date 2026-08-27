@@ -688,12 +688,20 @@ build_constrained_xlab <- function(base_label, x_i = NULL, x_j = NULL, y_i = NUL
                                    type_x = "binomial", type_y = "binomial") {
   format_token <- function(spec, var_name, idx, type) {
     if (is.null(spec)) return(NULL)
+    if (is.function(spec)) {
+      return(paste0(var_name, '[', idx, '] == "fn"'))
+    }
     if (type != "binomial" && identical(spec, 1)) {
       paste0(var_name, "[", idx, "] > mean(", var_name, ")")
     } else if (type != "binomial" && identical(spec, 0)) {
       paste0(var_name, "[", idx, "] <= mean(", var_name, ")")
     } else {
-      paste0(var_name, "[", idx, "] == ", deparse(spec))
+      dep <- paste(deparse(spec), collapse = " ")
+      if (length(spec) > 1 || !grepl("^[0-9.-]+$", dep)) {
+        paste0(var_name, '[', idx, '] == "', gsub('"', "'", dep), '"')
+      } else {
+        paste0(var_name, "[", idx, "] == ", dep)
+      }
     }
   }
   parts <- c(
