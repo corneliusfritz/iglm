@@ -27,8 +27,11 @@
 #' @param display_progress Logical. If `TRUE`, progress messages or a progress
 #'   bar (depending on the backend implementation) are displayed during simulation.
 #'   Default is `FALSE`.
-#' @param basis An optional `iglm.data` object to serve as the basis for the simulation.
-#'   If provided, the simulation starts from the state defined in this object.
+#' @param basis An optional `iglm.data` object to serve as the basis (initial state)
+#'   for the simulation. If provided, the simulation starts from the state defined in this object.
+#'   The `basis` object must be consistent with the model data referenced in `formula`
+#'   (same number of actors, directedness, and attribute types). All structural specifications
+#'   (terms, neighborhood, overlap, and fixed variables) are taken from the `formula` data or `basis`.
 #'   If `NULL` (default), the initial state is taken from the `iglm.data` object
 #'   referenced in the `formula`.
 #' @param offset_nonoverlap Numeric scalar value passed to the C++ simulator.
@@ -36,21 +39,14 @@
 #'   \strong{not} part of the 'overlap' set defined in the `iglm.data` object, potentially
 #'   modifying tie probabilities outside the primary neighborhood. Default is `0`.
 #' @param cluster Optional parallel cluster object created, for example, by
-#'   ``parallel::makeCluster``. If provided and valid, the function performs a
+#'   \code{parallel::makeCluster}. If provided and valid, the function performs a
 #'   single burn-in simulation on the main R process, then distributes the
 #'   remaining `n_simulation` tasks across the cluster workers using
-#'   ``parallel::parLapply``. The master seed is offset
+#'   \code{parallel::parLapply}. The master seed is offset
 #'   for each worker to ensure different random streams. If `NULL` (default),
 #'   all simulations are run sequentially in the main R process.
-#' @param fix_x Logical. If `TRUE`, the simulation holds the `x_attribute` fixed
-#'   at its initial state (from the \code{\link{iglm.data}} object) and only simulates the
-#'   `y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
-#'   are simulated according to the model and sampler settings.
-#' @param fix_z Logical. If `TRUE`, the simulation holds the `z_network` fixed
-#'  at its initial state (from the \code{\link{iglm.data}} object). If `FALSE` (default), the network component
-#'  is simulated according to the model and sampler settings.
-#' @details
 #'
+#' @details
 #' \strong{Parallel Execution:} When a `cluster` object is provided, the simulation
 #' process is adapted:
 #' \enumerate{
@@ -58,7 +54,7 @@
 #'     is performed on the master node to obtain a starting state for the parallel chains.
 #'   \item The total number of requested simulations (`sampler$n_simulation`) is divided
 #'     among the cluster workers.
-#'   \item ``parallel::parLapply`` is used to run simulations on each worker.
+#'   \item \code{parallel::parLapply} is used to run simulations on each worker.
 #'     Each worker starts from the state obtained after the initial burn-in, performs
 #'     \strong{zero} additional burn-in (`n_burn_in = 0` passed to workers), and generates
 #'     its assigned share of the simulations. Component sampler seeds are offset
@@ -71,7 +67,7 @@
 #' @return A list containing one or two components (depending on `only_stats`):
 #' \describe{
 #'   \item{`samples`}{If `only_stats = FALSE`, this is a list of length
-#'     `sampler$n_simulation` where each element is a `iglm.data` object
+#'     `sampler$n_simulation` where each element is an \code{\link{iglm.data}} object
 #'     representing one simulated draw from the model. The list has the S3 class
 #'     `"iglm.data.list"`. If `only_stats = TRUE`, this component is omitted.}
 #'   \item{`stats`}{A numeric matrix with `sampler$n_simulation` rows and
@@ -84,16 +80,14 @@
 #' The function stops with an error if:
 #' \itemize{
 #'   \item The length of `coef` does not match the number of terms derived from `formula`.
-#'   \item `formula_preprocess` fails.
-#'   \item The `sampler` object is not of class `sampler.iglm`.
+#'   \item Formula preprocessing fails.
+#'   \item The `sampler` object is not of class \code{\link{sampler.iglm}}.
 #'   \item The C++ backend `xyz_simulate_cpp` encounters an error.
-#'   \item Helper functions like `XYZ_to_R` or `is_cluster_active` are not found.
 #' }
-#' Warnings may be issued if default sampler settings are used.
 #'
-#' @seealso \code{iglm} for creating the model object,
-#'   \code{sampler.iglm} for creating the sampler object,
-#'   \code{iglm.data} for the data object structure.
+#' @seealso \code{\link{iglm}} for creating the model object,
+#'   \code{\link{sampler.iglm}} for creating the sampler object,
+#'   \code{\link{iglm.data}} for the data object structure.
 #'
 #' @export
 #' @importFrom parallel parLapply
@@ -104,9 +98,7 @@ simulate_iglm <- function(formula,
                           only_stats = TRUE,
                           display_progress = FALSE,
                           offset_nonoverlap = 0,
-                          cluster = NULL,
-                          fix_x = FALSE,
-                          fix_z = FALSE) {
+                          cluster = NULL) {
   if (is.null(sampler)) {
     sampler <- sampler.iglm()
     # if no specifications of the sampler are provided use the default one
@@ -119,14 +111,44 @@ simulate_iglm <- function(formula,
   # Search for all things in the environment of the formula
   # attr(formula, ".Environment")
   preprocessed <- formula_preprocess(formula)
+  data_obj <- preprocessed$data_object
+
   if (!is.null(basis)) {
     if (!inherits(basis, "iglm.data")) {
       stop("basis must be an object of class iglm.data")
     }
-    preprocessed$data_object <- basis
+    if (basis$directed != data_obj$directed) {
+      stop(sprintf(
+        "The 'basis' object must have the same directedness as the model data in 'formula' (expected directed = %s, got directed = %s).",
+        data_obj$directed, basis$directed
+      ))
+    }
+    if (basis$n_actor != data_obj$n_actor) {
+      stop(sprintf(
+        "The 'basis' object must have the same number of actors as the model data in 'formula' (expected n_actor = %d, got n_actor = %d).",
+        data_obj$n_actor, basis$n_actor
+      ))
+    }
+    if (basis$type_x != data_obj$type_x) {
+      stop(sprintf(
+        "The 'basis' object must have the same type_x as the model data in 'formula' (expected type_x = '%s', got type_x = '%s').",
+        data_obj$type_x, basis$type_x
+      ))
+    }
+    if (basis$type_y != data_obj$type_y) {
+      stop(sprintf(
+        "The 'basis' object must have the same type_y as the model data in 'formula' (expected type_y = '%s', got type_y = '%s').",
+        data_obj$type_y, basis$type_y
+      ))
+    }
   }
+
+  init_x <- if (!is.null(basis)) basis$x_attribute else data_obj$x_attribute
+  init_y <- if (!is.null(basis)) basis$y_attribute else data_obj$y_attribute
+  init_z <- if (!is.null(basis)) basis$z_network else data_obj$z_network
+
   degrees <- preprocessed$includes_degrees
-  n_actor <- length(preprocessed$data_object$x_attribute)
+  n_actor <- data_obj$n_actor
   if (length(coef) != length(preprocessed$term_names)) {
     return("Wrong number of coefficients for the wanted terms.")
   }
@@ -143,18 +165,18 @@ simulate_iglm <- function(formula,
       coef = coef, coef_degrees = coef_degrees,
       terms = preprocessed$term_names,
       n_actor = n_actor,
-      x_attribute = preprocessed$data_object$x_attribute,
-      y_attribute = preprocessed$data_object$y_attribute,
-      z_network = preprocessed$data_object$z_network,
-      type_x = preprocessed$data_object$type_x,
-      type_y = preprocessed$data_object$type_y,
-      attr_x_scale = preprocessed$data_object$scale_x,
-      attr_y_scale = preprocessed$data_object$scale_y,
+      x_attribute = init_x,
+      y_attribute = init_y,
+      z_network = init_z,
+      type_x = data_obj$type_x,
+      type_y = data_obj$type_y,
+      attr_x_scale = data_obj$scale_x,
+      attr_y_scale = data_obj$scale_y,
       init_empty = sampler$init_empty,
-      nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
-      neighborhood = preprocessed$data_object$neighborhood,
-      overlap = preprocessed$data_object$overlap,
-      directed = preprocessed$data_object$directed,
+      nonoverlap_random = !data_obj$fix_z_alocal,
+      neighborhood = data_obj$neighborhood,
+      overlap = data_obj$overlap,
+      directed = data_obj$directed,
       data_list = preprocessed$data_list,
       type_list = preprocessed$type_list,
       n_burn_in = sampler$n_burn_in,
@@ -167,8 +189,8 @@ simulate_iglm <- function(formula,
       display_progress = display_progress,
       degrees = degrees,
       offset_nonoverlap = offset_nonoverlap,
-      fix_x = fix_x,
-      fix_z = fix_z,
+      fix_x = data_obj$fix_x,
+      fix_z = data_obj$fix_z,
       tnt = sampler$sampler_z$tnt
     )
   } else {
@@ -181,17 +203,17 @@ simulate_iglm <- function(formula,
       coef_degrees = coef_degrees,
       terms = preprocessed$term_names,
       n_actor = n_actor,
-      x_attribute = preprocessed$data_object$x_attribute,
-      y_attribute = preprocessed$data_object$y_attribute,
-      z_network = preprocessed$data_object$z_network,
+      x_attribute = init_x,
+      y_attribute = init_y,
+      z_network = init_z,
       init_empty = sampler$init_empty,
-      neighborhood = preprocessed$data_object$neighborhood,
-      type_x = preprocessed$data_object$type_x,
-      type_y = preprocessed$data_object$type_y,
-      attr_x_scale = preprocessed$data_object$scale_x,
-      attr_y_scale = preprocessed$data_object$scale_y,
-      overlap = preprocessed$data_object$overlap,
-      directed = preprocessed$data_object$directed,
+      neighborhood = data_obj$neighborhood,
+      type_x = data_obj$type_x,
+      type_y = data_obj$type_y,
+      attr_x_scale = data_obj$scale_x,
+      attr_y_scale = data_obj$scale_y,
+      overlap = data_obj$overlap,
+      directed = data_obj$directed,
       data_list = preprocessed$data_list,
       type_list = preprocessed$type_list,
       n_burn_in = sampler$n_burn_in,
@@ -201,12 +223,12 @@ simulate_iglm <- function(formula,
       n_proposals_z = sampler$sampler_z$n_proposals,
       n_simulation = 1,
       only_stats = FALSE,
-      nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
+      nonoverlap_random = !data_obj$fix_z_alocal,
       display_progress = display_progress,
       degrees = degrees,
       offset_nonoverlap = offset_nonoverlap,
-      fix_x = fix_x,
-      fix_z = fix_z,
+      fix_x = data_obj$fix_x,
+      fix_z = data_obj$fix_z,
       tnt = sampler$sampler_z$tnt
     )
     res_burnin <- XYZ_to_R(
@@ -225,23 +247,24 @@ simulate_iglm <- function(formula,
     res_parallel <- parLapply(
       cl = cluster, X = tmp_split, fun = function(x, preprocessed, n_actor, coef,
                                                   coef_degrees, degrees, sampler,
-                                                  res_burnin, offset_nonoverlap) {
+                                                  res_burnin, offset_nonoverlap,
+                                                  data_obj) {
         xyz_simulate_cpp(
           coef = coef, coef_degrees = coef_degrees,
           terms = preprocessed$term_names,
           n_actor = n_actor,
-          type_x = preprocessed$data_object$type_x,
-          type_y = preprocessed$data_object$type_y,
-          attr_x_scale = preprocessed$data_object$scale_x,
-          attr_y_scale = preprocessed$data_object$scale_y,
+          type_x = data_obj$type_x,
+          type_y = data_obj$type_y,
+          attr_x_scale = data_obj$scale_x,
+          attr_y_scale = data_obj$scale_y,
           x_attribute = res_burnin$x_attribute,
           y_attribute = res_burnin$y_attribute,
           z_network = res_burnin$z_network,
           init_empty = sampler$init_empty,
-          neighborhood = preprocessed$data_object$neighborhood,
-          overlap = preprocessed$data_object$overlap,
-          nonoverlap_random = !preprocessed$data_object$fix_z_alocal,
-          directed = preprocessed$data_object$directed,
+          neighborhood = data_obj$neighborhood,
+          overlap = data_obj$overlap,
+          nonoverlap_random = !data_obj$fix_z_alocal,
+          directed = data_obj$directed,
           data_list = preprocessed$data_list,
           type_list = preprocessed$type_list,
           n_burn_in = sampler$n_burn_in,
@@ -253,13 +276,15 @@ simulate_iglm <- function(formula,
           only_stats = only_stats,
           display_progress = FALSE,
           degrees = degrees,
-          fix_x = fix_x, fix_z = fix_z,
+          fix_x = data_obj$fix_x,
+          fix_z = data_obj$fix_z,
           offset_nonoverlap = offset_nonoverlap,
           tnt = sampler$sampler_z$tnt
         )
       }, preprocessed = preprocessed, n_actor = n_actor, coef = coef,
       coef_degrees = coef_degrees, degrees = degrees,
-      sampler = sampler, res_burnin = res_burnin, offset_nonoverlap = offset_nonoverlap
+      sampler = sampler, res_burnin = res_burnin, offset_nonoverlap = offset_nonoverlap,
+      data_obj = data_obj
     )
 
     res <- list()
@@ -301,19 +326,22 @@ simulate_iglm <- function(formula,
         x_attribute = tmp[[x]]$x_attribute,
         y_attribute = tmp[[x]]$y_attribute,
         z_network = tmp[[x]]$z_network,
-        directed = preprocessed$data_object$directed,
+        directed = data_obj$directed,
         n_actor = length(tmp[[x]]$x_attribute),
-        type_x = preprocessed$data_object$type_x,
-        type_y = preprocessed$data_object$type_y,
-        scale_x = preprocessed$data_object$scale_x,
-        scale_y = preprocessed$data_object$scale_y,
+        type_x = data_obj$type_x,
+        type_y = data_obj$type_y,
+        scale_x = data_obj$scale_x,
+        scale_y = data_obj$scale_y,
+        fix_x = data_obj$fix_x,
+        fix_z = data_obj$fix_z,
+        fix_z_alocal = data_obj$fix_z_alocal,
         return_neighborhood = FALSE
       )
     }
   )
   # browser()
   class(tmp) <- "iglm.data.list"
-  attr(tmp, "neighborhood") <- iglm.data.neighborhood(preprocessed$data_object$neighborhood)
+  attr(tmp, "neighborhood") <- iglm.data.neighborhood(data_obj$neighborhood)
   colnames(res$stats) <- preprocessed$coef_names
   return(list(samples = tmp, stats = res$stats))
 }

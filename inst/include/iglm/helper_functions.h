@@ -1,6 +1,7 @@
 
 #ifndef helper_H
 #define helper_H
+
 // #include <Rcpp.h>
 #include <RcppArmadillo.h>
 #include <set>
@@ -16,7 +17,7 @@
 #define IGLM_API __declspec(dllimport)
 #endif
 #else
-#define IGLM_API
+#define IGLM_API __attribute__ ((visibility ("default")))
 #endif
 #endif
 // [[Rcpp::depends(RcppArmadillo)]]

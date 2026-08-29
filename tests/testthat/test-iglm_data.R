@@ -172,56 +172,6 @@ test_that("iglm.data validation throws error when attributes or networks contain
   )
 })
 
-test_that("spillover_degree_distribution works with custom x_i, x_j, y_i, y_j parameters", {
-  n_actor <- 6
-  z <- matrix(c(
-    0, 1, 1, 0, 0, 0,
-    1, 0, 1, 0, 0, 0,
-    1, 1, 0, 1, 0, 0,
-    0, 0, 1, 0, 1, 1,
-    0, 0, 0, 1, 0, 1,
-    0, 0, 0, 1, 1, 0
-  ), nrow = 6, byrow = TRUE)
-
-  x <- c(1, 1, 0, 0, 1, 0)
-  y <- c(0, 1, 1, 0, 0, 1)
-
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial")
-
-  # Default (backward compatibility)
-  res_def <- data_obj$spillover_degree_distribution(plot = FALSE)
-  expect_true(is.list(res_def))
-  expect_true("out_spillover_degree" %in% names(res_def))
-  expect_true("in_spillover_degree" %in% names(res_def))
-
-  # Custom x_i = 1, y_j = 0
-  res_x1_y0 <- data_obj$spillover_degree_distribution(x_i = 1, y_j = 0, plot = FALSE)
-  expect_true(is.list(res_x1_y0))
-  expect_equal(sum(res_x1_y0$out_spillover_degree), 1)
-
-  # Custom x_i = 0, x_j = 1
-  res_x0_x1 <- data_obj$spillover_degree_distribution(x_i = 0, x_j = 1, plot = FALSE)
-  expect_true(is.list(res_x0_x1))
-
-  # Custom y_i = 1, y_j = 1
-  res_yy <- data_obj$spillover_degree_distribution(y_i = 1, y_j = 1, plot = FALSE)
-  expect_true(is.list(res_yy))
-
-  # Custom predicate function
-  res_pred <- data_obj$spillover_degree_distribution(x_i = function(val) val == 1, y_j = function(val) val == 0, plot = FALSE)
-  expect_equal(res_pred, res_x1_y0)
-
-  # When constraints produce 0 matching senders
-  res_zero_senders <- data_obj$spillover_degree_distribution(x_i = 999, y_j = 0, prob = FALSE, plot = FALSE)
-  expect_equal(sum(res_zero_senders$out_spillover_degree), 0)
-  expect_equal(sum(res_zero_senders$in_spillover_degree), 3) # 3 matching receivers, all degree 0
-
-  # When constraints produce 0 matching senders and receivers
-  res_zero_both <- data_obj$spillover_degree_distribution(x_i = 999, y_j = 999, prob = FALSE, plot = FALSE)
-  expect_equal(sum(res_zero_both$out_spillover_degree), 0)
-  expect_equal(sum(res_zero_both$in_spillover_degree), 0)
-})
-
 test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters", {
   n_actor <- 6
   z <- matrix(c(
@@ -252,33 +202,29 @@ test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters",
   deg_undir_def <- data_undir$degree_distribution(plot = FALSE)
   expect_true(inherits(deg_undir_def, "table"))
 
+  # Single constraint on undirected network returns table
+  deg_undir_xi <- data_undir$degree_distribution(x_i = 1, plot = FALSE)
+  expect_true(inherits(deg_undir_xi, "table"))
+
+  # Bilateral (sender + receiver) constraint on undirected network returns list with in and out degrees
   deg_undir_sub <- data_undir$degree_distribution(x_i = 1, y_j = 1, plot = FALSE)
-  expect_true(inherits(deg_undir_sub, "table"))
-})
+  expect_true(is.list(deg_undir_sub))
+  expect_true("out_degree" %in% names(deg_undir_sub))
+  expect_true("in_degree" %in% names(deg_undir_sub))
 
-test_that("spillover_degree_distribution does not overwrite cached descriptives when constraints are passed", {
-  n_actor <- 6
-  z <- matrix(c(
-    0, 1, 1, 0, 0, 0,
-    1, 0, 1, 0, 0, 0,
-    1, 1, 0, 1, 0, 0,
-    0, 0, 1, 0, 1, 1,
-    0, 0, 0, 1, 0, 1,
-    0, 0, 0, 1, 1, 0
-  ), nrow = 6, byrow = TRUE)
+  # Vectorized filtering function
+  deg_pred_vec <- data_dir$degree_distribution(x_i = function(x) x == 1, y_j = function(y) y == 1, plot = FALSE)
+  expect_equal(deg_pred_vec, deg_dir_sub)
 
-  x <- c(1, 1, 0, 0, 1, 0)
-  y <- c(0, 1, 1, 0, 0, 1)
+  # Scalar / unvectorized filtering function
+  deg_pred_scalar <- data_dir$degree_distribution(x_i = function(x) if (x == 1) TRUE else FALSE, y_j = function(y) if (y == 1) TRUE else FALSE, plot = FALSE)
+  expect_equal(deg_pred_scalar, deg_dir_sub)
 
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
-
-  # 1. Unconstrained call populates descriptives
-  res_def <- data_obj$spillover_degree_distribution(plot = FALSE)
-  expect_equal(data_obj$descriptives$spillover_degree_distribution, res_def)
-
-  # 2. Constrained call does not overwrite cached descriptives
-  res_constrained <- data_obj$spillover_degree_distribution(x_i = 1, y_j = 0, plot = FALSE)
-  expect_equal(data_obj$descriptives$spillover_degree_distribution, res_def)
+  # Plotting directed and constrained degree distributions
+  pdf(NULL)
+  expect_no_error(data_dir$degree_distribution(x_i = 1, y_j = 1, plot = TRUE))
+  expect_no_error(data_dir$degree_distribution(plot = TRUE))
+  dev.off()
 })
 
 test_that("Positional arguments work for distribution methods", {
@@ -297,7 +243,6 @@ test_that("Positional arguments work for distribution methods", {
   expect_no_error(data_obj$edgewise_shared_partner_distribution("OTP", c(0, 3), FALSE, FALSE))
   expect_no_error(data_obj$dyadwise_shared_partner_distribution("OTP", c(0, 3), FALSE, FALSE))
   expect_no_error(data_obj$degree_distribution(c(0, 4), FALSE, FALSE))
-  expect_no_error(data_obj$spillover_degree_distribution(FALSE, c(0, 3), FALSE))
 })
 
 test_that("Undirected constrained degree accounts for canonical edge orientation", {
@@ -311,11 +256,13 @@ test_that("Undirected constrained degree accounts for canonical edge orientation
 
   # Degree of actor 1 connecting to y=1 receivers (actor 4)
   deg_1 <- data_obj$degree(x_i = 1, y_j = 1)
-  expect_equal(unname(deg_1$degree_seq), 1)
+  expect_equal(unname(deg_1$out_degree_seq), 1)
+  expect_equal(unname(deg_1$in_degree_seq), 1)
 
   # Degree of actor 4 (x=0, y=1) connecting to x=1 receivers (actor 1)
   deg_4 <- data_obj$degree(y_i = 1, x_j = 1)
-  expect_equal(unname(deg_4$degree_seq), 1)
+  expect_equal(unname(deg_4$out_degree_seq), 1)
+  expect_equal(unname(deg_4$in_degree_seq), 1)
 })
 
 test_that("Undirected degree and degree_distribution are equivalent for x_i = 1 vs x_j = 1", {
@@ -345,7 +292,8 @@ test_that("Undirected degree and degree_distribution are equivalent for x_i = 1 
   # Double constraint x_i = 1, x_j = 1 implies both ends have x = 1 (subgraph on nodes 1, 2, 5)
   # Edges among {1, 2, 5}: (1,2), (2,5) -> node 1 deg=1, node 2 deg=2, node 5 deg=1
   deg_both <- data_undir$degree(x_i = 1, x_j = 1)
-  expect_equal(unname(deg_both$degree_seq), c(1, 2, 1))
+  expect_equal(unname(deg_both$out_degree_seq), c(1, 2, 1))
+  expect_equal(unname(deg_both$in_degree_seq), c(1, 2, 1))
 
   # Single constraint counts full degrees for actors with x=1:
   # Node 1: edges to 2, 3 -> deg = 2
@@ -354,6 +302,228 @@ test_that("Undirected degree and degree_distribution are equivalent for x_i = 1 
   expect_equal(unname(deg_xi$degree_seq), c(2, 3, 2))
 })
 
+test_that("degree_distribution with mode = 'local' is equivalent to the original standalone spillover algorithm", {
+  old_spillover_algo <- function(data_obj, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
+                                 prob = TRUE, value_range = NULL) {
+    binarize_filter <- function(attr_vec, spec, type = "binomial") {
+      if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
+      if (is.function(spec)) return(as.logical(spec(attr_vec)))
+      if (type == "binomial") {
+        attr_vec %in% spec
+      } else {
+        m <- mean(attr_vec)
+        res <- rep(FALSE, length(attr_vec))
+        if (1 %in% spec) res <- res | (attr_vec > m)
+        if (0 %in% spec) res <- res | (attr_vec <= m)
+        other_spec <- spec[!spec %in% c(0, 1)]
+        if (length(other_spec) > 0) res <- res | (attr_vec %in% other_spec)
+        res
+      }
+    }
 
+    x_attr <- data_obj$x_attribute
+    y_attr <- data_obj$y_attribute
+    type_x <- data_obj$type_x
+    type_y <- data_obj$type_y
+    n_actor <- data_obj$n_actor
+    z_net <- data_obj$z_network
+    overlap <- data_obj$overlap
 
+    if (!is.null(x_i) || !is.null(y_i)) {
+      cond_i <- rep(TRUE, n_actor)
+      if (!is.null(x_i)) cond_i <- cond_i & binarize_filter(x_attr, x_i, type_x)
+      if (!is.null(y_i)) cond_i <- cond_i & binarize_filter(y_attr, y_i, type_y)
+      actors_sender <- which(cond_i)
+    } else {
+      actors_sender <- which(x_attr > mean(x_attr))
+    }
 
+    if (!is.null(x_j) || !is.null(y_j)) {
+      cond_j <- rep(TRUE, n_actor)
+      if (!is.null(x_j)) cond_j <- cond_j & binarize_filter(x_attr, x_j, type_x)
+      if (!is.null(y_j)) cond_j <- cond_j & binarize_filter(y_attr, y_j, type_y)
+      actors_receiver <- which(cond_j)
+    } else {
+      actors_receiver <- which(y_attr > mean(y_attr))
+    }
+
+    if (length(actors_sender) == 0 || length(actors_receiver) == 0) {
+      if (is.null(value_range)) value_range <- c(0, 1)
+      tmp1 <- if (length(actors_sender) > 0) rep(0, length(actors_sender)) else numeric(0)
+      tmp2 <- if (length(actors_receiver) > 0) rep(0, length(actors_receiver)) else numeric(0)
+      out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2])))
+      in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2])))
+      if (sum(out_degree_x_y) > 0) out_degree_x_y <- out_degree_x_y / (sum(out_degree_x_y) * prob + (!prob))
+      if (sum(in_degree_x_y) > 0) in_degree_x_y <- in_degree_x_y / (sum(in_degree_x_y) * prob + (!prob))
+      return(list(out_spillover_degree = out_degree_x_y, in_spillover_degree = in_degree_x_y))
+    }
+
+    adj_mat_x_y <- matrix(
+      data = NA, nrow = length(actors_sender),
+      ncol = length(actors_receiver),
+      dimnames = list(actors_sender, actors_receiver)
+    )
+
+    overlap_tmp <- if (!is.null(overlap) && nrow(overlap) > 0) {
+      matrix(
+        overlap[(overlap[, 1] %in% actors_sender) & (overlap[, 2] %in% actors_receiver), ],
+        ncol = 2
+      )
+    } else {
+      matrix(integer(0), ncol = 2)
+    }
+    if (nrow(overlap_tmp) > 0) {
+      row_idx <- match(overlap_tmp[, 1], rownames(adj_mat_x_y))
+      col_idx <- match(overlap_tmp[, 2], colnames(adj_mat_x_y))
+      valid <- !is.na(row_idx) & !is.na(col_idx)
+      if (any(valid)) adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 0
+    }
+    has_valid_overlap_row <- rowSums(!is.na(adj_mat_x_y)) > 0
+    has_valid_overlap_col <- colSums(!is.na(adj_mat_x_y)) > 0
+    adj_mat_x_y <- adj_mat_x_y[has_valid_overlap_row, has_valid_overlap_col, drop = FALSE]
+
+    z_net_all <- if (!data_obj$directed && ncol(z_net) == 2 && nrow(z_net) > 0) {
+      rbind(z_net, z_net[, c(2, 1), drop = FALSE])
+    } else {
+      z_net
+    }
+
+    edges_x_y <- matrix(
+      z_net_all[(z_net_all[, 1] %in% actors_sender) & (z_net_all[, 2] %in% actors_receiver), ],
+      ncol = 2
+    )
+    if (nrow(edges_x_y) > 0 && nrow(adj_mat_x_y) > 0 && ncol(adj_mat_x_y) > 0) {
+      which_overlap <- check_overlap(edges_x_y, overlap)
+      edges_x_y_overlap <- matrix(edges_x_y[which_overlap, ], ncol = 2)
+      if (nrow(edges_x_y_overlap) > 0) {
+        row_idx <- match(edges_x_y_overlap[, 1], rownames(adj_mat_x_y))
+        col_idx <- match(edges_x_y_overlap[, 2], colnames(adj_mat_x_y))
+        valid <- !is.na(row_idx) & !is.na(col_idx)
+        if (any(valid)) adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 1
+      }
+    }
+
+    tmp1 <- if (nrow(adj_mat_x_y) > 0) rowSums(adj_mat_x_y, na.rm = TRUE) else numeric(0)
+    tmp2 <- if (ncol(adj_mat_x_y) > 0) colSums(adj_mat_x_y, na.rm = TRUE) else numeric(0)
+
+    range_out <- if (is.list(value_range)) value_range$out_spillover_degree else (if (!is.null(value_range)) value_range else range(unique(c(tmp1, 0))))
+    range_in <- if (is.list(value_range)) value_range$in_spillover_degree else (if (!is.null(value_range)) value_range else range(unique(c(tmp2, 0))))
+
+    out_degree_x_y <- table(factor(tmp1, levels = seq(from = range_out[1], to = range_out[2])))
+    in_degree_x_y <- table(factor(tmp2, levels = seq(from = range_in[1], to = range_in[2])))
+    if (sum(out_degree_x_y) > 0) out_degree_x_y <- out_degree_x_y / (sum(out_degree_x_y) * prob + (!prob))
+    if (sum(in_degree_x_y) > 0) in_degree_x_y <- in_degree_x_y / (sum(in_degree_x_y) * prob + (!prob))
+
+    list(out_spillover_degree = out_degree_x_y, in_spillover_degree = in_degree_x_y)
+  }
+
+  set.seed(42)
+  n_actor <- 15
+  block <- matrix(nrow = 5, ncol = 5, data = 1)
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(3, block, simplify = FALSE)))
+  z_dir <- matrix(rbinom(225, 1, 0.3), 15, 15)
+  diag(z_dir) <- 0
+  x <- rbinom(15, 1, 0.5)
+  y <- rbinom(15, 1, 0.5)
+
+  # Directed network
+  d_dir <- iglm.data(
+    x_attribute = x, y_attribute = y, z_network = z_dir,
+    neighborhood = neighborhood, directed = TRUE,
+    type_x = "binomial", type_y = "binomial"
+  )
+
+  old_dir <- old_spillover_algo(d_dir, x_i = 1, y_j = 1)
+  deg_dir <- d_dir$degree_distribution(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
+
+  expect_equal(as.numeric(old_dir$out_spillover_degree), as.numeric(deg_dir$out_degree))
+  expect_equal(as.numeric(old_dir$in_spillover_degree), as.numeric(deg_dir$in_degree))
+  expect_equal(names(old_dir$out_spillover_degree), names(deg_dir$out_degree))
+  expect_equal(names(old_dir$in_spillover_degree), names(deg_dir$in_degree))
+
+  # Undirected network
+  z_undir <- matrix(0, 15, 15)
+  for (i in 1:14) {
+    for (j in (i + 1):15) {
+      val <- rbinom(1, 1, 0.3)
+      z_undir[i, j] <- z_undir[j, i] <- val
+    }
+  }
+  d_undir <- iglm.data(
+    x_attribute = x, y_attribute = y, z_network = z_undir,
+    neighborhood = neighborhood, directed = FALSE,
+    type_x = "binomial", type_y = "binomial"
+  )
+
+  old_undir <- old_spillover_algo(d_undir, x_i = 1, y_j = 1)
+  deg_undir <- d_undir$degree_distribution(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
+
+  expect_equal(as.numeric(old_undir$out_spillover_degree), as.numeric(deg_undir$out_degree))
+  expect_equal(as.numeric(old_undir$in_spillover_degree), as.numeric(deg_undir$in_degree))
+  expect_equal(names(old_undir$out_spillover_degree), names(deg_undir$out_degree))
+  expect_equal(names(old_undir$in_spillover_degree), names(deg_undir$in_degree))
+})
+
+test_that("iglm.data supports custom label_x, label_y, and label_z", {
+  n_actor <- 5
+  x <- c(0, 1, 0, 1, 1)
+  y <- c(1, 1, 0, 0, 1)
+  z <- matrix(c(1, 2, 2, 3, 3, 4), ncol = 2, byrow = TRUE)
+
+  # Default labels
+  d_default <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor)
+  expect_equal(d_default$label_x, "x")
+  expect_equal(d_default$label_y, "y")
+  expect_equal(d_default$label_z, "z")
+
+  # Custom labels via constructor
+  d_custom <- iglm.data(
+    x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor,
+    label_x = "republican", label_y = "turnout", label_z = "friendship"
+  )
+  expect_equal(d_custom$label_x, "republican")
+  expect_equal(d_custom$label_y, "turnout")
+  expect_equal(d_custom$label_z, "friendship")
+
+  # Setters and active bindings
+  d_custom$label_x <- "party"
+  expect_equal(d_custom$label_x, "party")
+  d_custom$set_label_y("vote")
+  expect_equal(d_custom$label_y, "vote")
+  d_custom$set_label_z("advice")
+  expect_equal(d_custom$label_z, "advice")
+
+  # Error on invalid labels
+  expect_error(d_custom$set_label_x(""), "single non-empty character string")
+  expect_error(d_custom$set_label_y(123), "single non-empty character string")
+  expect_error(d_custom$set_label_z(NA_character_), "single non-empty character string")
+
+  # Explicit labels vs defaults
+  d_def <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor)
+  expect_equal(d_def$label_x, "x")
+  expect_equal(d_def$label_y, "y")
+  expect_equal(d_def$label_z, "z")
+
+  d_arg <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, label_x = "pol_orient", label_y = "participation")
+  expect_equal(d_arg$label_x, "pol_orient")
+  expect_equal(d_arg$label_y, "participation")
+
+  # Print shows labels
+  out_print <- capture.output(d_custom$print())
+  expect_true(any(grepl("x_attribute \\[party\\]", out_print)))
+  expect_true(any(grepl("y_attribute \\[vote\\]", out_print)))
+  expect_true(any(grepl("connections \\[advice\\]", out_print)))
+
+  # Normal attribute print output shows mean and sd only (no redundant scale)
+  x_norm <- rnorm(n_actor)
+  d_norm <- iglm.data(x_attribute = x_norm, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "normal")
+  out_norm <- capture.output(d_norm$print())
+  expect_true(any(grepl("normal mean = .*sd = ", out_norm)))
+  expect_false(any(grepl("scale =", out_norm)))
+
+  # copenhagen dataset labels
+  data(copenhagen)
+  expect_equal(copenhagen$label_x, "gender")
+  expect_equal(copenhagen$label_y, "duration")
+  expect_equal(copenhagen$label_z, "friendship")
+})

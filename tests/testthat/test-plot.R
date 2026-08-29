@@ -108,8 +108,7 @@ test_that("results$plot works for directed model with in/out degrees and continu
   dev.off()
 
   model_fit$assess(
-    formula = ~ degree_distribution + y_distribution + x_distribution +
-      spillover_degree_distribution,
+    formula = ~ degree_distribution + y_distribution + x_distribution,
     plot = FALSE
   )
 
@@ -123,17 +122,17 @@ test_that("results$plot works for directed model with in/out degrees and continu
   expect_silent(model_fit$results$plot(model_assessment = TRUE, assess_copy))
   dev.off()
 
-  # Custom spillover parameters in assess formula
+  # Custom constrained degree parameters in assess formula
   model_fit$assess(
-    formula = ~ spillover_degree_distribution(x_i = 1, y_j = 0) +
-      spillover_degree_distribution(x_i = 0, y_j = 1),
+    formula = ~ degree_distribution(x_i = 1, y_j = 0) +
+      degree_distribution(x_i = 0, y_j = 1),
     plot = FALSE
   )
   pdf(NULL)
   expect_silent(model_fit$results$plot(model_assessment = TRUE))
   dev.off()
 
-  # Multi-model comparison with multiple custom spillover terms
+  # Multi-model comparison with multiple custom degree terms
   assess_custom_copy <- model_fit$results$model_assessment
   pdf(NULL)
   expect_silent(model_fit$results$plot(model_assessment = TRUE, assess_custom_copy))
@@ -150,11 +149,11 @@ test_that("results$plot works for directed model with in/out degrees and continu
   model_fit2$estimate()
 
   res2 <- model_fit2$assess(
-    formula = ~ degree_distribution + geodesic_distances_distribution + y_distribution + spillover_degree_distribution,
+    formula = ~ degree_distribution + geodesic_distances_distribution + y_distribution,
     plot = FALSE
   )
   res1 <- model_fit$assess(
-    formula = ~ degree_distribution + geodesic_distances_distribution + y_distribution + spillover_degree_distribution,
+    formula = ~ degree_distribution + geodesic_distances_distribution + y_distribution,
     plot = FALSE
   )
   pdf(NULL)
@@ -163,7 +162,7 @@ test_that("results$plot works for directed model with in/out degrees and continu
   # Constrained degree distributions in assess formula
   model_fit$assess(
     formula = ~ degree_distribution(x_i = 1, x_j = 1) +
-      degree_distribution(y_i = 1, y_j = 1),
+      degree_distribution(y_i = 1, y_j = 0),
     plot = FALSE
   )
   pdf(NULL)
@@ -171,8 +170,7 @@ test_that("results$plot works for directed model with in/out degrees and continu
   dev.off()
 })
 
-test_that("Plotting distribution methods with predicate functions works without error", {
-  n_actor <- 5
+test_that("Continuous attributes work with degree_distribution and plot methods", {
   z <- matrix(c(
     0, 1, 1, 0, 0,
     1, 0, 1, 0, 1,
@@ -187,7 +185,6 @@ test_that("Plotting distribution methods with predicate functions works without 
   pdf(NULL)
   expect_no_error(data_obj$degree_distribution(x_i = function(v) v > 0, plot = TRUE))
   expect_no_error(data_obj$degree_distribution(x_i = c(1, 2), plot = TRUE))
-  expect_no_error(data_obj$spillover_degree_distribution(x_i = function(v) v > 0, plot = TRUE))
   dev.off()
 })
 
@@ -212,4 +209,45 @@ test_that("Trace plot works on pure degree models", {
   dev.off()
 })
 
+test_that("results$plot handles asymmetric constrained in and out degree distributions properly", {
+  n_actor <- 8
+  z_asym <- matrix(0, 8, 8)
+  z_asym[1, 2] <- z_asym[1, 3] <- z_asym[1, 4] <- z_asym[1, 5] <- 1
+  d_asym <- iglm.data(
+    x_attribute = c(1, 0, 0, 0, 0, 0, 0, 0),
+    y_attribute = c(0, 1, 1, 1, 1, 0, 0, 0),
+    z_network = z_asym,
+    n_actor = 8,
+    directed = TRUE
+  )
 
+  fit <- iglm(
+    formula = d_asym ~ edges(mode = "global"),
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 4, init_empty = FALSE),
+    control = control.iglm(max_it = 2, display_progress = FALSE)
+  )
+  fit$simulate()
+
+  asss <- fit$assess(formula = ~ degree_distribution(x_i = 1, y_j = 1), plot = FALSE)
+  asss_name <- names(asss$observed)[1]
+  expect_equal(names(asss$observed[[asss_name]]$out_degree), as.character(0:4))
+  expect_equal(names(asss$observed[[asss_name]]$in_degree), as.character(0:1))
+
+  pdf(NULL)
+  expect_silent(fit$results$plot(model_assessment = TRUE))
+  dev.off()
+})
+
+test_that("Constrained degree labels include x and y constraints", {
+  lab_def_bin <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, type_x = "binomial", type_y = "binomial")
+  expect_true(grepl("x\\[i\\] == 1", paste(deparse(lab_def_bin), collapse = " ")))
+  expect_true(grepl("y\\[j\\] == 1", paste(deparse(lab_def_bin), collapse = " ")))
+
+  lab_def_norm <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, type_x = "normal", type_y = "normal")
+  expect_true(grepl("x\\[i\\] > bar\\(x\\)", paste(deparse(lab_def_norm), collapse = " ")))
+  expect_true(grepl("y\\[j\\] > bar\\(y\\)", paste(deparse(lab_def_norm), collapse = " ")))
+
+  lab_assess_custom <- get_assessment_constraint_xlab("Indegree", "degree_distribution_x_i_0,y_j_1", "degree_distribution", type_x = "binomial", type_y = "binomial")
+  expect_true(grepl("x\\[i\\] == 0", paste(deparse(lab_assess_custom), collapse = " ")))
+  expect_true(grepl("y\\[j\\] == 1", paste(deparse(lab_assess_custom), collapse = " ")))
+})

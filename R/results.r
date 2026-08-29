@@ -8,7 +8,7 @@
 #' bindings of the main `iglm_object`.
 #' @import R6
 #' @import RcppProgress
-#' @importFrom graphics plot lines abline layout title par axis boxplot
+#' @importFrom graphics plot lines abline layout title par axis boxplot box polygon barplot legend
 results.generator <- R6::R6Class("results",
   private = list(
     .coefficients_path = NULL,
@@ -375,13 +375,18 @@ results.generator <- R6::R6Class("results",
         k <- 0
         for (i in base_names) {
           k <- k + 1
-          if (i == "degree_distribution") {
+          if (i %in% c("degree_distribution", "deg_dist")) {
             # Degree -----
             if (is.list(private$.model_assessment$observed[[tmp_names[k]]])) {
               # Directed in_degree & out_degree
               for (degree_type in c("in_degree", "out_degree")) {
-                base_lab <- if (degree_type == "in_degree") "Indegree" else "Outdegree"
-                xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], "degree_distribution", type_x = type_x, type_y = type_y)
+                is_local <- grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])
+                base_lab <- if (degree_type == "in_degree") {
+                  if (is_local) "Local Indegree" else "Indegree"
+                } else {
+                  if (is_local) "Local Outdegree" else "Outdegree"
+                }
+                xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, type_x = type_x, type_y = type_y)
                 obs_deg <- private$.model_assessment$observed[[tmp_names[k]]][[degree_type]]
                 sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k], degree_type)
 
@@ -399,7 +404,9 @@ results.generator <- R6::R6Class("results",
               }
             } else {
               # Undirected
-              xlab_deg <- get_assessment_constraint_xlab("Degree", tmp_names[k], "degree_distribution", type_x = type_x, type_y = type_y)
+              is_local <- grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])
+              base_lab <- if (is_local) "Local Degree" else "Degree"
+              xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, type_x = type_x, type_y = type_y)
               obs_deg <- private$.model_assessment$observed[[tmp_names[k]]]
               sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -415,8 +422,9 @@ results.generator <- R6::R6Class("results",
                 plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
               }
             }
-          } else if (i %in% c("dyadwise_shared_partner_distribution", "edgewise_shared_partner_distribution")) {
-            xlab_sp <- if (i == "dyadwise_shared_partner_distribution") "Dyadwise Shared Partner" else "Edgewise Shared Partner"
+          } else if (i %in% c("dyadwise_shared_partner_distribution", "dsp_dist",
+                              "edgewise_shared_partner_distribution", "esp_dist")) {
+            xlab_sp <- if (grepl("dyadwise", i) || grepl("^dsp", i)) "Dyadwise Shared Partner" else "Edgewise Shared Partner"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
               xlab_sp <- paste0(xlab_sp, " (Local)")
             }
@@ -434,26 +442,12 @@ results.generator <- R6::R6Class("results",
             } else {
               plot_assessment_single(observed = obs_sp, sim_matrix = sim_sp, xlab = xlab_sp)
             }
-          } else if (i == "spillover_degree_distribution") {
-            for (spill_type in c("in_spillover_degree", "out_spillover_degree")) {
-              base_lab <- if (spill_type == "in_spillover_degree") "Spillover Indegree" else "Spillover Outdegree"
-              xlab_spill <- get_assessment_constraint_xlab(base_lab, tmp_names[k], "spillover_degree_distribution", type_x = type_x, type_y = type_y)
-              obs_spill <- private$.model_assessment$observed[[tmp_names[k]]][[spill_type]]
-              sim_spill <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k], spill_type)
 
-              if (add) {
-                sim_dots <- lapply(dot_list, function(d) {
-                  extract_assessment_matrix(d$simulated, tmp_names[k], spill_type)
-                })
-                plot_assessment_multi(
-                  observed = obs_spill, sim_main = sim_spill, sim_dots = sim_dots,
-                  model_names = names_tmp, colors = colors_tmp, xlab = xlab_spill, x_margin = 0.5
-                )
-              } else {
-                plot_assessment_single(observed = obs_spill, sim_matrix = sim_spill, xlab = xlab_spill, x_margin = 0.5)
-              }
+          } else if (i %in% c("geodesic_distances_distribution", "geo_dist")) {
+            xlab_geo <- "Geodesic Distance"
+            if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
+              xlab_geo <- paste0(xlab_geo, " (Local)")
             }
-          } else if (i == "geodesic_distances_distribution") {
             obs_geo <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_geo <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
             x_pos <- seq_along(obs_geo)
@@ -465,16 +459,16 @@ results.generator <- R6::R6Class("results",
               })
               plot_assessment_multi(
                 observed = obs_geo, sim_main = sim_geo, sim_dots = sim_dots,
-                model_names = names_tmp, colors = colors_tmp, xlab = "Geodesic Distance",
+                model_names = names_tmp, colors = colors_tmp, xlab = xlab_geo,
                 x_positions = x_pos, x_at = x_pos, x_labels = x_labs
               )
             } else {
               plot_assessment_single(
-                observed = obs_geo, sim_matrix = sim_geo, xlab = "Geodesic Distance",
+                observed = obs_geo, sim_matrix = sim_geo, xlab = xlab_geo,
                 x_positions = x_pos, x_at = x_pos, x_labels = x_labs
               )
             }
-          } else if (i == "y_distribution") {
+          } else if (i %in% c("y_distribution", "y_dist")) {
             obs_y <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_y <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -497,7 +491,7 @@ results.generator <- R6::R6Class("results",
                 use_envelope = is_normal
               )
             }
-          } else if (i == "x_distribution") {
+          } else if (i %in% c("x_distribution", "x_dist")) {
             obs_x <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_x <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 

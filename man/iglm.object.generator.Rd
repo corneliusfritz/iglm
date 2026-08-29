@@ -199,6 +199,7 @@ available, they are printed in a standard coefficient table format.
   print.fitinfo = TRUE,
   print.coefmat = TRUE,
   print.call = TRUE,
+  canonical_names = FALSE,
   ...
 )}
     \if{html}{\out{</div>}}
@@ -215,6 +216,7 @@ only the corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value, 4:
       \item{\code{print.fitinfo}}{(logical) If `TRUE` (default), prints information about the estimation results.}
       \item{\code{print.coefmat}}{(logical) If `TRUE` (default), prints the coefficient table.}
       \item{\code{print.call}}{(logical) If `TRUE` (default), prints the call that generated the object.}
+      \item{\code{canonical_names}}{(logical) If `TRUE`, prints canonical term names without label substitution. Default is `FALSE`.}
       \item{\code{...}}{Additional arguments passed to \code{\link{printCoefmat}}.}
     }
     \if{html}{\out{</div>}}
@@ -360,18 +362,17 @@ Stores the results internally and updates the coefficient fields.
 \if{html}{\out{<a id="method-iglm.object-summary"></a>}}
 \if{latex}{\out{\hypertarget{method-iglm.object-summary}{}}}
 \subsection{\code{iglm.object$summary()}}{
-  Provides a summary of the estimation results with the following columns: Estimate, SE,
-t-value, and Pr(>|t|).
-Requires the model to have been estimated first.
+  Provides a summary of the estimation results. Requires the model to have been estimated first.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.object$summary(digits = 2, ...)}
+    \preformatted{iglm.object$summary(digits = 2, canonical_names = FALSE, ...)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{digits}}{(integer) Number of digits for rounding numeric output.}
+      \item{\code{digits}}{(integer) Number of digits for rounding numeric output. Default is 2.}
+      \item{\code{canonical_names}}{(logical) If `TRUE`, print canonical term names without label substitution. Default is `FALSE`.}
       \item{\code{...}}{Additional arguments passed to \code{\link{printCoefmat}}.}
     }
     \if{html}{\out{</div>}}
@@ -570,7 +571,7 @@ count statistics and re-validates the object.
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{x}}{A \code{\link{iglm.data}} `` object containing the new observed data.}
+      \item{\code{x}}{A \code{\link{iglm.data}} object containing the new observed data.}
     }
     \if{html}{\out{</div>}}
   }

@@ -44,7 +44,7 @@
 \description{
 The help pages of \code{\link{iglm}} describe the model with details on model fitting
 and estimation.
-Generally, a model is specified via it's sufficient statistics,
+Generally, a model is specified via its sufficient statistics,
 that can be further decomposed into two parts:
 \itemize{
   \item \strong{\eqn{\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))}}: A vector of unit-level functions (or "g-terms")

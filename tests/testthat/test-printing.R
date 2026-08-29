@@ -74,3 +74,63 @@ test_that("iglm.object print and summary works as expected", {
   # With eps.Pvalue = 0.5, most small p-values should be shown as <0.5 or < 0.5
   expect_true(any(grepl("<\\s*0\\.5", out_eps)))
 })
+
+test_that("summary and print show labeled names by default and canonical names when canonical_names = TRUE", {
+  n_actor <- 20
+  neighborhood <- matrix(1, n_actor, n_actor)
+  diag(neighborhood) <- 0
+
+  xyz_labeled <- iglm.data(
+    neighborhood = neighborhood, directed = TRUE,
+    label_x = "republican", label_y = "turnout", label_z = "advice"
+  )
+
+  # Formula strictly uses canonical names
+  model <- iglm(
+    formula = xyz_labeled ~ edges(mode = "local") + attribute_x + attribute_y + spillover_xy,
+    coef = c(-2, 0.5, 0.3, 0.1),
+    control = control.iglm(estimate_model = FALSE)
+  )
+
+  # Formulas with non-canonical names fail as expected
+  expect_error(
+    iglm(formula = xyz_labeled ~ attribute_republican, control = control.iglm(estimate_model = FALSE)),
+    "Term 'attribute_republican' not recognized"
+  )
+
+  # Mock estimation results
+  model$results$update(
+    coefficients_path = matrix(c(-2, 0.5, 0.3, 0.1), nrow = 1),
+    var = diag(c(0.1, 0.05, 0.05, 0.02)),
+    estimated = TRUE
+  )
+  model$set_coefficients(
+    coef = matrix(c(-2, 0.5, 0.3, 0.1), ncol = 1,
+                  dimnames = list(c("edges(mode = 'local')", "attribute_x", "attribute_y", "spillover_xy"), NULL))
+  )
+
+  # Labeled names in summary (default: canonical_names = FALSE)
+  sum_labeled <- model$summary()
+  expect_equal(rownames(sum_labeled), c("edges(mode = 'local')", "attribute_republican", "attribute_turnout", "spillover_republican_turnout"))
+
+  out_sum_labeled <- capture.output(model$summary())
+  expect_true(any(grepl("attribute_republican", out_sum_labeled)))
+  expect_true(any(grepl("attribute_turnout", out_sum_labeled)))
+  expect_true(any(grepl("spillover_republican_turnout", out_sum_labeled)))
+
+  # Canonical names in summary when canonical_names = TRUE
+  sum_canonical <- model$summary(canonical_names = TRUE)
+  expect_equal(rownames(sum_canonical), c("edges(mode = 'local')", "attribute_x", "attribute_y", "spillover_xy"))
+
+  out_sum_canonical <- capture.output(model$summary(canonical_names = TRUE))
+  expect_true(any(grepl("attribute_x", out_sum_canonical)))
+  expect_true(any(grepl("attribute_y", out_sum_canonical)))
+  expect_true(any(grepl("spillover_xy", out_sum_canonical)))
+
+  # Print with canonical_names = FALSE (default) and TRUE
+  out_print_labeled <- capture.output(model$print())
+  expect_true(any(grepl("attribute_republican", out_print_labeled)))
+
+  out_print_canonical <- capture.output(model$print(canonical_names = TRUE))
+  expect_true(any(grepl("attribute_x", out_print_canonical)))
+})

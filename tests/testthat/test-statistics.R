@@ -582,14 +582,14 @@ test_that("Test iglm.data degree and spillover distributions with continuous att
   data_cont <- iglm.data(x_attribute = x_cont, y_attribute = y_cont, z_network = z, neighborhood = neighborhood, n_actor = n_actor, type_x = "normal", type_y = "normal", directed = TRUE)
   data_bin <- iglm.data(x_attribute = x_bin, y_attribute = y_bin, z_network = z, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
   
-  # Test iglm_data degree and spillover_degree_distribution
-  deg_cont <- data_cont$degree(x_i = 1, y_j = 0)
-  deg_bin <- data_bin$degree(x_i = 1, y_j = 0)
+  # Test iglm_data degree and degree_distribution with mode = "local"
+  deg_cont <- data_cont$degree(x_i = 1, y_j = 0, mode = "local")
+  deg_bin <- data_bin$degree(x_i = 1, y_j = 0, mode = "local")
   expect_equal(deg_cont, deg_bin)
   
-  spill_cont <- data_cont$spillover_degree_distribution(x_i = 1, y_j = 0, plot = FALSE)
-  spill_bin <- data_bin$spillover_degree_distribution(x_i = 1, y_j = 0, plot = FALSE)
-  expect_equal(spill_cont, spill_bin)
+  deg_dist_cont <- data_cont$degree_distribution(x_i = 1, y_j = 0, mode = "local", plot = FALSE)
+  deg_dist_bin <- data_bin$degree_distribution(x_i = 1, y_j = 0, mode = "local", plot = FALSE)
+  expect_equal(deg_dist_cont, deg_dist_bin)
 })
 
 test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stats vs MCMC continuous updates (Directed)", {

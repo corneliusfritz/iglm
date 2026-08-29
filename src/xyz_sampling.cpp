@@ -963,10 +963,10 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
                                 const bool display_progress, 
                                 const bool degrees, 
                                 const double offset_nonoverlap, 
-                                const bool fix_x = false, 
-                                const bool fix_z = false, 
-                                const bool nonoverlap_random = true,
-                                const bool tnt = true){
+                                 const bool fix_x = false, 
+                                 const bool fix_z = false, 
+                                 const bool nonoverlap_random = true,
+                                 const bool tnt = true){
   arma::mat stats(n_simulation,functions.size());
   stats.fill(0);
   std::string x, y; 
@@ -995,7 +995,6 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
                                 functions,
                                 global_stats, x);  
     }
-    // Rcout << "Sampling Y| X,Z" << std::endl;
     // Sample Y| X,Z
     xyz_simulate_attribute_mh(coef,object,
                               n_proposals_y,
@@ -1023,16 +1022,31 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
       if(nonoverlap_random){
         // Sample Z_nonoverlapping|X,Y
         if(degrees){
-          xyz_simulate_network_consecutive_degrees_mh(coef,
-                                                      coef_degrees,object,
-                                                      data_list, type_list,
-                                                      is_full_neighborhood, functions,
-                                                      global_stats, offset_nonoverlap);
+          if(object.z_network.directed) {
+            xyz_simulate_network_consecutive_degrees_mh_directed(coef,
+                                                        coef_degrees,object,
+                                                        data_list, type_list,
+                                                        is_full_neighborhood, functions,
+                                                        global_stats, offset_nonoverlap);
+          } else {
+            xyz_simulate_network_consecutive_degrees_mh(coef,
+                                                        coef_degrees,object,
+                                                        data_list, type_list,
+                                                        is_full_neighborhood, functions,
+                                                        global_stats, offset_nonoverlap);
+          }
         } else {
-          xyz_simulate_network_consecutive_mh(coef,object,
-                                              data_list, type_list,
-                                              is_full_neighborhood, functions,
-                                              global_stats, offset_nonoverlap);
+          if(object.z_network.directed) {
+            xyz_simulate_network_consecutive_mh_directed(coef,object,
+                                                data_list, type_list,
+                                                is_full_neighborhood, functions,
+                                                global_stats, offset_nonoverlap);
+          } else {
+            xyz_simulate_network_consecutive_mh(coef,object,
+                                                data_list, type_list,
+                                                is_full_neighborhood, functions,
+                                                global_stats, offset_nonoverlap);
+          }
         }
       }
     }
@@ -1096,6 +1110,21 @@ List xyz_simulate_cpp(arma::vec& coef,
   XYZ_class object(n_actor,directed, neighborhood, overlap, type_x, type_y,attr_x_scale, attr_y_scale);
   if(!init_empty){
     object.set_info_arma(x_attribute,y_attribute, z_network);
+  } else {
+    if(fix_x){
+      object.x_attribute.set_attr_from_armavec(x_attribute);
+    }
+    if(fix_z){
+      object.set_network_from_mat(n_actor, directed, z_network);
+    } else if(!nonoverlap_random){
+      for(size_t r = 0; r < z_network.n_rows; ++r){
+        int u = static_cast<int>(z_network(r, 0));
+        int v = static_cast<int>(z_network(r, 1));
+        if(!object.get_val_overlap(u, v)){
+          object.add_edge(u, v);
+        }
+      }
+    }
   }
   bool is_full_neighborhood = object.check_if_full_neighborhood();
   // Rcout <<object.overlap.at(1)<< std::endl;
@@ -3520,7 +3549,15 @@ List xyz_approximate_variability(arma::vec& coef,
     if(fix_z){
       // Rcout << "Setting initial empty network" << std::endl;
       object.set_network_from_mat(n_actor, directed, z_network);  
-    }  
+    } else if(!nonoverlap_random){
+      for(size_t r = 0; r < z_network.n_rows; ++r){
+        int u = static_cast<int>(z_network(r, 0));
+        int v = static_cast<int>(z_network(r, 1));
+        if(!object.get_val_overlap(u, v)){
+          object.add_edge(u, v);
+        }
+      }
+    }
   }
   bool is_full_neighborhood = object.check_if_full_neighborhood();
   // Generate change statistic function from the terms

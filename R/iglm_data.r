@@ -27,8 +27,21 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     .fix_x = NULL,
     .fix_z = NULL,
     .descriptives = NULL,
+    .label_x = "x",
+    .label_y = "y",
+    .label_z = "z",
     .validate = function() {
       errors <- character()
+      # Check labels
+      if (!is.character(private$.label_x) || length(private$.label_x) != 1 || is.na(private$.label_x) || nchar(trimws(private$.label_x)) == 0) {
+        errors <- c(errors, "'label_x' must be a single non-empty character string.")
+      }
+      if (!is.character(private$.label_y) || length(private$.label_y) != 1 || is.na(private$.label_y) || nchar(trimws(private$.label_y)) == 0) {
+        errors <- c(errors, "'label_y' must be a single non-empty character string.")
+      }
+      if (!is.character(private$.label_z) || length(private$.label_z) != 1 || is.na(private$.label_z) || nchar(trimws(private$.label_z)) == 0) {
+        errors <- c(errors, "'label_z' must be a single non-empty character string.")
+      }
       # Check scales
       if (length(private$.scale_x) != 1 || private$.scale_x <= 0) {
         errors <- c(errors, "'scale_x' must be a single positive number.")
@@ -184,6 +197,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
     #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
     #' @param file (character) Optional file path to load a saved `iglm.data` object state.
+    #' @param label_x Character string for the label/name of `x_attribute`. Default is `"x"`.
+    #' @param label_y Character string for the label/name of `y_attribute`. Default is `"y"`.
+    #' @param label_z Character string for the label/name of `z_network`. Default is `"z"`.
     #' @return A new `iglm.data` object.
     initialize = function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                           neighborhood = NULL, directed = NA, n_actor = NA,
@@ -194,7 +210,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                           fix_z = FALSE,
                           fix_z_alocal = TRUE,
                           return_neighborhood = TRUE,
-                          file = NULL) {
+                          file = NULL,
+                          label_x = "x",
+                          label_y = "y",
+                          label_z = "z") {
       # browser()
       if (!is.null(file)) {
         if (!file.exists(file)) {
@@ -223,6 +242,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         fix_x <- data_loaded$fix_x
         fix_z <- data_loaded$fix_z
         fix_z_alocal <- data_loaded$fix_z_alocal
+        if (!is.null(data_loaded$label_x)) label_x <- data_loaded$label_x
+        if (!is.null(data_loaded$label_y)) label_y <- data_loaded$label_y
+        if (!is.null(data_loaded$label_z)) label_z <- data_loaded$label_z
       }
       if (!is.null(z_network) && any(is.na(z_network))) {
         if ((is.matrix(z_network) || inherits(z_network, "Matrix")) && ncol(z_network) == 2) {
@@ -245,6 +267,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       private$.fix_x <- fix_x
       private$.fix_z <- fix_z
       private$.fix_z_alocal <- as.logical(fix_z_alocal)
+
+      private$.label_x <- label_x
+      private$.label_y <- label_y
+      private$.label_z <- label_z
 
       private$.descriptives <- list()
 
@@ -442,6 +468,39 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       invisible(self)
     },
     #' @description
+    #' Sets the label for the `x_attribute`.
+    #' @param label_x A character string for the label of `x_attribute`.
+    #' @return The `iglm.data` object itself (`self`), invisibly.
+    set_label_x = function(label_x) {
+      if (!is.character(label_x) || length(label_x) != 1 || is.na(label_x) || nchar(trimws(label_x)) == 0) {
+        stop("`label_x` must be a single non-empty character string.", call. = FALSE)
+      }
+      private$.label_x <- as.character(label_x)
+      invisible(self)
+    },
+    #' @description
+    #' Sets the label for the `y_attribute`.
+    #' @param label_y A character string for the label of `y_attribute`.
+    #' @return The `iglm.data` object itself (`self`), invisibly.
+    set_label_y = function(label_y) {
+      if (!is.character(label_y) || length(label_y) != 1 || is.na(label_y) || nchar(trimws(label_y)) == 0) {
+        stop("`label_y` must be a single non-empty character string.", call. = FALSE)
+      }
+      private$.label_y <- as.character(label_y)
+      invisible(self)
+    },
+    #' @description
+    #' Sets the label for the `z_network`.
+    #' @param label_z A character string for the label of `z_network`.
+    #' @return The `iglm.data` object itself (`self`), invisibly.
+    set_label_z = function(label_z) {
+      if (!is.character(label_z) || length(label_z) != 1 || is.na(label_z) || nchar(trimws(label_z)) == 0) {
+        stop("`label_z` must be a single non-empty character string.", call. = FALSE)
+      }
+      private$.label_z <- as.character(label_z)
+      invisible(self)
+    },
+    #' @description
     #' Gathers the current state of the `iglm.data` object into a list.
     #' This includes all attributes, network, and configuration
     #' details necessary to reconstruct the object later.
@@ -460,7 +519,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         scale_y = private$.scale_y,
         fix_x = private$.fix_x,
         fix_z = private$.fix_z,
-        fix_z_alocal = private$.fix_z_alocal
+        fix_z_alocal = private$.fix_z_alocal,
+        label_x = private$.label_x,
+        label_y = private$.label_y,
+        label_z = private$.label_z
       )
       return(data_to_save)
     },
@@ -612,6 +674,15 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       invisible(private$.descriptives$x_distribution)
     },
     #' @description
+    #' Short alias for `x_distribution`.
+    #' @param value_range (numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.
+    #' @param prob (logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.
+    #' @param plot (logical) If `TRUE` (default), plots the distribution.
+    #' @return A numeric vector representing the distribution of `x_attribute` (invisible).
+    x_dist = function(value_range = NULL, prob = TRUE, plot = TRUE) {
+      self$x_distribution(value_range = value_range, prob = prob, plot = plot)
+    },
+    #' @description
     #' Calculates the distribution of the `y_attribute`.
     #' @param value_range (numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.
     #' @param prob (logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.
@@ -649,6 +720,15 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         }
       }
       invisible(private$.descriptives$y_distribution)
+    },
+    #' @description
+    #' Short alias for `y_distribution`.
+    #' @param value_range (numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.
+    #' @param prob (logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.
+    #' @param plot (logical) If `TRUE` (default), plots the distribution.
+    #' @return A numeric vector representing the distribution of `y_attribute` (invisible).
+    y_dist = function(value_range = NULL, prob = TRUE, plot = TRUE) {
+      self$y_distribution(value_range = value_range, prob = prob, plot = plot)
     },
     #' @description
     #' Calculates the matrix of edgewise shared partners.
@@ -798,11 +878,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
             dims = c(private$.n_actor, private$.n_actor)
           )
         } else {
-          overlap_idx <- private$.overlap
-          if (!private$.directed) {
-            overlap_idx <- overlap_idx[overlap_idx[, 1] < overlap_idx[, 2], , drop = FALSE]
+          overlap_idx <- if (!private$.directed) {
+            private$.overlap[private$.overlap[, 1] < private$.overlap[, 2], , drop = FALSE]
           } else {
-            overlap_idx <- overlap_idx[overlap_idx[, 1] != overlap_idx[, 2], , drop = FALSE]
+            private$.overlap[private$.overlap[, 1] != private$.overlap[, 2], , drop = FALSE]
           }
           if (nrow(overlap_idx) > 0) {
             overlap_sp <- Matrix::sparseMatrix(
@@ -827,6 +906,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @description
     #' Calculates the geodesic distance distribution of the symmetrized
     #' `z_network`.
+    #' @description
+    #' Calculates the geodesic distance distribution of the symmetrized
+    #' `z_network`.
     #'
     #' @param value_range (numeric vector) A vector `c(min, max)` specifying
     #'   the range of distances to tabulate. If `NULL` (default), the range
@@ -834,14 +916,29 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @param plot (logical) If `TRUE`, plots the distribution.
     #' @param prob (logical) If `TRUE` (default), returns a probability
     #'   distribution (proportions). If `FALSE`, returns raw counts.
+    #' @param mode (character) Either `"global"` (default) to evaluate across all node pairs,
+    #'   or `"local"` to evaluate only pairs with overlapping neighborhoods (from `overlap`).
     #' @return A named vector (a `table` object) with the distribution of
     #'   geodesic distances. Includes `Inf` for unreachable pairs.
-    geodesic_distances_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE) {
-      if (is.null(private$.descriptives$geodesic_distances)) {
-        self$geodesic_distances()
+    geodesic_distances_distribution = function(value_range = NULL, prob = TRUE, plot = TRUE, mode = "global") {
+      if (!mode %in% c("global", "local")) {
+        stop("'mode' must be either 'global' or 'local'.")
       }
-      D <- private$.descriptives$geodesic_distances
-      D_vec <- as.vector(D)
+      if (is.null(private$.descriptives$geodesic_distances_distribution)) {
+        private$.descriptives$geodesic_distances_distribution <- list()
+      }
+      key <- if (mode == "local") "local" else "global"
+
+      if (is.null(private$.descriptives$geodesic_distances[[key]])) {
+        self$geodesic_distances(mode = mode)
+      }
+      D <- private$.descriptives$geodesic_distances[[key]]
+      if (!private$.directed) {
+        D_vec <- as.vector(D[upper.tri(D)])
+      } else {
+        D_vec <- as.vector(D[row(D) != col(D)])
+      }
+      D_vec <- D_vec[!is.na(D_vec)]
       if (is.null(value_range)) {
         if (length(D_vec[is.finite(D_vec) & D_vec > 0]) > 0) {
           value_range <- range(D_vec[is.finite(D_vec) & D_vec > 0])
@@ -854,15 +951,15 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       )
       info <- table(info_factor)
 
-
       if (sum(info) > 0) {
         info <- info / (sum(info) * prob + (!prob))
       }
-      private$.descriptives$geodesic_distances_distribution <- info
+      private$.descriptives$geodesic_distances_distribution[[key]] <- info
       if (plot) {
         barplot(info,
           ylim = c(0, max(info) * 1.2),
-          xlab = "Geodesic Distance", ylab = ifelse(prob, "Proportion", "Count"),
+          xlab = paste0("Geodesic Distance", if (mode == "local") " (Local)" else ""),
+          ylab = ifelse(prob, "Proportion", "Count"),
           las = 1
         )
       }
@@ -871,10 +968,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @description
     #' Calculates the all-pairs geodesic distance matrix for the
     #' symmetrized `z_network` using a matrix-based BFS algorithm.
+    #' @param mode (character) Either `"global"` (default) to evaluate across all pairs,
+    #'   or `"local"` to evaluate only pairs with overlapping neighborhoods.
     #' @return A sparse matrix (`dgCMatrix`) where `D[i, j]` is the
     #'   shortest path distance from i to j. `Inf` indicates no path.
     #' @importFrom Matrix sparseMatrix t Matrix diag nnzero Diagonal
-    geodesic_distances = function() {
+    geodesic_distances = function(mode = "global") {
+      if (!mode %in% c("global", "local")) {
+        stop("'mode' must be either 'global' or 'local'.")
+      }
+      if (is.null(private$.descriptives$geodesic_distances)) {
+        private$.descriptives$geodesic_distances <- list()
+      }
+      key <- if (mode == "local") "local" else "global"
+
       adj_mat <- Matrix::sparseMatrix(
         i = private$.z_network[, 1],
         j = private$.z_network[, 2],
@@ -896,8 +1003,70 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         D[F_new] <- k
         F_tmp <- F_new
       }
-      private$.descriptives$geodesic_distances <- D
+      if (mode == "local") {
+        D_local <- Matrix::Matrix(NA_real_, nrow(adj_mat), nrow(adj_mat))
+        if (!is.null(private$.overlap) && nrow(private$.overlap) > 0) {
+          D_local[private$.overlap] <- D[private$.overlap]
+        }
+        D <- D_local
+      }
+      private$.descriptives$geodesic_distances[[key]] <- D
       return(D)
+    },
+    #' @description
+    #' Short alias for `edgewise_shared_partner`.
+    #' @param type (character) The type of two-path to calculate. Default is `"ALL"`.
+    #' @param mode (character) `"global"` (default) or `"local"`.
+    #' @return A numeric vector of shared partner counts for edges.
+    esp = function(type = "ALL", mode = "global") {
+      self$edgewise_shared_partner(type = type, mode = mode)
+    },
+    #' @description
+    #' Short alias for `edgewise_shared_partner_distribution`.
+    #' @param type (character) The type of two-path to calculate. Default is `"ALL"`.
+    #' @param value_range (numeric vector) Range of counts to tabulate.
+    #' @param prob (logical) If `TRUE` (default), returns proportions.
+    #' @param plot (logical) If `TRUE`, plots the distribution.
+    #' @param mode (character) `"global"` (default) or `"local"`.
+    #' @return A named vector with the distribution.
+    esp_dist = function(type = "ALL", value_range = NULL, prob = TRUE, plot = TRUE, mode = "global") {
+      self$edgewise_shared_partner_distribution(type = type, value_range = value_range, prob = prob, plot = plot, mode = mode)
+    },
+    #' @description
+    #' Short alias for `dyadwise_shared_partner`.
+    #' @param type (character) The type of two-path to calculate. Default is `"ALL"`.
+    #' @param mode (character) `"global"` (default) or `"local"`.
+    #' @return A sparse matrix (`dgCMatrix`) of shared partner counts.
+    dsp = function(type = "ALL", mode = "global") {
+      self$dyadwise_shared_partner(type = type, mode = mode)
+    },
+    #' @description
+    #' Short alias for `dyadwise_shared_partner_distribution`.
+    #' @param type (character) The type of two-path to calculate. Default is `"ALL"`.
+    #' @param value_range (numeric vector) Range of counts to tabulate.
+    #' @param prob (logical) If `TRUE` (default), returns proportions.
+    #' @param plot (logical) If `TRUE`, plots the distribution.
+    #' @param mode (character) `"global"` (default) or `"local"`.
+    #' @return A named vector with the distribution.
+    dsp_dist = function(type = "ALL", value_range = NULL, prob = TRUE, plot = TRUE, mode = "global") {
+      self$dyadwise_shared_partner_distribution(type = type, value_range = value_range, prob = prob, plot = plot, mode = mode)
+    },
+    #' @description
+    #' Short alias for `geodesic_distances`.
+    #' @param mode (character) `"global"` (default) or `"local"`.
+    #' @return A sparse matrix (`dgCMatrix`) of geodesic distances.
+    geo = function(mode = "global") {
+      self$geodesic_distances(mode = mode)
+    },
+    #' @description
+    #' Short alias for `geodesic_distances_distribution`.
+    #' @param value_range (numeric vector) Range of distances to tabulate.
+    #' @param prob (logical) If `TRUE` (default), returns proportions.
+    #' @param plot (logical) If `TRUE`, plots the distribution.
+    #' @param mode (character) `"global"` (default) or `"local"`.
+    #' @return A named vector with the distribution.
+    geo_dist = function(value_range = NULL, prob = TRUE, plot = TRUE, mode = "global") {
+      self$geodesic_distances_distribution(value_range = value_range, prob = prob, plot = plot, mode = mode)
     },
     #' @description
     #' Calculates the distribution of edgewise shared partners.
@@ -1030,11 +1199,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
             self$dyadwise_shared_partner(type = type, mode = "global")
           }
           info_global <- private$.descriptives$dyadwise_shared_partner[[type]]
-          overlap_idx <- private$.overlap
-          if (!private$.directed) {
-            overlap_idx <- overlap_idx[overlap_idx[, 1] < overlap_idx[, 2], , drop = FALSE]
+          overlap_idx <- if (!private$.directed) {
+            private$.overlap[private$.overlap[, 1] < private$.overlap[, 2], , drop = FALSE]
           } else {
-            overlap_idx <- overlap_idx[overlap_idx[, 1] != overlap_idx[, 2], , drop = FALSE]
+            private$.overlap[private$.overlap[, 1] != private$.overlap[, 2], , drop = FALSE]
           }
           vals <- if (nrow(overlap_idx) > 0) as.numeric(info_global[overlap_idx]) else numeric(0)
           vals <- vals[!is.na(vals)]
@@ -1077,39 +1245,125 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @description
     #' Calculates the degree distribution of the `z_network`.
     #'
-    #' @param value_range (numeric vector) A vector `c(min, max)` specifying
-    #'   the range of degrees to tabulate. If `NULL` (default), the range
-    #'   is inferred from the data.
-    #' @param x_i (optional) Exact value, vector, or predicate function for sender attribute `x_i`.
-    #' @param x_j (optional) Exact value, vector, or predicate function for receiver attribute `x_j`.
-    #' @param y_i (optional) Exact value, vector, or predicate function for sender attribute `y_i`.
-    #' @param y_j (optional) Exact value, vector, or predicate function for receiver attribute `y_j`.
-    #' @param prob (logical) If `TRUE` (default), returns a probability
-    #'   distribution (proportions). If `FALSE`, returns raw counts.
-    #' @param plot (logical) If `TRUE`, plots the degree distribution.
-    #' @return If the network is directed, a list containing two `table`
-    #'   objects: `in_degree` and `out_degree`. If undirected, a single
-    #'   `table` object with the degree distribution.
+    #' A flexible, general function for evaluating network connectivity across
+    #' global networks, local neighborhoods, attribute-defined subgroups, and
+    #' cross-group spillover pathways.
+    #'
+    #' \subsection{Topological Scope (\code{mode})}{
+    #' \itemize{
+    #'   \item \code{"global"} (default): Evaluates degree distributions across all dyads in the network.
+    #'   \item \code{"local"}: Evaluates local degree distributions restricted strictly to actor pairs
+    #'     that share an overlapping neighborhood (\code{overlap}).
+    #' }
+    #' }
+    #'
+    #' \subsection{Directionality and Bipartite Subgroups}{
+    #' \itemize{
+    #'   \item \strong{Directed networks}: Always returns both \code{out_degree} (ties sent) and
+    #'     \code{in_degree} (ties received).
+    #'   \item \strong{Undirected networks}: Returns a single overall \code{degree} distribution when
+    #'     unconstrained or single-side constrained. When bilateral constraints are supplied
+    #'     (e.g., sender \eqn{i} and receiver \eqn{j}), ties are evaluated directionally
+    #'     (\eqn{i \to j}), returning both \code{out_degree} and \code{in_degree}.
+    #' }
+    #' }
+    #'
+    #' \subsection{Spillover and Subgroup Conditioning}{
+    #' Any combination of sender attributes (\code{x_i}, \code{y_i}) and receiver attributes
+    #' (\code{x_j}, \code{y_j}) can be specified to measure spillover dynamics:
+    #' \itemize{
+    #'   \item \code{out_degree}: Distribution of ties sent from matching senders \eqn{i} to matching receivers \eqn{j} (spillover sending capacity).
+    #'   \item \code{in_degree}: Distribution of ties received by matching receivers \eqn{j} from matching senders \eqn{i} (spillover exposure).
+    #' }
+    #' }
+    #'
+    #' \subsection{Supported Constraint Formats & Internal Handling}{
+    #' Attribute constraints (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) accept:
+    #' \itemize{
+    #'   \item \strong{Exact scalar values}: For binary attributes, matches actors with that exact value (e.g., \code{x_i = 1}).
+    #'   \item \strong{Continuous / Count shortcuts}: When an attribute is continuous (\code{"normal"}) or count (\code{"poisson"}),
+    #'     setting \code{1} internally selects above-mean actors (\eqn{x_i > \bar{x}}), and \code{0} selects
+    #'     below-or-equal-to-mean actors (\eqn{x_i \le \bar{x}}). Any other numeric value \eqn{v} matches actors with exact value \eqn{v}.
+    #'   \item \strong{Discrete value sets}: Vectors such as \code{x_i = c(1, 2)} match actors with any value in that set.
+    #'   \item \strong{Filtering functions}: Custom functions (vectorized or scalar), e.g., \code{x_i = function(x) x > 0.5}
+    #'     or \code{y_j = \(y) if (y > 2) TRUE else FALSE}.
+    #' }
+    #' }
+    #'
+    #' \subsection{Plotting and Axis Labels}{
+    #' When \code{plot = TRUE}, mathematical expressions are formatted automatically for the x-axis:
+    #' \itemize{
+    #'   \item Exact values and sets display as \eqn{x_i == 1} or \eqn{x_i == \text{c(1, 2)}}.
+    #'   \item Continuous shortcuts display with sample mean bars as \eqn{x_i > \bar{x}} or \eqn{x_i \le \bar{x}}.
+    #'   \item Filtering functions display as \eqn{x_i == \text{"fn"}}.
+    #' }
+    #' }
+    #'
+    #' @param value_range (numeric vector or list) A vector \code{c(min, max)} specifying
+    #'   the range of degrees to tabulate, or a list with \code{in_degree} and \code{out_degree}.
+    #'   If \code{NULL} (default), ranges are inferred from the data.
+    #' @param x_i (optional) Exact value, vector, or filtering function for attribute \code{x} of sender actor \eqn{i}.
+    #' @param x_j (optional) Exact value, vector, or filtering function for attribute \code{x} of receiver actor \eqn{j}.
+    #' @param y_i (optional) Exact value, vector, or filtering function for attribute \code{y} of sender actor \eqn{i}.
+    #' @param y_j (optional) Exact value, vector, or filtering function for attribute \code{y} of receiver actor \eqn{j}.
+    #' @param prob (logical) If \code{TRUE} (default), returns a probability
+    #'   distribution (proportions). If \code{FALSE}, returns raw counts.
+    #' @param plot (logical) If \code{TRUE}, plots the degree distribution barplot(s).
+    #' @param mode (character) Either \code{"global"} (default) to evaluate across all dyads,
+    #'   or \code{"local"} to evaluate only ties within overlapping neighborhoods (\code{overlap}).
+    #' @return If the network is directed or if bilateral constraints are provided,
+    #'   a list containing two \code{table} objects: \code{out_degree} and \code{in_degree}.
+    #'   If undirected without bilateral constraints, a single \code{table} object with
+    #'   the degree distribution.
+    #' @examples
+    #' data(copenhagen)
+    #'
+    #' # 1. Standard global degree distribution
+    #' copenhagen$degree_distribution(plot = FALSE)
+    #'
+    #' # 2. Local degree distribution restricted to overlapping neighborhoods
+    #' copenhagen$degree_distribution(mode = "local", plot = FALSE)
+    #'
+    #' # 3. Spillover degree using exact attribute values
+    #' copenhagen$deg_dist(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
+    #'
+    #' # 4. Spillover degree using filtering functions
+    #' copenhagen$deg_dist(
+    #'   x_i = function(x) x > mean(x),
+    #'   y_j = function(y) y > mean(y),
+    #'   mode = "local",
+    #'   plot = FALSE
+    #' )
     degree_distribution = function(value_range = NULL,
                                    prob = TRUE,
                                    plot = TRUE,
                                    x_i = NULL,
                                    x_j = NULL,
                                    y_i = NULL,
-                                   y_j = NULL) {
+                                   y_j = NULL,
+                                   mode = "global") {
+      if (!mode %in% c("global", "local")) {
+        stop("'mode' must be either 'global' or 'local'.")
+      }
+      has_i_constr <- !is.null(x_i) || !is.null(y_i)
+      has_j_constr <- !is.null(x_j) || !is.null(y_j)
+
       if (!private$.directed) {
-        has_i_constr <- !is.null(x_i) || !is.null(y_i)
-        has_j_constr <- !is.null(x_j) || !is.null(y_j)
         if (!has_i_constr && has_j_constr) {
           x_i <- x_j
           y_i <- y_j
           x_j <- NULL
           y_j <- NULL
+          has_i_constr <- TRUE
+          has_j_constr <- FALSE
         }
       }
-      has_constraints <- !is.null(x_i) || !is.null(x_j) || !is.null(y_i) || !is.null(y_j)
-      deg_data <- if (has_constraints) {
-        self$degree(x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j)
+
+      has_constraints <- has_i_constr || has_j_constr
+      is_directed_or_bipartite <- private$.directed || (has_i_constr && has_j_constr)
+
+      deg_data <- if (has_constraints || mode == "local") {
+        self$degree(x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j, mode = mode)
       } else {
         if (is.null(private$.descriptives$degree)) {
           self$degree()
@@ -1117,17 +1371,19 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         private$.descriptives$degree
       }
 
-      if (is.null(value_range)) {
-        unlisted <- unlist(deg_data)
-        value_range <- if (length(unlisted) > 0) range(unlisted) else c(0, 0)
-      }
-      if (private$.directed) {
+      if (is_directed_or_bipartite) {
+        range_in <- if (is.list(value_range)) value_range$in_degree else (if (!is.null(value_range)) value_range else {
+          if (length(deg_data$in_degree_seq) > 0) range(c(deg_data$in_degree_seq, 0)) else c(0, 0)
+        })
+        range_out <- if (is.list(value_range)) value_range$out_degree else (if (!is.null(value_range)) value_range else {
+          if (length(deg_data$out_degree_seq) > 0) range(c(deg_data$out_degree_seq, 0)) else c(0, 0)
+        })
         info_in <- factor(deg_data$in_degree_seq,
-          levels = seq(from = value_range[1], to = value_range[2])
+          levels = seq(from = range_in[1], to = range_in[2])
         )
 
         info_out <- factor(deg_data$out_degree_seq,
-          levels = seq(from = value_range[1], to = value_range[2])
+          levels = seq(from = range_out[1], to = range_out[2])
         )
         info_in <- table(info_in)
         info_out <- table(info_out)
@@ -1139,39 +1395,43 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           info_out <- info_out / (sum(info_out) * prob + (!prob))
         }
         info <- list(
-          in_degree = info_in,
-          out_degree = info_out
+          out_degree = info_out,
+          in_degree = info_in
         )
-        if (!has_constraints) {
+        if (!has_constraints && mode == "global") {
           private$.descriptives$degree_distribution <- info
         }
       } else {
+        v_range <- if (is.list(value_range)) value_range[[1]] else (if (!is.null(value_range)) value_range else {
+          if (length(deg_data$degree_seq) > 0) range(c(deg_data$degree_seq, 0)) else c(0, 0)
+        })
         info <- factor(deg_data$degree_seq,
-          levels = seq(from = value_range[1], to = value_range[2])
+          levels = seq(from = v_range[1], to = v_range[2])
         )
         info <- table(info)
         if (sum(info) > 0) {
           info <- info / (sum(info) * prob + (!prob))
         }
-        if (!has_constraints) {
+        if (!has_constraints && mode == "global") {
           private$.descriptives$degree_distribution <- info
         }
       }
       if (plot) {
-        if (private$.directed) {
-          barplot(info$in_degree,
-            xlab = build_constrained_xlab("In-Degree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
-            ylab = ifelse(prob, "Proportion", "Count"),
-            las = 1, ylim = c(0, max(info$in_degree) * 1.2)
-          )
+        prefix <- if (mode == "local") "Local " else ""
+        if (is_directed_or_bipartite) {
           barplot(info$out_degree,
-            xlab = build_constrained_xlab("Out-Degree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+            xlab = build_constrained_xlab(paste0(prefix, "Outdegree"), x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(info$out_degree) * 1.2)
           )
+          barplot(info$in_degree,
+            xlab = build_constrained_xlab(paste0(prefix, "Indegree"), x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+            ylab = ifelse(prob, "Proportion", "Count"),
+            las = 1, ylim = c(0, max(info$in_degree) * 1.2)
+          )
         } else {
           barplot(info,
-            xlab = build_constrained_xlab("Degree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+            xlab = build_constrained_xlab(paste0(prefix, "Degree"), x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(info) * 1.2)
           )
@@ -1182,18 +1442,38 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @description
     #' Calculates the degree sequence(s) of the `z_network`.
     #'
-    #' @param x_i (optional) Exact value, vector, or predicate function for sender attribute `x_i`.
-    #' @param x_j (optional) Exact value, vector, or predicate function for receiver attribute `x_j`.
-    #' @param y_i (optional) Exact value, vector, or predicate function for sender attribute `y_i`.
-    #' @param y_j (optional) Exact value, vector, or predicate function for receiver attribute `y_j`.
-    #' @return If the network is directed, a list containing two vectors:
-    #'   `in_degree_seq` and `out_degree_seq`. If undirected, a single
-    #'   list containing the vector `degree_seq`.
-    degree = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL) {
+    #' General function for calculating actor-level degree sequences across global
+    #' topologies, local neighborhoods, attribute-defined subsets, or directional
+    #' spillover pathways.
+    #'
+    #' @param x_i (optional) Exact value, vector, or filtering function for attribute \code{x} of sender actor \eqn{i}.
+    #' @param x_j (optional) Exact value, vector, or filtering function for attribute \code{x} of receiver actor \eqn{j}.
+    #' @param y_i (optional) Exact value, vector, or filtering function for attribute \code{y} of sender actor \eqn{i}.
+    #' @param y_j (optional) Exact value, vector, or filtering function for attribute \code{y} of receiver actor \eqn{j}.
+    #' @param mode (character) \code{"global"} (default) or \code{"local"}.
+    #' @return If the network is directed or if bilateral constraints are given,
+    #'   a list containing two numeric vectors: \code{out_degree_seq} and \code{in_degree_seq}.
+    #'   If undirected without bilateral constraints, a list containing the vector \code{degree_seq}.
+    #' @examples
+    #' data(copenhagen)
+    #'
+    #' # Global degree sequence
+    #' copenhagen$degree()
+    #'
+    #' # Local spillover degree sequence with filtering functions
+    #' copenhagen$deg(
+    #'   x_i = function(x) x > 2,
+    #'   y_j = function(y) y > 2,
+    #'   mode = "local"
+    #' )
+    degree = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL, mode = "global") {
+      if (!mode %in% c("global", "local")) {
+        stop("'mode' must be either 'global' or 'local'.")
+      }
       has_constraints <- !is.null(x_i) || !is.null(x_j) || !is.null(y_i) || !is.null(y_j)
       res <- list()
 
-      if (!has_constraints) {
+      if (!has_constraints && mode == "global") {
         if (private$.directed) {
           if (ncol(private$.z_network) == 2) {
             in_degree_seq_res <- table(private$.z_network[, 2])
@@ -1207,8 +1487,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
             in_degree_seq <- colSums(private$.z_network)
             out_degree_seq <- rowSums(private$.z_network)
           }
-          res$in_degree_seq <- in_degree_seq
           res$out_degree_seq <- out_degree_seq
+          res$in_degree_seq <- in_degree_seq
         } else {
           if (ncol(private$.z_network) == 2) {
             tmp <- table(private$.z_network)
@@ -1223,10 +1503,20 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         return(res)
       }
 
-      # Constrained calculation
+      # Constrained and/or local calculation
       filter_nodes <- function(attr_vec, spec, type = "binomial") {
         if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
-        if (is.function(spec)) return(as.logical(spec(attr_vec)))
+        if (is.function(spec)) {
+          res <- tryCatch(
+            as.logical(spec(attr_vec)),
+            error = function(e) NULL,
+            warning = function(w) NULL
+          )
+          if (is.null(res) || length(res) != length(attr_vec)) {
+            res <- as.logical(vapply(attr_vec, spec, logical(1)))
+          }
+          return(res)
+        }
         if (type == "binomial") {
           attr_vec %in% spec
         } else {
@@ -1240,22 +1530,113 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         }
       }
 
+      has_i_constr <- !is.null(x_i) || !is.null(y_i)
+      has_j_constr <- !is.null(x_j) || !is.null(y_j)
+
       if (!private$.directed) {
-        has_i_constr <- !is.null(x_i) || !is.null(y_i)
-        has_j_constr <- !is.null(x_j) || !is.null(y_j)
         if (!has_i_constr && has_j_constr) {
           x_i <- x_j
           y_i <- y_j
           x_j <- NULL
           y_j <- NULL
+          has_i_constr <- TRUE
+          has_j_constr <- FALSE
         }
       }
+
+      is_directed_or_bipartite <- private$.directed || (has_i_constr && has_j_constr)
 
       cond_sender <- filter_nodes(private$.x_attribute, x_i, private$.type_x) & filter_nodes(private$.y_attribute, y_i, private$.type_y)
       cond_receiver <- filter_nodes(private$.x_attribute, x_j, private$.type_x) & filter_nodes(private$.y_attribute, y_j, private$.type_y)
       actors_sender <- which(cond_sender)
       actors_receiver <- which(cond_receiver)
 
+      if (mode == "local") {
+        if (length(actors_sender) == 0 || length(actors_receiver) == 0) {
+          if (is_directed_or_bipartite) {
+            res$out_degree_seq <- if (length(actors_sender) > 0) rep(0, length(actors_sender)) else numeric(0)
+            res$in_degree_seq <- if (length(actors_receiver) > 0) rep(0, length(actors_receiver)) else numeric(0)
+          } else {
+            res$degree_seq <- if (length(actors_sender) > 0) rep(0, length(actors_sender)) else numeric(0)
+          }
+          return(res)
+        }
+
+        z_net_all <- if (!private$.directed && ncol(private$.z_network) == 2 && nrow(private$.z_network) > 0) {
+          rbind(private$.z_network, private$.z_network[, c(2, 1), drop = FALSE])
+        } else {
+          private$.z_network
+        }
+
+        edges_x_y <- matrix(
+          z_net_all[(z_net_all[, 1] %in% actors_sender) & (z_net_all[, 2] %in% actors_receiver), ],
+          ncol = 2
+        )
+
+        has_overlap_info <- !is.null(private$.overlap) && nrow(private$.overlap) > 0
+
+        if (has_overlap_info) {
+          adj_mat_x_y <- matrix(
+            data = NA, nrow = length(actors_sender),
+            ncol = length(actors_receiver),
+            dimnames = list(actors_sender, actors_receiver)
+          )
+
+          overlap_tmp <- matrix(
+            private$.overlap[(private$.overlap[, 1] %in% actors_sender) & (private$.overlap[, 2] %in% actors_receiver), ],
+            ncol = 2
+          )
+          if (nrow(overlap_tmp) > 0) {
+            row_idx <- match(overlap_tmp[, 1], actors_sender)
+            col_idx <- match(overlap_tmp[, 2], actors_receiver)
+            valid <- !is.na(row_idx) & !is.na(col_idx)
+            if (any(valid)) {
+              adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 0
+            }
+          }
+          # Exclude units that do not have any overlaps with the candidate set
+          has_valid_overlap_row <- rowSums(!is.na(adj_mat_x_y)) > 0
+          has_valid_overlap_col <- colSums(!is.na(adj_mat_x_y)) > 0
+          adj_mat_x_y <- adj_mat_x_y[has_valid_overlap_row, has_valid_overlap_col, drop = FALSE]
+
+          if (nrow(edges_x_y) > 0 && nrow(adj_mat_x_y) > 0 && ncol(adj_mat_x_y) > 0) {
+            which_overlap <- check_overlap(edges_x_y, private$.overlap)
+            edges_x_y_overlap <- matrix(edges_x_y[which_overlap, ], ncol = 2)
+            if (nrow(edges_x_y_overlap) > 0) {
+              row_idx <- match(edges_x_y_overlap[, 1], rownames(adj_mat_x_y))
+              col_idx <- match(edges_x_y_overlap[, 2], colnames(adj_mat_x_y))
+              valid <- !is.na(row_idx) & !is.na(col_idx)
+              if (any(valid)) {
+                adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 1
+              }
+            }
+          }
+        } else {
+          adj_mat_x_y <- matrix(
+            0, nrow = length(actors_sender),
+            ncol = length(actors_receiver),
+            dimnames = list(actors_sender, actors_receiver)
+          )
+          if (nrow(edges_x_y) > 0) {
+            row_idx <- match(edges_x_y[, 1], rownames(adj_mat_x_y))
+            col_idx <- match(edges_x_y[, 2], colnames(adj_mat_x_y))
+            valid <- !is.na(row_idx) & !is.na(col_idx)
+            if (any(valid)) {
+              adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 1
+            }
+          }
+        }
+
+        if (is_directed_or_bipartite) {
+          res$out_degree_seq <- rowSums(adj_mat_x_y, na.rm = TRUE)
+          res$in_degree_seq <- colSums(adj_mat_x_y, na.rm = TRUE)
+        } else {
+          res$degree_seq <- rowSums(adj_mat_x_y, na.rm = TRUE)
+        }
+        return(res)
+      }
+
+      # Global mode with constraints
       z_mat <- if (ncol(private$.z_network) == 2) {
         mat <- matrix(0, nrow = private$.n_actor, ncol = private$.n_actor)
         if (nrow(private$.z_network) > 0) {
@@ -1270,19 +1651,18 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         z_mat <- pmax(z_mat, t(z_mat))
       }
 
-      if (private$.directed) {
+      if (is_directed_or_bipartite) {
         out_deg <- numeric(private$.n_actor)
         in_deg <- numeric(private$.n_actor)
         if (length(actors_sender) > 0 && length(actors_receiver) > 0) {
           out_deg[actors_sender] <- rowSums(matrix(z_mat[actors_sender, actors_receiver, drop = FALSE], nrow = length(actors_sender)))
           in_deg[actors_receiver] <- colSums(matrix(z_mat[actors_sender, actors_receiver, drop = FALSE], ncol = length(actors_receiver)))
         }
-        res$in_degree_seq <- in_deg[actors_receiver]
         res$out_degree_seq <- out_deg[actors_sender]
+        res$in_degree_seq <- in_deg[actors_receiver]
       } else {
         deg_seq <- numeric(private$.n_actor)
         if (length(actors_sender) > 0 && length(actors_receiver) > 0) {
-          # Symmetric edge counts between sender and receiver sets
           sub_mat <- matrix(z_mat[actors_sender, actors_receiver, drop = FALSE], nrow = length(actors_sender))
           deg_seq[actors_sender] <- rowSums(sub_mat)
         }
@@ -1292,207 +1672,36 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       return(res)
     },
     #' @description
-    #' Calculates the spillover degree distribution between actors with
-    #' specified values of sender attributes (`x_i`, `y_i`) and receiver
-    #' attributes (`x_j`, `y_j`).
-    #'
-    #' @param x_i Optional value(s) or predicate function for attribute `x` of sender actor `i`.
-    #' @param x_j Optional value(s) or predicate function for attribute `x` of receiver actor `j`.
-    #' @param y_i Optional value(s) or predicate function for attribute `y` of sender actor `i`.
-    #' @param y_j Optional value(s) or predicate function for attribute `y` of receiver actor `j`.
-    #' @param prob (logical) If `TRUE` (default), returns a probability
-    #'   distribution (proportions). If `FALSE`, returns raw counts.
-    #' @param value_range (numeric vector) A vector `c(min, max)` specifying
-    #'   the range of degrees to tabulate. If `NULL` (default), the range
-    #'   is inferred from the data.
-    #' @param plot (logical) If `TRUE`, plots the distributions.
-    #' @return A list containing two `table` objects:
-    #'   `out_spillover_degree` (spillover out-degree from senders to receivers) and
-    #'   `in_spillover_degree` (spillover in-degree at receivers from senders).
-    spillover_degree_distribution = function(prob = TRUE,
-                                             value_range = NULL,
-                                             plot = TRUE,
-                                             x_i = NULL,
-                                             x_j = NULL,
-                                             y_i = NULL,
-                                             y_j = NULL) {
-      has_constraints <- !is.null(x_i) || !is.null(x_j) || !is.null(y_i) || !is.null(y_j)
-      binarize_filter <- function(attr_vec, spec, type = "binomial") {
-        if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
-        if (is.function(spec)) return(as.logical(spec(attr_vec)))
-        if (type == "binomial") {
-          attr_vec %in% spec
-        } else {
-          m <- mean(attr_vec)
-          res <- rep(FALSE, length(attr_vec))
-          if (1 %in% spec) res <- res | (attr_vec > m)
-          if (0 %in% spec) res <- res | (attr_vec <= m)
-          other_spec <- spec[!spec %in% c(0, 1)]
-          if (length(other_spec) > 0) res <- res | (attr_vec %in% other_spec)
-          res
-        }
-      }
-
-      if (!is.null(x_i) || !is.null(y_i)) {
-        cond_i <- rep(TRUE, private$.n_actor)
-        if (!is.null(x_i)) {
-          cond_i <- cond_i & binarize_filter(private$.x_attribute, x_i, private$.type_x)
-        }
-        if (!is.null(y_i)) {
-          cond_i <- cond_i & binarize_filter(private$.y_attribute, y_i, private$.type_y)
-        }
-        actors_sender <- which(cond_i)
-      } else {
-        actors_sender <- which(private$.x_attribute > self$mean_x())
-      }
-
-      if (!is.null(x_j) || !is.null(y_j)) {
-        cond_j <- rep(TRUE, private$.n_actor)
-        if (!is.null(x_j)) {
-          cond_j <- cond_j & binarize_filter(private$.x_attribute, x_j, private$.type_x)
-        }
-        if (!is.null(y_j)) {
-          cond_j <- cond_j & binarize_filter(private$.y_attribute, y_j, private$.type_y)
-        }
-        actors_receiver <- which(cond_j)
-      } else {
-        actors_receiver <- which(private$.y_attribute > self$mean_y())
-      }
-
-      if (length(actors_sender) == 0 || length(actors_receiver) == 0) {
-        if (is.null(value_range)) {
-          value_range <- c(0, 1)
-        }
-        tmp1 <- if (length(actors_sender) > 0) rep(0, length(actors_sender)) else numeric(0)
-        tmp2 <- if (length(actors_receiver) > 0) rep(0, length(actors_receiver)) else numeric(0)
-        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2])))
-        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2])))
-        if (sum(out_degree_x_y) > 0) {
-          out_degree_x_y <- out_degree_x_y / (sum(out_degree_x_y) * prob + (!prob))
-        }
-        if (sum(in_degree_x_y) > 0) {
-          in_degree_x_y <- in_degree_x_y / (sum(in_degree_x_y) * prob + (!prob))
-        }
-        res <- list(
-          out_spillover_degree = out_degree_x_y,
-          in_spillover_degree = in_degree_x_y
-        )
-        if (!has_constraints) {
-          private$.descriptives$spillover_degree_distribution <- res
-        }
-        if (plot) {
-          barplot(out_degree_x_y,
-            xlab = build_constrained_xlab("Spillover Outdegree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
-            ylab = ifelse(prob, "Proportion", "Count"),
-            las = 1, ylim = c(0, max(c(as.numeric(out_degree_x_y), 1)) * 1.2)
-          )
-          barplot(in_degree_x_y,
-            xlab = build_constrained_xlab("Spillover Indegree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
-            ylab = ifelse(prob, "Proportion", "Count"),
-            las = 1, ylim = c(0, max(c(as.numeric(in_degree_x_y), 1)) * 1.2)
-          )
-        }
-        return(invisible(res))
-      }
-
-      adj_mat_x_y <- matrix(
-        data = NA, nrow = length(actors_sender),
-        ncol = length(actors_receiver),
-        dimnames = list(actors_sender, actors_receiver)
+    #' Short alias for `degree`.
+    #' @param x_i Optional sender attribute constraint.
+    #' @param x_j Optional receiver attribute constraint.
+    #' @param y_i Optional sender attribute constraint.
+    #' @param y_j Optional receiver attribute constraint.
+    #' @param mode (character) `"global"` (default) or `"local"`.
+    #' @return Degree sequence(s).
+    deg = function(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL, mode = "global") {
+      self$degree(x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j, mode = mode)
+    },
+    #' @description
+    #' Short alias for `degree_distribution`.
+    #' Supports standard, local, and attribute-constrained (spillover) degree distributions.
+    #' @param value_range Optional range of degrees to tabulate.
+    #' @param prob (logical) If `TRUE`, returns proportions.
+    #' @param plot (logical) If `TRUE`, plots the distribution.
+    #' @param x_i Optional sender attribute constraint.
+    #' @param x_j Optional receiver attribute constraint.
+    #' @param y_i Optional sender attribute constraint.
+    #' @param y_j Optional receiver attribute constraint.
+    #' @param mode (character) `"global"` (default) or `"local"`.
+    #' @return Degree distribution table(s).
+    deg_dist = function(value_range = NULL, prob = TRUE, plot = TRUE,
+                        x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
+                        mode = "global") {
+      self$degree_distribution(
+        value_range = value_range, prob = prob, plot = plot,
+        x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j,
+        mode = mode
       )
-
-      overlap_tmp <- matrix(
-        private$.overlap[(private$.overlap[, 1] %in% actors_sender) & (private$.overlap[, 2] %in% actors_receiver), ],
-        ncol = 2
-      )
-      if (nrow(overlap_tmp) > 0) {
-        row_idx <- match(overlap_tmp[, 1], rownames(adj_mat_x_y))
-        col_idx <- match(overlap_tmp[, 2], colnames(adj_mat_x_y))
-        valid <- !is.na(row_idx) & !is.na(col_idx)
-        if (any(valid)) {
-          adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 0
-        }
-      }
-      # Exclude the units that do not have any overlaps so they cannot have spillover edges
-      has_valid_overlap_row <- rowSums(!is.na(adj_mat_x_y)) > 0
-      has_valid_overlap_col <- colSums(!is.na(adj_mat_x_y)) > 0
-      adj_mat_x_y <- adj_mat_x_y[has_valid_overlap_row, has_valid_overlap_col, drop = FALSE]
-
-      z_net_all <- if (!private$.directed && ncol(private$.z_network) == 2 && nrow(private$.z_network) > 0) {
-        rbind(private$.z_network, private$.z_network[, c(2, 1), drop = FALSE])
-      } else {
-        private$.z_network
-      }
-
-      edges_x_y <- matrix(
-        z_net_all[(z_net_all[, 1] %in% actors_sender) & (z_net_all[, 2] %in% actors_receiver), ],
-        ncol = 2
-      )
-      if (nrow(edges_x_y) > 0 && nrow(adj_mat_x_y) > 0 && ncol(adj_mat_x_y) > 0) {
-        which_overlap <- check_overlap(edges_x_y, private$.overlap)
-        edges_x_y_overlap <- matrix(edges_x_y[which_overlap, ], ncol = 2)
-        if (nrow(edges_x_y_overlap) > 0) {
-          row_idx <- match(edges_x_y_overlap[, 1], rownames(adj_mat_x_y))
-          col_idx <- match(edges_x_y_overlap[, 2], colnames(adj_mat_x_y))
-          valid <- !is.na(row_idx) & !is.na(col_idx)
-          if (any(valid)) {
-            adj_mat_x_y[cbind(row_idx[valid], col_idx[valid])] <- 1
-          }
-        }
-
-        tmp1 <- rowSums(adj_mat_x_y, na.rm = TRUE)
-        tmp2 <- colSums(adj_mat_x_y, na.rm = TRUE)
-        if (is.null(value_range)) {
-          value_range <- range(unique(c(tmp1, tmp2, 0)))
-        }
-        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2])))
-        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2])))
-        if (sum(out_degree_x_y) > 0) {
-          out_degree_x_y <- out_degree_x_y / (sum(out_degree_x_y) * prob + (!prob))
-        }
-        if (sum(in_degree_x_y) > 0) {
-          in_degree_x_y <- in_degree_x_y / (sum(in_degree_x_y) * prob + (!prob))
-        }
-        res <- list(
-          out_spillover_degree = out_degree_x_y,
-          in_spillover_degree = in_degree_x_y
-        )
-      } else {
-        if (is.null(value_range)) {
-          value_range <- c(0, 1)
-        }
-        tmp1 <- if (nrow(adj_mat_x_y) > 0) rep(0, nrow(adj_mat_x_y)) else numeric(0)
-        tmp2 <- if (ncol(adj_mat_x_y) > 0) rep(0, ncol(adj_mat_x_y)) else numeric(0)
-        out_degree_x_y <- table(factor(tmp1, levels = seq(from = value_range[1], to = value_range[2])))
-        in_degree_x_y <- table(factor(tmp2, levels = seq(from = value_range[1], to = value_range[2])))
-        if (sum(out_degree_x_y) > 0) {
-          out_degree_x_y <- out_degree_x_y / (sum(out_degree_x_y) * prob + (!prob))
-        }
-        if (sum(in_degree_x_y) > 0) {
-          in_degree_x_y <- in_degree_x_y / (sum(in_degree_x_y) * prob + (!prob))
-        }
-        res <- list(
-          out_spillover_degree = out_degree_x_y,
-          in_spillover_degree = in_degree_x_y
-        )
-      }
-
-      if (!has_constraints) {
-        private$.descriptives$spillover_degree_distribution <- res
-      }
-      if (plot) {
-        barplot(out_degree_x_y,
-          xlab = build_constrained_xlab("Spillover Outdegree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
-          ylab = ifelse(prob, "Proportion", "Count"),
-          las = 1, ylim = c(0, max(c(as.numeric(out_degree_x_y), 1)) * 1.2)
-        )
-        barplot(in_degree_x_y,
-          xlab = build_constrained_xlab("Spillover Indegree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
-          ylab = ifelse(prob, "Proportion", "Count"),
-          las = 1, ylim = c(0, max(c(as.numeric(in_degree_x_y), 1)) * 1.2)
-        )
-      }
-      invisible(res)
     },
     #' @description
     #' Plot the network using `igraph`.
@@ -1754,8 +1963,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         } else if (type == "normal") {
           paste0(
             "normal mean = ", numfmt(mean(v, na.rm = TRUE)),
-            ", sd = ", numfmt(stats::sd(v, na.rm = TRUE)),
-            ", scale = ", numfmt(scale)
+            ", sd = ", numfmt(stats::sd(v, na.rm = TRUE))
           )
         } else {
           paste0("unknown type; length = ", length(v))
@@ -1778,32 +1986,46 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       cat("iglm.data object\n")
       cat(sprintf("  %-*s: %s\n", w, "units", n))
       cat(sprintf("  %-*s: %s\n", w, "directed", if (dir_flag) "TRUE" else "FALSE"))
-      edge_label <- sprintf("edges (fixed = %s)", private$.fix_z)
+      edge_label <- if (private$.label_z != "z") {
+        sprintf("connections [%s] (fixed = %s)", private$.label_z, private$.fix_z)
+      } else {
+        sprintf("connections (fixed = %s)", private$.fix_z)
+      }
       cat(sprintf("  %-*s: %s\n", w, edge_label, m_z))
 
-      cat(sprintf("  %-*s: %s\n", w, "neighborhood edges", m_nb))
+      cat(sprintf("  %-*s: %s\n", w, "neighborhood connections", m_nb))
       cat("\nAttribute summaries\n")
 
-      x_label <- sprintf("x_attribute (fixed = %s)", private$.fix_x)
+      x_label <- if (private$.label_x != "x") {
+        sprintf("x_attribute [%s] (fixed = %s)", private$.label_x, private$.fix_x)
+      } else {
+        sprintf("x_attribute (fixed = %s)", private$.fix_x)
+      }
+      y_label <- if (private$.label_y != "y") {
+        sprintf("y_attribute [%s]", private$.label_y)
+      } else {
+        "y_attribute"
+      }
       cat(sprintf("  %-*s: %s\n", w, x_label, x_sum))
-      cat(sprintf("  %-*s: %s\n", w, "y_attribute", y_sum))
-      #
-      # cat("iglm.data object\n")
-      # cat("  units              :", n, "\n")
-      # cat("  directed           :", if (dir_flag) "TRUE" else "FALSE", "\n")
-      # cat("  edges (fixed = ",  private$.fix_z,"):", m_z, "\n")
-      # cat("  neighborhood edges :", m_nb, "\n")
-      # cat("\n")
-      # cat("Attribute summaries\n")
-      # cat("  x_attribute (fixed =",  private$.fix_x,"):",x_sum, "\n", sep = "")
-      # cat("  y_attribute ", y_sum, "\n", sep = "")
-      # cat("\n")
+      cat(sprintf("  %-*s: %s\n", w, y_label, y_sum))
       invisible(private)
     }
   ),
 
   # --- Active Bindings ---
   active = list(
+    #' @field label_x (`character`) Label/name for `x_attribute`.
+    label_x = function(value) {
+      if (missing(value)) private$.label_x else self$set_label_x(value)
+    },
+    #' @field label_y (`character`) Label/name for `y_attribute`.
+    label_y = function(value) {
+      if (missing(value)) private$.label_y else self$set_label_y(value)
+    },
+    #' @field label_z (`character`) Label/name for `z_network`.
+    label_z = function(value) {
+      if (missing(value)) private$.label_z else self$set_label_z(value)
+    },
     #' @field x_attribute (`numeric`) The vector for the first unit-level attribute.
     x_attribute = function(value) {
       if (missing(value)) private$.x_attribute else {
@@ -1926,6 +2148,9 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
 #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
 #' @param file (character) Optional file path to load a saved `iglm.data` object state.
+#' @param label_x Character string for the label/name of `x_attribute`. Default is `"x"`.
+#' @param label_y Character string for the label/name of `y_attribute`. Default is `"y"`.
+#' @param label_z Character string for the label/name of `z_network`. Default is `"z"`.
 #' @return An object of class `iglm.data` (and `R6`).
 #' @references
 #' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
@@ -1973,15 +2198,14 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                       fix_x = FALSE,
                       fix_z = FALSE,
                       fix_z_alocal = FALSE,
-                      return_neighborhood = TRUE, file = NULL) {
-  # browser()
+                      return_neighborhood = TRUE, file = NULL,
+                      label_x = "x", label_y = "y", label_z = "z") {
   if (!is.null(z_network)) {
     z_network <- as.matrix(z_network)
   }
   if (!is.null(neighborhood)) {
     neighborhood <- as.matrix(neighborhood)
   }
-
 
   iglm.data_generator$new(
     x_attribute = as.numeric(x_attribute),
@@ -1998,6 +2222,9 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
     fix_z = as.logical(fix_z),
     fix_z_alocal = fix_z_alocal,
     return_neighborhood = as.logical(return_neighborhood),
-    file = file
+    file = file,
+    label_x = label_x,
+    label_y = label_y,
+    label_z = label_z
   )
 }

@@ -481,6 +481,66 @@ formula_preprocess <- function(formula) {
   ))
 }
 
+#' @title Format Term Names Using Variable Labels
+#' @description Substitutes custom variable labels for canonical 'x', 'y', and 'z' in model term names.
+#' @param term_names Character vector of term names.
+#' @param data_object An \code{iglm.data} object or list with \code{label_x}, \code{label_y}, \code{label_z}.
+#' @param canonical_names Logical. If \code{TRUE}, returns canonical term names without label substitution.
+#' @return A character vector of formatted term names.
+#' @noRd
+format_term_names <- function(term_names, data_object, canonical_names = FALSE) {
+  if (isTRUE(canonical_names) || is.null(data_object) || length(term_names) == 0) {
+    return(term_names)
+  }
+  lx <- if (!is.null(data_object$label_x) && length(data_object$label_x) == 1 && !is.na(data_object$label_x)) data_object$label_x else "x"
+  ly <- if (!is.null(data_object$label_y) && length(data_object$label_y) == 1 && !is.na(data_object$label_y)) data_object$label_y else "y"
+  lz <- if (!is.null(data_object$label_z) && length(data_object$label_z) == 1 && !is.na(data_object$label_z)) data_object$label_z else "z"
+
+  if (lx == "x" && ly == "y" && lz == "z") {
+    return(term_names)
+  }
+
+  # Discover all registered terms from iglm and any loaded namespaces
+  ns_list <- unique(c("iglm", loadedNamespaces()))
+  registered_terms <- unique(unlist(lapply(ns_list, function(ns) {
+    if (isNamespaceLoaded(ns)) {
+      sub("^InitIglmTerm\\.", "", ls(asNamespace(ns), pattern = "^InitIglmTerm\\."))
+    }
+  })))
+
+  # Mapping tokens for xyz dimensions
+  token_map <- c(
+    "x" = lx,
+    "y" = ly,
+    "z" = lz,
+    "xx" = paste0(lx, "_", lx),
+    "yy" = paste0(ly, "_", ly),
+    "xy" = paste0(lx, "_", ly),
+    "yx" = paste0(ly, "_", lx),
+    "xz" = paste0(lx, "_", lz),
+    "yz" = paste0(ly, "_", lz),
+    "yc" = paste0(ly, "_c")
+  )
+
+  map_term <- function(term) {
+    parts <- strsplit(term, "_")[[1]]
+    parts <- sapply(parts, function(p) if (p %in% names(token_map)) token_map[[p]] else p, USE.NAMES = FALSE)
+    paste(parts, collapse = "_")
+  }
+
+  term_translation <- stats::setNames(sapply(registered_terms, map_term, USE.NAMES = FALSE), registered_terms)
+
+  sapply(term_names, function(name) {
+    base <- sub("\\(.*", "", name)
+    suffix <- sub("^[^(]+", "", name)
+    if (base %in% names(term_translation)) {
+      paste0(term_translation[[base]], suffix)
+    } else {
+      name
+    }
+  }, USE.NAMES = FALSE)
+}
+
 is_string_a_function_execution <- function(s) {
   obj <- try(str2lang(s), silent = TRUE)
 
@@ -592,7 +652,16 @@ plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
   )
   
   if (is.null(x_at)) {
-    x_at <- pretty(range(x), n = 10)
+    if (all(x == floor(x), na.rm = TRUE)) {
+      if (diff(range(x)) <= 10) {
+        x_at <- seq(min(x), max(x))
+      } else {
+        p <- pretty(range(x))
+        x_at <- unique(p[p == floor(p)])
+      }
+    } else {
+      x_at <- pretty(range(x), n = 10)
+    }
   }
   
   if (is.null(x_labels)) {
@@ -627,15 +696,41 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
                                    box_col = "#87CEEB80", line_col = "#D55E00",
                                    x_at = NULL, x_labels = NULL, x_positions = NULL,
                                    x_margin = 0.3, use_envelope = FALSE) {
-  ylim <- range(c(sim_matrix, as.numeric(observed)), na.rm = TRUE)
+  all_names <- names(observed)
+  if (!is.null(colnames(sim_matrix))) all_names <- union(all_names, colnames(sim_matrix))
   
-  if (is.null(x_positions)) {
-    x <- if (!is.null(names(observed))) as.numeric(names(observed)) else seq_along(observed)
+  if (!is.null(all_names) && is.null(x_positions)) {
+    num_names <- suppressWarnings(as.numeric(all_names))
+    if (!any(is.na(num_names))) {
+      all_names <- as.character(sort(num_names))
+      x <- as.numeric(all_names)
+    } else {
+      x <- seq_along(all_names)
+    }
+    
+    obs_aligned <- stats::setNames(rep(0, length(all_names)), all_names)
+    common_obs <- intersect(names(observed), all_names)
+    obs_aligned[common_obs] <- as.numeric(observed[common_obs])
+    observed <- obs_aligned
+    
+    if (!is.null(colnames(sim_matrix))) {
+      aligned <- matrix(0, nrow = nrow(sim_matrix), ncol = length(all_names), dimnames = list(NULL, all_names))
+      common <- intersect(colnames(sim_matrix), all_names)
+      aligned[, common] <- sim_matrix[, common]
+      sim_matrix <- aligned
+    }
   } else {
-    x <- as.numeric(x_positions)
+    x <- if (!is.null(x_positions)) {
+      as.numeric(x_positions)
+    } else if (!is.null(names(observed))) {
+      as.numeric(names(observed))
+    } else {
+      seq_along(observed)
+    }
   }
   
   xlim <- c(min(x) - x_margin, max(x) + x_margin)
+  ylim <- range(c(sim_matrix, as.numeric(observed)), na.rm = TRUE)
   
   # 1. Initialize plot (axes = FALSE suppresses default axes and box)
   plot(x, as.vector(observed),
@@ -644,7 +739,16 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
   )
   
   if (is.null(x_at)) {
-    x_at <- pretty(range(x), n = 10)
+    if (all(x == floor(x), na.rm = TRUE)) {
+      if (diff(range(x)) <= 10) {
+        x_at <- seq(min(x), max(x))
+      } else {
+        p <- pretty(range(x))
+        x_at <- unique(p[p == floor(p)])
+      }
+    } else {
+      x_at <- pretty(range(x), n = 10)
+    }
   }
   
   # 2. Draw ticks and labels directly on the plot boundary (suppress axis lines)
@@ -692,9 +796,9 @@ build_constrained_xlab <- function(base_label, x_i = NULL, x_j = NULL, y_i = NUL
       return(paste0(var_name, '[', idx, '] == "fn"'))
     }
     if (type != "binomial" && identical(spec, 1)) {
-      paste0(var_name, "[", idx, "] > mean(", var_name, ")")
+      paste0(var_name, "[", idx, "] > bar(", var_name, ")")
     } else if (type != "binomial" && identical(spec, 0)) {
-      paste0(var_name, "[", idx, "] <= mean(", var_name, ")")
+      paste0(var_name, "[", idx, "] <= bar(", var_name, ")")
     } else {
       dep <- paste(deparse(spec), collapse = " ")
       if (length(spec) > 1 || !grepl("^[0-9.-]+$", dep)) {
@@ -719,21 +823,23 @@ build_constrained_xlab <- function(base_label, x_i = NULL, x_j = NULL, y_i = NUL
 get_assessment_constraint_xlab <- function(base_label, name, base_name,
                                            type_x = "binomial", type_y = "binomial") {
   raw_suffix <- sub(paste0("^", base_name, "_?"), "", name)
-  if (!nzchar(raw_suffix)) return(base_label)
-  
-  tokens <- unlist(strsplit(raw_suffix, "[,]+"))
+  tokens <- if (nzchar(raw_suffix)) unlist(strsplit(raw_suffix, "[,]+")) else character(0)
   parts <- c()
+  has_i <- FALSE
+  has_j <- FALSE
   for (token in tokens) {
     if (grepl("^(x|y)_(i|j)_(.+)$", token)) {
       var_base <- sub("^(x|y)_(i|j)_(.+)$", "\\1", token)
       idx <- sub("^(x|y)_(i|j)_(.+)$", "\\2", token)
       val <- sub("^(x|y)_(i|j)_(.+)$", "\\3", token)
       type <- if (var_base == "x") type_x else type_y
+      if (idx == "i") has_i <- TRUE
+      if (idx == "j") has_j <- TRUE
       
       if (type != "binomial" && val == "1") {
-        parts <- c(parts, paste0(var_base, "[", idx, "] > mean(", var_base, ")"))
+        parts <- c(parts, paste0(var_base, "[", idx, "] > bar(", var_base, ")"))
       } else if (type != "binomial" && val == "0") {
-        parts <- c(parts, paste0(var_base, "[", idx, "] <= mean(", var_base, ")"))
+        parts <- c(parts, paste0(var_base, "[", idx, "] <= bar(", var_base, ")"))
       } else {
         parts <- c(parts, paste0(var_base, "[", idx, "] == ", val))
       }

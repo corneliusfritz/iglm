@@ -69,7 +69,7 @@ and validates inputs.
   sampler_z = NULL,
   n_simulation = 100,
   n_burn_in = 10,
-  init_empty = TRUE,
+  init_empty = FALSE,
   seed = NA,
   cluster = NULL,
   file = NULL
@@ -90,10 +90,9 @@ If `NULL`, defaults from `sampler.net.attr()` are used.}
 to simulate and store after the burn-in period. Default is 100. Must be non-negative.}
       \item{\code{n_burn_in}}{(integer) The number of initial MCMC iterations to discard
 (burn-in) before starting to collect simulations. Default is 10. Must be non-negative.}
-      \item{\code{init_empty}}{(logical) If `TRUE` (default), the MCMC chain is
-initialized from an empty state (e.g., empty network, attributes at mean).
-If `FALSE`, initialization might depend on the specific sampler implementation
-(e.g., starting from observed data).}
+      \item{\code{init_empty}}{(logical) If `FALSE` (default), the MCMC chain is
+initialized from observed data. If `TRUE`, the MCMC chain is
+initialized from an empty state (e.g., empty network, attributes at mean).}
       \item{\code{seed}}{(integer or `NA`) A single integer seed for the random number
 generator, set once before sampling begins. If `NA` (default), a random
 seed is generated automatically.}

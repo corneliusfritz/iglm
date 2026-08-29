@@ -288,3 +288,142 @@ test_that("assess and results$plot work with mode in shared partner distribution
   expect_silent(model_fit$results$plot(model_assessment = TRUE))
   dev.off()
 })
+
+test_that("geodesic_distances and geodesic_distances_distribution work with mode", {
+  # 6-node network:
+  # Block 1: {1, 2, 3} with path 1-2-3 (distances: d(1,2)=1, d(2,3)=1, d(1,3)=2)
+  # Block 2: {4, 5, 6} with path 4-5-6 (distances: d(4,5)=1, d(5,6)=1, d(4,6)=2)
+  # Cross-block bridge: 3-4 (connects block 1 and block 2)
+  z <- matrix(0, nrow = 6, ncol = 6)
+  z[1, 2] <- z[2, 1] <- 1
+  z[2, 3] <- z[3, 2] <- 1
+  z[3, 4] <- z[4, 3] <- 1
+  z[4, 5] <- z[5, 4] <- 1
+  z[5, 6] <- z[6, 5] <- 1
+
+  # Block neighborhood: {1,2,3} and {4,5,6}
+  nb <- matrix(0, nrow = 6, ncol = 6)
+  nb[1:3, 1:3] <- 1
+  nb[4:6, 4:6] <- 1
+  diag(nb) <- 0
+
+  data_obj <- iglm.data(z_network = z, neighborhood = nb, directed = FALSE)
+
+  # Global geodesic distances
+  d_global <- as.matrix(data_obj$geodesic_distances(mode = "global"))
+  expect_equal(d_global[1, 2], 1)
+  expect_equal(d_global[1, 3], 2)
+  expect_equal(d_global[1, 6], 5) # 1-2-3-4-5-6 has length 5
+
+  # Local geodesic distances (only pairs within block 1 or block 2)
+  d_local <- as.matrix(data_obj$geodesic_distances(mode = "local"))
+  expect_equal(d_local[1, 2], 1)
+  expect_equal(d_local[1, 3], 2)
+  expect_equal(d_local[4, 5], 1)
+  expect_equal(d_local[4, 6], 2)
+  # Cross-block distance (1,6) is not in overlap, so should be NA
+  expect_true(is.na(d_local[1, 6]))
+  expect_true(is.na(d_local[3, 4]))
+
+  # Distribution mode = "global"
+  dist_global <- data_obj$geodesic_distances_distribution(mode = "global", prob = FALSE, plot = FALSE)
+  # Total pairs = 6 * 5 / 2 = 15 pairs
+  expect_equal(sum(dist_global), 15)
+
+  # Distribution mode = "local"
+  # Overlap pairs: (1,2), (1,3), (2,3) and (4,5), (4,6), (5,6) -> 6 pairs total
+  dist_local <- data_obj$geodesic_distances_distribution(mode = "local", prob = FALSE, plot = FALSE)
+  expect_equal(sum(dist_local), 6)
+  # Distances: d(1,2)=1, d(2,3)=1, d(4,5)=1, d(5,6)=1 -> 4 of length 1; d(1,3)=2, d(4,6)=2 -> 2 of length 2
+  expect_equal(as.numeric(dist_local["1"]), 4)
+  expect_equal(as.numeric(dist_local["2"]), 2)
+})
+
+test_that("short aliases esp, dsp, and geo work identically to full method names", {
+  n_actor <- 10
+  z <- matrix(c(1, 2, 2, 3, 3, 4, 1, 3), ncol = 2, byrow = TRUE)
+  nb <- matrix(1, nrow = n_actor, ncol = n_actor)
+  diag(nb) <- 0
+
+  data_obj <- iglm.data(z_network = z, neighborhood = nb, directed = FALSE, n_actor = n_actor)
+
+  # esp vs edgewise_shared_partner
+  expect_equal(data_obj$esp(), data_obj$edgewise_shared_partner())
+  expect_equal(data_obj$esp(mode = "local"), data_obj$edgewise_shared_partner(mode = "local"))
+  expect_equal(data_obj$esp_dist(plot = FALSE), data_obj$edgewise_shared_partner_distribution(plot = FALSE))
+  expect_equal(data_obj$esp_dist(mode = "local", plot = FALSE), data_obj$edgewise_shared_partner_distribution(mode = "local", plot = FALSE))
+
+  # dsp vs dyadwise_shared_partner
+  expect_equal(as.matrix(data_obj$dsp()), as.matrix(data_obj$dyadwise_shared_partner()))
+  expect_equal(as.matrix(data_obj$dsp(mode = "local")), as.matrix(data_obj$dyadwise_shared_partner(mode = "local")))
+  expect_equal(data_obj$dsp_dist(plot = FALSE), data_obj$dyadwise_shared_partner_distribution(plot = FALSE))
+  expect_equal(data_obj$dsp_dist(mode = "local", plot = FALSE), data_obj$dyadwise_shared_partner_distribution(mode = "local", plot = FALSE))
+
+  # geo vs geodesic_distances
+  expect_equal(as.matrix(data_obj$geo()), as.matrix(data_obj$geodesic_distances()))
+  expect_equal(as.matrix(data_obj$geo(mode = "local")), as.matrix(data_obj$geodesic_distances(mode = "local")))
+  expect_equal(data_obj$geo_dist(plot = FALSE), data_obj$geodesic_distances_distribution(plot = FALSE))
+  expect_equal(data_obj$geo_dist(mode = "local", plot = FALSE), data_obj$geodesic_distances_distribution(mode = "local", plot = FALSE))
+
+  # deg vs degree
+  expect_equal(data_obj$deg(), data_obj$degree())
+  expect_equal(data_obj$deg_dist(plot = FALSE), data_obj$degree_distribution(plot = FALSE))
+
+  # x_dist and y_dist
+  expect_equal(data_obj$x_dist(plot = FALSE), data_obj$x_distribution(plot = FALSE))
+  expect_equal(data_obj$y_dist(plot = FALSE), data_obj$y_distribution(plot = FALSE))
+
+  # mode = "local" on degree and degree_distribution
+  deg_local <- data_obj$degree(mode = "local")
+  expect_true(is.numeric(deg_local$degree_seq) || is.list(deg_local))
+  deg_dist_local <- data_obj$degree_distribution(mode = "local", plot = FALSE)
+  expect_true(inherits(deg_dist_local, "table") || is.list(deg_dist_local))
+})
+
+test_that("assess and results$plot work with esp, dsp, geo, and deg aliases and local mode", {
+  n_actor <- 15
+  block <- matrix(nrow = 5, ncol = 5, data = 1)
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 5, block, simplify = FALSE)))
+
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  sampler_obj <- sampler.iglm(
+    n_burn_in = 2, n_simulation = 2,
+    sampler_x = sampler.net.attr(n_proposals = n_actor * 2),
+    sampler_y = sampler.net.attr(n_proposals = n_actor * 2),
+    sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 2)
+  )
+
+  model_fit <- iglm(
+    formula = xyz_obj ~ edges(mode = "local") + attribute_y + attribute_x,
+    coef = c(1, -0.5, -0.5), sampler = sampler_obj,
+    control = control.iglm(accelerated = FALSE, max_it = 2, display_progress = FALSE)
+  )
+
+  model_fit$simulate()
+  model_fit$set_target(model_fit$get_samples()[[1]])
+  model_fit$estimate()
+
+  assessment <- model_fit$assess(
+    formula = ~ esp_dist(mode = "local") + dsp_dist(mode = "local") + geo_dist(mode = "local") +
+      geo_dist(mode = "global") + deg_dist(mode = "local") + deg_dist(mode = "global") +
+      x_dist() + y_dist(),
+    plot = FALSE
+  )
+
+  expect_true(inherits(assessment, "iglm_model_assessment"))
+  expect_true("esp_dist_mode_local" %in% names(assessment$observed))
+  expect_true("dsp_dist_mode_local" %in% names(assessment$observed))
+  expect_true("geo_dist_mode_local" %in% names(assessment$observed))
+  expect_true("geo_dist_mode_global" %in% names(assessment$observed))
+  expect_true("deg_dist_mode_local" %in% names(assessment$observed))
+  expect_true("deg_dist_mode_global" %in% names(assessment$observed))
+  expect_true("x_dist" %in% names(assessment$observed))
+  expect_true("y_dist" %in% names(assessment$observed))
+
+  # Test plotting
+  pdf(NULL)
+  expect_silent(model_fit$results$plot(model_assessment = TRUE))
+  dev.off()
+})
+
+
