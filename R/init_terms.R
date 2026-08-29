@@ -146,6 +146,25 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
     }
     caller_term
   }
+  # Normalize unnamed positional arguments (..1, ..2, ...) to expected parameter names
+  pos_args <- grep("^\\.\\.[0-9]+$", names(arglist), value = TRUE)
+  if (length(pos_args) > 0) {
+    pos_indices <- as.integer(sub("^\\.\\.", "", pos_args))
+    pos_args <- pos_args[order(pos_indices)]
+
+    candidate_params <- unique(c(mandatory, names(defaults), names(expected)))
+    # Exclude special/metadata fields and parameters already explicitly named in arglist
+    candidate_params <- candidate_params[!candidate_params %in% c("base_name", "term_name", "label", names(arglist))]
+
+    for (k in seq_along(pos_args)) {
+      pos_key <- pos_args[k]
+      if (k <= length(candidate_params)) {
+        target_param <- candidate_params[k]
+        arglist[[target_param]] <- arglist[[pos_key]]
+      }
+      arglist[[pos_key]] <- NULL
+    }
+  }
 
   if (!is.null(directed) && data_object$directed != directed) {
     if (!is.null(term_name)) {
@@ -176,7 +195,7 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
     if (is.null(val)) next
     spec <- expected[[name]]
     if (is.character(spec) && length(spec) >= 1 && !(length(spec) == 1 && spec %in% c("numeric", "scalar_numeric", "numeric_scalar", "matrix"))) {
-      if (!val %in% spec) {
+      if (length(val) != 1 || !val %in% spec) {
         if (!is.null(term_name)) {
           stop(sprintf("Argument '%s' of term '%s' must be one of: %s", name, term_name, paste(spec, collapse = ", ")))
         } else {
@@ -295,8 +314,8 @@ NULL
 
 InitIglmTerm.cov_z <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
-    expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
-    defaults = list(mode = "global", data = matrix(1), type = 1)
+    expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
+    defaults = list(data = matrix(1), mode = "global", type = 1)
   )
   res <- list(
     term_name = paste0("cov_z_", arglist$mode),
@@ -320,8 +339,8 @@ NULL
 InitIglmTerm.cov_z_out <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
-    expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
-    defaults = list(mode = "global", data = matrix(1), type = 1)
+    expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
+    defaults = list(data = matrix(1), mode = "global", type = 1)
   )
   data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
   res <- list(
@@ -346,8 +365,8 @@ NULL
 InitIglmTerm.cov_z_in <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
-    expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
-    defaults = list(mode = "global", data = matrix(1), type = 1)
+    expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
+    defaults = list(data = matrix(1), mode = "global", type = 1)
   )
   data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
   res <- list(
@@ -695,14 +714,14 @@ NULL
 InitIglmTerm.gwesp <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
+      decay = "scalar_numeric",
       mode = c("global", "local"),
-      variant = c("ITP", "ISP", "OTP", "OSP", "symm"),
-      decay = "scalar_numeric"
+      variant = c("ITP", "ISP", "OTP", "OSP", "symm")
     ),
     defaults = list(
+      decay = 0,
       mode = "global",
-      variant = if (data_object$directed) "OSP" else "symm",
-      decay = 0
+      variant = if (data_object$directed) "OSP" else "symm"
     )
   )
   if (data_object$directed && arglist$variant == "symm") stop("Variant 'symm' is only for undirected networks.")
@@ -725,14 +744,14 @@ NULL
 InitIglmTerm.gwdsp <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
+      decay = "scalar_numeric",
       mode = c("global", "local"),
-      variant = c("ITP", "ISP", "OTP", "OSP", "symm"),
-      decay = "scalar_numeric"
+      variant = c("ITP", "ISP", "OTP", "OSP", "symm")
     ),
     defaults = list(
+      decay = 0,
       mode = "global",
-      variant = if (data_object$directed) "OSP" else "symm",
-      decay = 0
+      variant = if (data_object$directed) "OSP" else "symm"
     )
   )
   if (data_object$directed && arglist$variant == "symm") stop("Variant 'symm' is only for undirected networks.")
@@ -754,10 +773,10 @@ NULL
 InitIglmTerm.gwdegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
-      mode = c("global", "local"),
-      decay = "scalar_numeric"
+      decay = "scalar_numeric",
+      mode = c("global", "local")
     ),
-    defaults = list(mode = "global", decay = 0)
+    defaults = list(decay = 0, mode = "global")
   )
 
   list(
@@ -777,10 +796,10 @@ InitIglmTerm.gwidegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
     expected = list(
-      mode = c("global", "local"),
-      decay = "scalar_numeric"
+      decay = "scalar_numeric",
+      mode = c("global", "local")
     ),
-    defaults = list(mode = "global", decay = 0)
+    defaults = list(decay = 0, mode = "global")
   )
 
   list(
@@ -799,10 +818,10 @@ NULL
 InitIglmTerm.gwodegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
-      mode = c("global", "local"),
-      decay = "scalar_numeric"
+      decay = "scalar_numeric",
+      mode = c("global", "local")
     ),
-    defaults = list(mode = "global", decay = 0)
+    defaults = list(decay = 0, mode = "global")
   )
 
   list(

@@ -188,6 +188,12 @@ test_that("iglm throws error when covariate object does not exist", {
   )
   expect_no_error(m_degrees_updated$estimate())
   expect_equal(dim(m_degrees_updated$results$var), c(0, 0))
+
+  # Test assess removes non-distribution terms like geodesic_distances
+  expect_warning(
+    m_degrees_updated$assess(formula = ~ degree_distribution + geodesic_distances, plot = FALSE),
+    pattern = "Unrecognized terms deleted: geodesic_distances"
+  )
 })
 
 

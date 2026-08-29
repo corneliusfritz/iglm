@@ -75,4 +75,71 @@ test_that("check.IglmTerm generates informative error messages with term name", 
     InitIglmTerm.gwdegree(data_obj_directed, list(base_name = "gwdegree", x_i = 1)),
     pattern = "Unexpected argument 'x_i' passed to term 'gwdegree'."
   )
+
+  # Test positional arguments normalization (..1, ..2)
+  cov_term <- InitIglmTerm.cov_z(data_obj_directed, list(base_name = "cov_z", label = "cov_z(mat)", ..1 = matrix(1, 2, 2)))
+  expect_equal(cov_term$term_name, "cov_z_global")
+
+  gwesp_term <- InitIglmTerm.gwesp(data_obj_undirected, list(base_name = "gwesp", label = "gwesp(0.5)", ..1 = 0.5))
+  expect_equal(gwesp_term$term_name, "gwesp_global_symm")
+  expect_equal(as.numeric(gwesp_term$data), 0.5)
+
+  # Test positional normalization across various terms in full formula context
+  edges_term <- InitIglmTerm.edges(data_obj_undirected, list(base_name = "edges", label = "edges('local')", ..1 = "local"))
+  expect_equal(edges_term$term_name, "edges_local")
+
+  cov_x_term <- InitIglmTerm.cov_x(data_obj_undirected, list(base_name = "cov_x", label = "cov_x(c(1, 2))", ..1 = c(1, 2)))
+  expect_equal(cov_x_term$term_name, "cov_x")
+  expect_equal(as.vector(cov_x_term$data), c(1, 2))
+
+  cov_y_term <- InitIglmTerm.cov_y(data_obj_undirected, list(base_name = "cov_y", label = "cov_y(c(3, 4))", ..1 = c(3, 4)))
+  expect_equal(cov_y_term$term_name, "cov_y")
+  expect_equal(as.vector(cov_y_term$data), c(3, 4))
+
+  attr_xy_term <- InitIglmTerm.attribute_xy(data_obj_undirected, list(base_name = "attribute_xy", label = "attribute_xy('local')", ..1 = "local"))
+  expect_equal(attr_xy_term$term_name, "attribute_xy_local")
+
+  gwdsp_term <- InitIglmTerm.gwdsp(data_obj_undirected, list(base_name = "gwdsp", label = "gwdsp(0.25)", ..1 = 0.25))
+  expect_equal(gwdsp_term$term_name, "gwdsp_global_symm")
+  expect_equal(as.numeric(gwdsp_term$data), 0.25)
+
+  gwdeg_term <- InitIglmTerm.gwdegree(data_obj_undirected, list(base_name = "gwdegree", label = "gwdegree(0.75)", ..1 = 0.75))
+  expect_equal(gwdeg_term$term_name, "gwdegree_global")
+  expect_equal(as.numeric(gwdeg_term$data), 0.75)
+
+  # Mixed positional and named arguments
+  cov_z_mixed <- InitIglmTerm.cov_z(data_obj_undirected, list(base_name = "cov_z", label = "cov_z(mat, mode = 'local')", ..1 = matrix(2, 2, 2), mode = "local"))
+  expect_equal(cov_z_mixed$term_name, "cov_z_local")
+  expect_equal(cov_z_mixed$data, matrix(2, 2, 2))
 })
+
+test_that("Positional formula arguments evaluate correctly in model estimation and simulation", {
+  n_actor <- 10
+  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+  diag(neighborhood) <- 0
+
+  x_val <- rep(c(1, 0), length.out = n_actor)
+  y_val <- rep(c(0, 1), length.out = n_actor)
+  z_net <- matrix(c(1, 2, 2, 3, 3, 4), ncol = 2, byrow = TRUE)
+  cov_mat <- matrix(0.5, nrow = n_actor, ncol = n_actor)
+
+  d <- iglm.data(
+    x_attribute = x_val,
+    y_attribute = y_val,
+    z_network = z_net,
+    neighborhood = neighborhood,
+    n_actor = n_actor,
+    directed = FALSE
+  )
+
+  # Formula with unnamed positional arguments: edges("local"), cov_z(cov_mat), gwesp(0.5)
+  mod <- iglm(
+    formula = d ~ edges("local") + cov_z(cov_mat) + gwesp(0.5),
+    coef = c(-1, 0.2, 0.1),
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2)
+  )
+
+  expect_equal(names(mod$sufficient_statistics), c("edges('local')", "cov_z(cov_mat)", "gwesp(0.5)"))
+  expect_no_error(mod$simulate(display_progress = FALSE))
+})
+

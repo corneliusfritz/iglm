@@ -13,7 +13,9 @@ simulate_iglm(
   only_stats = TRUE,
   display_progress = FALSE,
   offset_nonoverlap = 0,
-  cluster = NULL
+  cluster = NULL,
+  fix_x = NULL,
+  fix_z = NULL
 )
 }
 \arguments{
@@ -21,11 +23,12 @@ simulate_iglm(
 name of a `iglm.data` object available in the calling environment.
 See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
 
-\item{basis}{An optional `iglm.data` object to serve as the basis (initial state)
-for the simulation. If provided, the simulation starts from the state defined in this object.
+\item{basis}{An optional \code{\link{iglm.data}} object to serve as the basis (initial state)
+for the simulation. If provided, the simulation starts from the state (\code{x_attribute},
+\code{y_attribute}, \code{z_network}) defined in this object.
 The `basis` object must be consistent with the model data referenced in `formula`
 (same number of actors, directedness, and attribute types). All structural specifications
-(terms, neighborhood, overlap, and fixed variables) are taken from the `formula` data or `basis`.
+(terms, neighborhood, overlap, and fixed variable flags) are taken from the `formula` data object.
 If `NULL` (default), the initial state is taken from the `iglm.data` object
 referenced in the `formula`.}
 
@@ -67,6 +70,12 @@ remaining `n_simulation` tasks across the cluster workers using
 \code{parallel::parLapply}. The master seed is offset
 for each worker to ensure different random streams. If `NULL` (default),
 all simulations are run sequentially in the main R process.}
+
+\item{fix_x}{Optional logical override indicating if `x_attribute` should be held fixed during simulation.
+If `NULL` (default), the setting from the model `iglm.data` object is used.}
+
+\item{fix_z}{Optional logical override indicating if `z_network` should be held fixed during simulation.
+If `NULL` (default), the setting from the model `iglm.data` object is used.}
 }
 \value{
 A list containing one or two components (depending on `only_stats`):

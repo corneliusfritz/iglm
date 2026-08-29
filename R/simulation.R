@@ -27,11 +27,12 @@
 #' @param display_progress Logical. If `TRUE`, progress messages or a progress
 #'   bar (depending on the backend implementation) are displayed during simulation.
 #'   Default is `FALSE`.
-#' @param basis An optional `iglm.data` object to serve as the basis (initial state)
-#'   for the simulation. If provided, the simulation starts from the state defined in this object.
+#' @param basis An optional \code{\link{iglm.data}} object to serve as the basis (initial state)
+#'   for the simulation. If provided, the simulation starts from the state (\code{x_attribute},
+#'   \code{y_attribute}, \code{z_network}) defined in this object.
 #'   The `basis` object must be consistent with the model data referenced in `formula`
 #'   (same number of actors, directedness, and attribute types). All structural specifications
-#'   (terms, neighborhood, overlap, and fixed variables) are taken from the `formula` data or `basis`.
+#'   (terms, neighborhood, overlap, and fixed variable flags) are taken from the `formula` data object.
 #'   If `NULL` (default), the initial state is taken from the `iglm.data` object
 #'   referenced in the `formula`.
 #' @param offset_nonoverlap Numeric scalar value passed to the C++ simulator.
@@ -45,6 +46,10 @@
 #'   \code{parallel::parLapply}. The master seed is offset
 #'   for each worker to ensure different random streams. If `NULL` (default),
 #'   all simulations are run sequentially in the main R process.
+#' @param fix_x Optional logical override indicating if `x_attribute` should be held fixed during simulation.
+#'   If `NULL` (default), the setting from the model `iglm.data` object is used.
+#' @param fix_z Optional logical override indicating if `z_network` should be held fixed during simulation.
+#'   If `NULL` (default), the setting from the model `iglm.data` object is used.
 #'
 #' @details
 #' \strong{Parallel Execution:} When a `cluster` object is provided, the simulation
@@ -98,7 +103,9 @@ simulate_iglm <- function(formula,
                           only_stats = TRUE,
                           display_progress = FALSE,
                           offset_nonoverlap = 0,
-                          cluster = NULL) {
+                          cluster = NULL,
+                          fix_x = NULL,
+                          fix_z = NULL) {
   if (is.null(sampler)) {
     sampler <- sampler.iglm()
     # if no specifications of the sampler are provided use the default one
@@ -147,6 +154,9 @@ simulate_iglm <- function(formula,
   init_y <- if (!is.null(basis)) basis$y_attribute else data_obj$y_attribute
   init_z <- if (!is.null(basis)) basis$z_network else data_obj$z_network
 
+  sim_fix_x <- if (!is.null(fix_x)) as.logical(fix_x) else data_obj$fix_x
+  sim_fix_z <- if (!is.null(fix_z)) as.logical(fix_z) else data_obj$fix_z
+
   degrees <- preprocessed$includes_degrees
   n_actor <- data_obj$n_actor
   if (length(coef) != length(preprocessed$term_names)) {
@@ -189,8 +199,8 @@ simulate_iglm <- function(formula,
       display_progress = display_progress,
       degrees = degrees,
       offset_nonoverlap = offset_nonoverlap,
-      fix_x = data_obj$fix_x,
-      fix_z = data_obj$fix_z,
+      fix_x = sim_fix_x,
+      fix_z = sim_fix_z,
       tnt = sampler$sampler_z$tnt
     )
   } else {
@@ -227,8 +237,8 @@ simulate_iglm <- function(formula,
       display_progress = display_progress,
       degrees = degrees,
       offset_nonoverlap = offset_nonoverlap,
-      fix_x = data_obj$fix_x,
-      fix_z = data_obj$fix_z,
+      fix_x = sim_fix_x,
+      fix_z = sim_fix_z,
       tnt = sampler$sampler_z$tnt
     )
     res_burnin <- XYZ_to_R(
@@ -248,7 +258,7 @@ simulate_iglm <- function(formula,
       cl = cluster, X = tmp_split, fun = function(x, preprocessed, n_actor, coef,
                                                   coef_degrees, degrees, sampler,
                                                   res_burnin, offset_nonoverlap,
-                                                  data_obj) {
+                                                  data_obj, sim_fix_x, sim_fix_z) {
         xyz_simulate_cpp(
           coef = coef, coef_degrees = coef_degrees,
           terms = preprocessed$term_names,
@@ -276,15 +286,15 @@ simulate_iglm <- function(formula,
           only_stats = only_stats,
           display_progress = FALSE,
           degrees = degrees,
-          fix_x = data_obj$fix_x,
-          fix_z = data_obj$fix_z,
+          fix_x = sim_fix_x,
+          fix_z = sim_fix_z,
           offset_nonoverlap = offset_nonoverlap,
           tnt = sampler$sampler_z$tnt
         )
       }, preprocessed = preprocessed, n_actor = n_actor, coef = coef,
       coef_degrees = coef_degrees, degrees = degrees,
       sampler = sampler, res_burnin = res_burnin, offset_nonoverlap = offset_nonoverlap,
-      data_obj = data_obj
+      data_obj = data_obj, sim_fix_x = sim_fix_x, sim_fix_z = sim_fix_z
     )
 
     res <- list()
@@ -335,6 +345,9 @@ simulate_iglm <- function(formula,
         fix_x = data_obj$fix_x,
         fix_z = data_obj$fix_z,
         fix_z_alocal = data_obj$fix_z_alocal,
+        label_x = data_obj$label_x,
+        label_y = data_obj$label_y,
+        label_z = data_obj$label_z,
         return_neighborhood = FALSE
       )
     }

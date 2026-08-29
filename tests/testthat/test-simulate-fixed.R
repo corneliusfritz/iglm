@@ -461,4 +461,41 @@ test_that("Simulation with init_empty = TRUE and fix_z_alocal = TRUE preserves n
   }
 })
 
+test_that("simulate_iglm preserves custom label_x, label_y, label_z and supports fix_x, fix_z overrides", {
+  n_actor <- 10
+  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+  diag(neighborhood) <- 0
+
+  obs_x <- rep(c(1, 0), length.out = n_actor)
+  obs_y <- rep(c(0, 1), length.out = n_actor)
+  obs_z <- matrix(c(1, 2, 2, 3), ncol = 2, byrow = TRUE)
+
+  data_obj <- iglm.data(
+    x_attribute = obs_x,
+    y_attribute = obs_y,
+    z_network = obs_z,
+    neighborhood = neighborhood,
+    directed = FALSE,
+    label_x = "covariate_age",
+    label_y = "outcome_smoking",
+    label_z = "friendship_network"
+  )
+
+  sim_res <- simulate_iglm(
+    formula = data_obj ~ edges(mode = "local") + attribute_y,
+    coef = c(-1, 0.5),
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2),
+    only_stats = FALSE,
+    fix_x = TRUE
+  )
+
+  expect_equal(length(sim_res$samples), 2)
+  for (s in sim_res$samples) {
+    expect_equal(s$label_x, "covariate_age")
+    expect_equal(s$label_y, "outcome_smoking")
+    expect_equal(s$label_z, "friendship_network")
+    expect_equal(s$x_attribute, obs_x)
+  }
+})
+
 

@@ -607,7 +607,7 @@ plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
     if (!is.null(colnames(s))) all_names <- union(all_names, colnames(s))
   }
   
-  if (!is.null(all_names) && is.null(x_positions)) {
+  if (!is.null(all_names)) {
     # If all names are numeric, sort them numerically
     num_names <- suppressWarnings(as.numeric(all_names))
     if (!any(is.na(num_names))) {
@@ -632,6 +632,10 @@ plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
         sim_mat
       }
     })
+
+    if (!is.null(x_positions) && length(x_positions) == length(all_names)) {
+      x <- as.numeric(x_positions)
+    }
   } else {
     x <- if (!is.null(x_positions)) {
       as.numeric(x_positions)

@@ -86,16 +86,14 @@ sampling for the y attribute. If `NULL`, defaults from `sampler.net.attr()` are 
       \item{\code{sampler_z}}{An object of class `sampler.net.attr` controlling
 sampling for the z network (within the defined neighborhood/overlap).
 If `NULL`, defaults from `sampler.net.attr()` are used.}
-      \item{\code{n_simulation}}{(integer) The number of network/attribute configurations
-to simulate and store after the burn-in period. Default is 100. Must be non-negative.}
-      \item{\code{n_burn_in}}{(integer) The number of initial MCMC iterations to discard
-(burn-in) before starting to collect simulations. Default is 10. Must be non-negative.}
+      \item{\code{n_simulation}}{(integer) The number of network/attribute configurations}
+      \item{\code{n_burn_in}}{(`integer`) The number of initial MCMC iterations to discard.}
       \item{\code{init_empty}}{(logical) If `FALSE` (default), the MCMC chain is
 initialized from observed data. If `TRUE`, the MCMC chain is
 initialized from an empty state (e.g., empty network, attributes at mean).}
       \item{\code{seed}}{(integer or `NA`) A single integer seed for the random number
-generator, set once before sampling begins. If `NA` (default), a random
-seed is generated automatically.}
+generator. If `NA` (default), a fixed default seed (`123456789`) is used
+for reproducibility.}
       \item{\code{cluster}}{A parallel cluster object (e.g., from the `parallel` package)
 to use for running simulations in parallel. If `NULL` (default), simulations
 are run sequentially.}

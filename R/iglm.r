@@ -370,11 +370,17 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       names_tmp <- gsub(" ", "", names_tmp)
       names_tmp <- gsub("_+$", "", names_tmp)
 
-      if (any(!grepl("dist", names_tmp))) {
-        bad_terms <- names_tmp[!grepl("dist", names_tmp)]
+      is_valid_dist <- function(term) {
+        grepl("(_distribution$|_dist$|^distribution_|^dist_|_distribution_|_dist_)", term) && !grepl("distances$", term)
+      }
+
+      valid_mask <- vapply(names_tmp, is_valid_dist, logical(1))
+      if (any(!valid_mask)) {
+        raw_labels <- attr(terms(formula), "term.labels")
+        bad_terms <- raw_labels[!valid_mask]
         warning(paste0("Unrecognized terms deleted: ", paste(bad_terms, collapse = ", ")))
         formula <- update(formula, as.formula(paste(". ~ . -", paste(bad_terms, collapse = " - "))))
-        names_tmp <- names_tmp[grepl("dist", names_tmp)]
+        names_tmp <- names_tmp[valid_mask]
       }
 
 
@@ -730,7 +736,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                 scale_y = private$.iglm.data$scale_y,
                 fix_x = private$.iglm.data$fix_x,
                 fix_z = private$.iglm.data$fix_z,
-                fix_z_alocal = private$.iglm.data$fix_z_alocal
+                fix_z_alocal = private$.iglm.data$fix_z_alocal,
+                label_x = private$.iglm.data$label_x,
+                label_y = private$.iglm.data$label_y,
+                label_z = private$.iglm.data$label_z
               )
             }
           )

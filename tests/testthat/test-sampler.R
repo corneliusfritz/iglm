@@ -31,3 +31,20 @@ test_that("Define a sampler object and test all options", {
   expect_equal(loaded_sampler$sampler_z$n_proposals, 30)
   file.remove(tmp_name)
 })
+
+test_that("sampler.iglm defaults init_empty to FALSE and uses fixed default seed when seed = NA", {
+  s1 <- sampler.iglm()
+  s2 <- sampler.iglm()
+  expect_false(s1$init_empty)
+  expect_false(s2$init_empty)
+  expect_equal(s1$seed, 123456789)
+  expect_equal(s2$seed, 123456789)
+
+  gen1 <- sampler.iglm.generator$new()
+  gen2 <- sampler.iglm.generator$new()
+  expect_false(gen1$init_empty)
+  expect_false(gen2$init_empty)
+  expect_equal(gen1$seed, 123456789)
+  expect_equal(gen2$seed, 123456789)
+})
+
