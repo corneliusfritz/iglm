@@ -389,26 +389,38 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       base_name <- unlist(lapply(rhs_terms_as_list(update(formula, a ~ .)), function(x) {
         x$base_name
       }))
-      ranges_tmp <- lapply(observed, function(x) {
+
+      ranges_tmp <- lapply(seq_along(names_tmp), function(idx) {
+        bn <- base_name[idx]
+        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$type_y == "normal") {
+          all_y <- c(private$.iglm.data$y_attribute, unlist(lapply(private$.results$samples, function(s) s$y_attribute)))
+          return(range(all_y, na.rm = TRUE))
+        }
+        if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$type_x == "normal") {
+          all_x <- c(private$.iglm.data$x_attribute, unlist(lapply(private$.results$samples, function(s) s$x_attribute)))
+          return(range(all_x, na.rm = TRUE))
+        }
+        x <- observed[[idx]]
         if (is.numeric(x)) {
           return(range(as.numeric(names(x))[is.finite(as.numeric(names(x)))]))
         } else if (is.list(x)) {
-          return(range(as.numeric(unlist(lapply(x, function(y) {
-            names(y)
-          })))))
+          return(range(as.numeric(unlist(lapply(x, names)))))
         } else {
           return(NULL)
         }
       })
       names(ranges_tmp) <- rep("value_range", length(names_tmp))
-      # for(i in 1:length(private$.results$samples)){
-      #   cat(i," \n")
-      # debugonce(eval_change)
-      # eval_change(formula = formula,object = private$.results$samples[[i]], additional_args = ranges_tmp)
-      # }
-      # debugonce(private$.results$samples[[155]]$spillover_degree_distribution)
-      # private$.results$samples[[155]]$spillover_degree_distribution()
-      #
+
+      # For normal distribution terms, re-evaluate observed with the common value_range
+      for (idx in seq_along(names_tmp)) {
+        bn <- base_name[idx]
+        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$type_y == "normal") {
+          observed[[idx]] <- private$.iglm.data$y_distribution(value_range = ranges_tmp[[idx]], plot = FALSE)
+        } else if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$type_x == "normal") {
+          observed[[idx]] <- private$.iglm.data$x_distribution(value_range = ranges_tmp[[idx]], plot = FALSE)
+        }
+      }
+
       simulated <- lapply(private$.results$samples,
         function(object, info_tmp, names_tmp) {
           res <- eval_change(formula = formula, object = object, additional_args = ranges_tmp)

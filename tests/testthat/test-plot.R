@@ -315,5 +315,35 @@ test_that("Single-model assessment plot handles geodesic distributions when simu
   dev.off()
 })
 
+test_that("Normal y_distribution assessment preserves continuous densities without zero-filling artifacts", {
+  x_grid <- seq(-3, 3, length.out = 100)
+  obs_density <- dnorm(x_grid)
+  names(obs_density) <- x_grid
+  sim_densities <- matrix(
+    rep(dnorm(x_grid, sd = 1.1), each = 5),
+    nrow = 5, ncol = 100, byrow = FALSE,
+    dimnames = list(NULL, as.character(x_grid))
+  )
+
+  pdf(NULL)
+  expect_silent(
+    plot_assessment_single(
+      observed = obs_density, sim_matrix = sim_densities, xlab = "Distribution of Y",
+      ylab = "Density", x_positions = x_grid, x_at = pretty(x_grid), x_labels = pretty(x_grid),
+      use_envelope = TRUE
+    )
+  )
+  expect_silent(
+    plot_assessment_multi(
+      observed = obs_density, sim_main = sim_densities, sim_dots = list(sim_densities),
+      model_names = c("Model 1", "Model 2"), colors = c("blue", "red"),
+      xlab = "Distribution of Y", ylab = "Density", x_positions = x_grid,
+      x_at = pretty(x_grid), x_labels = pretty(x_grid), use_envelope = TRUE
+    )
+  )
+  dev.off()
+})
+
+
 
 

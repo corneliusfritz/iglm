@@ -471,22 +471,24 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("y_distribution", "y_dist")) {
             obs_y <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_y <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
+            is_normal <- (private$.samples[[1]]$type_y == "normal")
+            x_pos <- if (is_normal) as.numeric(names(obs_y)) else seq_along(obs_y)
 
             if (add) {
               sim_dots <- lapply(dot_list, function(d) {
                 extract_assessment_matrix(d$simulated, tmp_names[k])
               })
-              x_pos <- seq_along(obs_y)
               plot_assessment_multi(
                 observed = obs_y, sim_main = sim_y, sim_dots = sim_dots,
                 model_names = names_tmp, colors = colors_tmp, xlab = "Distribution of Y",
-                x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos)
+                ylab = if (is_normal) "Density" else "Percentage",
+                x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
+                use_envelope = is_normal
               )
             } else {
-              is_normal <- (private$.samples[[1]]$type_y == "normal")
-              x_pos <- if (is_normal) as.numeric(names(obs_y)) else seq_along(obs_y)
               plot_assessment_single(
                 observed = obs_y, sim_matrix = sim_y, xlab = "Distribution of Y",
+                ylab = if (is_normal) "Density" else "Percentage",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )
@@ -494,22 +496,24 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("x_distribution", "x_dist")) {
             obs_x <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_x <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
+            is_normal <- (private$.samples[[1]]$type_x == "normal")
+            x_pos <- if (is_normal) as.numeric(names(obs_x)) else seq_along(obs_x)
 
             if (add) {
               sim_dots <- lapply(dot_list, function(d) {
                 extract_assessment_matrix(d$simulated, tmp_names[k])
               })
-              x_pos <- seq_along(obs_x)
               plot_assessment_multi(
                 observed = obs_x, sim_main = sim_x, sim_dots = sim_dots,
                 model_names = names_tmp, colors = colors_tmp, xlab = "Distribution of X",
-                x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos)
+                ylab = if (is_normal) "Density" else "Percentage",
+                x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
+                use_envelope = is_normal
               )
             } else {
-              is_normal <- (private$.samples[[1]]$type_x == "normal")
-              x_pos <- if (is_normal) as.numeric(names(obs_x)) else seq_along(obs_x)
               plot_assessment_single(
                 observed = obs_x, sim_matrix = sim_x, xlab = "Distribution of X",
+                ylab = if (is_normal) "Density" else "Percentage",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )

@@ -65,9 +65,9 @@ eval_change <- function(formula, additional_args = NULL, object) {
     func_name <- as.character(call_list[[1]])
     # Arguments are the remaining elements
     args <- call_list[-1]
-    if (!is.null(additional_args)) {
-      args[[length(args) + 1]] <- additional_args[[i]]
-      names(args)[length(args)] <- names(additional_args)[i]
+    if (!is.null(additional_args) && !is.null(additional_args[[i]])) {
+      arg_name <- if (!is.null(names(additional_args)) && nzchar(names(additional_args)[i])) names(additional_args)[i] else "value_range"
+      args[[arg_name]] <- additional_args[[i]]
     }
     args$plot <- FALSE
     # The function/method to call is the named item inside the R6 object
@@ -619,8 +619,57 @@ extract_assessment_matrix <- function(sim_list, metric, subkey = NULL) {
 plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
                                   model_names, colors, xlab, ylab = "Percentage",
                                   x_at = NULL, x_labels = NULL, x_positions = NULL,
-                                  x_margin = 0.3, lwd_mean = 2) {
+                                  x_margin = 0.3, lwd_mean = 2, use_envelope = FALSE) {
   all_sims <- c(list(sim_main), sim_dots)
+
+  if (use_envelope) {
+    x <- if (!is.null(x_positions)) {
+      as.numeric(x_positions)
+    } else if (!is.null(names(observed)) && all(is.finite(suppressWarnings(as.numeric(names(observed)))))) {
+      as.numeric(names(observed))
+    } else {
+      seq_along(observed)
+    }
+    xlim <- c(min(x) - x_margin, max(x) + x_margin)
+    all_vals <- c(as.numeric(observed), unlist(all_sims))
+    ylim <- range(all_vals, na.rm = TRUE)
+
+    plot(x, as.vector(observed),
+         type = "n", xlab = xlab, ylab = ylab,
+         xlim = xlim, ylim = ylim, las = 1, axes = FALSE
+    )
+
+    if (is.null(x_at)) {
+      x_at <- pretty(range(x), n = 10)
+    }
+
+    if (is.null(x_labels)) {
+      axis(side = 1, at = x_at, lwd = 0, lwd.ticks = 1)
+    } else {
+      axis(side = 1, at = x_at, labels = x_labels, lwd = 0, lwd.ticks = 1)
+    }
+    axis(side = 2, las = 1, lwd = 0, lwd.ticks = 1)
+
+    box(bty = "l", lwd = 1)
+
+    draw_simulation_envelope(x, all_sims[[1]], color = colors[1], alpha = 0.1, lwd_mean = lwd_mean)
+
+    if (length(all_sims) > 1) {
+      for (m in 2:length(all_sims)) {
+        draw_simulation_envelope(x, all_sims[[m]], color = colors[m], alpha = 0.1, lwd_mean = lwd_mean)
+      }
+    }
+    lines(x, as.vector(observed), type = "l", col = "black", lwd = 2)
+
+    legend("topright",
+           legend = c("Observed", model_names),
+           col = c("black", colors),
+           lty = c(1, 1, rep(1, max(0, length(model_names) - 1))),
+           lwd = c(2, rep(lwd_mean, length(model_names))),
+           bty = "n"
+    )
+    return(invisible(NULL))
+  }
   
   # Check if observed or simulation matrices have column names to align on
   all_names <- names(observed)
@@ -729,6 +778,40 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
                                    box_col = "#87CEEB80", line_col = "#D55E00",
                                    x_at = NULL, x_labels = NULL, x_positions = NULL,
                                    x_margin = 0.3, use_envelope = FALSE) {
+  if (use_envelope) {
+    x <- if (!is.null(x_positions)) {
+      as.numeric(x_positions)
+    } else if (!is.null(names(observed)) && all(is.finite(suppressWarnings(as.numeric(names(observed)))))) {
+      as.numeric(names(observed))
+    } else {
+      seq_along(observed)
+    }
+    xlim <- c(min(x) - x_margin, max(x) + x_margin)
+    ylim <- range(c(sim_matrix, as.numeric(observed)), na.rm = TRUE)
+
+    plot(x, as.vector(observed),
+         type = "n", xlab = xlab, ylab = ylab,
+         xlim = xlim, ylim = ylim, las = 1, axes = FALSE
+    )
+
+    if (is.null(x_at)) {
+      x_at <- pretty(range(x), n = 10)
+    }
+
+    if (is.null(x_labels)) {
+      axis(side = 1, at = x_at, lwd = 0, lwd.ticks = 1)
+    } else {
+      axis(side = 1, at = x_at, labels = x_labels, lwd = 0, lwd.ticks = 1)
+    }
+    axis(side = 2, las = 1, lwd = 0, lwd.ticks = 1)
+
+    box(bty = "l", lwd = 1)
+
+    draw_simulation_envelope(x, sim_matrix, color = box_col, alpha = 0.4, lwd_mean = 2)
+    lines(x, as.vector(observed), type = "l", col = line_col, lwd = 2)
+    return(invisible(NULL))
+  }
+
   all_names <- names(observed)
   if (!is.null(colnames(sim_matrix))) all_names <- union(all_names, colnames(sim_matrix))
   
@@ -809,14 +892,10 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
   box(bty = "l", lwd = 1)
   
   # 4. Plot data layers
-  if (use_envelope) {
-    draw_simulation_envelope(x, sim_matrix, color = box_col, alpha = 0.4, lwd_mean = 2)
-  } else {
-    boxplot(sim_matrix,
-            at = x, boxwex = 0.5,
-            add = TRUE, col = box_col, axes = FALSE, las = 1
-    )
-  }
+  boxplot(sim_matrix,
+          at = x, boxwex = 0.5,
+          add = TRUE, col = box_col, axes = FALSE, las = 1
+  )
   
   lines(x, as.vector(observed), type = "l", col = line_col, lwd = 2)
 }
