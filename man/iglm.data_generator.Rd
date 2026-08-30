@@ -793,10 +793,6 @@ or `"local"` to evaluate only dyads with overlapping neighborhoods.}
 \subsection{\code{iglm.data$geodesic_distances_distribution()}}{
   Calculates the geodesic distance distribution of the symmetrized
 `z_network`.
-
-
-  Calculates the geodesic distance distribution of the symmetrized
-`z_network`.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$geodesic_distances_distribution(

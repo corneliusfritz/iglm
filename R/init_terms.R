@@ -56,6 +56,21 @@
 #'   \item \code{\link{spillover_yx-term}}, \code{\link{spillover_xy-term}}, \code{\link{spillover_yc-term}}, \code{\link{spillover_yc_symm-term}}
 #' }
 #'
+#' @section Argument Specification (Positional and Named Arguments):
+#'
+#' Terms in an \code{iglm} formula can be specified using named arguments,
+#' positional arguments, or a combination of both:
+#' \itemize{
+#'   \item \strong{Positional arguments}: Unnamed arguments (e.g., \code{edges("local")} or \code{gwdegree(0.5, "local")})
+#'     are mapped sequentially to the term's candidate parameters in the order of
+#'     their definition (\code{mandatory}, \code{defaults}, and \code{expected}).
+#'   \item \strong{Mixed arguments}: If some arguments are named (e.g., \code{cov_z(mat, mode = "local")}),
+#'     named arguments are matched first, and positional arguments are mapped to the
+#'     remaining candidate parameters in order.
+#'   \item \strong{Excess arguments}: Providing more positional arguments than the term accepts
+#'     (e.g., \code{gwdegree(0.5, "local", "extra")}) will produce an unexpected-argument error.
+#' }
+#'
 #' @references
 #'
 #' Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
@@ -117,6 +132,23 @@ InitIglmTerm <- function(data_object, arglist, ...) {
 #' @description This is an internal helper function used to validate and set defaults
 #' for arguments passed to iglm model terms.
 #'
+#' @details
+#' \code{check.IglmTerm} normalizes and validates arguments passed to model terms in formulas:
+#' \enumerate{
+#'   \item \strong{Positional Argument Normalization}: Arguments passed without parameter names
+#'     (represented as \code{..1}, \code{..2}, \dots in \code{arglist}) are sorted by position and
+#'     mapped sequentially to available candidate parameters. Candidate parameters are
+#'     identified from \code{mandatory}, \code{defaults}, and \code{expected} (excluding metadata
+#'     and arguments already supplied by name).
+#'   \item \strong{Excess Positional Arguments}: Unmatched positional arguments (where position index
+#'     exceeds the number of candidate parameters) remain in \code{arglist} and trigger
+#'     an unexpected-argument error during validation.
+#'   \item \strong{Type and Value Validation}: Validates mandatory arguments, allowed categorical
+#'     values, numeric/matrix types, scalar constraints, and ensures no \code{NA}/\code{NaN} values
+#'     are present in numeric inputs.
+#'   \item \strong{Default Injection}: Injects default values for any omitted optional parameters.
+#' }
+#'
 #' @param data_object The iglm.data object.
 #' @param arglist The list of arguments passed to the term.
 #' @param mandatory Character vector of mandatory argument names.
@@ -161,8 +193,8 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
       if (k <= length(candidate_params)) {
         target_param <- candidate_params[k]
         arglist[[target_param]] <- arglist[[pos_key]]
+        arglist[[pos_key]] <- NULL
       }
-      arglist[[pos_key]] <- NULL
     }
   }
 

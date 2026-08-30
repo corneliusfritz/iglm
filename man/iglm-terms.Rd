@@ -257,6 +257,23 @@ Below is a detailed description of terms that depend on both attributes and the 
 }
 }
 
+\section{Argument Specification (Positional and Named Arguments)}{
+
+
+Terms in an \code{iglm} formula can be specified using named arguments,
+positional arguments, or a combination of both:
+\itemize{
+  \item \strong{Positional arguments}: Unnamed arguments (e.g., \code{edges("local")} or \code{gwdegree(0.5, "local")})
+    are mapped sequentially to the term's candidate parameters in the order of
+    their definition (\code{mandatory}, \code{defaults}, and \code{expected}).
+  \item \strong{Mixed arguments}: If some arguments are named (e.g., \code{cov_z(mat, mode = "local")}),
+    named arguments are matched first, and positional arguments are mapped to the
+    remaining candidate parameters in order.
+  \item \strong{Excess arguments}: Providing more positional arguments than the term accepts
+    (e.g., \code{gwdegree(0.5, "local", "extra")}) will produce an unexpected-argument error.
+}
+}
+
 \references{
 Fritz, C., Schweinberger, M., Bhadra, S., and D.R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
 

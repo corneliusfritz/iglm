@@ -906,9 +906,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @description
     #' Calculates the geodesic distance distribution of the symmetrized
     #' `z_network`.
-    #' @description
-    #' Calculates the geodesic distance distribution of the symmetrized
-    #' `z_network`.
     #'
     #' @param value_range (numeric vector) A vector `c(min, max)` specifying
     #'   the range of distances to tabulate. If `NULL` (default), the range

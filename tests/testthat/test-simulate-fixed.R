@@ -296,9 +296,22 @@ test_that("Estimation with fix_z works (autologistic model with fixed network)",
   expect_true(all(!is.na(m_z$results$var)))
 
   # Post-estimation simulate should also maintain fix_z
+  sim_net_canon <- sim_net
+  for (i in seq_len(nrow(sim_net_canon))) {
+    if (sim_net_canon[i, 1] > sim_net_canon[i, 2]) {
+      sim_net_canon[i, ] <- sim_net_canon[i, 2:1]
+    }
+  }
+  sim_net_canon <- sim_net_canon[order(sim_net_canon[, 1], sim_net_canon[, 2]), , drop = FALSE]
+
   m_z$simulate()
   for (s in m_z$get_samples()) {
-    expect_equal(nrow(s$z_network), nrow(sim_net))
+    s_z <- s$z_network
+    for (i in seq_len(nrow(s_z))) {
+      if (s_z[i, 1] > s_z[i, 2]) s_z[i, ] <- s_z[i, 2:1]
+    }
+    s_z <- s_z[order(s_z[, 1], s_z[, 2]), , drop = FALSE]
+    expect_equal(s_z, sim_net_canon)
   }
 })
 
@@ -335,10 +348,23 @@ test_that("Estimation with both fix_x and fix_z works", {
   expect_true(all(!is.na(m_xz$results$var)))
 
   # Post-estimation simulate should maintain both
+  sim_net_canon <- sim_net
+  for (i in seq_len(nrow(sim_net_canon))) {
+    if (sim_net_canon[i, 1] > sim_net_canon[i, 2]) {
+      sim_net_canon[i, ] <- sim_net_canon[i, 2:1]
+    }
+  }
+  sim_net_canon <- sim_net_canon[order(sim_net_canon[, 1], sim_net_canon[, 2]), , drop = FALSE]
+
   m_xz$simulate()
   for (s in m_xz$get_samples()) {
     expect_equal(s$x_attribute, data_xz$x_attribute)
-    expect_equal(nrow(s$z_network), nrow(sim_net))
+    s_z <- s$z_network
+    for (i in seq_len(nrow(s_z))) {
+      if (s_z[i, 1] > s_z[i, 2]) s_z[i, ] <- s_z[i, 2:1]
+    }
+    s_z <- s_z[order(s_z[, 1], s_z[, 2]), , drop = FALSE]
+    expect_equal(s_z, sim_net_canon)
   }
 })
 
@@ -497,5 +523,48 @@ test_that("simulate_iglm preserves custom label_x, label_y, label_z and supports
     expect_equal(s$x_attribute, obs_x)
   }
 })
+
+test_that("simulate_iglm validates fix_x and fix_z overrides", {
+  n_actor <- 10
+  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+  diag(neighborhood) <- 0
+
+  data_obj <- iglm.data(
+    x_attribute = rep(c(1, 0), length.out = n_actor),
+    y_attribute = rep(c(0, 1), length.out = n_actor),
+    z_network = matrix(c(1, 2, 2, 3), ncol = 2, byrow = TRUE),
+    neighborhood = neighborhood,
+    directed = FALSE
+  )
+
+  # Invalid fix_x
+  expect_error(
+    simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_x = NA),
+    pattern = "'fix_x' must be a single non-missing logical value"
+  )
+  expect_error(
+    simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_x = c(TRUE, FALSE)),
+    pattern = "'fix_x' must be a single non-missing logical value"
+  )
+  expect_error(
+    simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_x = "TRUE"),
+    pattern = "'fix_x' must be a single non-missing logical value"
+  )
+
+  # Invalid fix_z
+  expect_error(
+    simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_z = NA),
+    pattern = "'fix_z' must be a single non-missing logical value"
+  )
+  expect_error(
+    simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_z = c(TRUE, FALSE)),
+    pattern = "'fix_z' must be a single non-missing logical value"
+  )
+  expect_error(
+    simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_z = "TRUE"),
+    pattern = "'fix_z' must be a single non-missing logical value"
+  )
+})
+
 
 

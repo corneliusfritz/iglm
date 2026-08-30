@@ -111,6 +111,12 @@ test_that("check.IglmTerm generates informative error messages with term name", 
   cov_z_mixed <- InitIglmTerm.cov_z(data_obj_undirected, list(base_name = "cov_z", label = "cov_z(mat, mode = 'local')", ..1 = matrix(2, 2, 2), mode = "local"))
   expect_equal(cov_z_mixed$term_name, "cov_z_local")
   expect_equal(cov_z_mixed$data, matrix(2, 2, 2))
+
+  # Test unexpected extra positional argument error
+  expect_error(
+    InitIglmTerm.gwdegree(data_obj_directed, list(base_name = "gwdegree", ..1 = 0.5, ..2 = "local", ..3 = "extra")),
+    pattern = "Unexpected argument '..3' passed to term 'gwdegree'."
+  )
 })
 
 test_that("Positional formula arguments evaluate correctly in model estimation and simulation", {

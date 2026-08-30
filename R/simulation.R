@@ -153,9 +153,19 @@ simulate_iglm <- function(formula,
   init_x <- if (!is.null(basis)) basis$x_attribute else data_obj$x_attribute
   init_y <- if (!is.null(basis)) basis$y_attribute else data_obj$y_attribute
   init_z <- if (!is.null(basis)) basis$z_network else data_obj$z_network
+  if (!is.null(fix_x)) {
+    if (!is.logical(fix_x) || length(fix_x) != 1 || is.na(fix_x)) {
+      stop("'fix_x' must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+    }
+  }
+  if (!is.null(fix_z)) {
+    if (!is.logical(fix_z) || length(fix_z) != 1 || is.na(fix_z)) {
+      stop("'fix_z' must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+    }
+  }
 
-  sim_fix_x <- if (!is.null(fix_x)) as.logical(fix_x) else data_obj$fix_x
-  sim_fix_z <- if (!is.null(fix_z)) as.logical(fix_z) else data_obj$fix_z
+  sim_fix_x <- if (!is.null(fix_x)) fix_x else data_obj$fix_x
+  sim_fix_z <- if (!is.null(fix_z)) fix_z else data_obj$fix_z
 
   degrees <- preprocessed$includes_degrees
   n_actor <- data_obj$n_actor
