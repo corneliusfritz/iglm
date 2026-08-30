@@ -220,6 +220,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         if (is.null(coef)) {
           private$.coef <- rep(0, length(private$.preprocess$coef_names))
         } else {
+          if (!is.numeric(coef) || any(!is.finite(coef))) {
+            stop("`coef` must contain finite numeric values (no NA, NaN, or Inf).", call. = FALSE)
+          }
           private$.coef <- coef
         }
         if (is.null(coef_degrees)) {
@@ -231,6 +234,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         } else {
           if (private$.preprocess$includes_degrees == FALSE) {
             stop("The formula does not include degrees terms, so `coef_degrees` should be NULL.")
+          }
+          if (!is.numeric(coef_degrees) || any(!is.finite(coef_degrees))) {
+            stop("`coef_degrees` must contain finite numeric values (no NA, NaN, or Inf).", call. = FALSE)
           }
           private$.coef_degrees <- coef_degrees
         }
@@ -343,9 +349,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       if (length(private$.results$samples) == 0) {
         self$simulate()
       }
-      names_tmp <- attr(terms(formula), "term.labels")
-      if ("mcmc_diagnostics" %in% names_tmp) {
-        names_tmp <- names_tmp[names_tmp != "mcmc_diagnostics"]
+      term_labels <- attr(terms(formula), "term.labels")
+      if ("mcmc_diagnostics" %in% term_labels) {
+        term_labels <- term_labels[term_labels != "mcmc_diagnostics"]
         formula <- update(formula, . ~ . - mcmc_diagnostics)
         sufficient_statistics <- private$.sufficient_statistics
         include_mcmc <- TRUE
@@ -353,17 +359,28 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         include_mcmc <- FALSE
         sufficient_statistics <- NULL
       }
+
+
+
+      names_tmp <- attr(terms(formula), "term.labels")
       names_tmp <- gsub("\"", "", names_tmp)
       names_tmp <- gsub("\\(", "_", names_tmp)
       names_tmp <- gsub("\\)", "", names_tmp)
       names_tmp <- gsub("=", "_", names_tmp)
       names_tmp <- gsub(" ", "", names_tmp)
+      names_tmp <- gsub("_+$", "", names_tmp)
 
-      if (any(!grepl("distribution", names_tmp))) {
-        bad_terms <- names_tmp[!grepl("distribution", names_tmp)]
+      is_valid_dist <- function(term) {
+        grepl("(_distribution$|_dist$|^distribution_|^dist_|_distribution_|_dist_)", term) && !grepl("distances$", term)
+      }
+
+      valid_mask <- vapply(names_tmp, is_valid_dist, logical(1))
+      if (any(!valid_mask)) {
+        raw_labels <- attr(terms(formula), "term.labels")
+        bad_terms <- raw_labels[!valid_mask]
         warning(paste0("Unrecognized terms deleted: ", paste(bad_terms, collapse = ", ")))
         formula <- update(formula, as.formula(paste(". ~ . -", paste(bad_terms, collapse = " - "))))
-        names_tmp <- names_tmp[grepl("distribution", names_tmp)]
+        names_tmp <- names_tmp[valid_mask]
       }
 
 
@@ -372,26 +389,38 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       base_name <- unlist(lapply(rhs_terms_as_list(update(formula, a ~ .)), function(x) {
         x$base_name
       }))
-      ranges_tmp <- lapply(observed, function(x) {
+
+      ranges_tmp <- lapply(seq_along(names_tmp), function(idx) {
+        bn <- base_name[idx]
+        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$type_y == "normal") {
+          all_y <- c(private$.iglm.data$y_attribute, unlist(lapply(private$.results$samples, function(s) s$y_attribute)))
+          return(range(all_y, na.rm = TRUE))
+        }
+        if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$type_x == "normal") {
+          all_x <- c(private$.iglm.data$x_attribute, unlist(lapply(private$.results$samples, function(s) s$x_attribute)))
+          return(range(all_x, na.rm = TRUE))
+        }
+        x <- observed[[idx]]
         if (is.numeric(x)) {
           return(range(as.numeric(names(x))[is.finite(as.numeric(names(x)))]))
         } else if (is.list(x)) {
-          return(range(as.numeric(unlist(lapply(x, function(y) {
-            names(y)
-          })))))
+          return(range(as.numeric(unlist(lapply(x, names)))))
         } else {
           return(NULL)
         }
       })
       names(ranges_tmp) <- rep("value_range", length(names_tmp))
-      # for(i in 1:length(private$.results$samples)){
-      #   cat(i," \n")
-      # debugonce(eval_change)
-      # eval_change(formula = formula,object = private$.results$samples[[i]], additional_args = ranges_tmp)
-      # }
-      # debugonce(private$.results$samples[[155]]$spillover_degree_distribution)
-      # private$.results$samples[[155]]$spillover_degree_distribution()
-      #
+
+      # For normal distribution terms, re-evaluate observed with the common value_range
+      for (idx in seq_along(names_tmp)) {
+        bn <- base_name[idx]
+        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$type_y == "normal") {
+          observed[[idx]] <- private$.iglm.data$y_distribution(value_range = ranges_tmp[[idx]], plot = FALSE)
+        } else if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$type_x == "normal") {
+          observed[[idx]] <- private$.iglm.data$x_distribution(value_range = ranges_tmp[[idx]], plot = FALSE)
+        }
+      }
+
       simulated <- lapply(private$.results$samples,
         function(object, info_tmp, names_tmp) {
           res <- eval_change(formula = formula, object = object, additional_args = ranges_tmp)
@@ -430,6 +459,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @param print.fitinfo (logical) If `TRUE` (default), prints information about the estimation results.
     #' @param print.coefmat (logical) If `TRUE` (default), prints the coefficient table.
     #' @param print.call (logical) If `TRUE` (default), prints the call that generated the object.
+    #' @param canonical_names (logical) If `TRUE`, prints canonical term names without label substitution. Default is `FALSE`.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
     print = function(digits = 3,
                      rows = c(1, 2),
@@ -438,7 +468,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                      print.formula = TRUE,
                      print.fitinfo = TRUE,
                      print.coefmat = TRUE,
-                     print.call = TRUE, ...) {
+                     print.call = TRUE,
+                     canonical_names = FALSE, ...) {
       # Validation
       if (length(digits) != 1 || !is.numeric(digits) || digits < 0) {
         stop("`digits` must be a single non-negative integer.", call. = FALSE)
@@ -462,7 +493,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         if (print.fitinfo) {
           results_header <- "Results: \n\n"
         }
-        names <- private$.preprocess$coef_names
+        names <- if (canonical_names) {
+          private$.preprocess$coef_names
+        } else {
+          format_term_names(private$.preprocess$coef_names, private$.iglm.data, canonical_names = FALSE)
+        }
         est <- as.numeric(private$.coef)
         stderr <- as.numeric(sqrt(diag(private$.results$var)))
         tvalue <- est / stderr
@@ -541,7 +576,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       } else {
         cat("\n")
         cat("Observed Sufficient Statistics:\n")
-        print(format(private$.sufficient_statistics, digits = digits), quote = FALSE)
+        stats_to_print <- private$.sufficient_statistics
+        names(stats_to_print) <- if (canonical_names) {
+          private$.preprocess$coef_names
+        } else {
+          format_term_names(private$.preprocess$coef_names, private$.iglm.data, canonical_names = FALSE)
+        }
+        print(format(stats_to_print, digits = digits), quote = FALSE)
         invisible(NULL)
       }
     },
@@ -554,8 +595,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'  paths. Default is `FALSE`.
     #' @param model_assessment (logical) If `TRUE`, plot diagnostics from the
     #'  model assessment (if already carried out). Default is `FALSE`.
-    plot = function(stats = FALSE, trace = FALSE, model_assessment = FALSE) {
-      private$.results$plot(stats = stats, trace = trace, model_assessment = model_assessment)
+    #' @param ... If the plot of the model_assessment is wanted, additional fits with identical model_assessment terms are currently identified from this argument.
+    #'    The names of the arguments are shown as the legend in the model assessment plots.
+    plot = function(stats = FALSE, trace = FALSE, model_assessment = FALSE, ...) {
+      private$.results$plot(stats = stats, trace = trace, model_assessment = model_assessment, ...)
     },
     #' @description
     #' Gathers all components of the \code{\link{iglm.object}} into a single list for
@@ -708,7 +751,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                 type_x = private$.iglm.data$type_x,
                 type_y = private$.iglm.data$type_y,
                 scale_x = private$.iglm.data$scale_x,
-                scale_y = private$.iglm.data$scale_y
+                scale_y = private$.iglm.data$scale_y,
+                fix_x = private$.iglm.data$fix_x,
+                fix_z = private$.iglm.data$fix_z,
+                fix_z_alocal = private$.iglm.data$fix_z_alocal,
+                label_x = private$.iglm.data$label_x,
+                label_y = private$.iglm.data$label_y,
+                label_z = private$.iglm.data$label_z
               )
             }
           )
@@ -774,14 +823,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       invisible(info)
     },
     #' @description
-    #' Provides a summary of the estimation results with the following columns: Estimate, SE,
-    #' t-value, and Pr(>|t|).
-    #' Requires the model to have been estimated first.
-    #' @param digits (integer) Number of digits for rounding numeric output.
+    #' Provides a summary of the estimation results. Requires the model to have been estimated first.
+    #' @param digits (integer) Number of digits for rounding numeric output. Default is 2.
+    #' @param canonical_names (logical) If `TRUE`, print canonical term names without label substitution. Default is `FALSE`.
     #' @param ... Additional arguments passed to \code{\link{printCoefmat}}.
-    #' @return Prints the summary to the console and returns `NULL` invisibly.
-    summary = function(digits = 2, ...) {
-      self$print(digits = digits, rows = c(1, 2, 3, 4), print.formula = FALSE, ...)
+    #' @return Prints the summary to the console and invisibly returns the coefficient table (or \code{NULL} if the model has not been estimated).
+    summary = function(digits = 2, canonical_names = FALSE, ...) {
+      self$print(digits = digits, rows = c(1, 2, 3, 4), print.formula = FALSE, canonical_names = canonical_names, ...)
     },
     #' @description
     #' Simulate networks from the fitted model or a specified model. Stores
@@ -815,8 +863,6 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         coef_degrees = private$.coef_degrees,
         sampler = private$.sampler,
         only_stats = only_stats,
-        fix_x = private$.iglm.data$fix_z,
-        fix_z = private$.iglm.data$fix_z,
         display_progress = display_progress,
         offset_nonoverlap = offset_nonoverlap,
         cluster = private$.control$cluster,
@@ -1059,7 +1105,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' Replace the internal `iglm.data` data object with a new one. This is
     #' useful for applying a fitted model to new observed data. Recalculates
     #' count statistics and re-validates the object.
-    #' @param x A \code{\link{iglm.data}} `` object containing the new observed data.
+    #' @param x A \code{\link{iglm.data}} object containing the new observed data.
     #' @return The \code{\link{iglm.object}} itself, invisibly.
     set_target = function(x) {
       if (!"iglm.data" %in% class(x)) {
@@ -1257,3 +1303,4 @@ iglm <- function(formula = NULL, coef = NULL, coef_degrees = NULL, sampler = NUL
     file = file
   )
 }
+

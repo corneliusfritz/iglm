@@ -16,6 +16,7 @@
  *
  * You set IGLM_COMPILING_IGLM in your src/Makevars file.
  */
+#ifndef IGLM_API
 #if defined(_WIN32)
 #ifdef IGLM_COMPILING_IGLM
 #define IGLM_API __declspec(dllexport)
@@ -25,6 +26,7 @@
 #else
 // On Linux/macOS, we need to ensure symbols are visible even if loaded with R_LD_LOCAL
 #define IGLM_API __attribute__ ((visibility ("default")))
+#endif
 #endif
 class XYZ_class; 
 

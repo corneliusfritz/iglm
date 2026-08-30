@@ -4,7 +4,7 @@
 \alias{statistics}
 \title{Compute Statistics}
 \usage{
-statistics(formula)
+statistics(formula, canonical_names = FALSE)
 }
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
@@ -12,12 +12,15 @@ name of a \code{\link{iglm.data}} object available in the calling environment.
 Alternatively, the left-hand side can be a \code{iglm.data.list} object to compute statistics
 for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
 See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
+
+\item{canonical_names}{(logical) If `TRUE`, returns canonical term names without label substitution.
+Default is `FALSE`.}
 }
 \value{
-A named numeric vector. Each element corresponds to a term in the
+A named numeric vector (or matrix if a list of data objects is provided). Each element corresponds to a term in the
   `formula`, and its value is the calculated observed feature
   for that term based on the data in the \code{\link{iglm.data}} object. The names of the
-  vector match the coefficient names derived from the formula terms.
+  vector match the (optionally labeled) term names derived from the formula terms.
 }
 \description{
 Computes statistics.
@@ -34,7 +37,9 @@ z_net_data <- matrix(0, nrow = n_actor, ncol = n_actor)
 object <- iglm.data(
   z_network = z_net_data, x_attribute = x_attr_data,
   y_attribute = y_attr_data, neighborhood = neighborhood,
-  directed = FALSE, type_x = type_x, type_y = type_y
+  directed = FALSE, type_x = type_x, type_y = type_y,
+  label_x = "age", label_y = "income"
 )
 statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
+statistics(object ~ edges(mode = "local") + attribute_y + attribute_x, canonical_names = TRUE)
 }

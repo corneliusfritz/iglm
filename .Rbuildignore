@@ -11,3 +11,4 @@ readme.Rmd
 ^doc$
 ^Meta$
 ^README\.md$
+^simulation_study_neighborhood\.R$

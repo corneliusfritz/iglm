@@ -4,7 +4,7 @@
 #'
 #' The help pages of \code{\link{iglm}} describe the model with details on model fitting
 #' and estimation.
-#' Generally, a model is specified via it's sufficient statistics,
+#' Generally, a model is specified via its sufficient statistics,
 #' that can be further decomposed into two parts:
 #' \itemize{
 #'   \item \strong{\eqn{\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))}}: A vector of unit-level functions (or "g-terms")
@@ -54,6 +54,21 @@
 #'   \item \code{\link{edges_x_match-term}}, \code{\link{edges_y_match-term}}
 #'   \item \code{\link{spillover_xx-term}}, \code{\link{spillover_yy-term}}
 #'   \item \code{\link{spillover_yx-term}}, \code{\link{spillover_xy-term}}, \code{\link{spillover_yc-term}}, \code{\link{spillover_yc_symm-term}}
+#' }
+#'
+#' @section Argument Specification (Positional and Named Arguments):
+#'
+#' Terms in an \code{iglm} formula can be specified using named arguments,
+#' positional arguments, or a combination of both:
+#' \itemize{
+#'   \item \strong{Positional arguments}: Unnamed arguments (e.g., \code{edges("local")} or \code{gwdegree(0.5, "local")})
+#'     are mapped sequentially to the term's candidate parameters in the order of
+#'     their definition (\code{mandatory}, \code{defaults}, and \code{expected}).
+#'   \item \strong{Mixed arguments}: If some arguments are named (e.g., \code{cov_z(mat, mode = "local")}),
+#'     named arguments are matched first, and positional arguments are mapped to the
+#'     remaining candidate parameters in order.
+#'   \item \strong{Excess arguments}: Providing more positional arguments than the term accepts
+#'     (e.g., \code{gwdegree(0.5, "local", "extra")}) will produce an unexpected-argument error.
 #' }
 #'
 #' @references
@@ -117,6 +132,23 @@ InitIglmTerm <- function(data_object, arglist, ...) {
 #' @description This is an internal helper function used to validate and set defaults
 #' for arguments passed to iglm model terms.
 #'
+#' @details
+#' \code{check.IglmTerm} normalizes and validates arguments passed to model terms in formulas:
+#' \enumerate{
+#'   \item \strong{Positional Argument Normalization}: Arguments passed without parameter names
+#'     are sorted by position and
+#'     mapped sequentially to available candidate parameters. Candidate parameters are
+#'     identified from \code{mandatory}, \code{defaults}, and \code{expected} (excluding metadata
+#'     and arguments already supplied by name).
+#'   \item \strong{Excess Positional Arguments}: Unmatched positional arguments (where position index
+#'     exceeds the number of candidate parameters) remain in \code{arglist} and trigger
+#'     an unexpected-argument error during validation.
+#'   \item \strong{Type and Value Validation}: Validates mandatory arguments, allowed categorical
+#'     values, numeric/matrix types, scalar constraints, and ensures no \code{NA}/\code{NaN} values
+#'     are present in numeric inputs.
+#'   \item \strong{Default Injection}: Injects default values for any omitted optional parameters.
+#' }
+#'
 #' @param data_object The iglm.data object.
 #' @param arglist The list of arguments passed to the term.
 #' @param mandatory Character vector of mandatory argument names.
@@ -145,6 +177,25 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
       }
     }
     caller_term
+  }
+  # Normalize unnamed positional arguments (..1, ..2, ...) to expected parameter names
+  pos_args <- grep("^\\.\\.[0-9]+$", names(arglist), value = TRUE)
+  if (length(pos_args) > 0) {
+    pos_indices <- as.integer(sub("^\\.\\.", "", pos_args))
+    pos_args <- pos_args[order(pos_indices)]
+
+    candidate_params <- unique(c(mandatory, names(defaults), names(expected)))
+    # Exclude special/metadata fields and parameters already explicitly named in arglist
+    candidate_params <- candidate_params[!candidate_params %in% c("base_name", "term_name", "label", names(arglist))]
+
+    for (k in seq_along(pos_args)) {
+      pos_key <- pos_args[k]
+      if (k <= length(candidate_params)) {
+        target_param <- candidate_params[k]
+        arglist[[target_param]] <- arglist[[pos_key]]
+        arglist[[pos_key]] <- NULL
+      }
+    }
   }
 
   if (!is.null(directed) && data_object$directed != directed) {
@@ -175,20 +226,27 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
     val <- arglist[[name]]
     if (is.null(val)) next
     spec <- expected[[name]]
-    if (is.character(spec) && length(spec) >= 1 && !(length(spec) == 1 && spec %in% c("numeric", "matrix"))) {
-      if (!val %in% spec) {
+    if (is.character(spec) && length(spec) >= 1 && !(length(spec) == 1 && spec %in% c("numeric", "scalar_numeric", "numeric_scalar", "matrix"))) {
+      if (length(val) != 1 || !val %in% spec) {
         if (!is.null(term_name)) {
           stop(sprintf("Argument '%s' of term '%s' must be one of: %s", name, term_name, paste(spec, collapse = ", ")))
         } else {
           stop(sprintf("Argument '%s' must be one of: %s", name, paste(spec, collapse = ", ")))
         }
       }
-    } else if (!is.null(spec) && spec == "numeric") {
+    } else if (!is.null(spec) && spec %in% c("numeric", "scalar_numeric", "numeric_scalar")) {
       if (!is.numeric(val)) {
         if (!is.null(term_name)) {
           stop(sprintf("Argument '%s' of term '%s' must be numeric.", name, term_name))
         } else {
           stop(sprintf("Argument '%s' must be numeric.", name))
+        }
+      }
+      if (spec %in% c("scalar_numeric", "numeric_scalar") && length(val) != 1) {
+        if (!is.null(term_name)) {
+          stop(sprintf("Argument '%s' of term '%s' must be a single numeric value.", name, term_name))
+        } else {
+          stop(sprintf("Argument '%s' must be a single numeric value.", name))
         }
       }
     } else if (!is.null(spec) && spec == "matrix") {
@@ -200,7 +258,31 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
         }
       }
     }
+
+    # Check for missing (NA/NaN) values in numeric/matrix arguments
+    if (is.numeric(val) || is.matrix(val) || inherits(val, "Matrix")) {
+      if (any(is.na(val))) {
+        if (!is.null(term_name)) {
+          stop(sprintf("Argument '%s' of term '%s' contains missing (NA/NaN) values.", name, term_name), call. = FALSE)
+        } else {
+          stop(sprintf("Argument '%s' contains missing (NA/NaN) values.", name), call. = FALSE)
+        }
+      }
+    }
   }
+
+  # Check for unexpected arguments
+  allowed_args <- unique(c("base_name", "term_name", "label", mandatory, names(defaults), names(expected)))
+  for (arg in names(arglist)) {
+    if (!arg %in% allowed_args) {
+      if (!is.null(term_name)) {
+        stop(sprintf("Unexpected argument '%s' passed to term '%s'.", arg, term_name), call. = FALSE)
+      } else {
+        stop(sprintf("Unexpected argument '%s' passed to term.", arg), call. = FALSE)
+      }
+    }
+  }
+
   return(arglist)
 }
 
@@ -264,8 +346,8 @@ NULL
 
 InitIglmTerm.cov_z <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
-    expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
-    defaults = list(mode = "global", data = matrix(1), type = 1)
+    expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
+    defaults = list(data = matrix(1), mode = "global", type = 1)
   )
   res <- list(
     term_name = paste0("cov_z_", arglist$mode),
@@ -289,8 +371,8 @@ NULL
 InitIglmTerm.cov_z_out <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
-    expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
-    defaults = list(mode = "global", data = matrix(1), type = 1)
+    expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
+    defaults = list(data = matrix(1), mode = "global", type = 1)
   )
   data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
   res <- list(
@@ -315,8 +397,8 @@ NULL
 InitIglmTerm.cov_z_in <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
-    expected = list(mode = c("global", "local", "alocal"), data = "matrix", type = "numeric"),
-    defaults = list(mode = "global", data = matrix(1), type = 1)
+    expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
+    defaults = list(data = matrix(1), mode = "global", type = 1)
   )
   data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
   res <- list(
@@ -516,6 +598,7 @@ InitIglmTerm.outedges_x <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.attribute_x <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "attribute_x",
     coef_name = arglist$label
@@ -529,6 +612,7 @@ InitIglmTerm.attribute_x <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.attribute_y <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "attribute_y",
     coef_name = arglist$label
@@ -664,14 +748,14 @@ NULL
 InitIglmTerm.gwesp <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
+      decay = "scalar_numeric",
       mode = c("global", "local"),
-      variant = c("ITP", "ISP", "OTP", "OSP", "symm"),
-      decay = "numeric"
+      variant = c("ITP", "ISP", "OTP", "OSP", "symm")
     ),
     defaults = list(
+      decay = 0,
       mode = "global",
-      variant = if (data_object$directed) "OSP" else "symm",
-      decay = 0
+      variant = if (data_object$directed) "OSP" else "symm"
     )
   )
   if (data_object$directed && arglist$variant == "symm") stop("Variant 'symm' is only for undirected networks.")
@@ -694,14 +778,14 @@ NULL
 InitIglmTerm.gwdsp <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
+      decay = "scalar_numeric",
       mode = c("global", "local"),
-      variant = c("ITP", "ISP", "OTP", "OSP", "symm"),
-      decay = "numeric"
+      variant = c("ITP", "ISP", "OTP", "OSP", "symm")
     ),
     defaults = list(
+      decay = 0,
       mode = "global",
-      variant = if (data_object$directed) "OSP" else "symm",
-      decay = 0
+      variant = if (data_object$directed) "OSP" else "symm"
     )
   )
   if (data_object$directed && arglist$variant == "symm") stop("Variant 'symm' is only for undirected networks.")
@@ -723,11 +807,12 @@ NULL
 InitIglmTerm.gwdegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
-      mode = c("global", "local"),
-      decay = "numeric"
+      decay = "scalar_numeric",
+      mode = c("global", "local")
     ),
-    defaults = list(mode = "global", decay = 0)
+    defaults = list(decay = 0, mode = "global")
   )
+
   list(
     term_name = paste0("gwdegree_", arglist$mode),
     data = matrix(arglist$decay),
@@ -745,11 +830,12 @@ InitIglmTerm.gwidegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
     expected = list(
-      mode = c("global", "local"),
-      decay = "numeric"
+      decay = "scalar_numeric",
+      mode = c("global", "local")
     ),
-    defaults = list(mode = "global", decay = 0)
+    defaults = list(decay = 0, mode = "global")
   )
+
   list(
     term_name = paste0("gwidegree_", arglist$mode),
     data = matrix(arglist$decay),
@@ -766,11 +852,12 @@ NULL
 InitIglmTerm.gwodegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     expected = list(
-      mode = c("global", "local"),
-      decay = "numeric"
+      decay = "scalar_numeric",
+      mode = c("global", "local")
     ),
-    defaults = list(mode = "global", decay = 0)
+    defaults = list(decay = 0, mode = "global")
   )
+
   list(
     term_name = paste0("gwodegree_", arglist$mode),
     data = matrix(arglist$decay),
@@ -889,6 +976,7 @@ InitIglmTerm.spillover_xx <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.transitive <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "transitive",
     coef_name = arglist$label
@@ -901,6 +989,7 @@ InitIglmTerm.transitive <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.nonisolates <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "nonisolates",
     coef_name = arglist$label
@@ -913,6 +1002,7 @@ InitIglmTerm.nonisolates <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.isolates <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "isolates",
     coef_name = arglist$label

@@ -77,6 +77,15 @@ control.iglm <- function(estimate_model = TRUE,
   if (!var_method %in% c("Godambe", "Mean-value", "Hessian")) {
     stop("var_method must be one of 'Godambe', 'Mean-value', or 'Hessian'")
   }
+  if (!is.numeric(max_it) || length(max_it) != 1 || is.na(max_it) || !is.finite(max_it) || max_it <= 0 || max_it %% 1 != 0) {
+    stop("`max_it` must be a positive integer.", call. = FALSE)
+  }
+  if (!is.numeric(tol) || length(tol) != 1 || is.na(tol) || !is.finite(tol) || tol <= 0) {
+    stop("`tol` must be a positive number.", call. = FALSE)
+  }
+  if (!is.numeric(offset_nonoverlap) || length(offset_nonoverlap) != 1 || is.na(offset_nonoverlap) || !is.finite(offset_nonoverlap)) {
+    stop("`offset_nonoverlap` must be a single numeric value.", call. = FALSE)
+  }
   if (var_method == "Mean-value") {
     updated_uncertainty <- TRUE
   } else {
@@ -160,9 +169,9 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
 
     if (is.null(beg_coef_degrees)) {
       if (data_object$directed) {
-        coef_tmp_degrees <- rep(0, length(n_actor * 2))
+        coef_tmp_degrees <- rep(0, n_actor * 2)
       } else {
-        coef_tmp_degrees <- rep(0, length(n_actor))
+        coef_tmp_degrees <- rep(0, n_actor)
       }
     } else {
       coef_tmp_degrees <- as.vector(beg_coef_degrees)
@@ -303,6 +312,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
               offset_nonoverlap = control$offset_nonoverlap,
               return_samples = control$return_samples,
               fix_x = data_object$fix_x,
+              fix_z = data_object$fix_z,
               updated_uncertainty = control$updated_uncertainty,
               exact = control$exact,
               type_x = data_object$type_x,
@@ -340,27 +350,30 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
           }))
         }
         # browser()
-        if (control$updated_uncertainty) {
-          res$var <- var(variability_simulations$gradients_nondegrees)
-        } else {
-          res$gradients_nondegrees <- variability_simulations$gradients_nondegrees
-          res$gradients_degrees <- variability_simulations$gradients_degrees
-          V_22 <- var(variability_simulations$gradients_nondegrees)
-          V_12 <- var(variability_simulations$gradients_nondegrees, variability_simulations$gradients_degrees)
-          if (control$exact == TRUE) {
-            V_11 <- var(variability_simulations$gradients_degrees)
-            inv_A <- MASS::ginv(res$exact_A)
-            tmp <- res$B_mat %*% inv_A
+        if (length(preprocessed$term_names) > 0) {
+          if (control$updated_uncertainty) {
+            res$var <- var(variability_simulations$gradients_nondegrees)
           } else {
-            tmp <- sweep(res$B_mat, 2, 1 / res$A_diag, "*")
-            V_11 <- diag(apply(X = variability_simulations$gradients_degrees, FUN = var, MARGIN = 2))
+            res$gradients_nondegrees <- variability_simulations$gradients_nondegrees
+            res$gradients_degrees <- variability_simulations$gradients_degrees
+            V_22 <- var(variability_simulations$gradients_nondegrees)
+            V_12 <- var(variability_simulations$gradients_nondegrees, variability_simulations$gradients_degrees)
+            if (control$exact == TRUE) {
+              V_11 <- var(variability_simulations$gradients_degrees)
+              inv_A <- MASS::ginv(res$exact_A)
+              tmp <- res$B_mat %*% inv_A
+            } else {
+              tmp <- sweep(res$B_mat, 2, 1 / res$A_diag, "*")
+              V_11 <- diag(apply(X = variability_simulations$gradients_degrees, FUN = var, MARGIN = 2))
+            }
+            C_2 <- res$fisher_nondegrees - tmp %*% t(res$B_mat)
+            C_2_inv <- solve(C_2)
+            Y <- -t(tmp) %*% C_2_inv
+            Z <- t(Y)
+            res$var <- (t(Y) %*% V_11 + C_2_inv %*% V_12) %*% Y + (t(Y) %*% t(V_12) + C_2_inv %*% V_22) %*% C_2_inv
           }
-          C_2 <- res$fisher_nondegrees - tmp %*% t(res$B_mat)
-          # print(solve(res$fisher_nondegrees))
-          C_2_inv <- solve(C_2)
-          Y <- -t(tmp) %*% C_2_inv
-          Z <- t(Y)
-          res$var <- (t(Y) %*% V_11 + C_2_inv %*% V_12) %*% Y + (t(Y) %*% t(V_12) + C_2_inv %*% V_22) %*% C_2_inv
+        } else {
+          res$var <- matrix(numeric(0), nrow = 0, ncol = 0)
         }
 
         if (control$return_samples) {
@@ -376,22 +389,12 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
             }
           )
         }
-
-
-        #
-        # G = sweep(res$B_mat, 2, 1/res$A_diag, "*")
-        # # cor(sweep(G, 2, diag(V_11), "*")[1,], (G%*%V_11_full)[1,])
-        # part_1 = solve(res$fisher_nondegrees - res$B_mat%*%t(G))
-        # part_2 =  sweep(G, 2, diag(V_11), "*")%*%t(G) - 2*G%*%t(V_12) + V_22
-        # part_2 =  G%*%V_11_full%*%t(G) - 2*G%*%t(V_12) + V_22
-        # # Corrected variance
-        # res$var = part_1%*%part_2%*%part_1
       }
 
       if (data_object$directed) {
         rownames(res$coefficients_degrees) <- c(paste(c("out-degrees"), 1:n_actor), paste(c("in-degrees"), 1:n_actor))
         rownames(res$coefficients_nondegrees) <- preprocessed$coef_names
-        if (control$var) {
+        if (control$var && length(preprocessed$term_names) > 0) {
           colnames(res$var) <- preprocessed$coef_names
           rownames(res$var) <- preprocessed$coef_names
         }
@@ -400,7 +403,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       } else {
         rownames(res$coefficients_degrees) <- paste(c("degrees"), 1:n_actor)
         rownames(res$coefficients_nondegrees) <- preprocessed$coef_names
-        if (control$var) {
+        if (control$var && length(preprocessed$term_names) > 0) {
           colnames(res$var) <- preprocessed$coef_names
           rownames(res$var) <- preprocessed$coef_names
         }

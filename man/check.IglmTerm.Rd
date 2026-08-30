@@ -34,4 +34,21 @@ A modified \code{arglist} with defaults applied and validated values.
 This is an internal helper function used to validate and set defaults
 for arguments passed to iglm model terms.
 }
+\details{
+\code{check.IglmTerm} normalizes and validates arguments passed to model terms in formulas:
+\enumerate{
+  \item \strong{Positional Argument Normalization}: Arguments passed without parameter names
+    are sorted by position and
+    mapped sequentially to available candidate parameters. Candidate parameters are
+    identified from \code{mandatory}, \code{defaults}, and \code{expected} (excluding metadata
+    and arguments already supplied by name).
+  \item \strong{Excess Positional Arguments}: Unmatched positional arguments (where position index
+    exceeds the number of candidate parameters) remain in \code{arglist} and trigger
+    an unexpected-argument error during validation.
+  \item \strong{Type and Value Validation}: Validates mandatory arguments, allowed categorical
+    values, numeric/matrix types, scalar constraints, and ensures no \code{NA}/\code{NaN} values
+    are present in numeric inputs.
+  \item \strong{Default Injection}: Injects default values for any omitted optional parameters.
+}
+}
 \keyword{internal}

@@ -3023,95 +3023,109 @@ auto xyz_stat_gwdsp_OSP_local= CHANGESTAT{
 
 EFFECT_REGISTER("gwdsp_local_OSP", ::xyz_stat_gwdsp_OSP_local, "gwdsp_local_OSP",0.0);
 
-auto xyz_stat_gwidegree= CHANGESTAT{
-  if(!object.z_network.directed){
+auto xyz_stat_gwidegree = CHANGESTAT {
+  if (!object.z_network.directed) {
     Rcpp::stop("This statistic is only for directed networks");  
   }
   
-  if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
+  if (mode == "z") {
+    double decay = (data.n_elem >= 1) ? data.at(0, 0) : 0.0;
+    double expo_min = (1.0 - exp(-decay));  
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
     double tmp_count = object.z_network.in_degrees[unit_j];
     if (edge_exists) {
-      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1.0) : 0.0; 
     }
-    return(pow(expo_min, tmp_count));
-  }else {  
-    return(0);
+    return pow(expo_min, tmp_count);
+  } else {  
+    return 0.0;
   }
 }; 
-EFFECT_REGISTER("gwidegree_global", ::xyz_stat_gwidegree, "gwidegree_global",0.0);
+EFFECT_REGISTER("gwidegree_global", ::xyz_stat_gwidegree, "gwidegree_global", 0.0);
 
-auto xyz_stat_gwodegree= CHANGESTAT{
-  if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));
+auto xyz_stat_gwodegree = CHANGESTAT {
+  if (mode == "z") {
+    double decay = (data.n_elem >= 1) ? data.at(0, 0) : 0.0;
+    double expo_min = (1.0 - exp(-decay));
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
+    double res = 0.0;
+
+    // Node i as sender
     double tmp_count = object.z_network.out_degrees[unit_i];
     if (edge_exists) {
-      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1.0) : 0.0; 
     }
-    double res = pow(expo_min, tmp_count);
-    // Add Node j contribution for undirected networks
+    res += pow(expo_min, tmp_count);
+
+    // Add Node j as sender for undirected networks
     if (!object.z_network.directed) {
       double tmp_count_j = object.z_network.out_degrees[unit_j];
       if (edge_exists) {
-        tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1) : 0.0; 
+        tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1.0) : 0.0; 
       }
       res += pow(expo_min, tmp_count_j);
     }
-    return(res);
-  }else {  
-    return(0.0);
+    return res;
+  } else {  
+    return 0.0;
   }
 }; 
-EFFECT_REGISTER("gwodegree_global", ::xyz_stat_gwodegree, "gwodegree_global",0.0);
-EFFECT_REGISTER("gwdegree_global", ::xyz_stat_gwodegree, "gwdegree_global",0.0);
+EFFECT_REGISTER("gwodegree_global", ::xyz_stat_gwodegree, "gwodegree_global", 0.0);
+EFFECT_REGISTER("gwdegree_global", ::xyz_stat_gwodegree, "gwdegree_global", 0.0);
 
-auto xyz_stat_gwidegree_local= CHANGESTAT{
-  if(!object.z_network.directed){
+auto xyz_stat_gwidegree_local = CHANGESTAT {
+  if (!object.z_network.directed) {
     Rcpp::stop("This statistic is only for directed networks");  
   }
-  if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
-    if(object.get_val_overlap(unit_i, unit_j) == false){
-      return(0);
+  if (mode == "z") {
+    if (!object.get_val_overlap(unit_i, unit_j)) {
+      return 0.0;
     }
+    double decay = (data.n_elem >= 1) ? data.at(0, 0) : 0.0;
+    double expo_min = (1.0 - exp(-decay));  
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
     double tmp_count = object.in_degrees_nb[unit_j];
     if (edge_exists) {
-      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1.0) : 0.0; 
     }
-    return(pow(expo_min, tmp_count));
-  }else {  
-    return(0);
+    return pow(expo_min, tmp_count);
+  } else {  
+    return 0.0;
   }
 }; 
-EFFECT_REGISTER("gwidegree_local", ::xyz_stat_gwidegree_local, "gwidegree_local",0.0);
+EFFECT_REGISTER("gwidegree_local", ::xyz_stat_gwidegree_local, "gwidegree_local", 0.0);
 
-auto xyz_stat_gwodegree_local= CHANGESTAT{
-  if(mode == "z"){
-    double expo_min = (1-exp(-data.at(0,0)));  
-    if(object.get_val_overlap(unit_i, unit_j) == false){
-      return(0);
+auto xyz_stat_gwodegree_local = CHANGESTAT {
+  if (mode == "z") {
+    if (!object.get_val_overlap(unit_i, unit_j)) {
+      return 0.0;
     }
+    double decay = (data.n_elem >= 1) ? data.at(0, 0) : 0.0;
+    double expo_min = (1.0 - exp(-decay));  
     bool edge_exists = object.z_network.get_val(unit_i, unit_j);
+    double res = 0.0;
+
+    // Node i as sender
     double tmp_count = object.out_degrees_nb[unit_i];
     if (edge_exists) {
-      tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0; 
+      tmp_count = (tmp_count > 0) ? (tmp_count - 1.0) : 0.0; 
     }
-    double res = pow(expo_min, tmp_count);
-    // Add Node j contribution for undirected networks
+    res += pow(expo_min, tmp_count);
+
+    // Add Node j as sender for undirected networks
     if (!object.z_network.directed) {
       double tmp_count_j = object.out_degrees_nb[unit_j];
       if (edge_exists) {
-        tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1) : 0.0; 
+        tmp_count_j = (tmp_count_j > 0) ? (tmp_count_j - 1.0) : 0.0; 
       }
       res += pow(expo_min, tmp_count_j);
     }
-    return(res);
-  }else {  
-    return(0);
+    return res;
+  } else {  
+    return 0.0;
   }
 }; 
-EFFECT_REGISTER("gwodegree_local", ::xyz_stat_gwodegree_local, "gwodegree_local",0.0);
-EFFECT_REGISTER("gwdegree_local", ::xyz_stat_gwodegree_local, "gwdegree_local",0.0);
+EFFECT_REGISTER("gwodegree_local", ::xyz_stat_gwodegree_local, "gwodegree_local", 0.0);
+EFFECT_REGISTER("gwdegree_local", ::xyz_stat_gwodegree_local, "gwdegree_local", 0.0);
+
+

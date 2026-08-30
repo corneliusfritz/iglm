@@ -44,7 +44,7 @@
 \description{
 The help pages of \code{\link{iglm}} describe the model with details on model fitting
 and estimation.
-Generally, a model is specified via it's sufficient statistics,
+Generally, a model is specified via its sufficient statistics,
 that can be further decomposed into two parts:
 \itemize{
   \item \strong{\eqn{\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))}}: A vector of unit-level functions (or "g-terms")
@@ -254,6 +254,23 @@ Below is a detailed description of terms that depend on both attributes and the 
   \item \code{\link{edges_x_match-term}}, \code{\link{edges_y_match-term}}
   \item \code{\link{spillover_xx-term}}, \code{\link{spillover_yy-term}}
   \item \code{\link{spillover_yx-term}}, \code{\link{spillover_xy-term}}, \code{\link{spillover_yc-term}}, \code{\link{spillover_yc_symm-term}}
+}
+}
+
+\section{Argument Specification (Positional and Named Arguments)}{
+
+
+Terms in an \code{iglm} formula can be specified using named arguments,
+positional arguments, or a combination of both:
+\itemize{
+  \item \strong{Positional arguments}: Unnamed arguments (e.g., \code{edges("local")} or \code{gwdegree(0.5, "local")})
+    are mapped sequentially to the term's candidate parameters in the order of
+    their definition (\code{mandatory}, \code{defaults}, and \code{expected}).
+  \item \strong{Mixed arguments}: If some arguments are named (e.g., \code{cov_z(mat, mode = "local")}),
+    named arguments are matched first, and positional arguments are mapped to the
+    remaining candidate parameters in order.
+  \item \strong{Excess arguments}: Providing more positional arguments than the term accepts
+    (e.g., \code{gwdegree(0.5, "local", "extra")}) will produce an unexpected-argument error.
 }
 }
 

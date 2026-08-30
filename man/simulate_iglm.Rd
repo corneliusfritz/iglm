@@ -14,8 +14,8 @@ simulate_iglm(
   display_progress = FALSE,
   offset_nonoverlap = 0,
   cluster = NULL,
-  fix_x = FALSE,
-  fix_z = FALSE
+  fix_x = NULL,
+  fix_z = NULL
 )
 }
 \arguments{
@@ -23,8 +23,12 @@ simulate_iglm(
 name of a `iglm.data` object available in the calling environment.
 See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
 
-\item{basis}{An optional `iglm.data` object to serve as the basis for the simulation.
-If provided, the simulation starts from the state defined in this object.
+\item{basis}{An optional \code{\link{iglm.data}} object to serve as the basis (initial state)
+for the simulation. If provided, the simulation starts from the state (\code{x_attribute},
+\code{y_attribute}, \code{z_network}) defined in this object.
+The `basis` object must be consistent with the model data referenced in `formula`
+(same number of actors, directedness, and attribute types). All structural specifications
+(terms, neighborhood, overlap, and fixed variable flags) are taken from the `formula` data object.
 If `NULL` (default), the initial state is taken from the `iglm.data` object
 referenced in the `formula`.}
 
@@ -60,27 +64,24 @@ This value is typically added to the linear predictor for dyads that are
 modifying tie probabilities outside the primary neighborhood. Default is `0`.}
 
 \item{cluster}{Optional parallel cluster object created, for example, by
-``parallel::makeCluster``. If provided and valid, the function performs a
+\code{parallel::makeCluster}. If provided and valid, the function performs a
 single burn-in simulation on the main R process, then distributes the
 remaining `n_simulation` tasks across the cluster workers using
-``parallel::parLapply``. The master seed is offset
+\code{parallel::parLapply}. The master seed is offset
 for each worker to ensure different random streams. If `NULL` (default),
 all simulations are run sequentially in the main R process.}
 
-\item{fix_x}{Logical. If `TRUE`, the simulation holds the `x_attribute` fixed
-at its initial state (from the \code{\link{iglm.data}} object) and only simulates the
-`y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
-are simulated according to the model and sampler settings.}
+\item{fix_x}{Optional logical override indicating if `x_attribute` should be held fixed during simulation.
+If `NULL` (default), the setting from the model `iglm.data` object is used.}
 
-\item{fix_z}{Logical. If `TRUE`, the simulation holds the `z_network` fixed
-at its initial state (from the \code{\link{iglm.data}} object). If `FALSE` (default), the network component
-is simulated according to the model and sampler settings.}
+\item{fix_z}{Optional logical override indicating if `z_network` should be held fixed during simulation.
+If `NULL` (default), the setting from the model `iglm.data` object is used.}
 }
 \value{
 A list containing one or two components (depending on `only_stats`):
 \describe{
   \item{`samples`}{If `only_stats = FALSE`, this is a list of length
-    `sampler$n_simulation` where each element is a `iglm.data` object
+    `sampler$n_simulation` where each element is an \code{\link{iglm.data}} object
     representing one simulated draw from the model. The list has the S3 class
     `"iglm.data.list"`. If `only_stats = TRUE`, this component is omitted.}
   \item{`stats`}{A numeric matrix with `sampler$n_simulation` rows and
@@ -100,7 +101,7 @@ process is adapted:
     is performed on the master node to obtain a starting state for the parallel chains.
   \item The total number of requested simulations (`sampler$n_simulation`) is divided
     among the cluster workers.
-  \item ``parallel::parLapply`` is used to run simulations on each worker.
+  \item \code{parallel::parLapply} is used to run simulations on each worker.
     Each worker starts from the state obtained after the initial burn-in, performs
     \strong{zero} additional burn-in (`n_burn_in = 0` passed to workers), and generates
     its assigned share of the simulations. Component sampler seeds are offset
@@ -115,16 +116,14 @@ This approach ensures that the initial burn-in phase happens only once, saving t
 The function stops with an error if:
 \itemize{
   \item The length of `coef` does not match the number of terms derived from `formula`.
-  \item `formula_preprocess` fails.
-  \item The `sampler` object is not of class `sampler.iglm`.
+  \item Formula preprocessing fails.
+  \item The `sampler` object is not of class \code{\link{sampler.iglm}}.
   \item The C++ backend `xyz_simulate_cpp` encounters an error.
-  \item Helper functions like `XYZ_to_R` or `is_cluster_active` are not found.
 }
-Warnings may be issued if default sampler settings are used.
 }
 
 \seealso{
-\code{iglm} for creating the model object,
-  \code{sampler.iglm} for creating the sampler object,
-  \code{iglm.data} for the data object structure.
+\code{\link{iglm}} for creating the model object,
+  \code{\link{sampler.iglm}} for creating the sampler object,
+  \code{\link{iglm.data}} for the data object structure.
 }

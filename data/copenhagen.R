@@ -22,7 +22,10 @@ if (exists("iglm.data", mode = "function")) {
     scale_y = copen_raw$scale_y,
     fix_x = copen_raw$fix_x,
     fix_z = copen_raw$fix_z,
-    fix_z_alocal = copen_raw$fix_z_alocal
+    fix_z_alocal = copen_raw$fix_z_alocal,
+    label_x = if (!is.null(copen_raw$label_x)) copen_raw$label_x else "gender",
+    label_y = if (!is.null(copen_raw$label_y)) copen_raw$label_y else "duration",
+    label_z = if (!is.null(copen_raw$label_z)) copen_raw$label_z else "friendship"
   )
 } else {
   copenhagen <- list() # Dummy object for roxygen2 parsing

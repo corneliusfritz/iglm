@@ -177,16 +177,12 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #'   sampling for the z network (within the defined neighborhood/overlap).
     #'   If `NULL`, defaults from `sampler.net.attr()` are used.
     #' @param n_simulation (integer) The number of network/attribute configurations
-    #'   to simulate and store after the burn-in period. Default is 100. Must be non-negative.
-    #' @param n_burn_in (integer) The number of initial MCMC iterations to discard
-    #'   (burn-in) before starting to collect simulations. Default is 10. Must be non-negative.
-    #' @param init_empty (logical) If `TRUE` (default), the MCMC chain is
+    #' @param init_empty (logical) If `FALSE` (default), the MCMC chain is
+    #'   initialized from observed data. If `TRUE`, the MCMC chain is
     #'   initialized from an empty state (e.g., empty network, attributes at mean).
-    #'   If `FALSE`, initialization might depend on the specific sampler implementation
-    #'   (e.g., starting from observed data).
     #' @param seed (integer or `NA`) A single integer seed for the random number
-    #'   generator, set once before sampling begins. If `NA` (default), a random
-    #'   seed is generated automatically.
+    #'   generator. If `NA` (default), a fixed default seed (`123456789`) is used
+    #'   for reproducibility.
     #' @param cluster A parallel cluster object (e.g., from the `parallel` package)
     #'   to use for running simulations in parallel. If `NULL` (default), simulations
     #'   are run sequentially.
@@ -194,7 +190,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #'  the specified .rds file instead of initializing from parameters.
     #' @return A new `sampler.iglm` object.
     initialize = function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL,
-                          n_simulation = 100, n_burn_in = 10, init_empty = TRUE,
+                          n_simulation = 100, n_burn_in = 10, init_empty = FALSE,
                           seed = NA, cluster = NULL, file = NULL) {
       if (is.null(file)) {
         # Use default component samplers if not provided
@@ -208,7 +204,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
         private$.init_empty <- as.logical(init_empty)
         private$.cluster <- cluster
         if (is.na(seed)) {
-          private$.seed <- sample.int(1e6, 1)
+          private$.seed <- 123456789  # Default seed if NA
         } else {
           private$.seed <- as.integer(seed)
         }
@@ -456,11 +452,11 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #'   after the burn-in period. Default: 100. Must be non-negative.
 #' @param n_burn_in (integer) The number of MCMC iterations to discard at the
 #'   start for burn-in. Default: 10. Must be non-negative.
-#' @param init_empty (logical) If `TRUE` (default), initialize the MCMC chain
-#'   from an empty state.
+#' @param init_empty (logical) If `FALSE` (default), the MCMC chain is initialized
+#'   from observed data. If `TRUE`, initialize the MCMC chain from an empty state.
 #' @param seed (integer or `NA`) A single integer seed set once before sampling
-#'   begins to ensure reproducibility. If `NA` (default), a random seed is
-#'   generated automatically.
+#'   begins to ensure reproducibility. If `NA` (default), a fixed default seed
+#'   (`123456789`) is used.
 #' @param cluster A parallel cluster object (e.g., from `parallel::makeCluster()`)
 #'   for parallel simulations. If `NULL` (default), simulations run sequentially.
 #' @param file (character or `NULL`) If provided, loads the sampler state from
@@ -484,7 +480,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #' sampler_new$set_n_simulation(100)
 #' sampler_new$n_simulation
 sampler.iglm <- function(sampler_x = NULL, sampler_y = NULL, sampler_z = NULL,
-                         n_simulation = 100, n_burn_in = 10, init_empty = TRUE,
+                         n_simulation = 100, n_burn_in = 10, init_empty = FALSE,
                          seed = NA, cluster = NULL, file = NULL) {
   sampler.iglm.generator$new(
     sampler_x = sampler_x,

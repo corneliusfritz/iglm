@@ -9,11 +9,13 @@
 #'   for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
 #'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
 
+#' @param canonical_names (logical) If `TRUE`, returns canonical term names without label substitution.
+#'   Default is `FALSE`.
 #'
-#' @return A named numeric vector. Each element corresponds to a term in the
+#' @return A named numeric vector (or matrix if a list of data objects is provided). Each element corresponds to a term in the
 #'   `formula`, and its value is the calculated observed feature
 #'   for that term based on the data in the \code{\link{iglm.data}} object. The names of the
-#'   vector match the coefficient names derived from the formula terms.
+#'   vector match the (optionally labeled) term names derived from the formula terms.
 #'
 #' @examples
 #' # Create a iglm.data object
@@ -27,11 +29,16 @@
 #' object <- iglm.data(
 #'   z_network = z_net_data, x_attribute = x_attr_data,
 #'   y_attribute = y_attr_data, neighborhood = neighborhood,
-#'   directed = FALSE, type_x = type_x, type_y = type_y
+#'   directed = FALSE, type_x = type_x, type_y = type_y,
+#'   label_x = "age", label_y = "income"
 #' )
 #' statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
+#' statistics(object ~ edges(mode = "local") + attribute_y + attribute_x, canonical_names = TRUE)
 #' @export
-statistics <- function(formula) {
+statistics <- function(formula, canonical_names = FALSE) {
+  if (!is.logical(canonical_names) || length(canonical_names) != 1 || is.na(canonical_names)) {
+    stop("`canonical_names` must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+  }
   tmp_obj <- eval(formula[[2]], envir = environment(formula))
   if (inherits(tmp_obj, "iglm.data.list")) {
     k <- length(tmp_obj)
@@ -44,7 +51,7 @@ statistics <- function(formula) {
       as.formula(new_formula_call, env = f_env)
     })
     counts <- lapply(formula_list, function(x) {
-      statistics(x)
+      statistics(x, canonical_names = canonical_names)
     })
     counts <- do.call("rbind", counts)
     return(counts)
@@ -52,7 +59,11 @@ statistics <- function(formula) {
     preprocessed <- formula_preprocess(formula)
     if (length(preprocessed$type_list) > 0) {
       counts <- as.vector(xyz_count_statistics(preprocessed))
-      names(counts) <- preprocessed$coef_names
+      names(counts) <- if (canonical_names) {
+        preprocessed$coef_names
+      } else {
+        format_term_names(preprocessed$coef_names, preprocessed$data_object, canonical_names = FALSE)
+      }
       return(counts)
     } else {
       warning("No valid terms specified in the formula. Returning an empty vector.")

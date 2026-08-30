@@ -19,7 +19,10 @@ iglm.data(
   fix_z = FALSE,
   fix_z_alocal = FALSE,
   return_neighborhood = TRUE,
-  file = NULL
+  file = NULL,
+  label_x = "x",
+  label_y = "y",
+  label_z = "z"
 )
 }
 \arguments{
@@ -73,6 +76,12 @@ are fixed, else they are random (default).}
 generated implying global dependence. If `FALSE`, no neighborhood is set.}
 
 \item{file}{(character) Optional file path to load a saved `iglm.data` object state.}
+
+\item{label_x}{Character string for the label/name of `x_attribute`. Default is `"x"`.}
+
+\item{label_y}{Character string for the label/name of `y_attribute`. Default is `"y"`.}
+
+\item{label_z}{Character string for the label/name of `z_network`. Default is `"z"`.}
 }
 \value{
 An object of class `iglm.data` (and `R6`).
