@@ -279,3 +279,41 @@ test_that("Multi-model comparison plot handles geodesic distance distributions w
   dev.off()
 })
 
+test_that("extract_assessment_matrix aligns varying supports with zero-filling", {
+  # Discrete distributions with differing supports and Inf
+  sim_list_discrete <- list(
+    list(geo = c("1" = 0.5, "2" = 0.3, "Inf" = 0.2)),
+    list(geo = c("1" = 0.4, "2" = 0.2, "3" = 0.2, "Inf" = 0.2)),
+    list(geo = c("2" = 0.5, "4" = 0.1, "Inf" = 0.4))
+  )
+  mat_discrete <- extract_assessment_matrix(sim_list_discrete, "geo")
+  expect_equal(colnames(mat_discrete), c("1", "2", "3", "4", "Inf"))
+  expect_equal(nrow(mat_discrete), 3)
+  expect_equal(as.numeric(mat_discrete[1, "3"]), 0)
+  expect_equal(as.numeric(mat_discrete[3, "1"]), 0)
+  expect_equal(as.numeric(mat_discrete[2, "3"]), 0.2)
+})
+
+test_that("Single-model assessment plot handles geodesic distributions when simulation support differs from observed", {
+  obs_geo <- c("1" = 0.6, "2" = 0.2, "Inf" = 0.2)
+  sim_geo <- matrix(
+    c(0.4, 0.3, 0.1, 0.2,
+      0.5, 0.2, 0.1, 0.2),
+    nrow = 2, byrow = TRUE,
+    dimnames = list(NULL, c("1", "2", "3", "Inf"))
+  )
+  x_pos <- seq_along(obs_geo)
+  x_labs <- names(obs_geo)
+
+  pdf(NULL)
+  expect_silent(
+    plot_assessment_single(
+      observed = obs_geo, sim_matrix = sim_geo, xlab = "Geodesic Distance",
+      x_positions = x_pos, x_at = x_pos, x_labels = x_labs
+    )
+  )
+  dev.off()
+})
+
+
+

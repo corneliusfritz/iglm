@@ -598,6 +598,7 @@ InitIglmTerm.outedges_x <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.attribute_x <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "attribute_x",
     coef_name = arglist$label
@@ -611,6 +612,7 @@ InitIglmTerm.attribute_x <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.attribute_y <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "attribute_y",
     coef_name = arglist$label
@@ -974,6 +976,7 @@ InitIglmTerm.spillover_xx <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.transitive <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "transitive",
     coef_name = arglist$label
@@ -986,6 +989,7 @@ InitIglmTerm.transitive <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.nonisolates <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "nonisolates",
     coef_name = arglist$label
@@ -998,6 +1002,7 @@ InitIglmTerm.nonisolates <- function(data_object, arglist, ...) {
 NULL
 
 InitIglmTerm.isolates <- function(data_object, arglist, ...) {
+  arglist <- check.IglmTerm(data_object, arglist)
   list(
     term_name = "isolates",
     coef_name = arglist$label

@@ -117,6 +117,28 @@ test_that("check.IglmTerm generates informative error messages with term name", 
     InitIglmTerm.gwdegree(data_obj_directed, list(base_name = "gwdegree", ..1 = 0.5, ..2 = "local", ..3 = "extra")),
     pattern = "Unexpected argument '..3' passed to term 'gwdegree'."
   )
+
+  # Test no-argument terms reject excess arguments
+  expect_error(
+    InitIglmTerm.attribute_x(data_obj_undirected, list(base_name = "attribute_x", ..1 = "extra")),
+    pattern = "Unexpected argument '..1' passed to term 'attribute_x'."
+  )
+  expect_error(
+    InitIglmTerm.attribute_y(data_obj_undirected, list(base_name = "attribute_y", foo = 1)),
+    pattern = "Unexpected argument 'foo' passed to term 'attribute_y'."
+  )
+  expect_error(
+    InitIglmTerm.transitive(data_obj_undirected, list(base_name = "transitive", ..1 = "extra")),
+    pattern = "Unexpected argument '..1' passed to term 'transitive'."
+  )
+  expect_error(
+    InitIglmTerm.nonisolates(data_obj_undirected, list(base_name = "nonisolates", ..1 = "extra")),
+    pattern = "Unexpected argument '..1' passed to term 'nonisolates'."
+  )
+  expect_error(
+    InitIglmTerm.isolates(data_obj_undirected, list(base_name = "isolates", ..1 = "extra")),
+    pattern = "Unexpected argument '..1' passed to term 'isolates'."
+  )
 })
 
 test_that("Positional formula arguments evaluate correctly in model estimation and simulation", {

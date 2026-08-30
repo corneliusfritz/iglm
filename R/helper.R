@@ -591,7 +591,28 @@ extract_assessment_matrix <- function(sim_list, metric, subkey = NULL) {
     if (!is.null(subkey)) val <- val[[subkey]]
     val
   })
-  do.call("rbind", sims)
+  sims <- sims[!vapply(sims, is.null, logical(1))]
+  if (length(sims) == 0) return(matrix(numeric(0), nrow = 0, ncol = 0))
+
+  first_names <- names(sims[[1]])
+  if (is.null(first_names) || all(vapply(sims, function(s) identical(names(s), first_names), logical(1)))) {
+    mat <- do.call("rbind", sims)
+    if (!is.null(first_names)) colnames(mat) <- first_names
+    return(mat)
+  }
+
+  all_names <- unique(unlist(lapply(sims, names)))
+  num_names <- suppressWarnings(as.numeric(all_names))
+  all_names <- if (!any(is.na(num_names))) as.character(num_names[order(num_names)]) else sort(all_names)
+
+  aligned <- lapply(sims, function(v) {
+    res <- stats::setNames(rep(0, length(all_names)), all_names)
+    res[names(v)] <- as.numeric(v)
+    res
+  })
+  mat <- do.call("rbind", aligned)
+  colnames(mat) <- all_names
+  mat
 }
 
 #' @noRd
@@ -608,11 +629,14 @@ plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
   }
   
   if (!is.null(all_names)) {
-    # If all names are numeric and finite, sort them numerically
     num_names <- suppressWarnings(as.numeric(all_names))
-    if (!any(is.na(num_names)) && all(is.finite(num_names))) {
-      all_names <- as.character(sort(num_names))
-      x <- as.numeric(all_names)
+    if (!any(is.na(num_names))) {
+      all_names <- as.character(num_names[order(num_names)])
+      if (all(is.finite(num_names))) {
+        x <- as.numeric(all_names)
+      } else {
+        x <- seq_along(all_names)
+      }
     } else {
       x <- seq_along(all_names)
     }
@@ -708,11 +732,15 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
   all_names <- names(observed)
   if (!is.null(colnames(sim_matrix))) all_names <- union(all_names, colnames(sim_matrix))
   
-  if (!is.null(all_names) && is.null(x_positions)) {
+  if (!is.null(all_names)) {
     num_names <- suppressWarnings(as.numeric(all_names))
-    if (!any(is.na(num_names)) && all(is.finite(num_names))) {
-      all_names <- as.character(sort(num_names))
-      x <- as.numeric(all_names)
+    if (!any(is.na(num_names))) {
+      all_names <- as.character(num_names[order(num_names)])
+      if (all(is.finite(num_names))) {
+        x <- as.numeric(all_names)
+      } else {
+        x <- seq_along(all_names)
+      }
     } else {
       x <- seq_along(all_names)
     }
@@ -727,6 +755,15 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
       common <- intersect(colnames(sim_matrix), all_names)
       aligned[, common] <- sim_matrix[, common]
       sim_matrix <- aligned
+    }
+
+    if (!is.null(x_positions) && length(x_positions) == length(all_names)) {
+      x <- as.numeric(x_positions)
+    } else {
+      if (!is.null(x_labels) && length(x_labels) != length(all_names)) {
+        x_labels <- all_names
+        x_at <- x
+      }
     }
   } else {
     x <- if (!is.null(x_positions)) {
