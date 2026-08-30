@@ -251,3 +251,31 @@ test_that("Constrained degree labels include x and y constraints", {
   expect_true(grepl("x\\[i\\] == 0", paste(deparse(lab_assess_custom), collapse = " ")))
   expect_true(grepl("y\\[j\\] == 1", paste(deparse(lab_assess_custom), collapse = " ")))
 })
+
+test_that("Multi-model comparison plot handles geodesic distance distributions with Inf and different supports", {
+  n_actor <- 10
+  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+  diag(neighborhood) <- 0
+
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE)
+  sampler_obj <- sampler.iglm(n_burn_in = 2, n_simulation = 3, init_empty = FALSE)
+
+  mod1 <- iglm(
+    formula = xyz_obj ~ edges(mode = "local"),
+    coef = c(-1), sampler = sampler_obj
+  )
+  mod1$simulate(display_progress = FALSE)
+  mod1$assess(formula = ~ geodesic_distances_distribution, plot = FALSE)
+
+  # Create a second assessment result with different columns/supports including Inf
+  assess2 <- mod1$results$model_assessment
+  assess2$simulated <- lapply(assess2$simulated, function(s) {
+    s$geodesic_distances_distribution <- c("1" = 0.2, "2" = 0.3, "3" = 0.2, "4" = 0.1, "Inf" = 0.2)
+    s
+  })
+
+  pdf(NULL)
+  expect_silent(mod1$results$plot(model_assessment = TRUE, assess2))
+  dev.off()
+})
+

@@ -564,7 +564,55 @@ test_that("simulate_iglm validates fix_x and fix_z overrides", {
     simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_z = "TRUE"),
     pattern = "'fix_z' must be a single non-missing logical value"
   )
+
+  # iglm.data rejects NA for fix_x and fix_z
+  expect_error(
+    iglm.data(neighborhood = neighborhood, directed = FALSE, fix_x = NA),
+    pattern = "'fix_x' must be a single logical value"
+  )
+  expect_error(
+    iglm.data(neighborhood = neighborhood, directed = FALSE, fix_z = NA),
+    pattern = "'fix_z' must be a single logical value"
+  )
 })
+
+test_that("Parallel simulation with cluster initializes workers from burn-in state", {
+  skip_on_cran()
+  n_actor <- 10
+  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+  diag(neighborhood) <- 0
+
+  obs_x <- rep(c(1, 0), length.out = n_actor)
+  obs_y <- rep(c(0, 1), length.out = n_actor)
+  obs_z <- matrix(c(1, 2, 2, 3), ncol = 2, byrow = TRUE)
+
+  data_obj <- iglm.data(
+    x_attribute = obs_x,
+    y_attribute = obs_y,
+    z_network = obs_z,
+    neighborhood = neighborhood,
+    directed = FALSE,
+    fix_x = TRUE,
+    fix_z = TRUE
+  )
+
+  cl <- parallel::makeCluster(2)
+  on.exit(parallel::stopCluster(cl), add = TRUE)
+
+  sim_res <- simulate_iglm(
+    formula = data_obj ~ edges(mode = "local") + attribute_y,
+    coef = c(-1, 0.5),
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 4, init_empty = TRUE),
+    only_stats = FALSE,
+    cluster = cl
+  )
+
+  expect_equal(length(sim_res$samples), 4)
+  for (s in sim_res$samples) {
+    expect_equal(s$x_attribute, obs_x)
+  }
+})
+
 
 
 

@@ -136,7 +136,7 @@ InitIglmTerm <- function(data_object, arglist, ...) {
 #' \code{check.IglmTerm} normalizes and validates arguments passed to model terms in formulas:
 #' \enumerate{
 #'   \item \strong{Positional Argument Normalization}: Arguments passed without parameter names
-#'     (represented as \code{..1}, \code{..2}, \dots in \code{arglist}) are sorted by position and
+#'     are sorted by position and
 #'     mapped sequentially to available candidate parameters. Candidate parameters are
 #'     identified from \code{mandatory}, \code{defaults}, and \code{expected} (excluding metadata
 #'     and arguments already supplied by name).

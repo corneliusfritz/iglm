@@ -564,7 +564,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       } else {
         cat("\n")
         cat("Observed Sufficient Statistics:\n")
-        print(format(private$.sufficient_statistics, digits = digits), quote = FALSE)
+        stats_to_print <- private$.sufficient_statistics
+        names(stats_to_print) <- if (canonical_names) {
+          private$.preprocess$coef_names
+        } else {
+          format_term_names(private$.preprocess$coef_names, private$.iglm.data, canonical_names = FALSE)
+        }
+        print(format(stats_to_print, digits = digits), quote = FALSE)
         invisible(NULL)
       }
     },

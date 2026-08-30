@@ -153,19 +153,15 @@ simulate_iglm <- function(formula,
   init_x <- if (!is.null(basis)) basis$x_attribute else data_obj$x_attribute
   init_y <- if (!is.null(basis)) basis$y_attribute else data_obj$y_attribute
   init_z <- if (!is.null(basis)) basis$z_network else data_obj$z_network
-  if (!is.null(fix_x)) {
-    if (!is.logical(fix_x) || length(fix_x) != 1 || is.na(fix_x)) {
-      stop("'fix_x' must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
-    }
-  }
-  if (!is.null(fix_z)) {
-    if (!is.logical(fix_z) || length(fix_z) != 1 || is.na(fix_z)) {
-      stop("'fix_z' must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
-    }
-  }
-
   sim_fix_x <- if (!is.null(fix_x)) fix_x else data_obj$fix_x
   sim_fix_z <- if (!is.null(fix_z)) fix_z else data_obj$fix_z
+
+  if (!is.logical(sim_fix_x) || length(sim_fix_x) != 1 || is.na(sim_fix_x)) {
+    stop("'fix_x' must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+  }
+  if (!is.logical(sim_fix_z) || length(sim_fix_z) != 1 || is.na(sim_fix_z)) {
+    stop("'fix_z' must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+  }
 
   degrees <- preprocessed$includes_degrees
   n_actor <- data_obj$n_actor
@@ -280,14 +276,14 @@ simulate_iglm <- function(formula,
           x_attribute = res_burnin$x_attribute,
           y_attribute = res_burnin$y_attribute,
           z_network = res_burnin$z_network,
-          init_empty = sampler$init_empty,
+          init_empty = FALSE,
           neighborhood = data_obj$neighborhood,
           overlap = data_obj$overlap,
           nonoverlap_random = !data_obj$fix_z_alocal,
           directed = data_obj$directed,
           data_list = preprocessed$data_list,
           type_list = preprocessed$type_list,
-          n_burn_in = sampler$n_burn_in,
+          n_burn_in = 0L,
           seed = sampler$seed + min(x),
           n_proposals_x = sampler$sampler_x$n_proposals,
           n_proposals_y = sampler$sampler_y$n_proposals,

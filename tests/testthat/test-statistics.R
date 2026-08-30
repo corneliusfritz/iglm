@@ -812,5 +812,45 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
   }
 })
 
+test_that("statistics() supports canonical_names and switches between labeled and canonical names", {
+  data(copenhagen)
+  formula.norm <- copenhagen ~ attribute_y + attribute_xy + edges(mode = "alocal") + transitive + spillover_xy + spillover_yy + degrees
+
+  # Labeled names by default (canonical_names = FALSE)
+  stats_labeled <- statistics(formula.norm, canonical_names = FALSE)
+  expected_labeled <- c(
+    "attribute_duration",
+    "attribute_gender_duration",
+    "edges(mode = 'alocal')",
+    "transitive",
+    "spillover_gender_duration",
+    "spillover_duration_duration"
+  )
+  expect_equal(names(stats_labeled), expected_labeled)
+
+  # Default should be canonical_names = FALSE
+  stats_default <- statistics(formula.norm)
+  expect_equal(names(stats_default), expected_labeled)
+
+  # Canonical names (canonical_names = TRUE)
+  stats_canonical <- statistics(formula.norm, canonical_names = TRUE)
+  expected_canonical <- c(
+    "attribute_y",
+    "attribute_xy",
+    "edges(mode = 'alocal')",
+    "transitive",
+    "spillover_xy",
+    "spillover_yy"
+  )
+  expect_equal(names(stats_canonical), expected_canonical)
+  expect_equal(unname(stats_labeled), unname(stats_canonical))
+
+  # Validation of canonical_names parameter
+  expect_error(statistics(formula.norm, canonical_names = NA), "`canonical_names` must be a single non-missing logical value")
+  expect_error(statistics(formula.norm, canonical_names = c(TRUE, FALSE)), "`canonical_names` must be a single non-missing logical value")
+  expect_error(statistics(formula.norm, canonical_names = "TRUE"), "`canonical_names` must be a single non-missing logical value")
+})
+
+
 
 

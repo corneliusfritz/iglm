@@ -608,9 +608,9 @@ plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
   }
   
   if (!is.null(all_names)) {
-    # If all names are numeric, sort them numerically
+    # If all names are numeric and finite, sort them numerically
     num_names <- suppressWarnings(as.numeric(all_names))
-    if (!any(is.na(num_names))) {
+    if (!any(is.na(num_names)) && all(is.finite(num_names))) {
       all_names <- as.character(sort(num_names))
       x <- as.numeric(all_names)
     } else {
@@ -635,11 +635,16 @@ plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
 
     if (!is.null(x_positions) && length(x_positions) == length(all_names)) {
       x <- as.numeric(x_positions)
+    } else {
+      if (!is.null(x_labels) && length(x_labels) != length(all_names)) {
+        x_labels <- all_names
+        x_at <- x
+      }
     }
   } else {
     x <- if (!is.null(x_positions)) {
       as.numeric(x_positions)
-    } else if (!is.null(names(observed))) {
+    } else if (!is.null(names(observed)) && all(is.finite(suppressWarnings(as.numeric(names(observed)))))) {
       as.numeric(names(observed))
     } else {
       seq_along(observed)
@@ -705,7 +710,7 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
   
   if (!is.null(all_names) && is.null(x_positions)) {
     num_names <- suppressWarnings(as.numeric(all_names))
-    if (!any(is.na(num_names))) {
+    if (!any(is.na(num_names)) && all(is.finite(num_names))) {
       all_names <- as.character(sort(num_names))
       x <- as.numeric(all_names)
     } else {
@@ -726,7 +731,7 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
   } else {
     x <- if (!is.null(x_positions)) {
       as.numeric(x_positions)
-    } else if (!is.null(names(observed))) {
+    } else if (!is.null(names(observed)) && all(is.finite(suppressWarnings(as.numeric(names(observed)))))) {
       as.numeric(names(observed))
     } else {
       seq_along(observed)

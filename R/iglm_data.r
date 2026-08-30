@@ -145,13 +145,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         }
       }
       # Check directed flag
-      if (!is.logical(private$.directed) || length(private$.directed) != 1) {
+      if (!is.logical(private$.directed) || length(private$.directed) != 1 || is.na(private$.directed)) {
         errors <- c(errors, "'directed' must be a single logical value (TRUE or FALSE).")
       }
-      if (!is.logical(private$.fix_z) || length(private$.fix_z) != 1) {
+      if (!is.logical(private$.fix_z) || length(private$.fix_z) != 1 || is.na(private$.fix_z)) {
         errors <- c(errors, "'fix_z' must be a single logical value (TRUE or FALSE).")
       }
-      if (!is.logical(private$.fix_x) || length(private$.fix_x) != 1) {
+      if (!is.logical(private$.fix_x) || length(private$.fix_x) != 1 || is.na(private$.fix_x)) {
         errors <- c(errors, "'fix_x' must be a single logical value (TRUE or FALSE).")
       }
 
