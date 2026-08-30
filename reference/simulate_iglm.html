@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Simulate Responses and Connections</h1>
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/R/simulation.R" class="external-link"><code>R/simulation.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/R/simulation.R" class="external-link"><code>R/simulation.R</code></a></small>
       <div class="d-none name"><code>simulate_iglm.Rd</code></div>
     </div>
 
@@ -56,8 +56,8 @@
 <span>  display_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  offset_nonoverlap <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fix_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  fix_z <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  fix_x <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fix_z <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -72,8 +72,12 @@ See <code><a href="iglm-terms.html">iglm-terms</a></code> for details on specify
 
 
 <dt id="arg-basis">basis<a class="anchor" aria-label="anchor" href="#arg-basis"></a></dt>
-<dd><p>An optional `iglm.data` object to serve as the basis for the simulation.
-If provided, the simulation starts from the state defined in this object.
+<dd><p>An optional <code><a href="iglm.data.html">iglm.data</a></code> object to serve as the basis (initial state)
+for the simulation. If provided, the simulation starts from the state (<code>x_attribute</code>,
+<code>y_attribute</code>, <code>z_network</code>) defined in this object.
+The `basis` object must be consistent with the model data referenced in `formula`
+(same number of actors, directedness, and attribute types). All structural specifications
+(terms, neighborhood, overlap, and fixed variable flags) are taken from the `formula` data object.
 If `NULL` (default), the initial state is taken from the `iglm.data` object
 referenced in the `formula`.</p></dd>
 
@@ -123,32 +127,29 @@ modifying tie probabilities outside the primary neighborhood. Default is `0`.</p
 
 <dt id="arg-cluster">cluster<a class="anchor" aria-label="anchor" href="#arg-cluster"></a></dt>
 <dd><p>Optional parallel cluster object created, for example, by
-“parallel::makeCluster“. If provided and valid, the function performs a
+<code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster</a></code>. If provided and valid, the function performs a
 single burn-in simulation on the main R process, then distributes the
 remaining `n_simulation` tasks across the cluster workers using
-“parallel::parLapply“. The master seed is offset
+<code><a href="https://rdrr.io/r/parallel/clusterApply.html" class="external-link">parallel::parLapply</a></code>. The master seed is offset
 for each worker to ensure different random streams. If `NULL` (default),
 all simulations are run sequentially in the main R process.</p></dd>
 
 
 <dt id="arg-fix-x">fix_x<a class="anchor" aria-label="anchor" href="#arg-fix-x"></a></dt>
-<dd><p>Logical. If `TRUE`, the simulation holds the `x_attribute` fixed
-at its initial state (from the <code><a href="iglm.data.html">iglm.data</a></code> object) and only simulates the
-`y_attribute` and `z_network`. If `FALSE` (default), all components (x, y, z)
-are simulated according to the model and sampler settings.</p></dd>
+<dd><p>Optional logical override indicating if `x_attribute` should be held fixed during simulation.
+If `NULL` (default), the setting from the model `iglm.data` object is used.</p></dd>
 
 
 <dt id="arg-fix-z">fix_z<a class="anchor" aria-label="anchor" href="#arg-fix-z"></a></dt>
-<dd><p>Logical. If `TRUE`, the simulation holds the `z_network` fixed
-at its initial state (from the <code><a href="iglm.data.html">iglm.data</a></code> object). If `FALSE` (default), the network component
-is simulated according to the model and sampler settings.</p></dd>
+<dd><p>Optional logical override indicating if `z_network` should be held fixed during simulation.
+If `NULL` (default), the setting from the model `iglm.data` object is used.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list containing one or two components (depending on `only_stats`):</p><dl><dt>`samples`</dt>
 <dd><p>If `only_stats = FALSE`, this is a list of length
-    `sampler$n_simulation` where each element is a `iglm.data` object
+    `sampler$n_simulation` where each element is an <code><a href="iglm.data.html">iglm.data</a></code> object
     representing one simulated draw from the model. The list has the S3 class
     `"iglm.data.list"`. If `only_stats = TRUE`, this component is omitted.</p></dd>
 
@@ -167,7 +168,7 @@ process is adapted:</p><ol><li><p>A single simulation run (including burn-in spe
     is performed on the master node to obtain a starting state for the parallel chains.</p></li>
 <li><p>The total number of requested simulations (`sampler$n_simulation`) is divided
     among the cluster workers.</p></li>
-<li><p>“parallel::parLapply“ is used to run simulations on each worker.
+<li><p><code><a href="https://rdrr.io/r/parallel/clusterApply.html" class="external-link">parallel::parLapply</a></code> is used to run simulations on each worker.
     Each worker starts from the state obtained after the initial burn-in, performs
     <strong>zero</strong> additional burn-in (`n_burn_in = 0` passed to workers), and generates
     its assigned share of the simulations. Component sampler seeds are offset
@@ -181,17 +182,15 @@ process is adapted:</p><ol><li><p>A single simulation run (including burn-in spe
 
 
 <p>The function stops with an error if:</p><ul><li><p>The length of `coef` does not match the number of terms derived from `formula`.</p></li>
-<li><p>`formula_preprocess` fails.</p></li>
-<li><p>The `sampler` object is not of class `sampler.iglm`.</p></li>
+<li><p>Formula preprocessing fails.</p></li>
+<li><p>The `sampler` object is not of class <code><a href="sampler.iglm.html">sampler.iglm</a></code>.</p></li>
 <li><p>The C++ backend `xyz_simulate_cpp` encounters an error.</p></li>
-<li><p>Helper functions like `XYZ_to_R` or `is_cluster_active` are not found.</p></li>
-</ul><p>Warnings may be issued if default sampler settings are used.</p>
-    </div>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code>iglm</code> for creating the model object,
-  <code>sampler.iglm</code> for creating the sampler object,
-  <code>iglm.data</code> for the data object structure.</p></div>
+    <div class="dont-index"><p><code><a href="iglm.html">iglm</a></code> for creating the model object,
+  <code><a href="sampler.iglm.html">sampler.iglm</a></code> for creating the sampler object,
+  <code><a href="iglm.data.html">iglm.data</a></code> for the data object structure.</p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

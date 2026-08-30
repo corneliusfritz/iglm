@@ -97,7 +97,7 @@ provided, and validates inputs.
       sampler_z = NULL,
       n_simulation = 100,
       n_burn_in = 10,
-      init_empty = TRUE,
+      init_empty = FALSE,
       seed = NA,
       cluster = NULL,
       file = NULL
@@ -123,28 +123,23 @@ provided, and validates inputs.
 
 - `n_simulation`:
 
-  (integer) The number of network/attribute configurations to simulate
-  and store after the burn-in period. Default is 100. Must be
-  non-negative.
+  (integer) The number of network/attribute configurations
 
 - `n_burn_in`:
 
-  (integer) The number of initial MCMC iterations to discard (burn-in)
-  before starting to collect simulations. Default is 10. Must be
-  non-negative.
+  (\`integer\`) The number of initial MCMC iterations to discard.
 
 - `init_empty`:
 
-  (logical) If \`TRUE\` (default), the MCMC chain is initialized from an
-  empty state (e.g., empty network, attributes at mean). If \`FALSE\`,
-  initialization might depend on the specific sampler implementation
-  (e.g., starting from observed data).
+  (logical) If \`FALSE\` (default), the MCMC chain is initialized from
+  observed data. If \`TRUE\`, the MCMC chain is initialized from an
+  empty state (e.g., empty network, attributes at mean).
 
 - `seed`:
 
   (integer or \`NA\`) A single integer seed for the random number
-  generator, set once before sampling begins. If \`NA\` (default), a
-  random seed is generated automatically.
+  generator. If \`NA\` (default), a fixed default seed (\`123456789\`)
+  is used for reproducibility.
 
 - `cluster`:
 

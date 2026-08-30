@@ -25,7 +25,7 @@ extensive validation of all inputs."><meta property="og:image" content="https://
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@ extensive validation of all inputs."><meta property="og:image" content="https://
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Constructor for the iglm.data R6 object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/R/iglm_data.r" class="external-link"><code>R/iglm_data.r</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/R/iglm_data.r" class="external-link"><code>R/iglm_data.r</code></a></small>
       <div class="d-none name"><code>iglm.data.Rd</code></div>
     </div>
 
@@ -79,7 +79,10 @@ extensive validation of all inputs.</p>
 <span>  fix_z <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fix_z_alocal <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  return_neighborhood <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  file <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  label_x <span class="op">=</span> <span class="st">"x"</span>,</span>
+<span>  label_y <span class="op">=</span> <span class="st">"y"</span>,</span>
+<span>  label_z <span class="op">=</span> <span class="st">"z"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -166,6 +169,18 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.</p></d
 
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
 <dd><p>(character) Optional file path to load a saved `iglm.data` object state.</p></dd>
+
+
+<dt id="arg-label-x">label_x<a class="anchor" aria-label="anchor" href="#arg-label-x"></a></dt>
+<dd><p>Character string for the label/name of `x_attribute`. Default is `"x"`.</p></dd>
+
+
+<dt id="arg-label-y">label_y<a class="anchor" aria-label="anchor" href="#arg-label-y"></a></dt>
+<dd><p>Character string for the label/name of `y_attribute`. Default is `"y"`.</p></dd>
+
+
+<dt id="arg-label-z">label_z<a class="anchor" aria-label="anchor" href="#arg-label-z"></a></dt>
+<dd><p>Character string for the label/name of `z_network`. Default is `"z"`.</p></dd>
 
 </dl></div>
     <div class="section level2">

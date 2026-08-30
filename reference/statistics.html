@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Compute Statistics</h1>
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/R/statistics.R" class="external-link"><code>R/statistics.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/R/statistics.R" class="external-link"><code>R/statistics.R</code></a></small>
       <div class="d-none name"><code>statistics.Rd</code></div>
     </div>
 
@@ -46,7 +46,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">statistics</span><span class="op">(</span><span class="va">formula</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">statistics</span><span class="op">(</span><span class="va">formula</span>, canonical_names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -60,13 +60,18 @@ Alternatively, the left-hand side can be a <code>iglm.data.list</code> object to
 for multiple <code><a href="iglm.data.html">iglm.data</a></code> objects at once (is, e.g., the normal outcome of all simulations).
 See <code><a href="iglm-terms.html">iglm-terms</a></code> for details on specifying the right-hand side terms.</p></dd>
 
+
+<dt id="arg-canonical-names">canonical_names<a class="anchor" aria-label="anchor" href="#arg-canonical-names"></a></dt>
+<dd><p>(logical) If `TRUE`, returns canonical term names without label substitution.
+Default is `FALSE`.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A named numeric vector. Each element corresponds to a term in the
+    <p>A named numeric vector (or matrix if a list of data objects is provided). Each element corresponds to a term in the
   `formula`, and its value is the calculated observed feature
   for that term based on the data in the <code><a href="iglm.data.html">iglm.data</a></code> object. The names of the
-  vector match the coefficient names derived from the formula terms.</p>
+  vector match the (optionally labeled) term names derived from the formula terms.</p>
     </div>
 
     <div class="section level2">
@@ -82,11 +87,15 @@ See <code><a href="iglm-terms.html">iglm-terms</a></code> for details on specify
 <span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="iglm.data.html">iglm.data</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  z_network <span class="op">=</span> <span class="va">z_net_data</span>, x_attribute <span class="op">=</span> <span class="va">x_attr_data</span>,</span></span>
 <span class="r-in"><span>  y_attribute <span class="op">=</span> <span class="va">y_attr_data</span>, neighborhood <span class="op">=</span> <span class="va">neighborhood</span>,</span></span>
-<span class="r-in"><span>  directed <span class="op">=</span> <span class="cn">FALSE</span>, type_x <span class="op">=</span> <span class="va">type_x</span>, type_y <span class="op">=</span> <span class="va">type_y</span></span></span>
+<span class="r-in"><span>  directed <span class="op">=</span> <span class="cn">FALSE</span>, type_x <span class="op">=</span> <span class="va">type_x</span>, type_y <span class="op">=</span> <span class="va">type_y</span>,</span></span>
+<span class="r-in"><span>  label_x <span class="op">=</span> <span class="st">"age"</span>, label_y <span class="op">=</span> <span class="st">"income"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">statistics</span><span class="op">(</span><span class="va">object</span> <span class="op">~</span> <span class="fu">edges</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span> <span class="op">+</span> <span class="va">attribute_y</span> <span class="op">+</span> <span class="va">attribute_x</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> edges(mode = 'local')      attribute_income         attribute_age </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                     0                     4                     4 </span>
+<span class="r-in"><span><span class="fu">statistics</span><span class="op">(</span><span class="va">object</span> <span class="op">~</span> <span class="fu">edges</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span> <span class="op">+</span> <span class="va">attribute_y</span> <span class="op">+</span> <span class="va">attribute_x</span>, canonical_names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> edges(mode = 'local')           attribute_y           attribute_x </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                     0                     6                     6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                     0                     4                     4 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

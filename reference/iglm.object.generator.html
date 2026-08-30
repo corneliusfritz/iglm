@@ -21,7 +21,7 @@ for results."><meta property="og:image" content="https://corneliusfritz.github.i
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ for results."><meta property="og:image" content="https://corneliusfritz.github.i
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>iglm Objects (R6 Class)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/R/iglm.r" class="external-link"><code>R/iglm.r</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/R/iglm.r" class="external-link"><code>R/iglm.r</code></a></small>
       <div class="d-none name"><code>iglm.object.generator.Rd</code></div>
     </div>
 
@@ -265,6 +265,7 @@ available, they are printed in a standard coefficient table format.</p><div clas
 <span>  print.fitinfo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  print.coefmat <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  print.call <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  canonical_names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -294,14 +295,14 @@ only the corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value, 4:
       <dt><code>print.call</code></dt>
 <dd><p>(logical) If `TRUE` (default), prints the call that generated the object.</p></dd>
 
+      <dt><code>canonical_names</code></dt>
+<dd><p>(logical) If `TRUE`, prints canonical term names without label substitution. Default is `FALSE`.</p></dd>
+
       <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to <code><a href="https://rdrr.io/r/stats/printCoefmat.html" class="external-link">printCoefmat</a></code>.</p></dd>
 
 
 </dl><p></p></div>
-</div><p></p><div class="section">
-<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
-<p>Prints the summary/object to the console and returns the coefficient matrix invisibly (or `NULL` if the model has not been estimated).</p>
 </div>
 
 </div>
@@ -311,7 +312,7 @@ only the corresponding columns are printed (1: Estimate, 2: S.E., 3: t-value, 4:
 <p>Plot the estimation results, including coefficient convergence
 paths and model assessment diagnostics if available.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.object</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>stats <span class="op">=</span> <span class="cn">FALSE</span>, trace <span class="op">=</span> <span class="cn">FALSE</span>, model_assessment <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.object</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>stats <span class="op">=</span> <span class="cn">FALSE</span>, trace <span class="op">=</span> <span class="cn">FALSE</span>, model_assessment <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>stats</code></dt>
@@ -326,6 +327,10 @@ paths. Default is `FALSE`.</p></dd>
 <dd><p>(logical) If `TRUE`, plot diagnostics from the
 model assessment (if already carried out). Default is `FALSE`.</p></dd>
 
+      <dt><code>...</code></dt>
+<dd><p>If the plot of the model_assessment is wanted, additional fits with identical model_assessment terms are currently identified from this argument.
+The names of the arguments are shown as the legend in the model assessment plots.</p></dd>
+
 
 </dl><p></p></div>
 </div>
@@ -339,7 +344,7 @@ easy saving or inspection.</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.object</span><span class="op">$</span><span class="fu">gather</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
+<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
 <p>A list containing all key components of the <code><a href="iglm.html">iglm.object</a></code>.
   This includes the formula, coefficients, sampler, control settings,
   preprocessing info, time taken for estimation, count statistics,
@@ -361,7 +366,7 @@ easy saving or inspection.</p><div class="section">
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
 <p>The name of the object as a character string.</p>
 </div>
 
@@ -381,7 +386,7 @@ control settings.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
+<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
 <p>Invisibly returns `NULL`.</p>
 </div>
 
@@ -400,7 +405,7 @@ control settings.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
+<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
 <p>Invisibly returns `NULL`.</p>
 </div>
 
@@ -413,7 +418,7 @@ Stores the results internally and updates the coefficient fields.</p><div class=
 <h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.object</span><span class="op">$</span><span class="fu">estimate</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
 <p>If no preprocessing should be returned (as per control settings),
   this function returns a list containing detailed estimation results,
   invisibly. Includes final coefficients, variance-covariance matrix,
@@ -427,15 +432,16 @@ Stores the results internally and updates the coefficient fields.</p><div class=
 
 <p></p><hr><a id="method-iglm.object-summary"></a><div class="section">
 <h3 id="iglm-object-summary-"><code>iglm.object$summary()</code><a class="anchor" aria-label="anchor" href="#iglm-object-summary-"></a></h3>
-<p>Provides a summary of the estimation results with the following columns: Estimate, SE,
-t-value, and Pr(&gt;|t|).
-Requires the model to have been estimated first.</p><div class="section">
+<p>Provides a summary of the estimation results. Requires the model to have been estimated first.</p><div class="section">
 <h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.object</span><span class="op">$</span><span class="fu">summary</span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.object</span><span class="op">$</span><span class="fu">summary</span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, canonical_names <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>digits</code></dt>
-<dd><p>(integer) Number of digits for rounding numeric output.</p></dd>
+<dd><p>(integer) Number of digits for rounding numeric output. Default is 2.</p></dd>
+
+      <dt><code>canonical_names</code></dt>
+<dd><p>(logical) If `TRUE`, print canonical term names without label substitution. Default is `FALSE`.</p></dd>
 
       <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to <code><a href="https://rdrr.io/r/stats/printCoefmat.html" class="external-link">printCoefmat</a></code>.</p></dd>
@@ -443,8 +449,8 @@ Requires the model to have been estimated first.</p><div class="section">
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
-<p>Prints the summary to the console and returns the coefficient matrix invisibly (or `NULL` if the model has not been estimated).</p>
+<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<p>Prints the summary to the console and invisibly returns the coefficient table (or <code>NULL</code> if the model has not been estimated).</p>
 </div>
 
 </div>
@@ -480,7 +486,7 @@ neighborhoods is known. Default is 0.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
+<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
 <p>A list containing the simulated networks (`samples`, as a
   `iglm.data.list` if `only_stats = FALSE`) and/or their summary
   statistics (`stats`), invisibly.</p>
@@ -534,7 +540,7 @@ estimated coefficients \(\hat{\theta}\):</p><ul><li><p>For <strong>Binomial</str
 </ul><p>For the network component <code>z</code>, the linear predictor includes dyadic covariates,
 degrees effects (sender/receiver variances), and structural offsets.</p>
 </div><p></p><div class="section">
-<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
+<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
 <p>A list containing the requested predictions:</p><dl><dt><code>x</code>, <code>y</code></dt>
 <dd><p>A matrix or data frame where the first column is the actor ID and subsequent
   columns represent the predicted mean values.</p></dd>
@@ -568,7 +574,7 @@ if applicable. Must be provided if the model includes degrees effects.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
+<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
 <p>The <code><a href="iglm.html">iglm.object</a></code> itself, invisibly.</p>
 </div>
 
@@ -581,7 +587,7 @@ Requires <code>simulate</code> or <code>estimate</code> to have been run first.<
 <h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">iglm.object</span><span class="op">$</span><span class="fu">get_samples</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-13">Returns<a class="anchor" aria-label="anchor" href="#returns-13"></a></h4>
+<h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
 <p>A list of <code><a href="iglm.data.html">iglm.data</a></code> objects representing
   the simulated networks, invisibly. Returns an error if no samples
   are available.</p>
@@ -618,12 +624,12 @@ count statistics and re-validates the object.</p><div class="section">
 </div><p></p><div class="section">
 <h4 id="arguments-13">Arguments<a class="anchor" aria-label="anchor" href="#arguments-13"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>x</code></dt>
-<dd><p>A <code><a href="iglm.data.html">iglm.data</a></code> “ object containing the new observed data.</p></dd>
+<dd><p>A <code><a href="iglm.data.html">iglm.data</a></code> object containing the new observed data.</p></dd>
 
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-14">Returns<a class="anchor" aria-label="anchor" href="#returns-14"></a></h4>
+<h4 id="returns-13">Returns<a class="anchor" aria-label="anchor" href="#returns-13"></a></h4>
 <p>The <code><a href="iglm.html">iglm.object</a></code> itself, invisibly.</p>
 </div>
 

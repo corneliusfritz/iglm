@@ -15,7 +15,7 @@ for arguments passed to iglm model terms."><meta property="og:image" content="ht
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ for arguments passed to iglm model terms."><meta property="og:image" content="ht
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Check Arguments for iglm Model Terms</h1>
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/R/init_terms.R" class="external-link"><code>R/init_terms.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/R/init_terms.R" class="external-link"><code>R/init_terms.R</code></a></small>
       <div class="d-none name"><code>check.IglmTerm.Rd</code></div>
     </div>
 
@@ -92,6 +92,21 @@ are either a character vector of allowed values, or a type string ("numeric", "m
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A modified <code>arglist</code> with defaults applied and validated values.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><code>check.IglmTerm</code> normalizes and validates arguments passed to model terms in formulas:</p><ol><li><p><strong>Positional Argument Normalization</strong>: Arguments passed without parameter names
+    are sorted by position and
+    mapped sequentially to available candidate parameters. Candidate parameters are
+    identified from <code>mandatory</code>, <code>defaults</code>, and <code>expected</code> (excluding metadata
+    and arguments already supplied by name).</p></li>
+<li><p><strong>Excess Positional Arguments</strong>: Unmatched positional arguments (where position index
+    exceeds the number of candidate parameters) remain in <code>arglist</code> and trigger
+    an unexpected-argument error during validation.</p></li>
+<li><p><strong>Type and Value Validation</strong>: Validates mandatory arguments, allowed categorical
+    values, numeric/matrix types, scalar constraints, and ensures no <code>NA</code>/<code>NaN</code> values
+    are present in numeric inputs.</p></li>
+<li><p><strong>Default Injection</strong>: Injects default values for any omitted optional parameters.</p></li>
+</ol></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

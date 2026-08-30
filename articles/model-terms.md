@@ -3,7 +3,7 @@
 ## Overview
 
 This vignette describes all model terms available in `iglm` (version
-1.2.4) for specifying the sufficient statistics of joint
+1.2.6) for specifying the sufficient statistics of joint
 network-attribute models. Terms are passed on the right-hand side of the
 `formula` argument in
 [`iglm()`](https://corneliusfritz.github.io/iglm/reference/iglm.md) and
@@ -26,74 +26,84 @@ The total sufficient statistic of the model is then \\ S(x, y, z) =
 
 ## Key Definitions
 
-Before presenting the individual terms, we introduce the notation used
-throughout this vignette.
+Before stating all statistics, we introduce the formal notation and
+definitions used throughout this vignette:
 
-1.  **Connection Indicators.** Let \\z\_{i,j} \in \\0,1\\\\ denote the
-    binary connection from unit \\i\\ to unit \\j\\, and let
-    \\c\_{i,j}\\ indicate whether units \\i\\ and \\j\\ share a local
-    neighbourhood (i.e., \\\mathbf{N}\_i \cap \mathbf{N}\_j \neq
-    \emptyset\\).
+- **Population and Dyads:**
+  - \\𝒫 = \\1, \ldots, N\\\\ denotes the population of \\N\\ units.
+  - \\𝒟\\ denotes the set of dyads (pairs of distinct units): \\𝒟 =
+    \\(i,j) : 1 \le i \neq j \le N\\\\ for directed connections and \\𝒟
+    = \\(i,j) : 1 \le i \< j \le N\\\\ for undirected connections.
+- **Variables and Attributes:**
+  - \\x_i\\: Exogenous (or secondary) predictor attribute of unit \\i
+    \in 𝒫\\.
+  - \\y_i\\: Endogenous outcome attribute of unit \\i \in 𝒫\\.
+  - \\z\_{i,j} \in \\0, 1\\\\: Binary connection indicator from unit
+    \\i\\ to unit \\j\\ for \\(i,j) \in 𝒟\\, collected in the connection
+    matrix \\\mathbf{z}\\.
+  - \\v_i\\: Optional unit-level exogenous covariate.
+  - \\w\_{i,j}\\: Optional dyadic exogenous covariate.
+- **Neighbourhoods and Local Structure:**
+  - \\𝒩_i \subset 𝒫\\ denotes the local neighbourhood of unit \\i\\
+    (with \\i \in 𝒩_i\\).
+  - \\c\_{i,j} \in \\0, 1\\\\ is the neighbourhood overlap indicator,
+    taking the value 1 if \\𝒩_i \cap 𝒩_j \neq \emptyset\\, and 0
+    otherwise.
+- **Connections:** Different types of indicators for connections:
+  - Overlapping: \\u\_{i,j} = c\_{i,j} z\_{i,j}\\, a connection between
+    units \\i\\ and \\j\\ where \\𝒩_i \cap 𝒩_j \neq \emptyset\\.
+  - Non-overlapping: \\k\_{i,j} = (1-c\_{i,j}) z\_{i,j}\\, a connection
+    between units \\i\\ and \\j\\ where \\𝒩_i \cap 𝒩_j = \emptyset\\.
+  - \\e\_{i,j}^{(\mathtt{s})}\\ for \\\mathtt{s} \in \\\mathtt{global},
+    \mathtt{local}, \mathtt{alocal}\\\\ is defined by: \\
+    e\_{i,j}^{(\mathtt{s})} = \begin{cases} z\_{i,j} & \text{if }
+    \mathtt{s} = \mathtt{global}\\ u\_{i,j} & \text{if } \mathtt{s} =
+    \mathtt{local} \\ k\_{i,j} & \text{if } \mathtt{s} = \mathtt{alocal}
+    \end{cases} \\ The mode parameter \\\mathtt{s}\\ is generally
+    defined as \\\mathtt{s} \in \\\mathtt{global}, \mathtt{local},
+    \mathtt{alocal}\\\\, but note that for the terms `gwesp`, `gwdsp`,
+    `gwodegree`, `gwidegree`, `edges_x_match`, and `edges_y_match`
+    (defined in the summary table), only the options \\\mathtt{s} \in
+    \\\mathtt{global}, \mathtt{local}\\\\ are implemented as their
+    \\\mathtt{alocal}\\ version is not very useful.
+- **Degree Statistics:** For unit \\i \in 𝒫\\ and mode \\\mathtt{s} \in
+  \\\mathtt{global}, \mathtt{local}\\\\:
+  - Out-degree: \\\operatorname{deg}(i, \mathtt{s}) = \sum\_{j \in 𝒫
+    \setminus \\i\\} e\_{i,j}^{(\mathtt{s})}\\ with
+    \\\operatorname{deg}(i) = \operatorname{deg}(i, \mathtt{global})\\.
+  - In-degree: \\\operatorname{ideg}(i, \mathtt{s}) = \sum\_{j \in 𝒫
+    \setminus \\i\\} e\_{j,i}^{(\mathtt{s})}\\ with
+    \\\operatorname{ideg}(i) = \operatorname{ideg}(i,
+    \mathtt{global})\\.
+- **Common Partners (CP):** For a dyad \\(i,j) \in 𝒟\\ and mode
+  \\\mathtt{s} \in \\\mathtt{global}, \mathtt{local}\\\\, the number of
+  shared partners via distinct path structures is defined as:
+  - Outgoing Two-Paths (OTP): \\\operatorname{CP}(i, j, \mathtt{s},
+    \mathtt{OTP}) = \sum\_{h \in 𝒫 \setminus \\i,j\\}
+    e\_{i,h}^{(\mathtt{s})}\\ e\_{h,j}^{(\mathtt{s})}\\.
+  - Incoming Shared Partners (ISP): \\\operatorname{CP}(i, j,
+    \mathtt{s}, \mathtt{ISP}) = \sum\_{h \in 𝒫 \setminus \\i,j\\}
+    e\_{h,i}^{(\mathtt{s})}\\ e\_{h,j}^{(\mathtt{s})}\\.
+  - Outgoing Shared Partners (OSP): \\\operatorname{CP}(i, j,
+    \mathtt{s}, \mathtt{OSP}) = \sum\_{h \in 𝒫 \setminus \\i,j\\}
+    e\_{i,h}^{(\mathtt{s})}\\ e\_{j,h}^{(\mathtt{s})}\\.
+  - Incoming Two-Paths (ITP): \\\operatorname{CP}(i, j, \mathtt{s},
+    \mathtt{ITP}) = \sum\_{h \in 𝒫 \setminus \\i,j\\}
+    e\_{h,i}^{(\mathtt{s})}\\ e\_{j,h}^{(\mathtt{s})}\\.
+  - Undirected Version: \\\operatorname{CP}(i, j, \mathtt{s}) = \sum\_{h
+    \in 𝒫 \setminus \\i,j\\} e\_{i,h}^{(\mathtt{s})}\\
+    e\_{h,j}^{(\mathtt{s})}\\.
+- **Miscellaneous:**
+  - Geometrically-weighted weight: \\w_k(\alpha) = \exp(\alpha) \left\[
+    1 - (1 - \exp(-\alpha))^k \right\]\\.
+  - Indicator for directionality: \\\mathbb{I}\_U(\mathbf{z})\\, taking
+    the value 1 if connections in \\\mathbf{z}\\ are undirected, and 0
+    otherwise.
+  - Indicator for transitive connection: \\d\_{i,j}(\mathbf{z}) =
+    \mathbb{I}(\exists\\ k \in 𝒩_i \cap 𝒩_j: z\_{i,k} = z\_{k,j} = 1)\\.
 
-    - **Overlapping connection** \\u\_{i,j} = c\_{i,j}\\ z\_{i,j}\\: a
-      connection between units whose neighbourhoods overlap.
-    - **Non-overlapping connection** \\k\_{i,j} = (1 - c\_{i,j})\\
-      z\_{i,j}\\: a connection between units with disjoint
-      neighbourhoods.
-    - **Mode-selected connection** \\e\_{i,j}^{(\mathtt{s})}\\ for mode
-      `s` \\\in \\\texttt{global},\\ \texttt{local},\\
-      \texttt{alocal}\\\\: \\ e\_{i,j}^{(\mathtt{s})} \\=\\
-      \begin{cases} z\_{i,j} & \text{if } \mathtt{s} = \texttt{global}
-      \\ u\_{i,j} & \text{if } \mathtt{s} = \texttt{local} \\ k\_{i,j} &
-      \text{if } \mathtt{s} = \texttt{alocal} \end{cases} \\ \>
-      **Note:** For `gwesp`, `gwdsp`, `gwodegree`, `gwidegree`,
-      `edges_x_match`, and `edges_y_match`, only
-      `mode %in% c("global", "local")` is implemented.
-
-2.  **Degree Statistics.** For unit \\i \in \mathbf{P}\\ and mode
-    \\\mathtt{s} \in \\\texttt{global},\\ \texttt{local}\\\\:
-
-    - **Out-degree**: \\\operatorname{deg}(i, \mathtt{s}) = \sum\_{j \in
-      \mathbf{P} \setminus \\i\\} e\_{i,j}^{(\mathtt{s})}\\, with
-      shorthand \\\operatorname{deg}(i) = \operatorname{deg}(i,
-      \mathtt{global})\\.
-    - **In-degree**: \\\operatorname{ideg}(i, \mathtt{s}) = \sum\_{j \in
-      \mathbf{P} \setminus \\i\\} e\_{j,i}^{(\mathtt{s})}\\, with
-      shorthand \\\operatorname{ideg}(i) = \operatorname{ideg}(i,
-      \mathtt{global})\\.
-
-3.  **Common Partners (CP).** For a dyad \\(i,j)\\ and mode
-    \\\mathtt{s}\\:
-
-    - **OTP** (Outgoing Two-Paths): \\\operatorname{CP}(i, j,
-      \mathtt{s}, \texttt{OTP}) = \sum\_{h \notin \\i,j\\}
-      e\_{i,h}^{(\mathtt{s})}\\ e\_{h,j}^{(\mathtt{s})}\\
-    - **ISP** (Incoming Shared Partners): \\\operatorname{CP}(i, j,
-      \mathtt{s}, \texttt{ISP}) = \sum\_{h \notin \\i,j\\}
-      e\_{h,i}^{(\mathtt{s})}\\ e\_{h,j}^{(\mathtt{s})}\\
-    - **OSP** (Outgoing Shared Partners): \\\operatorname{CP}(i, j,
-      \mathtt{s}, \texttt{OSP}) = \sum\_{h \notin \\i,j\\}
-      e\_{i,h}^{(\mathtt{s})}\\ e\_{j,h}^{(\mathtt{s})}\\
-    - **ITP** (Incoming Two-Paths): \\\operatorname{CP}(i, j,
-      \mathtt{s}, \texttt{ITP}) = \sum\_{h \notin \\i,j\\}
-      e\_{h,i}^{(\mathtt{s})}\\ e\_{j,h}^{(\mathtt{s})}\\
-    - **Undirected (symmetric)**: \\\operatorname{CP}(i, j, \mathtt{s})
-      = \sum\_{h \notin \\i,j\\} e\_{i,h}^{(\mathtt{s})}\\
-      e\_{h,j}^{(\mathtt{s})}\\
-
-4.  **Geometrically-Weighted Weight.** The decay function used by
-    geometrically weighted statistics is: \\ w_k(\alpha) =
-    \exp(\alpha)\Bigl\[1 - \bigl(1 - \exp(-\alpha)\bigr)^k\Bigr\]. \\
-
-5.  **Auxiliary Indicators.**
-
-    - **Undirected indicator** \\\mathbb{I}\_U(\mathbf{z})\\: takes
-      value \\1\\ if connections in \\\mathbf{z}\\ are undirected, \\0\\
-      otherwise.
-    - **Transitive connection indicator** \\d\_{i,j}(\mathbf{z}) =
-      \mathbb{I}(\exists\\ k \in \mathbf{N}\_i \cap \mathbf{N}\_j :
-      z\_{i,k} = z\_{k,j} = 1)\\: equals \\1\\ when a locally transitive
-      path from \\i\\ to \\j\\ exists.
+The sections below and the summary table list all implemented terms as
+of `iglm` version 1.2.6 and will be extended in future releases.
 
 ------------------------------------------------------------------------
 
@@ -162,11 +172,11 @@ formula <- object ~ cov_y(data = v)
 **Description:** Interaction between the two attributes \\x_i\\ and
 \\y_i\\, optionally mediated by the neighbourhood structure.
 
-| Mode | Formula |
-|----|----|
-| `global` | \\x_i\\ y_i\\ |
-| `local` | \\x_i \sum\_{j \in \mathbf{N}\_i} y_j + y_i \sum\_{j \in \mathbf{N}\_i} x_j\\ |
-| `alocal` | \\x_i \sum\_{j \notin \mathbf{N}\_i} y_j + y_i \sum\_{j \notin \mathbf{N}\_i} x_j\\ |
+| Mode     | Formula                                                         |
+|----------|-----------------------------------------------------------------|
+| `global` | \\x_i\\ y_i\\                                                   |
+| `local`  | \\x_i \sum\_{j \in 𝒩_i} y_j + y_i \sum\_{j \in 𝒩_i} x_j\\       |
+| `alocal` | \\x_i \sum\_{j \notin 𝒩_i} y_j + y_i \sum\_{j \notin 𝒩_i} x_j\\ |
 
 ``` r
 
@@ -282,8 +292,8 @@ formula <- object ~ cov_z_in(data = v, mode = "global")
 **Description:** Captures the proportion of units with no connections at
 all (total degree zero).
 
-\\ h\_{i,j}(x, y, z) = \mathbb{I}\\\left(\sum\_{j \in \mathbf{P}
-\setminus \\i\\} z\_{i,j} + z\_{j,i} = 0\right) \\
+\\ h\_{i,j}(x, y, z) = \mathbb{I}\\\left(\sum\_{j \in 𝒫 \setminus \\i\\}
+z\_{i,j} + z\_{j,i} = 0\right) \\
 
 Suitable for both directed and undirected networks.
 
@@ -299,8 +309,8 @@ formula <- object ~ isolates
 **Description:** Captures the proportion of units that have at least one
 connection.
 
-\\ h\_{i,j}(x, y, z) = \mathbb{I}\\\left(\sum\_{j \in \mathbf{P}
-\setminus \\i\\} z\_{i,j} + z\_{j,i} \ne 0\right) \\
+\\ h\_{i,j}(x, y, z) = \mathbb{I}\\\left(\sum\_{j \in 𝒫 \setminus \\i\\}
+z\_{i,j} + z\_{j,i} \ne 0\right) \\
 
 Suitable for both directed and undirected networks.
 
@@ -751,94 +761,50 @@ formula <- object ~ spillover_yc(data = v, mode = "local")
 
 ## Quick-Reference Table
 
-The table below summarises all terms, their mathematical definitions,
-and whether they support undirected networks.
+The table below summarises all implemented terms, indicating which
+variables (\\x\\, \\y\\, \\z\\) they involve, and whether they support
+undirected networks.
 
-| Term | Definition | Undirected |
-|----|----|:--:|
-| `attribute_x` | \\x_i\\ | ✓ |
-| `attribute_y` | \\y_i\\ | ✓ |
-| `cov_x` | \\v_i\\ x_i\\ | ✓ |
-| `cov_y` | \\v_i\\ y_i\\ | ✓ |
-| `attribute_xy(mode = "global")` | \\x_i\\ y_i\\ | ✓ |
-| `attribute_xy(mode = "local")` | \\x_i \sum\_{j \in \mathbf{N}\_i} y_j + y_i \sum\_{j \in \mathbf{N}\_i} x_j\\ | ✓ |
-| `attribute_xy(mode = "alocal")` | \\x_i \sum\_{j \notin \mathbf{N}\_i} y_j + y_i \sum\_{j \notin \mathbf{N}\_i} x_j\\ | ✓ |
-| `degrees` | Degree fixed effects | ✓ |
-| `edges(mode = "s")` | \\e\_{i,j}^{(\mathtt{s})}\\ | ✓ |
-| `mutual(mode = "s")` | \\e\_{i,j}^{(\mathtt{s})}\\e\_{j,i}^{(\mathtt{s})}/2\\ | ✗ |
-| `cov_z(mode = "s")` | \\w\_{i,j}\\ e\_{i,j}^{(\mathtt{s})}\\ | ✓ |
-| `cov_z_out(mode = "s")` | \\v_i\\ e\_{i,j}^{(\mathtt{s})}\\ | ✗ |
-| `cov_z_in(mode = "s")` | \\v_j\\ e\_{i,j}^{(\mathtt{s})}\\ | ✗ |
-| `isolates` | \\\mathbb{I}(\sum_j z\_{i,j}+z\_{j,i}=0)\\ | ✓ |
-| `nonisolates` | \\\mathbb{I}(\sum_j z\_{i,j}+z\_{j,i}\ne 0)\\ | ✓ |
-| `gwdegree(mode = "global")` | \\w\_{\deg(i)}(\alpha)+w\_{\deg(j)}(\alpha)\\ | ✓ |
-| `gwodegree(mode = "s")` | \\w\_{\deg(i,\mathtt{s})}(\alpha)\\ | ✗ |
-| `gwidegree(mode = "s")` | \\w\_{\operatorname{ideg}(i,\mathtt{s})}(\alpha)\\ | ✗ |
-| `transitive` | \\d\_{i,j}(\mathbf{z})\\z\_{i,j}\\ | ✓ |
-| `gwesp_symm(mode = "s")` | \\e\_{i,j}^{(\mathtt{s})}\\w\_{\operatorname{CP}(i,j,\mathtt{s})}(\alpha)\\ | ✓ |
-| `gwesp(mode = "s", type = "…")` | \\e\_{i,j}^{(\mathtt{s})}\\w\_{\operatorname{CP}(i,j,\mathtt{s},\mathtt{type})}(\alpha)\\ | ✗ |
-| `gwdsp_symm(mode = "local")` | \\w\_{\operatorname{CP}(i,j,\mathtt{local})}(\alpha)\\ | ✓ |
-| `gwdsp(mode = "s", type = "…")` | \\w\_{\operatorname{CP}(i,j,\mathtt{s},\mathtt{type})}(\alpha)\\ | ✗ |
-| `attribute_xz(mode = "local")` | \\(x_i+x_j)\\u\_{i,j}\\ | ✓ |
-| `attribute_yz(mode = "local")` | \\(y_i+y_j)\\u\_{i,j}\\ | ✓ |
-| `edges_x_match(mode = "s")` | \\\mathbb{I}(x_i=x_j)\\e\_{i,j}^{(\mathtt{s})}\\ | ✓ |
-| `edges_y_match(mode = "s")` | \\\mathbb{I}(y_i=y_j)\\e\_{i,j}^{(\mathtt{s})}\\ | ✓ |
-| `outedges_x(mode = "s")` | \\x_i\\e\_{i,j}^{(\mathtt{s})}\\ | ✗ |
-| `inedges_x(mode = "s")` | \\x_j\\e\_{i,j}^{(\mathtt{s})}\\ | ✗ |
-| `outedges_y(mode = "s")` | \\y_i\\e\_{i,j}^{(\mathtt{s})}\\ | ✗ |
-| `inedges_y(mode = "s")` | \\y_j\\e\_{i,j}^{(\mathtt{s})}\\ | ✗ |
-| `spillover_xx(mode = "local")` | \\x_i\\x_j\\u\_{i,j}\\ | ✓ |
-| `spillover_xx_scaled(mode = "s")` | \\\left(\frac{x_i x_j}{\deg(i,\mathtt{s})}+\frac{x_j x_i}{\deg(j,\mathtt{s})}\mathbb{I}\_U\right)e\_{i,j}^{(\mathtt{s})}\\ | ✓ |
-| `spillover_yy(mode = "local")` | \\y_i\\y_j\\u\_{i,j}\\ | ✓ |
-| `spillover_yy_scaled(mode = "s")` | \\\left(\frac{y_i y_j}{\deg(i,\mathtt{s})}+\frac{y_j y_i}{\deg(j,\mathtt{s})}\mathbb{I}\_U\right)e\_{i,j}^{(\mathtt{s})}\\ | ✓ |
-| `spillover_xy(mode = "local")` | \\x_i\\y_j\\u\_{i,j}+x_j\\y_i\\u\_{i,j}\\\mathbb{I}\_U\\ | ✓ |
-| `spillover_xy_scaled(mode = "s")` | \\\left(\frac{x_i y_j}{\deg(i,\mathtt{s})}+\frac{x_j y_i}{\deg(j,\mathtt{s})}\mathbb{I}\_U\right)e\_{i,j}^{(\mathtt{s})}\\ | ✓ |
-| `spillover_yx(mode = "local")` | \\y_i\\x_j\\u\_{i,j}\\ | ✗ |
-| `spillover_yx_scaled(mode = "s")` | \\\left(\frac{y_i x_j}{\deg(i,\mathtt{s})}+\frac{y_j x_i}{\deg(j,\mathtt{s})}\mathbb{I}\_U\right)e\_{i,j}^{(\mathtt{s})}\\ | ✓ |
-| `spillover_yc(mode = "local")` | \\c\_{i,j}(v_j\\y_i+\mathbb{I}\_U\\v_i\\y_j)\\z\_{i,j}\\ | ✓ |
-
-------------------------------------------------------------------------
-
-## Example: Combining Multiple Terms
-
-The example below illustrates how several terms from all three
-categories can be combined in a single formula for a directed network:
-
-``` r
-
-n_actor <- 100
-
-# Simulate attributes and neighbourhood
-set.seed(42)
-attribute_info <- rnorm(n_actor)
-block          <- matrix(1, nrow = 10, ncol = 10)
-neighborhood   <- as.matrix(Matrix::bdiag(replicate(10, block, simplify = FALSE)))
-
-object <- iglm.data(
-  neighborhood = neighborhood,
-  directed     = TRUE,
-  type_x       = "binomial",
-  type_y       = "binomial",
-  n_actor      = n_actor
-)
-
-# Formula combining attribute, network, and spillover terms
-formula <- object ~
-  # Category 1: attribute dependence
-  attribute_x + attribute_y +
-  # Category 2: network dependence
-  edges(mode = "local") + mutual(mode = "local") +
-  gwodegree(mode = "global", decay = 0.5) +
-  gwesp(mode = "global", type = "OTP", decay = 0.5) +
-  # Category 3: joint attribute/network dependence
-  edges_x_match(mode = "local") +
-  outedges_y(mode = "local") +
-  spillover_yy_scaled(mode = "local")
-```
-
-For further details on model fitting, simulation, and assessment see
-[`vignette("iglm")`](https://corneliusfritz.github.io/iglm/articles/iglm.md)
-and `?iglm-terms`.
+| Term | \\x\\ | \\y\\ | \\z\\ | Undirected |
+|:---|:--:|:--:|:--:|:--:|
+| [`attribute_x`](#attribute_x) | ✓ |  |  | ✓ |
+| [`attribute_y`](#attribute_y) |  | ✓ |  | ✓ |
+| [`cov_x`](#cov_x) | ✓ |  |  | ✓ |
+| [`cov_y`](#cov_y) |  | ✓ |  | ✓ |
+| [`attribute_xy(mode = "s")`](#attribute_xy) | ✓ | ✓ |  | ✓ |
+| [`degrees`](#degrees) |  |  | ✓ | ✓ |
+| [`edges(mode = "s")`](#edges) |  |  | ✓ | ✓ |
+| [`mutual(mode = "s")`](#mutual) |  |  | ✓ | ✗ |
+| [`cov_z(mode = "s")`](#cov_z) |  |  | ✓ | ✓ |
+| [`cov_z_out(mode = "s")`](#cov_z_out) |  |  | ✓ | ✗ |
+| [`cov_z_in(mode = "s")`](#cov_z_in) |  |  | ✓ | ✗ |
+| [`isolates`](#isolates) |  |  | ✓ | ✓ |
+| [`nonisolates`](#nonisolates) |  |  | ✓ | ✓ |
+| [`gwdegree(mode = "global")`](#gwdegree) |  |  | ✓ | ✓ |
+| [`gwodegree(mode = "s")`](#gwodegree) |  |  | ✓ | ✗ |
+| [`gwidegree(mode = "s")`](#gwidegree) |  |  | ✓ | ✗ |
+| [`transitive`](#transitive) |  |  | ✓ | ✓ |
+| [`gwesp_symm(mode = "s")`](#gwesp_symm) |  |  | ✓ | ✓ |
+| [`gwesp(mode = "s", type = "…")`](#gwesp) |  |  | ✓ | ✗ |
+| [`gwdsp_symm(mode = "local")`](#gwdsp_symm) |  |  | ✓ | ✓ |
+| [`gwdsp(mode = "s", type = "…")`](#gwdsp) |  |  | ✓ | ✗ |
+| [`attribute_xz(mode = "local")`](#attribute_xz) | ✓ |  | ✓ | ✓ |
+| [`attribute_yz(mode = "local")`](#attribute_yz) |  | ✓ | ✓ | ✓ |
+| [`edges_x_match(mode = "s")`](#edges_x_match) | ✓ |  | ✓ | ✓ |
+| [`edges_y_match(mode = "s")`](#edges_y_match) |  | ✓ | ✓ | ✓ |
+| [`outedges_x(mode = "s")`](#outedges_x) | ✓ |  | ✓ | ✗ |
+| [`inedges_x(mode = "s")`](#inedges_x) | ✓ |  | ✓ | ✗ |
+| [`outedges_y(mode = "s")`](#outedges_y) |  | ✓ | ✓ | ✗ |
+| [`inedges_y(mode = "s")`](#inedges_y) |  | ✓ | ✓ | ✗ |
+| [`spillover_xx(mode = "local")`](#spillover_xx) | ✓ |  | ✓ | ✓ |
+| [`spillover_xx_scaled(mode = "s")`](#spillover_xx_scaled) | ✓ |  | ✓ | ✓ |
+| [`spillover_yy(mode = "local")`](#spillover_yy) |  | ✓ | ✓ | ✓ |
+| [`spillover_yy_scaled(mode = "s")`](#spillover_yy_scaled) |  | ✓ | ✓ | ✓ |
+| [`spillover_xy(mode = "local")`](#spillover_xy) | ✓ | ✓ | ✓ | ✓ |
+| [`spillover_xy_scaled(mode = "s")`](#spillover_xy_scaled) | ✓ | ✓ | ✓ | ✓ |
+| [`spillover_yx(mode = "local")`](#spillover_yx) | ✓ | ✓ | ✓ | ✗ |
+| [`spillover_yx_scaled(mode = "s")`](#spillover_yx_scaled) | ✓ | ✓ | ✓ | ✓ |
+| [`spillover_yc(mode = "local")`](#spillover_yc) |  | ✓ | ✓ | ✓ |
 
 ------------------------------------------------------------------------
 

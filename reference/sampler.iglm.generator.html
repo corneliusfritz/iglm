@@ -27,7 +27,7 @@ parallelization options. It also holds references to component samplers
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@ parallelization options. It also holds references to component samplers
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>iglm Sampler Settings (R6 Class)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/R/sampler.r" class="external-link"><code>R/sampler.r</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/R/sampler.r" class="external-link"><code>R/sampler.r</code></a></small>
       <div class="d-none name"><code>sampler.iglm.generator.Rd</code></div>
     </div>
 
@@ -133,7 +133,7 @@ and validates inputs.</p><div class="section">
 <span>  sampler_z <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_simulation <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  n_burn_in <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  init_empty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  init_empty <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  file <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -154,23 +154,20 @@ sampling for the z network (within the defined neighborhood/overlap).
 If `NULL`, defaults from `sampler.net.attr()` are used.</p></dd>
 
       <dt><code>n_simulation</code></dt>
-<dd><p>(integer) The number of network/attribute configurations
-to simulate and store after the burn-in period. Default is 100. Must be non-negative.</p></dd>
+<dd><p>(integer) The number of network/attribute configurations</p></dd>
 
       <dt><code>n_burn_in</code></dt>
-<dd><p>(integer) The number of initial MCMC iterations to discard
-(burn-in) before starting to collect simulations. Default is 10. Must be non-negative.</p></dd>
+<dd><p>(`integer`) The number of initial MCMC iterations to discard.</p></dd>
 
       <dt><code>init_empty</code></dt>
-<dd><p>(logical) If `TRUE` (default), the MCMC chain is
-initialized from an empty state (e.g., empty network, attributes at mean).
-If `FALSE`, initialization might depend on the specific sampler implementation
-(e.g., starting from observed data).</p></dd>
+<dd><p>(logical) If `FALSE` (default), the MCMC chain is
+initialized from observed data. If `TRUE`, the MCMC chain is
+initialized from an empty state (e.g., empty network, attributes at mean).</p></dd>
 
       <dt><code>seed</code></dt>
 <dd><p>(integer or `NA`) A single integer seed for the random number
-generator, set once before sampling begins. If `NA` (default), a random
-seed is generated automatically.</p></dd>
+generator. If `NA` (default), a fixed default seed (`123456789`) is used
+for reproducibility.</p></dd>
 
       <dt><code>cluster</code></dt>
 <dd><p>A parallel cluster object (e.g., from the `parallel` package)

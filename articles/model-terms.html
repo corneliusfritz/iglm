@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Model Terms in iglm</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/vignettes/model-terms.Rmd" class="external-link"><code>vignettes/model-terms.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/vignettes/model-terms.Rmd" class="external-link"><code>vignettes/model-terms.Rmd</code></a></small>
       <div class="d-none name"><code>model-terms.Rmd</code></div>
     </div>
 
@@ -76,7 +76,7 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p>This vignette describes all model terms available in
-<code>iglm</code> (version 1.2.4) for specifying the sufficient
+<code>iglm</code> (version 1.2.6) for specifying the sufficient
 statistics of joint network-attribute models. Terms are passed on the
 right-hand side of the <code>formula</code> argument in
 <code><a href="../reference/iglm.html">iglm()</a></code> and govern how individual attributes and network
@@ -100,103 +100,138 @@ S(x, y, z) = \sum_i g_i(x_i, y_i) + \sum_{i \ne j} h_{i,j}(x, y, z).
 <div class="section level2">
 <h2 id="key-definitions">Key Definitions<a class="anchor" aria-label="anchor" href="#key-definitions"></a>
 </h2>
-<p>Before presenting the individual terms, we introduce the notation
-used throughout this vignette.</p>
-<ol style="list-style-type: decimal">
-<li>
-<p><strong>Connection Indicators.</strong> Let <span class="math inline">\(z_{i,j} \in \{0,1\}\)</span> denote the binary
-connection from unit <span class="math inline">\(i\)</span> to unit
-<span class="math inline">\(j\)</span>, and let <span class="math inline">\(c_{i,j}\)</span> indicate whether units <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> share a local neighbourhood (i.e.,
-<span class="math inline">\(\mathbf{N}_i \cap \mathbf{N}_j \neq
-\emptyset\)</span>).</p>
+<p>Before stating all statistics, we introduce the formal notation and
+definitions used throughout this vignette:</p>
 <ul>
 <li>
-<strong>Overlapping connection</strong> <span class="math inline">\(u_{i,j} = c_{i,j}\, z_{i,j}\)</span>: a connection
-between units whose neighbourhoods overlap.</li>
+<strong>Population and Dyads:</strong>
+<ul>
 <li>
-<strong>Non-overlapping connection</strong> <span class="math inline">\(k_{i,j} = (1 - c_{i,j})\, z_{i,j}\)</span>: a
-connection between units with disjoint neighbourhoods.</li>
+<span class="math inline">\(𝒫 = \{1, \ldots, N\}\)</span> denotes
+the population of <span class="math inline">\(N\)</span> units.</li>
 <li>
-<strong>Mode-selected connection</strong> <span class="math inline">\(e_{i,j}^{(\mathtt{s})}\)</span> for mode
-<code>s</code> <span class="math inline">\(\in \{\texttt{global},\,
-\texttt{local},\, \texttt{alocal}\}\)</span>: <span class="math display">\[
-e_{i,j}^{(\mathtt{s})} \;=\;
-\begin{cases}
-  z_{i,j}   &amp; \text{if } \mathtt{s} = \texttt{global} \\
-  u_{i,j}   &amp; \text{if } \mathtt{s} = \texttt{local}  \\
-  k_{i,j}   &amp; \text{if } \mathtt{s} = \texttt{alocal}
+<span class="math inline">\(𝒟\)</span> denotes the set of dyads
+(pairs of distinct units): <span class="math inline">\(𝒟 = \{(i,j) : 1
+\le i \neq j \le N\}\)</span> for directed connections and <span class="math inline">\(𝒟 = \{(i,j) : 1 \le i &lt; j \le N\}\)</span> for
+undirected connections.</li>
+</ul>
+</li>
+<li>
+<strong>Variables and Attributes:</strong>
+<ul>
+<li>
+<span class="math inline">\(x_i\)</span>: Exogenous (or secondary)
+predictor attribute of unit <span class="math inline">\(i \in
+𝒫\)</span>.</li>
+<li>
+<span class="math inline">\(y_i\)</span>: Endogenous outcome
+attribute of unit <span class="math inline">\(i \in 𝒫\)</span>.</li>
+<li>
+<span class="math inline">\(z_{i,j} \in \{0, 1\}\)</span>: Binary
+connection indicator from unit <span class="math inline">\(i\)</span> to
+unit <span class="math inline">\(j\)</span> for <span class="math inline">\((i,j) \in 𝒟\)</span>, collected in the connection
+matrix <span class="math inline">\(\mathbf{z}\)</span>.</li>
+<li>
+<span class="math inline">\(v_i\)</span>: Optional unit-level
+exogenous covariate.</li>
+<li>
+<span class="math inline">\(w_{i,j}\)</span>: Optional dyadic
+exogenous covariate.</li>
+</ul>
+</li>
+<li>
+<strong>Neighbourhoods and Local Structure:</strong>
+<ul>
+<li>
+<span class="math inline">\(𝒩_i \subset 𝒫\)</span> denotes the local
+neighbourhood of unit <span class="math inline">\(i\)</span> (with <span class="math inline">\(i \in 𝒩_i\)</span>).</li>
+<li>
+<span class="math inline">\(c_{i,j} \in \{0, 1\}\)</span> is the
+neighbourhood overlap indicator, taking the value 1 if <span class="math inline">\(𝒩_i \cap 𝒩_j \neq \emptyset\)</span>, and 0
+otherwise.</li>
+</ul>
+</li>
+<li>
+<strong>Connections:</strong> Different types of indicators for
+connections:
+<ul>
+<li>Overlapping: <span class="math inline">\(u_{i,j} = c_{i,j}
+z_{i,j}\)</span>, a connection between units <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> where <span class="math inline">\(𝒩_i
+\cap 𝒩_j \neq \emptyset\)</span>.</li>
+<li>Non-overlapping: <span class="math inline">\(k_{i,j} = (1-c_{i,j})
+z_{i,j}\)</span>, a connection between units <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> where <span class="math inline">\(𝒩_i
+\cap 𝒩_j = \emptyset\)</span>.</li>
+<li>
+<span class="math inline">\(e_{i,j}^{(\mathtt{s})}\)</span> for
+<span class="math inline">\(\mathtt{s} \in \{\mathtt{global},
+\mathtt{local}, \mathtt{alocal}\}\)</span> is defined by: <span class="math display">\[
+e_{i,j}^{(\mathtt{s})} = \begin{cases}
+z_{i,j} &amp; \text{if } \mathtt{s} = \mathtt{global}\\
+u_{i,j} &amp; \text{if } \mathtt{s} = \mathtt{local} \\
+k_{i,j} &amp; \text{if } \mathtt{s} = \mathtt{alocal}
 \end{cases}
-\]</span> &gt; <strong>Note:</strong> For <code>gwesp</code>,
-<code>gwdsp</code>, <code>gwodegree</code>, <code>gwidegree</code>,
-<code>edges_x_match</code>, and <code>edges_y_match</code>, only
-<code>mode %in% c("global", "local")</code> is implemented.</li>
+\]</span> The mode parameter <span class="math inline">\(\mathtt{s}\)</span> is generally defined as <span class="math inline">\(\mathtt{s} \in \{\mathtt{global}, \mathtt{local},
+\mathtt{alocal}\}\)</span>, but note that for the terms
+<code>gwesp</code>, <code>gwdsp</code>, <code>gwodegree</code>,
+<code>gwidegree</code>, <code>edges_x_match</code>, and
+<code>edges_y_match</code> (defined in the summary table), only the
+options <span class="math inline">\(\mathtt{s} \in \{\mathtt{global},
+\mathtt{local}\}\)</span> are implemented as their <span class="math inline">\(\mathtt{alocal}\)</span> version is not very
+useful.</li>
 </ul>
 </li>
 <li>
-<p><strong>Degree Statistics.</strong> For unit <span class="math inline">\(i \in \mathbf{P}\)</span> and mode <span class="math inline">\(\mathtt{s} \in \{\texttt{global},\,
-\texttt{local}\}\)</span>:</p>
+<strong>Degree Statistics:</strong> For unit <span class="math inline">\(i \in 𝒫\)</span> and mode <span class="math inline">\(\mathtt{s} \in \{\mathtt{global},
+\mathtt{local}\}\)</span>:
 <ul>
-<li>
-<strong>Out-degree</strong>: <span class="math inline">\(\operatorname{deg}(i, \mathtt{s}) = \sum_{j \in
-\mathbf{P} \setminus \{i\}} e_{i,j}^{(\mathtt{s})}\)</span>, with
-shorthand <span class="math inline">\(\operatorname{deg}(i) =
-\operatorname{deg}(i, \mathtt{global})\)</span>.</li>
-<li>
-<strong>In-degree</strong>: <span class="math inline">\(\operatorname{ideg}(i, \mathtt{s}) = \sum_{j \in
-\mathbf{P} \setminus \{i\}} e_{j,i}^{(\mathtt{s})}\)</span>, with
-shorthand <span class="math inline">\(\operatorname{ideg}(i) =
-\operatorname{ideg}(i, \mathtt{global})\)</span>.</li>
+<li>Out-degree: <span class="math inline">\(\operatorname{deg}(i,
+\mathtt{s}) = \sum_{j \in 𝒫 \setminus \{i\}}
+e_{i,j}^{(\mathtt{s})}\)</span> with <span class="math inline">\(\operatorname{deg}(i) = \operatorname{deg}(i,
+\mathtt{global})\)</span>.</li>
+<li>In-degree: <span class="math inline">\(\operatorname{ideg}(i,
+\mathtt{s}) = \sum_{j \in 𝒫 \setminus \{i\}}
+e_{j,i}^{(\mathtt{s})}\)</span> with <span class="math inline">\(\operatorname{ideg}(i) = \operatorname{ideg}(i,
+\mathtt{global})\)</span>.</li>
 </ul>
 </li>
 <li>
-<p><strong>Common Partners (CP).</strong> For a dyad <span class="math inline">\((i,j)\)</span> and mode <span class="math inline">\(\mathtt{s}\)</span>:</p>
+<strong>Common Partners (CP):</strong> For a dyad <span class="math inline">\((i,j) \in 𝒟\)</span> and mode <span class="math inline">\(\mathtt{s} \in \{\mathtt{global},
+\mathtt{local}\}\)</span>, the number of shared partners via distinct
+path structures is defined as:
 <ul>
-<li>
-<strong>OTP</strong> (Outgoing Two-Paths): <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}, \texttt{OTP})
-= \sum_{h \notin \{i,j\}} e_{i,h}^{(\mathtt{s})}\,
-e_{h,j}^{(\mathtt{s})}\)</span>
-</li>
-<li>
-<strong>ISP</strong> (Incoming Shared Partners): <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}, \texttt{ISP})
-= \sum_{h \notin \{i,j\}} e_{h,i}^{(\mathtt{s})}\,
-e_{h,j}^{(\mathtt{s})}\)</span>
-</li>
-<li>
-<strong>OSP</strong> (Outgoing Shared Partners): <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}, \texttt{OSP})
-= \sum_{h \notin \{i,j\}} e_{i,h}^{(\mathtt{s})}\,
-e_{j,h}^{(\mathtt{s})}\)</span>
-</li>
-<li>
-<strong>ITP</strong> (Incoming Two-Paths): <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}, \texttt{ITP})
-= \sum_{h \notin \{i,j\}} e_{h,i}^{(\mathtt{s})}\,
-e_{j,h}^{(\mathtt{s})}\)</span>
-</li>
-<li>
-<strong>Undirected (symmetric)</strong>: <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}) = \sum_{h
-\notin \{i,j\}} e_{i,h}^{(\mathtt{s})}\,
-e_{h,j}^{(\mathtt{s})}\)</span>
-</li>
+<li>Outgoing Two-Paths (OTP): <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}, \mathtt{OTP})
+= \sum_{h \in 𝒫 \setminus \{i,j\}} e_{i,h}^{(\mathtt{s})}\,
+e_{h,j}^{(\mathtt{s})}\)</span>.</li>
+<li>Incoming Shared Partners (ISP): <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}, \mathtt{ISP})
+= \sum_{h \in 𝒫 \setminus \{i,j\}} e_{h,i}^{(\mathtt{s})}\,
+e_{h,j}^{(\mathtt{s})}\)</span>.</li>
+<li>Outgoing Shared Partners (OSP): <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}, \mathtt{OSP})
+= \sum_{h \in 𝒫 \setminus \{i,j\}} e_{i,h}^{(\mathtt{s})}\,
+e_{j,h}^{(\mathtt{s})}\)</span>.</li>
+<li>Incoming Two-Paths (ITP): <span class="math inline">\(\operatorname{CP}(i, j, \mathtt{s}, \mathtt{ITP})
+= \sum_{h \in 𝒫 \setminus \{i,j\}} e_{h,i}^{(\mathtt{s})}\,
+e_{j,h}^{(\mathtt{s})}\)</span>.</li>
+<li>Undirected Version: <span class="math inline">\(\operatorname{CP}(i,
+j, \mathtt{s}) = \sum_{h \in 𝒫 \setminus \{i,j\}}
+e_{i,h}^{(\mathtt{s})}\, e_{h,j}^{(\mathtt{s})}\)</span>.</li>
 </ul>
 </li>
-<li><p><strong>Geometrically-Weighted Weight.</strong> The decay
-function used by geometrically weighted statistics is: <span class="math display">\[
-w_k(\alpha) = \exp(\alpha)\Bigl[1 - \bigl(1 -
-\exp(-\alpha)\bigr)^k\Bigr].
-\]</span></p></li>
 <li>
-<p><strong>Auxiliary Indicators.</strong></p>
+<strong>Miscellaneous:</strong>
 <ul>
-<li>
-<strong>Undirected indicator</strong> <span class="math inline">\(\mathbb{I}_U(\mathbf{z})\)</span>: takes value
-<span class="math inline">\(1\)</span> if connections in <span class="math inline">\(\mathbf{z}\)</span> are undirected, <span class="math inline">\(0\)</span> otherwise.</li>
-<li>
-<strong>Transitive connection indicator</strong> <span class="math inline">\(d_{i,j}(\mathbf{z}) = \mathbb{I}(\exists\, k \in
-\mathbf{N}_i \cap \mathbf{N}_j : z_{i,k} = z_{k,j} = 1)\)</span>: equals
-<span class="math inline">\(1\)</span> when a locally transitive path
-from <span class="math inline">\(i\)</span> to <span class="math inline">\(j\)</span> exists.</li>
+<li>Geometrically-weighted weight: <span class="math inline">\(w_k(\alpha) = \exp(\alpha) \left[ 1 - (1 -
+\exp(-\alpha))^k \right]\)</span>.</li>
+<li>Indicator for directionality: <span class="math inline">\(\mathbb{I}_U(\mathbf{z})\)</span>, taking the
+value 1 if connections in <span class="math inline">\(\mathbf{z}\)</span> are undirected, and 0
+otherwise.</li>
+<li>Indicator for transitive connection: <span class="math inline">\(d_{i,j}(\mathbf{z}) = \mathbb{I}(\exists\, k \in
+𝒩_i \cap 𝒩_j: z_{i,k} = z_{k,j} = 1)\)</span>.</li>
 </ul>
 </li>
-</ol>
+</ul>
+<p>The sections below and the summary table list all implemented terms
+as of <code>iglm</code> version 1.2.6 and will be extended in future
+releases.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -229,8 +264,8 @@ g_i(x_i, y_i) = y_i
 <hr>
 </div>
 <div class="section level3">
-<h3 id="cov_xdata-v">
-<code>cov_x(data = v)</code><a class="anchor" aria-label="anchor" href="#cov_xdata-v"></a>
+<h3 id="cov_x">
+<code>cov_x(data = v)</code><a class="anchor" aria-label="anchor" href="#cov_x"></a>
 </h3>
 <p><strong>Description:</strong> Effect of a unit-level exogenous
 covariate <span class="math inline">\(v_i\)</span> on attribute <span class="math inline">\(x_i\)</span>.</p>
@@ -242,8 +277,8 @@ g_i(x_i, y_i) = v_i\, x_i
 <hr>
 </div>
 <div class="section level3">
-<h3 id="cov_ydata-v">
-<code>cov_y(data = v)</code><a class="anchor" aria-label="anchor" href="#cov_ydata-v"></a>
+<h3 id="cov_y">
+<code>cov_y(data = v)</code><a class="anchor" aria-label="anchor" href="#cov_y"></a>
 </h3>
 <p><strong>Description:</strong> Effect of a unit-level exogenous
 covariate <span class="math inline">\(v_i\)</span> on attribute <span class="math inline">\(y_i\)</span>.</p>
@@ -255,8 +290,8 @@ g_i(x_i, y_i) = v_i\, y_i
 <hr>
 </div>
 <div class="section level3">
-<h3 id="attribute_xymode-global-local-alocal">
-<code>attribute_xy(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#attribute_xymode-global-local-alocal"></a>
+<h3 id="attribute_xy">
+<code>attribute_xy(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#attribute_xy"></a>
 </h3>
 <p><strong>Description:</strong> Interaction between the two attributes
 <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>, optionally mediated by the
@@ -277,13 +312,13 @@ neighbourhood structure.</p>
 </tr>
 <tr class="even">
 <td><code>local</code></td>
-<td><span class="math inline">\(x_i \sum_{j \in \mathbf{N}_i} y_j + y_i
-\sum_{j \in \mathbf{N}_i} x_j\)</span></td>
+<td><span class="math inline">\(x_i \sum_{j \in 𝒩_i} y_j + y_i \sum_{j
+\in 𝒩_i} x_j\)</span></td>
 </tr>
 <tr class="odd">
 <td><code>alocal</code></td>
-<td><span class="math inline">\(x_i \sum_{j \notin \mathbf{N}_i} y_j +
-y_i \sum_{j \notin \mathbf{N}_i} x_j\)</span></td>
+<td><span class="math inline">\(x_i \sum_{j \notin 𝒩_i} y_j + y_i
+\sum_{j \notin 𝒩_i} x_j\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -309,8 +344,8 @@ other terms. Estimation relies on an MM algorithm constraint.</p>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="edgesmode-global-local-alocal">
-<code>edges(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#edgesmode-global-local-alocal"></a>
+<h3 id="edges">
+<code>edges(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#edges"></a>
 </h3>
 <p><strong>Description:</strong> Baseline propensity for a tie <span class="math inline">\(z_{i,j}\)</span> to form; the network analogue of
 an intercept.</p>
@@ -325,8 +360,8 @@ h_{i,j}(x, y, z) = e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="mutualmode-global-local-alocal">
-<code>mutual(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#mutualmode-global-local-alocal"></a>
+<h3 id="mutual">
+<code>mutual(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#mutual"></a>
 </h3>
 <p><strong>Description:</strong> Reciprocity in directed networks.
 Counts pairs where <span class="math inline">\(i \to j\)</span> and
@@ -342,8 +377,8 @@ e_{j,i}^{(\mathtt{s})}}{2}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="cov_zdata-w-mode-global-local-alocal">
-<code>cov_z(data = w, mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#cov_zdata-w-mode-global-local-alocal"></a>
+<h3 id="cov_z">
+<code>cov_z(data = w, mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#cov_z"></a>
 </h3>
 <p><strong>Description:</strong> Dyadic covariate — exogenous edge-level
 covariate <span class="math inline">\(w_{i,j}\)</span> influences tie
@@ -357,8 +392,8 @@ h_{i,j}(x, y, z) = w_{i,j}\, e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="cov_z_outdata-v-mode-global-local-alocal">
-<code>cov_z_out(data = v, mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#cov_z_outdata-v-mode-global-local-alocal"></a>
+<h3 id="cov_z_out">
+<code>cov_z_out(data = v, mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#cov_z_out"></a>
 </h3>
 <p><strong>Description:</strong> Sender covariate — exogenous nodal
 attribute <span class="math inline">\(v_i\)</span> influences the
@@ -372,8 +407,8 @@ h_{i,j}(x, y, z) = v_i\, e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="cov_z_indata-v-mode-global-local-alocal">
-<code>cov_z_in(data = v, mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#cov_z_indata-v-mode-global-local-alocal"></a>
+<h3 id="cov_z_in">
+<code>cov_z_in(data = v, mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#cov_z_in"></a>
 </h3>
 <p><strong>Description:</strong> Receiver covariate — exogenous nodal
 attribute <span class="math inline">\(v_j\)</span> influences the
@@ -393,8 +428,8 @@ h_{i,j}(x, y, z) = v_j\, e_{i,j}^{(\mathtt{s})}
 <p><strong>Description:</strong> Captures the proportion of units with
 no connections at all (total degree zero).</p>
 <p><span class="math display">\[
-h_{i,j}(x, y, z) = \mathbb{I}\!\left(\sum_{j \in \mathbf{P} \setminus
-\{i\}} z_{i,j} + z_{j,i} = 0\right)
+h_{i,j}(x, y, z) = \mathbb{I}\!\left(\sum_{j \in 𝒫 \setminus \{i\}}
+z_{i,j} + z_{j,i} = 0\right)
 \]</span></p>
 <p>Suitable for both directed and undirected networks.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -408,8 +443,8 @@ h_{i,j}(x, y, z) = \mathbb{I}\!\left(\sum_{j \in \mathbf{P} \setminus
 <p><strong>Description:</strong> Captures the proportion of units that
 have at least one connection.</p>
 <p><span class="math display">\[
-h_{i,j}(x, y, z) = \mathbb{I}\!\left(\sum_{j \in \mathbf{P} \setminus
-\{i\}} z_{i,j} + z_{j,i} \ne 0\right)
+h_{i,j}(x, y, z) = \mathbb{I}\!\left(\sum_{j \in 𝒫 \setminus \{i\}}
+z_{i,j} + z_{j,i} \ne 0\right)
 \]</span></p>
 <p>Suitable for both directed and undirected networks.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -417,8 +452,8 @@ h_{i,j}(x, y, z) = \mathbb{I}\!\left(\sum_{j \in \mathbf{P} \setminus
 <hr>
 </div>
 <div class="section level3">
-<h3 id="gwdegreemode-global-local-decay-α">
-<code>gwdegree(mode = "global" | "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwdegreemode-global-local-decay-%CE%B1"></a>
+<h3 id="gwdegree">
+<code>gwdegree(mode = "global" | "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwdegree"></a>
 </h3>
 <p><strong>Description:</strong> Geometrically Weighted Degree —
 captures the overall degree distribution with exponential decay
@@ -434,8 +469,8 @@ w_{\operatorname{deg}(j)}(\alpha)
 <hr>
 </div>
 <div class="section level3">
-<h3 id="gwodegreemode-global-local-decay-α">
-<code>gwodegree(mode = "global" | "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwodegreemode-global-local-decay-%CE%B1"></a>
+<h3 id="gwodegree">
+<code>gwodegree(mode = "global" | "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwodegree"></a>
 </h3>
 <p><strong>Description:</strong> Geometrically Weighted Out-Degree —
 captures the out-degree distribution in directed networks.</p>
@@ -449,8 +484,8 @@ h_{i,j}(x, y, z) = w_{\operatorname{deg}(i,\,\mathtt{s})}(\alpha)
 <hr>
 </div>
 <div class="section level3">
-<h3 id="gwidegreemode-global-local-decay-α">
-<code>gwidegree(mode = "global" | "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwidegreemode-global-local-decay-%CE%B1"></a>
+<h3 id="gwidegree">
+<code>gwidegree(mode = "global" | "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwidegree"></a>
 </h3>
 <p><strong>Description:</strong> Geometrically Weighted In-Degree —
 captures the in-degree distribution in directed networks.</p>
@@ -478,8 +513,8 @@ h_{i,j}(x, y, z) = d_{i,j}(\mathbf{z})\, z_{i,j}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="gwesp_symmmode-global-local-decay-α">
-<code>gwesp_symm(mode = "global" | "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwesp_symmmode-global-local-decay-%CE%B1"></a>
+<h3 id="gwesp_symm">
+<code>gwesp_symm(mode = "global" | "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwesp_symm"></a>
 </h3>
 <p><strong>Description:</strong> Geometrically Weighted Edgewise Shared
 Partners (undirected) — the classic GWESP statistic for undirected
@@ -494,8 +529,8 @@ w_{\operatorname{CP}(i,j,\mathtt{s})}(\alpha)
 <hr>
 </div>
 <div class="section level3">
-<h3 id="gwespmode-global-local-type-otp-isp-osp-itp-decay-α">
-<code>gwesp(mode = "global" | "local", type = "OTP" | "ISP" | "OSP" | "ITP", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwespmode-global-local-type-otp-isp-osp-itp-decay-%CE%B1"></a>
+<h3 id="gwesp">
+<code>gwesp(mode = "global" | "local", type = "OTP" | "ISP" | "OSP" | "ITP", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwesp"></a>
 </h3>
 <p><strong>Description:</strong> Geometrically Weighted Edgewise Shared
 Partners (directed) — conditions shared partners on a specific path
@@ -511,8 +546,8 @@ w_{\operatorname{CP}(i,j,\mathtt{s},\mathtt{type})}(\alpha)
 <hr>
 </div>
 <div class="section level3">
-<h3 id="gwdsp_symmmode-local-decay-α">
-<code>gwdsp_symm(mode = "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwdsp_symmmode-local-decay-%CE%B1"></a>
+<h3 id="gwdsp_symm">
+<code>gwdsp_symm(mode = "local", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwdsp_symm"></a>
 </h3>
 <p><strong>Description:</strong> Geometrically Weighted Dyadwise Shared
 Partners (undirected) — models triadic potential irrespective of the
@@ -526,8 +561,8 @@ h_{i,j}(x, y, z) = w_{\operatorname{CP}(i,j,\mathtt{local})}(\alpha)
 <hr>
 </div>
 <div class="section level3">
-<h3 id="gwdspmode-global-local-type-otp-isp-osp-itp-decay-α">
-<code>gwdsp(mode = "global" | "local", type = "OTP" | "ISP" | "OSP" | "ITP", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwdspmode-global-local-type-otp-isp-osp-itp-decay-%CE%B1"></a>
+<h3 id="gwdsp">
+<code>gwdsp(mode = "global" | "local", type = "OTP" | "ISP" | "OSP" | "ITP", decay = α)</code><a class="anchor" aria-label="anchor" href="#gwdsp"></a>
 </h3>
 <p><strong>Description:</strong> Geometrically Weighted Dyadwise Shared
 Partners (directed) — models directed triadic potential irrespective of
@@ -550,8 +585,8 @@ w_{\operatorname{CP}(i,j,\mathtt{s},\mathtt{type})}(\alpha)
 network position. They are the key building blocks for studying
 spillover effects.</p>
 <div class="section level3">
-<h3 id="attribute_xzmode-local">
-<code>attribute_xz(mode = "local")</code><a class="anchor" aria-label="anchor" href="#attribute_xzmode-local"></a>
+<h3 id="attribute_xz">
+<code>attribute_xz(mode = "local")</code><a class="anchor" aria-label="anchor" href="#attribute_xz"></a>
 </h3>
 <p><strong>Description:</strong> Additive effect of <span class="math inline">\(x_i\)</span> and <span class="math inline">\(x_j\)</span> on local edge formation.</p>
 <p><span class="math display">\[
@@ -563,8 +598,8 @@ h_{i,j}(x, y, z) = (x_i + x_j)\, u_{i,j}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="attribute_yzmode-local">
-<code>attribute_yz(mode = "local")</code><a class="anchor" aria-label="anchor" href="#attribute_yzmode-local"></a>
+<h3 id="attribute_yz">
+<code>attribute_yz(mode = "local")</code><a class="anchor" aria-label="anchor" href="#attribute_yz"></a>
 </h3>
 <p><strong>Description:</strong> Additive effect of <span class="math inline">\(y_i\)</span> and <span class="math inline">\(y_j\)</span> on local edge formation.</p>
 <p><span class="math display">\[
@@ -576,8 +611,8 @@ h_{i,j}(x, y, z) = (y_i + y_j)\, u_{i,j}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="edges_x_matchmode-global-local">
-<code>edges_x_match(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#edges_x_matchmode-global-local"></a>
+<h3 id="edges_x_match">
+<code>edges_x_match(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#edges_x_match"></a>
 </h3>
 <p><strong>Description:</strong> Homophily on <span class="math inline">\(x\)</span> — rewards edges between units with
 equal <span class="math inline">\(x\)</span>-values.</p>
@@ -590,8 +625,8 @@ h_{i,j}(x, y, z) = \mathbb{I}(x_i = x_j)\, e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="edges_y_matchmode-global-local">
-<code>edges_y_match(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#edges_y_matchmode-global-local"></a>
+<h3 id="edges_y_match">
+<code>edges_y_match(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#edges_y_match"></a>
 </h3>
 <p><strong>Description:</strong> Homophily on <span class="math inline">\(y\)</span> — rewards edges between units with
 equal <span class="math inline">\(y\)</span>-values.</p>
@@ -604,8 +639,8 @@ h_{i,j}(x, y, z) = \mathbb{I}(y_i = y_j)\, e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="outedges_xmode-global-local-alocal">
-<code>outedges_x(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#outedges_xmode-global-local-alocal"></a>
+<h3 id="outedges_x">
+<code>outedges_x(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#outedges_x"></a>
 </h3>
 <p><strong>Description:</strong> Effect of sender attribute <span class="math inline">\(x_i\)</span> on out-degree formation.</p>
 <p><span class="math display">\[
@@ -617,8 +652,8 @@ h_{i,j}(x, y, z) = x_i\, e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="inedges_xmode-global-local-alocal">
-<code>inedges_x(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#inedges_xmode-global-local-alocal"></a>
+<h3 id="inedges_x">
+<code>inedges_x(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#inedges_x"></a>
 </h3>
 <p><strong>Description:</strong> Effect of receiver attribute <span class="math inline">\(x_j\)</span> on in-degree reception.</p>
 <p><span class="math display">\[
@@ -630,8 +665,8 @@ h_{i,j}(x, y, z) = x_j\, e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="outedges_ymode-global-local-alocal">
-<code>outedges_y(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#outedges_ymode-global-local-alocal"></a>
+<h3 id="outedges_y">
+<code>outedges_y(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#outedges_y"></a>
 </h3>
 <p><strong>Description:</strong> Effect of sender attribute <span class="math inline">\(y_i\)</span> on out-degree formation.</p>
 <p><span class="math display">\[
@@ -643,8 +678,8 @@ h_{i,j}(x, y, z) = y_i\, e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="inedges_ymode-global-local-alocal">
-<code>inedges_y(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#inedges_ymode-global-local-alocal"></a>
+<h3 id="inedges_y">
+<code>inedges_y(mode = "global" | "local" | "alocal")</code><a class="anchor" aria-label="anchor" href="#inedges_y"></a>
 </h3>
 <p><strong>Description:</strong> Effect of receiver attribute <span class="math inline">\(y_j\)</span> on in-degree reception.</p>
 <p><span class="math display">\[
@@ -656,8 +691,8 @@ h_{i,j}(x, y, z) = y_j\, e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_xxmode-local">
-<code>spillover_xx(mode = "local")</code><a class="anchor" aria-label="anchor" href="#spillover_xxmode-local"></a>
+<h3 id="spillover_xx">
+<code>spillover_xx(mode = "local")</code><a class="anchor" aria-label="anchor" href="#spillover_xx"></a>
 </h3>
 <p><strong>Description:</strong> Symmetric <span class="math inline">\(x\)</span>-to-<span class="math inline">\(x\)</span> spillover — the product <span class="math inline">\(x_i x_j\)</span> along local connections,
 capturing peer effects in the <span class="math inline">\(x\)</span>
@@ -671,8 +706,8 @@ h_{i,j}(x, y, z) = x_i\, x_j\, u_{i,j}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_xx_scaledmode-global-local">
-<code>spillover_xx_scaled(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#spillover_xx_scaledmode-global-local"></a>
+<h3 id="spillover_xx_scaled">
+<code>spillover_xx_scaled(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#spillover_xx_scaled"></a>
 </h3>
 <p><strong>Description:</strong> Degree-normalised <span class="math inline">\(x\)</span>-to-<span class="math inline">\(x\)</span> spillover, accounting for the number of
 neighbours.</p>
@@ -688,8 +723,8 @@ e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_yymode-local">
-<code>spillover_yy(mode = "local")</code><a class="anchor" aria-label="anchor" href="#spillover_yymode-local"></a>
+<h3 id="spillover_yy">
+<code>spillover_yy(mode = "local")</code><a class="anchor" aria-label="anchor" href="#spillover_yy"></a>
 </h3>
 <p><strong>Description:</strong> Symmetric <span class="math inline">\(y\)</span>-to-<span class="math inline">\(y\)</span> spillover — the product <span class="math inline">\(y_i y_j\)</span> along local connections.</p>
 <p><span class="math display">\[
@@ -701,8 +736,8 @@ h_{i,j}(x, y, z) = y_i\, y_j\, u_{i,j}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_yy_scaledmode-global-local">
-<code>spillover_yy_scaled(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#spillover_yy_scaledmode-global-local"></a>
+<h3 id="spillover_yy_scaled">
+<code>spillover_yy_scaled(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#spillover_yy_scaled"></a>
 </h3>
 <p><strong>Description:</strong> Degree-normalised <span class="math inline">\(y\)</span>-to-<span class="math inline">\(y\)</span> spillover.</p>
 <p><span class="math display">\[
@@ -717,8 +752,8 @@ e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_xymode-local">
-<code>spillover_xy(mode = "local")</code><a class="anchor" aria-label="anchor" href="#spillover_xymode-local"></a>
+<h3 id="spillover_xy">
+<code>spillover_xy(mode = "local")</code><a class="anchor" aria-label="anchor" href="#spillover_xy"></a>
 </h3>
 <p><strong>Description:</strong> Symmetric cross-attribute spillover —
 <span class="math inline">\(x_i \to y_j\)</span> and <span class="math inline">\(x_j \to y_i\)</span> along local connections. For
@@ -733,8 +768,8 @@ h_{i,j}(x, y, z) = x_i\, y_j\, u_{i,j} + x_j\, y_i\, u_{i,j}\,
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_xy_scaledmode-global-local">
-<code>spillover_xy_scaled(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#spillover_xy_scaledmode-global-local"></a>
+<h3 id="spillover_xy_scaled">
+<code>spillover_xy_scaled(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#spillover_xy_scaled"></a>
 </h3>
 <p><strong>Description:</strong> Degree-normalised symmetric
 cross-attribute spillover (<span class="math inline">\(x \to
@@ -751,8 +786,8 @@ e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_yxmode-local">
-<code>spillover_yx(mode = "local")</code><a class="anchor" aria-label="anchor" href="#spillover_yxmode-local"></a>
+<h3 id="spillover_yx">
+<code>spillover_yx(mode = "local")</code><a class="anchor" aria-label="anchor" href="#spillover_yx"></a>
 </h3>
 <p><strong>Description:</strong> Directed cross-attribute spillover —
 <span class="math inline">\(y_i \to x_j\)</span> only (no
@@ -766,8 +801,8 @@ h_{i,j}(x, y, z) = y_i\, x_j\, u_{i,j}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_yx_scaledmode-global-local">
-<code>spillover_yx_scaled(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#spillover_yx_scaledmode-global-local"></a>
+<h3 id="spillover_yx_scaled">
+<code>spillover_yx_scaled(mode = "global" | "local")</code><a class="anchor" aria-label="anchor" href="#spillover_yx_scaled"></a>
 </h3>
 <p><strong>Description:</strong> Degree-normalised cross-attribute
 spillover (<span class="math inline">\(y \to x\)</span>), with
@@ -784,8 +819,8 @@ e_{i,j}^{(\mathtt{s})}
 <hr>
 </div>
 <div class="section level3">
-<h3 id="spillover_ycmode-local-data-v">
-<code>spillover_yc(mode = "local", data = v)</code><a class="anchor" aria-label="anchor" href="#spillover_ycmode-local-data-v"></a>
+<h3 id="spillover_yc">
+<code>spillover_yc(mode = "local", data = v)</code><a class="anchor" aria-label="anchor" href="#spillover_yc"></a>
 </h3>
 <p><strong>Description:</strong> Interaction of endogenous attribute
 <span class="math inline">\(y\)</span> with exogenous covariate <span class="math inline">\(v\)</span> along overlapping connections, with
@@ -803,276 +838,293 @@ v_i\, y_j\bigr)\, z_{i,j}
 <div class="section level2">
 <h2 id="quick-reference-table">Quick-Reference Table<a class="anchor" aria-label="anchor" href="#quick-reference-table"></a>
 </h2>
-<p>The table below summarises all terms, their mathematical definitions,
-and whether they support undirected networks.</p>
+<p>The table below summarises all implemented terms, indicating which
+variables (<span class="math inline">\(x\)</span>, <span class="math inline">\(y\)</span>, <span class="math inline">\(z\)</span>) they involve, and whether they support
+undirected networks.</p>
 <table class="table">
 <colgroup>
-<col width="21%">
-<col width="39%">
-<col width="39%">
+<col width="18%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="36%">
 </colgroup>
 <thead><tr class="header">
-<th>Term</th>
-<th>Definition</th>
+<th align="left">Term</th>
+<th align="center"><span class="math inline">\(x\)</span></th>
+<th align="center"><span class="math inline">\(y\)</span></th>
+<th align="center"><span class="math inline">\(z\)</span></th>
 <th align="center">Undirected</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>attribute_x</code></td>
-<td><span class="math inline">\(x_i\)</span></td>
+<td align="left"><a href="#attribute_x"><code>attribute_x</code></a></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center"></td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>attribute_y</code></td>
-<td><span class="math inline">\(y_i\)</span></td>
+<td align="left"><a href="#attribute_y"><code>attribute_y</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center"></td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>cov_x</code></td>
-<td><span class="math inline">\(v_i\, x_i\)</span></td>
+<td align="left"><a href="#cov_x"><code>cov_x</code></a></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center"></td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>cov_y</code></td>
-<td><span class="math inline">\(v_i\, y_i\)</span></td>
+<td align="left"><a href="#cov_y"><code>cov_y</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center"></td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>attribute_xy(mode = "global")</code></td>
-<td><span class="math inline">\(x_i\, y_i\)</span></td>
+<td align="left"><a href="#attribute_xy"><code>attribute_xy(mode = "s")</code></a></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center"></td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>attribute_xy(mode = "local")</code></td>
-<td><span class="math inline">\(x_i \sum_{j \in \mathbf{N}_i} y_j + y_i
-\sum_{j \in \mathbf{N}_i} x_j\)</span></td>
+<td align="left"><a href="#degrees"><code>degrees</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>attribute_xy(mode = "alocal")</code></td>
-<td><span class="math inline">\(x_i \sum_{j \notin \mathbf{N}_i} y_j +
-y_i \sum_{j \notin \mathbf{N}_i} x_j\)</span></td>
+<td align="left"><a href="#edges"><code>edges(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>degrees</code></td>
-<td>Degree fixed effects</td>
+<td align="left"><a href="#mutual"><code>mutual(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
 <td align="center">✓</td>
-</tr>
-<tr class="odd">
-<td><code>edges(mode = "s")</code></td>
-<td><span class="math inline">\(e_{i,j}^{(\mathtt{s})}\)</span></td>
-<td align="center">✓</td>
-</tr>
-<tr class="even">
-<td><code>mutual(mode = "s")</code></td>
-<td><span class="math inline">\(e_{i,j}^{(\mathtt{s})}\,e_{j,i}^{(\mathtt{s})}/2\)</span></td>
 <td align="center">✗</td>
 </tr>
 <tr class="odd">
-<td><code>cov_z(mode = "s")</code></td>
-<td><span class="math inline">\(w_{i,j}\,
-e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#cov_z"><code>cov_z(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>cov_z_out(mode = "s")</code></td>
-<td><span class="math inline">\(v_i\,
-e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#cov_z_out"><code>cov_z_out(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="odd">
-<td><code>cov_z_in(mode = "s")</code></td>
-<td><span class="math inline">\(v_j\,
-e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#cov_z_in"><code>cov_z_in(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="even">
-<td><code>isolates</code></td>
-<td><span class="math inline">\(\mathbb{I}(\sum_j
-z_{i,j}+z_{j,i}=0)\)</span></td>
+<td align="left"><a href="#isolates"><code>isolates</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>nonisolates</code></td>
-<td><span class="math inline">\(\mathbb{I}(\sum_j z_{i,j}+z_{j,i}\ne
-0)\)</span></td>
+<td align="left"><a href="#nonisolates"><code>nonisolates</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>gwdegree(mode = "global")</code></td>
-<td><span class="math inline">\(w_{\deg(i)}(\alpha)+w_{\deg(j)}(\alpha)\)</span></td>
+<td align="left"><a href="#gwdegree"><code>gwdegree(mode = "global")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>gwodegree(mode = "s")</code></td>
-<td><span class="math inline">\(w_{\deg(i,\mathtt{s})}(\alpha)\)</span></td>
+<td align="left"><a href="#gwodegree"><code>gwodegree(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="even">
-<td><code>gwidegree(mode = "s")</code></td>
-<td><span class="math inline">\(w_{\operatorname{ideg}(i,\mathtt{s})}(\alpha)\)</span></td>
+<td align="left"><a href="#gwidegree"><code>gwidegree(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="odd">
-<td><code>transitive</code></td>
-<td><span class="math inline">\(d_{i,j}(\mathbf{z})\,z_{i,j}\)</span></td>
+<td align="left"><a href="#transitive"><code>transitive</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>gwesp_symm(mode = "s")</code></td>
-<td><span class="math inline">\(e_{i,j}^{(\mathtt{s})}\,w_{\operatorname{CP}(i,j,\mathtt{s})}(\alpha)\)</span></td>
+<td align="left"><a href="#gwesp_symm"><code>gwesp_symm(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>gwesp(mode = "s", type = "…")</code></td>
-<td><span class="math inline">\(e_{i,j}^{(\mathtt{s})}\,w_{\operatorname{CP}(i,j,\mathtt{s},\mathtt{type})}(\alpha)\)</span></td>
+<td align="left"><a href="#gwesp"><code>gwesp(mode = "s", type = "…")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="even">
-<td><code>gwdsp_symm(mode = "local")</code></td>
-<td><span class="math inline">\(w_{\operatorname{CP}(i,j,\mathtt{local})}(\alpha)\)</span></td>
+<td align="left"><a href="#gwdsp_symm"><code>gwdsp_symm(mode = "local")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>gwdsp(mode = "s", type = "…")</code></td>
-<td><span class="math inline">\(w_{\operatorname{CP}(i,j,\mathtt{s},\mathtt{type})}(\alpha)\)</span></td>
+<td align="left"><a href="#gwdsp"><code>gwdsp(mode = "s", type = "…")</code></a></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="even">
-<td><code>attribute_xz(mode = "local")</code></td>
-<td><span class="math inline">\((x_i+x_j)\,u_{i,j}\)</span></td>
+<td align="left"><a href="#attribute_xz"><code>attribute_xz(mode = "local")</code></a></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>attribute_yz(mode = "local")</code></td>
-<td><span class="math inline">\((y_i+y_j)\,u_{i,j}\)</span></td>
+<td align="left"><a href="#attribute_yz"><code>attribute_yz(mode = "local")</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>edges_x_match(mode = "s")</code></td>
-<td><span class="math inline">\(\mathbb{I}(x_i=x_j)\,e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#edges_x_match"><code>edges_x_match(mode = "s")</code></a></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>edges_y_match(mode = "s")</code></td>
-<td><span class="math inline">\(\mathbb{I}(y_i=y_j)\,e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#edges_y_match"><code>edges_y_match(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>outedges_x(mode = "s")</code></td>
-<td><span class="math inline">\(x_i\,e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#outedges_x"><code>outedges_x(mode = "s")</code></a></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="odd">
-<td><code>inedges_x(mode = "s")</code></td>
-<td><span class="math inline">\(x_j\,e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#inedges_x"><code>inedges_x(mode = "s")</code></a></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="even">
-<td><code>outedges_y(mode = "s")</code></td>
-<td><span class="math inline">\(y_i\,e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#outedges_y"><code>outedges_y(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="odd">
-<td><code>inedges_y(mode = "s")</code></td>
-<td><span class="math inline">\(y_j\,e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#inedges_y"><code>inedges_y(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="even">
-<td><code>spillover_xx(mode = "local")</code></td>
-<td><span class="math inline">\(x_i\,x_j\,u_{i,j}\)</span></td>
+<td align="left"><a href="#spillover_xx"><code>spillover_xx(mode = "local")</code></a></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>spillover_xx_scaled(mode = "s")</code></td>
-<td><span class="math inline">\(\left(\frac{x_i
-x_j}{\deg(i,\mathtt{s})}+\frac{x_j
-x_i}{\deg(j,\mathtt{s})}\mathbb{I}_U\right)e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#spillover_xx_scaled"><code>spillover_xx_scaled(mode = "s")</code></a></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>spillover_yy(mode = "local")</code></td>
-<td><span class="math inline">\(y_i\,y_j\,u_{i,j}\)</span></td>
+<td align="left"><a href="#spillover_yy"><code>spillover_yy(mode = "local")</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>spillover_yy_scaled(mode = "s")</code></td>
-<td><span class="math inline">\(\left(\frac{y_i
-y_j}{\deg(i,\mathtt{s})}+\frac{y_j
-y_i}{\deg(j,\mathtt{s})}\mathbb{I}_U\right)e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#spillover_yy_scaled"><code>spillover_yy_scaled(mode = "s")</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>spillover_xy(mode = "local")</code></td>
-<td><span class="math inline">\(x_i\,y_j\,u_{i,j}+x_j\,y_i\,u_{i,j}\,\mathbb{I}_U\)</span></td>
+<td align="left"><a href="#spillover_xy"><code>spillover_xy(mode = "local")</code></a></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="odd">
-<td><code>spillover_xy_scaled(mode = "s")</code></td>
-<td><span class="math inline">\(\left(\frac{x_i
-y_j}{\deg(i,\mathtt{s})}+\frac{x_j
-y_i}{\deg(j,\mathtt{s})}\mathbb{I}_U\right)e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#spillover_xy_scaled"><code>spillover_xy_scaled(mode = "s")</code></a></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>spillover_yx(mode = "local")</code></td>
-<td><span class="math inline">\(y_i\,x_j\,u_{i,j}\)</span></td>
+<td align="left"><a href="#spillover_yx"><code>spillover_yx(mode = "local")</code></a></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✗</td>
 </tr>
 <tr class="odd">
-<td><code>spillover_yx_scaled(mode = "s")</code></td>
-<td><span class="math inline">\(\left(\frac{y_i
-x_j}{\deg(i,\mathtt{s})}+\frac{y_j
-x_i}{\deg(j,\mathtt{s})}\mathbb{I}_U\right)e_{i,j}^{(\mathtt{s})}\)</span></td>
+<td align="left"><a href="#spillover_yx_scaled"><code>spillover_yx_scaled(mode = "s")</code></a></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 <tr class="even">
-<td><code>spillover_yc(mode = "local")</code></td>
-<td><span class="math inline">\(c_{i,j}(v_j\,y_i+\mathbb{I}_U\,v_i\,y_j)\,z_{i,j}\)</span></td>
+<td align="left"><a href="#spillover_yc"><code>spillover_yc(mode = "local")</code></a></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 <td align="center">✓</td>
 </tr>
 </tbody>
 </table>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="example-combining-multiple-terms">Example: Combining Multiple Terms<a class="anchor" aria-label="anchor" href="#example-combining-multiple-terms"></a>
-</h2>
-<p>The example below illustrates how several terms from all three
-categories can be combined in a single formula for a directed
-network:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">n_actor</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
-<span></span>
-<span><span class="co"># Simulate attributes and neighbourhood</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">attribute_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_actor</span><span class="op">)</span></span>
-<span><span class="va">block</span>          <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="fl">10</span>, ncol <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">neighborhood</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/bdiag.html" class="external-link">bdiag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="va">block</span>, simplify <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iglm.data.html">iglm.data</a></span><span class="op">(</span></span>
-<span>  neighborhood <span class="op">=</span> <span class="va">neighborhood</span>,</span>
-<span>  directed     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  type_x       <span class="op">=</span> <span class="st">"binomial"</span>,</span>
-<span>  type_y       <span class="op">=</span> <span class="st">"binomial"</span>,</span>
-<span>  n_actor      <span class="op">=</span> <span class="va">n_actor</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Formula combining attribute, network, and spillover terms</span></span>
-<span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="va">object</span> <span class="op">~</span></span>
-<span>  <span class="co"># Category 1: attribute dependence</span></span>
-<span>  <span class="va">attribute_x</span> <span class="op">+</span> <span class="va">attribute_y</span> <span class="op">+</span></span>
-<span>  <span class="co"># Category 2: network dependence</span></span>
-<span>  <span class="fu">edges</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">mutual</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">gwodegree</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"global"</span>, decay <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">gwesp</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"global"</span>, type <span class="op">=</span> <span class="st">"OTP"</span>, decay <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="co"># Category 3: joint attribute/network dependence</span></span>
-<span>  <span class="fu">edges_x_match</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">outedges_y</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">spillover_yy_scaled</span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span></span></code></pre></div>
-<p>For further details on model fitting, simulation, and assessment see
-<code><a href="../articles/iglm.html">vignette("iglm")</a></code> and <code>?iglm-terms</code>.</p>
 <hr>
 </div>
 <div class="section level2">

@@ -25,7 +25,7 @@ passing them to the `iglm` constructor or simulation functions."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@ passing them to the `iglm` constructor or simulation functions."><meta property=
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Constructor for a iglm Sampler</h1>
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/R/sampler.r" class="external-link"><code>R/sampler.r</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/R/sampler.r" class="external-link"><code>R/sampler.r</code></a></small>
       <div class="d-none name"><code>sampler.iglm.Rd</code></div>
     </div>
 
@@ -70,7 +70,7 @@ passing them to the `iglm` constructor or simulation functions.</p>
 <span>  sampler_z <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_simulation <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  n_burn_in <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  init_empty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  init_empty <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  file <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -109,14 +109,14 @@ start for burn-in. Default: 10. Must be non-negative.</p></dd>
 
 
 <dt id="arg-init-empty">init_empty<a class="anchor" aria-label="anchor" href="#arg-init-empty"></a></dt>
-<dd><p>(logical) If `TRUE` (default), initialize the MCMC chain
-from an empty state.</p></dd>
+<dd><p>(logical) If `FALSE` (default), the MCMC chain is initialized
+from observed data. If `TRUE`, initialize the MCMC chain from an empty state.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>(integer or `NA`) A single integer seed set once before sampling
-begins to ensure reproducibility. If `NA` (default), a random seed is
-generated automatically.</p></dd>
+begins to ensure reproducibility. If `NA` (default), a fixed default seed
+(`123456789`) is used.</p></dd>
 
 
 <dt id="arg-cluster">cluster<a class="anchor" aria-label="anchor" href="#arg-cluster"></a></dt>

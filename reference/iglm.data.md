@@ -27,7 +27,10 @@ iglm.data(
   fix_z = FALSE,
   fix_z_alocal = FALSE,
   return_neighborhood = TRUE,
-  file = NULL
+  file = NULL,
+  label_x = "x",
+  label_y = "y",
+  label_z = "z"
 )
 ```
 
@@ -116,6 +119,21 @@ iglm.data(
 
   (character) Optional file path to load a saved \`iglm.data\` object
   state.
+
+- label_x:
+
+  Character string for the label/name of \`x_attribute\`. Default is
+  \`"x"\`.
+
+- label_y:
+
+  Character string for the label/name of \`y_attribute\`. Default is
+  \`"y"\`.
+
+- label_z:
+
+  Character string for the label/name of \`z_network\`. Default is
+  \`"z"\`.
 
 ## Value
 

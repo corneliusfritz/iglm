@@ -48,3 +48,27 @@ check.IglmTerm(
 ## Value
 
 A modified `arglist` with defaults applied and validated values.
+
+## Details
+
+`check.IglmTerm` normalizes and validates arguments passed to model
+terms in formulas:
+
+1.  **Positional Argument Normalization**: Arguments passed without
+    parameter names are sorted by position and mapped sequentially to
+    available candidate parameters. Candidate parameters are identified
+    from `mandatory`, `defaults`, and `expected` (excluding metadata and
+    arguments already supplied by name).
+
+2.  **Excess Positional Arguments**: Unmatched positional arguments
+    (where position index exceeds the number of candidate parameters)
+    remain in `arglist` and trigger an unexpected-argument error during
+    validation.
+
+3.  **Type and Value Validation**: Validates mandatory arguments,
+    allowed categorical values, numeric/matrix types, scalar
+    constraints, and ensures no `NA`/`NaN` values are present in numeric
+    inputs.
+
+4.  **Default Injection**: Injects default values for any omitted
+    optional parameters.

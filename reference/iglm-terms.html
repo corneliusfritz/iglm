@@ -7,7 +7,7 @@
   };
 </script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Model Specification for iglm Terms — iglm-terms"><meta name="description" content="The help pages of iglm describe the model with details on model fitting
 and estimation.
-Generally, a model is specified via it's sufficient statistics,
+Generally, a model is specified via its sufficient statistics,
 that can be further decomposed into two parts:
 \(\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))\): A vector of unit-level functions (or &quot;g-terms&quot;)
     that describe the relationship between an individual actor \(i\)'s
@@ -143,7 +143,7 @@ transitive: Transitivity (Local): Indicator evaluating the presence of a local t
 nonisolates: Non-Isolates: Captures frequency of nodes with degree strictly greater than zero.
 isolates: Isolates: Captures frequency of nodes with degree zero."><meta property="og:description" content="The help pages of iglm describe the model with details on model fitting
 and estimation.
-Generally, a model is specified via it's sufficient statistics,
+Generally, a model is specified via its sufficient statistics,
 that can be further decomposed into two parts:
 \(\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))\): A vector of unit-level functions (or &quot;g-terms&quot;)
     that describe the relationship between an individual actor \(i\)'s
@@ -285,7 +285,7 @@ isolates: Isolates: Captures frequency of nodes with degree zero."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">iglm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -308,14 +308,14 @@ isolates: Isolates: Captures frequency of nodes with degree zero."><meta propert
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Model Specification for iglm Terms</h1>
-      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/1.2.5/R/init_terms.R" class="external-link"><code>R/init_terms.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/corneliusfritz/iglm/blob/main/R/init_terms.R" class="external-link"><code>R/init_terms.R</code></a></small>
       <div class="d-none name"><code>iglm-terms.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
     <p>The help pages of <code><a href="iglm.html">iglm</a></code> describe the model with details on model fitting
 and estimation.
-Generally, a model is specified via it's sufficient statistics,
+Generally, a model is specified via its sufficient statistics,
 that can be further decomposed into two parts:</p><ul><li><p><strong>\(\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))\)</strong>: A vector of unit-level functions (or "g-terms")
     that describe the relationship between an individual actor \(i\)'s
     predictors (\(x_i\)) and their own response (\(y_i\)).</p></li>
@@ -426,6 +426,21 @@ Types dictate path constraint: OTP, ITP, OSP, ISP for directed; symm for undirec
 <li><p><code>edges_x_match-term</code>, <code>edges_y_match-term</code></p></li>
 <li><p><code>spillover_xx-term</code>, <code>spillover_yy-term</code></p></li>
 <li><p><code>spillover_yx-term</code>, <code>spillover_xy-term</code>, <code>spillover_yc-term</code>, <code>spillover_yc_symm-term</code></p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="argument-specification-positional-and-named-arguments-">Argument Specification (Positional and Named Arguments)<a class="anchor" aria-label="anchor" href="#argument-specification-positional-and-named-arguments-"></a></h2>
+
+
+
+<p>Terms in an <code>iglm</code> formula can be specified using named arguments,
+positional arguments, or a combination of both:</p><ul><li><p><strong>Positional arguments</strong>: Unnamed arguments (e.g., <code>edges("local")</code> or <code>gwdegree(0.5, "local")</code>)
+    are mapped sequentially to the term's candidate parameters in the order of
+    their definition (<code>mandatory</code>, <code>defaults</code>, and <code>expected</code>).</p></li>
+<li><p><strong>Mixed arguments</strong>: If some arguments are named (e.g., <code>cov_z(mat, mode = "local")</code>),
+    named arguments are matched first, and positional arguments are mapped to the
+    remaining candidate parameters in order.</p></li>
+<li><p><strong>Excess arguments</strong>: Providing more positional arguments than the term accepts
+    (e.g., <code>gwdegree(0.5, "local", "extra")</code>) will produce an unexpected-argument error.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

@@ -18,7 +18,7 @@ sampler.iglm(
   sampler_z = NULL,
   n_simulation = 100,
   n_burn_in = 10,
-  init_empty = TRUE,
+  init_empty = FALSE,
   seed = NA,
   cluster = NULL,
   file = NULL
@@ -57,14 +57,15 @@ sampler.iglm(
 
 - init_empty:
 
-  (logical) If \`TRUE\` (default), initialize the MCMC chain from an
-  empty state.
+  (logical) If \`FALSE\` (default), the MCMC chain is initialized from
+  observed data. If \`TRUE\`, initialize the MCMC chain from an empty
+  state.
 
 - seed:
 
   (integer or \`NA\`) A single integer seed set once before sampling
-  begins to ensure reproducibility. If \`NA\` (default), a random seed
-  is generated automatically.
+  begins to ensure reproducibility. If \`NA\` (default), a fixed default
+  seed (\`123456789\`) is used.
 
 - cluster:
 

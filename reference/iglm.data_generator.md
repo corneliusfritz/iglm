@@ -6,6 +6,18 @@ connections (z_network).
 
 ## Active bindings
 
+- `label_x`:
+
+  (\`character\`) Label/name for \`x_attribute\`.
+
+- `label_y`:
+
+  (\`character\`) Label/name for \`y_attribute\`.
+
+- `label_z`:
+
+  (\`character\`) Label/name for \`z_network\`.
+
 - `x_attribute`:
 
   (\`numeric\`) The vector for the first unit-level attribute.
@@ -96,6 +108,12 @@ connections (z_network).
 
 - [`iglm.data$set_y_attribute()`](#method-iglm.data-set_y_attribute)
 
+- [`iglm.data$set_label_x()`](#method-iglm.data-set_label_x)
+
+- [`iglm.data$set_label_y()`](#method-iglm.data-set_label_y)
+
+- [`iglm.data$set_label_z()`](#method-iglm.data-set_label_z)
+
 - [`iglm.data$gather()`](#method-iglm.data-gather)
 
 - [`iglm.data$set_fix_z_alocal()`](#method-iglm.data-set_fix_z_alocal)
@@ -116,7 +134,11 @@ connections (z_network).
 
 - [`iglm.data$x_distribution()`](#method-iglm.data-x_distribution)
 
+- [`iglm.data$x_dist()`](#method-iglm.data-x_dist)
+
 - [`iglm.data$y_distribution()`](#method-iglm.data-y_distribution)
+
+- [`iglm.data$y_dist()`](#method-iglm.data-y_dist)
 
 - [`iglm.data$edgewise_shared_partner()`](#method-iglm.data-edgewise_shared_partner)
 
@@ -128,6 +150,18 @@ connections (z_network).
 
 - [`iglm.data$geodesic_distances()`](#method-iglm.data-geodesic_distances)
 
+- [`iglm.data$esp()`](#method-iglm.data-esp)
+
+- [`iglm.data$esp_dist()`](#method-iglm.data-esp_dist)
+
+- [`iglm.data$dsp()`](#method-iglm.data-dsp)
+
+- [`iglm.data$dsp_dist()`](#method-iglm.data-dsp_dist)
+
+- [`iglm.data$geo()`](#method-iglm.data-geo)
+
+- [`iglm.data$geo_dist()`](#method-iglm.data-geo_dist)
+
 - [`iglm.data$edgewise_shared_partner_distribution()`](#method-iglm.data-edgewise_shared_partner_distribution)
 
 - [`iglm.data$dyadwise_shared_partner_distribution()`](#method-iglm.data-dyadwise_shared_partner_distribution)
@@ -136,7 +170,9 @@ connections (z_network).
 
 - [`iglm.data$degree()`](#method-iglm.data-degree)
 
-- [`iglm.data$spillover_degree_distribution()`](#method-iglm.data-spillover_degree_distribution)
+- [`iglm.data$deg()`](#method-iglm.data-deg)
+
+- [`iglm.data$deg_dist()`](#method-iglm.data-deg_dist)
 
 - [`iglm.data$plot()`](#method-iglm.data-plot)
 
@@ -168,7 +204,10 @@ and one network.
       fix_z = FALSE,
       fix_z_alocal = TRUE,
       return_neighborhood = TRUE,
-      file = NULL
+      file = NULL,
+      label_x = "x",
+      label_y = "y",
+      label_z = "z"
     )
 
 #### Arguments
@@ -252,6 +291,21 @@ and one network.
 
   (character) Optional file path to load a saved \`iglm.data\` object
   state.
+
+- `label_x`:
+
+  Character string for the label/name of \`x_attribute\`. Default is
+  \`"x"\`.
+
+- `label_y`:
+
+  Character string for the label/name of \`y_attribute\`. Default is
+  \`"y"\`.
+
+- `label_z`:
+
+  Character string for the label/name of \`z_network\`. Default is
+  \`"z"\`.
 
 #### Returns
 
@@ -391,6 +445,66 @@ Sets the \`y_attribute\` of the \`iglm.data\` object.
 - `y_attribute`:
 
   A numeric vector for the first unit-level attribute.
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### `iglm.data$set_label_x()`
+
+Sets the label for the \`x_attribute\`.
+
+#### Usage
+
+    iglm.data$set_label_x(label_x)
+
+#### Arguments
+
+- `label_x`:
+
+  A character string for the label of \`x_attribute\`.
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### `iglm.data$set_label_y()`
+
+Sets the label for the \`y_attribute\`.
+
+#### Usage
+
+    iglm.data$set_label_y(label_y)
+
+#### Arguments
+
+- `label_y`:
+
+  A character string for the label of \`y_attribute\`.
+
+#### Returns
+
+The \`iglm.data\` object itself (\`self\`), invisibly.
+
+------------------------------------------------------------------------
+
+### `iglm.data$set_label_z()`
+
+Sets the label for the \`z_network\`.
+
+#### Usage
+
+    iglm.data$set_label_z(label_z)
+
+#### Arguments
+
+- `label_z`:
+
+  A character string for the label of \`z_network\`.
 
 #### Returns
 
@@ -587,6 +701,38 @@ A numeric vector representing the distribution of \`x_attribute\`
 
 ------------------------------------------------------------------------
 
+### `iglm.data$x_dist()`
+
+Short alias for \`x_distribution\`.
+
+#### Usage
+
+    iglm.data$x_dist(value_range = NULL, prob = TRUE, plot = TRUE)
+
+#### Arguments
+
+- `value_range`:
+
+  (numeric vector) Optional range of values to consider for the
+  distribution. If \`NULL\` (default), the range is inferred from the
+  data.
+
+- `prob`:
+
+  (logical) If \`TRUE\` (default), returns probabilities; if \`FALSE\`,
+  returns frequencies.
+
+- `plot`:
+
+  (logical) If \`TRUE\` (default), plots the distribution.
+
+#### Returns
+
+A numeric vector representing the distribution of \`x_attribute\`
+(invisible).
+
+------------------------------------------------------------------------
+
 ### `iglm.data$y_distribution()`
 
 Calculates the distribution of the \`y_attribute\`.
@@ -620,6 +766,38 @@ A numeric vector representing the distribution of \`y_attribute\`
 
 ------------------------------------------------------------------------
 
+### `iglm.data$y_dist()`
+
+Short alias for \`y_distribution\`.
+
+#### Usage
+
+    iglm.data$y_dist(value_range = NULL, prob = TRUE, plot = TRUE)
+
+#### Arguments
+
+- `value_range`:
+
+  (numeric vector) Optional range of values to consider for the
+  distribution. If \`NULL\` (default), the range is inferred from the
+  data.
+
+- `prob`:
+
+  (logical) If \`TRUE\` (default), returns probabilities; if \`FALSE\`,
+  returns frequencies.
+
+- `plot`:
+
+  (logical) If \`TRUE\` (default), plots the distribution.
+
+#### Returns
+
+A numeric vector representing the distribution of \`y_attribute\`
+(invisible).
+
+------------------------------------------------------------------------
+
 ### `iglm.data$edgewise_shared_partner()`
 
 Calculates the matrix of edgewise shared partners. This is a two-path
@@ -627,7 +805,7 @@ matrix (e.g., \$A A^T\$ or \$A^T A\$).
 
 #### Usage
 
-    iglm.data$edgewise_shared_partner(type = "ALL")
+    iglm.data$edgewise_shared_partner(type = "ALL", mode = "global")
 
 #### Arguments
 
@@ -641,9 +819,15 @@ matrix (e.g., \$A A^T\$ or \$A^T A\$).
   \`"ITP"\` (Incoming Two-Path, \\z\_{i,j}\\ z\_{h,i} \\ z\_{j,h}\\),
   \`"ALL"\` (Any one of the above). Default is \`"ALL"\`.
 
+- `mode`:
+
+  (character) Either \`"global"\` (default) to evaluate across all
+  edges, or \`"local"\` to evaluate only edges with overlapping
+  neighborhoods (from \`overlap\`).
+
 #### Returns
 
-A sparse matrix (\`dgCMatrix\`) of shared partner counts.
+A numeric vector of shared partner counts for edges.
 
 ------------------------------------------------------------------------
 
@@ -679,7 +863,7 @@ Calculates the matrix of dyadwise shared partners.
 
 #### Usage
 
-    iglm.data$dyadwise_shared_partner(type = "ALL")
+    iglm.data$dyadwise_shared_partner(type = "ALL", mode = "global")
 
 #### Arguments
 
@@ -692,6 +876,12 @@ Calculates the matrix of dyadwise shared partners.
   Partner, \\z\_{i,h} \\ z\_{j,h}\\), \`"ITP"\` (Incoming Two-Path,
   \\z\_{h,i} \\ z\_{j,h}\\), \`"ALL"\` (Any one of the above). Default
   is \`"ALL"\`.
+
+- `mode`:
+
+  (character) Either \`"global"\` (default) to evaluate across all
+  dyads, or \`"local"\` to evaluate only dyads with overlapping
+  neighborhoods.
 
 #### Returns
 
@@ -709,7 +899,8 @@ Calculates the geodesic distance distribution of the symmetrized
     iglm.data$geodesic_distances_distribution(
       value_range = NULL,
       prob = TRUE,
-      plot = TRUE
+      plot = TRUE,
+      mode = "global"
     )
 
 #### Arguments
@@ -729,6 +920,12 @@ Calculates the geodesic distance distribution of the symmetrized
 
   (logical) If \`TRUE\`, plots the distribution.
 
+- `mode`:
+
+  (character) Either \`"global"\` (default) to evaluate across all node
+  pairs, or \`"local"\` to evaluate only pairs with overlapping
+  neighborhoods (from \`overlap\`).
+
 #### Returns
 
 A named vector (a \`table\` object) with the distribution of geodesic
@@ -743,12 +940,209 @@ Calculates the all-pairs geodesic distance matrix for the symmetrized
 
 #### Usage
 
-    iglm.data$geodesic_distances()
+    iglm.data$geodesic_distances(mode = "global")
+
+#### Arguments
+
+- `mode`:
+
+  (character) Either \`"global"\` (default) to evaluate across all
+  pairs, or \`"local"\` to evaluate only pairs with overlapping
+  neighborhoods.
 
 #### Returns
 
 A sparse matrix (\`dgCMatrix\`) where \`D\[i, j\]\` is the shortest path
 distance from i to j. \`Inf\` indicates no path.
+
+------------------------------------------------------------------------
+
+### `iglm.data$esp()`
+
+Short alias for \`edgewise_shared_partner\`.
+
+#### Usage
+
+    iglm.data$esp(type = "ALL", mode = "global")
+
+#### Arguments
+
+- `type`:
+
+  (character) The type of two-path to calculate. Default is \`"ALL"\`.
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+A numeric vector of shared partner counts for edges.
+
+------------------------------------------------------------------------
+
+### `iglm.data$esp_dist()`
+
+Short alias for \`edgewise_shared_partner_distribution\`.
+
+#### Usage
+
+    iglm.data$esp_dist(
+      type = "ALL",
+      value_range = NULL,
+      prob = TRUE,
+      plot = TRUE,
+      mode = "global"
+    )
+
+#### Arguments
+
+- `type`:
+
+  (character) The type of two-path to calculate. Default is \`"ALL"\`.
+
+- `value_range`:
+
+  (numeric vector) Range of counts to tabulate.
+
+- `prob`:
+
+  (logical) If \`TRUE\` (default), returns proportions.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distribution.
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+A named vector with the distribution.
+
+------------------------------------------------------------------------
+
+### `iglm.data$dsp()`
+
+Short alias for \`dyadwise_shared_partner\`.
+
+#### Usage
+
+    iglm.data$dsp(type = "ALL", mode = "global")
+
+#### Arguments
+
+- `type`:
+
+  (character) The type of two-path to calculate. Default is \`"ALL"\`.
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+A sparse matrix (\`dgCMatrix\`) of shared partner counts.
+
+------------------------------------------------------------------------
+
+### `iglm.data$dsp_dist()`
+
+Short alias for \`dyadwise_shared_partner_distribution\`.
+
+#### Usage
+
+    iglm.data$dsp_dist(
+      type = "ALL",
+      value_range = NULL,
+      prob = TRUE,
+      plot = TRUE,
+      mode = "global"
+    )
+
+#### Arguments
+
+- `type`:
+
+  (character) The type of two-path to calculate. Default is \`"ALL"\`.
+
+- `value_range`:
+
+  (numeric vector) Range of counts to tabulate.
+
+- `prob`:
+
+  (logical) If \`TRUE\` (default), returns proportions.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distribution.
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+A named vector with the distribution.
+
+------------------------------------------------------------------------
+
+### `iglm.data$geo()`
+
+Short alias for \`geodesic_distances\`.
+
+#### Usage
+
+    iglm.data$geo(mode = "global")
+
+#### Arguments
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+A sparse matrix (\`dgCMatrix\`) of geodesic distances.
+
+------------------------------------------------------------------------
+
+### `iglm.data$geo_dist()`
+
+Short alias for \`geodesic_distances_distribution\`.
+
+#### Usage
+
+    iglm.data$geo_dist(
+      value_range = NULL,
+      prob = TRUE,
+      plot = TRUE,
+      mode = "global"
+    )
+
+#### Arguments
+
+- `value_range`:
+
+  (numeric vector) Range of distances to tabulate.
+
+- `prob`:
+
+  (logical) If \`TRUE\` (default), returns proportions.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distribution.
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+A named vector with the distribution.
 
 ------------------------------------------------------------------------
 
@@ -762,7 +1156,8 @@ Calculates the distribution of edgewise shared partners.
       type = "ALL",
       value_range = NULL,
       prob = TRUE,
-      plot = TRUE
+      plot = TRUE,
+      mode = "global"
     )
 
 #### Arguments
@@ -787,6 +1182,12 @@ Calculates the distribution of edgewise shared partners.
 
   (logical) If \`TRUE\`, plots the distribution.
 
+- `mode`:
+
+  (character) Either \`"global"\` (default) to evaluate across all
+  edges, or \`"local"\` to evaluate only edges with overlapping
+  neighborhoods.
+
 #### Returns
 
 A named vector (a \`table\` object) with the distribution of shared
@@ -804,7 +1205,8 @@ Calculates the distribution of dyadwise shared partners.
       type = "ALL",
       value_range = NULL,
       prob = TRUE,
-      plot = TRUE
+      plot = TRUE,
+      mode = "global"
     )
 
 #### Arguments
@@ -829,6 +1231,12 @@ Calculates the distribution of dyadwise shared partners.
 
   (logical) If \`TRUE\`, plots the distribution.
 
+- `mode`:
+
+  (character) Either \`"global"\` (default) to evaluate across all
+  dyads, or \`"local"\` to evaluate only dyads with overlapping
+  neighborhoods.
+
 #### Returns
 
 A named vector (a \`table\` object) with the distribution of shared
@@ -840,32 +1248,157 @@ partner counts.
 
 Calculates the degree distribution of the \`z_network\`.
 
+A flexible, general function for evaluating network connectivity across
+global networks, local neighborhoods, attribute-defined subgroups, and
+cross-group spillover pathways.
+
+#### Topological Scope (`mode`)
+
+- `"global"` (default): Evaluates degree distributions across all dyads
+  in the network.
+
+- `"local"`: Evaluates local degree distributions restricted strictly to
+  actor pairs that share an overlapping neighborhood (`overlap`).
+
+#### Directionality and Bipartite Subgroups
+
+- **Directed networks**: Always returns both `out_degree` (ties sent)
+  and `in_degree` (ties received).
+
+- **Undirected networks**: Returns a single overall `degree`
+  distribution when unconstrained or single-side constrained. When
+  bilateral constraints are supplied (e.g., sender \\i\\ and receiver
+  \\j\\), ties are evaluated directionally (\\i \to j\\), returning both
+  `out_degree` and `in_degree`.
+
+#### Spillover and Subgroup Conditioning
+
+Any combination of sender attributes (`x_i`, `y_i`) and receiver
+attributes (`x_j`, `y_j`) can be specified to measure spillover
+dynamics:
+
+- `out_degree`: Distribution of ties sent from matching senders \\i\\ to
+  matching receivers \\j\\ (spillover sending capacity).
+
+- `in_degree`: Distribution of ties received by matching receivers \\j\\
+  from matching senders \\i\\ (spillover exposure).
+
+#### Supported Constraint Formats & Internal Handling
+
+Attribute constraints (`x_i`, `x_j`, `y_i`, `y_j`) accept:
+
+- **Exact scalar values**: For binary attributes, matches actors with
+  that exact value (e.g., `x_i = 1`).
+
+- **Continuous / Count shortcuts**: When an attribute is continuous
+  (`"normal"`) or count (`"poisson"`), setting `1` internally selects
+  above-mean actors (\\x_i \> \bar{x}\\), and `0` selects
+  below-or-equal-to-mean actors (\\x_i \le \bar{x}\\). Any other numeric
+  value \\v\\ matches actors with exact value \\v\\.
+
+- **Discrete value sets**: Vectors such as `x_i = c(1, 2)` match actors
+  with any value in that set.
+
+- **Filtering functions**: Custom functions (vectorized or scalar),
+  e.g., `x_i = function(x) x > 0.5` or
+  `y_j = \(y) if (y > 2) TRUE else FALSE`.
+
+#### Plotting and Axis Labels
+
+When `plot = TRUE`, mathematical expressions are formatted automatically
+for the x-axis:
+
+- Exact values and sets display as \\x_i == 1\\ or \\x_i == \text{c(1,
+  2)}\\.
+
+- Continuous shortcuts display with sample mean bars as \\x_i \>
+  \bar{x}\\ or \\x_i \le \bar{x}\\.
+
+- Filtering functions display as \\x_i == \text{"fn"}\\.
+
 #### Usage
 
-    iglm.data$degree_distribution(value_range = NULL, prob = TRUE, plot = TRUE)
+    iglm.data$degree_distribution(
+      value_range = NULL,
+      prob = TRUE,
+      plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
+      mode = "global"
+    )
 
 #### Arguments
 
 - `value_range`:
 
-  (numeric vector) A vector \`c(min, max)\` specifying the range of
-  degrees to tabulate. If \`NULL\` (default), the range is inferred from
-  the data.
+  (numeric vector or list) A vector `c(min, max)` specifying the range
+  of degrees to tabulate, or a list with `in_degree` and `out_degree`.
+  If `NULL` (default), ranges are inferred from the data.
 
 - `prob`:
 
-  (logical) If \`TRUE\` (default), returns a probability distribution
-  (proportions). If \`FALSE\`, returns raw counts.
+  (logical) If `TRUE` (default), returns a probability distribution
+  (proportions). If `FALSE`, returns raw counts.
 
 - `plot`:
 
-  (logical) If \`TRUE\`, plots the degree distribution.
+  (logical) If `TRUE`, plots the degree distribution barplot(s).
+
+- `x_i`:
+
+  (optional) Exact value, vector, or filtering function for attribute
+  `x` of sender actor \\i\\.
+
+- `x_j`:
+
+  (optional) Exact value, vector, or filtering function for attribute
+  `x` of receiver actor \\j\\.
+
+- `y_i`:
+
+  (optional) Exact value, vector, or filtering function for attribute
+  `y` of sender actor \\i\\.
+
+- `y_j`:
+
+  (optional) Exact value, vector, or filtering function for attribute
+  `y` of receiver actor \\j\\.
+
+- `mode`:
+
+  (character) Either `"global"` (default) to evaluate across all dyads,
+  or `"local"` to evaluate only ties within overlapping neighborhoods
+  (`overlap`).
 
 #### Returns
 
-If the network is directed, a list containing two \`table\` objects:
-\`in_degree\` and \`out_degree\`. If undirected, a single \`table\`
-object with the degree distribution.
+If the network is directed or if bilateral constraints are provided, a
+list containing two `table` objects: `out_degree` and `in_degree`. If
+undirected without bilateral constraints, a single `table` object with
+the degree distribution.
+
+#### Examples
+
+    data(copenhagen)
+
+    # 1. Standard global degree distribution
+    copenhagen$degree_distribution(plot = FALSE)
+
+    # 2. Local degree distribution restricted to overlapping neighborhoods
+    copenhagen$degree_distribution(mode = "local", plot = FALSE)
+
+    # 3. Spillover degree using exact attribute values
+    copenhagen$deg_dist(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
+
+    # 4. Spillover degree using filtering functions
+    copenhagen$deg_dist(
+      x_i = function(x) x > mean(x),
+      y_j = function(y) y > mean(y),
+      mode = "local",
+      plot = FALSE
+    )
 
 ------------------------------------------------------------------------
 
@@ -873,52 +1406,160 @@ object with the degree distribution.
 
 Calculates the degree sequence(s) of the \`z_network\`.
 
-#### Usage
-
-    iglm.data$degree()
-
-#### Returns
-
-If the network is directed, a list containing two vectors:
-\`in_degree_seq\` and \`out_degree_seq\`. If undirected, a single list
-containing the vector \`degree_seq\`.
-
-------------------------------------------------------------------------
-
-### `iglm.data$spillover_degree_distribution()`
-
-Calculates the spillover degree distribution between actors with
-\`x_attribute == 1\` and actors with \`y_attribute == 1\`.
+General function for calculating actor-level degree sequences across
+global topologies, local neighborhoods, attribute-defined subsets, or
+directional spillover pathways.
 
 #### Usage
 
-    iglm.data$spillover_degree_distribution(
-      prob = TRUE,
-      value_range = NULL,
-      plot = TRUE
+    iglm.data$degree(
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
+      mode = "global"
     )
 
 #### Arguments
 
-- `prob`:
+- `x_i`:
 
-  (logical) If \`TRUE\` (default), returns a probability distribution
-  (proportions). If \`FALSE\`, returns raw counts.
+  (optional) Exact value, vector, or filtering function for attribute
+  `x` of sender actor \\i\\.
 
-- `value_range`:
+- `x_j`:
 
-  (numeric vector) A vector \`c(min, max)\` specifying the range of
-  degrees to tabulate. If \`NULL\` (default), the range is inferred from
-  the data.
+  (optional) Exact value, vector, or filtering function for attribute
+  `x` of receiver actor \\j\\.
 
-- `plot`:
+- `y_i`:
 
-  (logical) If \`TRUE\`, plots the distributions.
+  (optional) Exact value, vector, or filtering function for attribute
+  `y` of sender actor \\i\\.
+
+- `y_j`:
+
+  (optional) Exact value, vector, or filtering function for attribute
+  `y` of receiver actor \\j\\.
+
+- `mode`:
+
+  (character) `"global"` (default) or `"local"`.
 
 #### Returns
 
-A list containing two \`table\` objects: \`out_spillover_degree\` (from
-x_i=1 to y_j=1) and \`in_spillover_degree\` (from y_i=1 to x_j=1).
+If the network is directed or if bilateral constraints are given, a list
+containing two numeric vectors: `out_degree_seq` and `in_degree_seq`. If
+undirected without bilateral constraints, a list containing the vector
+`degree_seq`.
+
+#### Examples
+
+    data(copenhagen)
+
+    # Global degree sequence
+    copenhagen$degree()
+
+    # Local spillover degree sequence with filtering functions
+    copenhagen$deg(
+      x_i = function(x) x > 2,
+      y_j = function(y) y > 2,
+      mode = "local"
+    )
+
+------------------------------------------------------------------------
+
+### `iglm.data$deg()`
+
+Short alias for \`degree\`.
+
+#### Usage
+
+    iglm.data$deg(x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL, mode = "global")
+
+#### Arguments
+
+- `x_i`:
+
+  Optional sender attribute constraint.
+
+- `x_j`:
+
+  Optional receiver attribute constraint.
+
+- `y_i`:
+
+  Optional sender attribute constraint.
+
+- `y_j`:
+
+  Optional receiver attribute constraint.
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+Degree sequence(s).
+
+------------------------------------------------------------------------
+
+### `iglm.data$deg_dist()`
+
+Short alias for \`degree_distribution\`. Supports standard, local, and
+attribute-constrained (spillover) degree distributions.
+
+#### Usage
+
+    iglm.data$deg_dist(
+      value_range = NULL,
+      prob = TRUE,
+      plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
+      mode = "global"
+    )
+
+#### Arguments
+
+- `value_range`:
+
+  Optional range of degrees to tabulate.
+
+- `prob`:
+
+  (logical) If \`TRUE\`, returns proportions.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distribution.
+
+- `x_i`:
+
+  Optional sender attribute constraint.
+
+- `x_j`:
+
+  Optional receiver attribute constraint.
+
+- `y_i`:
+
+  Optional sender attribute constraint.
+
+- `y_j`:
+
+  Optional receiver attribute constraint.
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+Degree distribution table(s).
 
 ------------------------------------------------------------------------
 
@@ -1069,3 +1710,75 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+
+## ------------------------------------------------
+## Method `iglm.data$degree_distribution()`
+## ------------------------------------------------
+
+data(copenhagen)
+
+# 1. Standard global degree distribution
+copenhagen$degree_distribution(plot = FALSE)
+
+# 2. Local degree distribution restricted to overlapping neighborhoods
+copenhagen$degree_distribution(mode = "local", plot = FALSE)
+
+# 3. Spillover degree using exact attribute values
+copenhagen$deg_dist(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
+
+# 4. Spillover degree using filtering functions
+copenhagen$deg_dist(
+  x_i = function(x) x > mean(x),
+  y_j = function(y) y > mean(y),
+  mode = "local",
+  plot = FALSE
+)
+
+## ------------------------------------------------
+## Method `iglm.data$degree()`
+## ------------------------------------------------
+
+data(copenhagen)
+
+# Global degree sequence
+copenhagen$degree()
+#> $degree_seq
+#>   [1] 13 28  4 27  5 11 26  4 14  1 15  5  4 11  2  9 20  4  7  5 56 14 14 13 16
+#>  [26] 24 11 11 13  1 18  8 38 24 10  3  6  9 22  5  6  9  6  6  4  9 21  3 26  8
+#>  [51] 47 15 15  7 13 14  8 40  5  5 34 14 23 12 12  4 12  4  6  4 13 24  7  5  4
+#>  [76]  2 34 12  8 11 44  7  4  6 10  7  7 11 20  8 13  8  8  3  6  2  7  6  4  6
+#> [101]  3 10  7  5  9 11  8 22 54  8 15 17 31 13  9 21  7 13  5  7 32 12 13 12 23
+#> [126]  1  7 11  5 24 10 16 15 13 45 26 12 10  9  8  3  8 11 50  5  6  3 13 20  9
+#> [151]  5  1 11  2  6 36  4 14 10 10  1 13 19 15  7  6 12 14 30 14 19  9  6  4  5
+#> [176] 29 29 18 40 20  5 15  5 21 14  4  5  6 10 20 11  3 11  8 10 14  5 21 38 13
+#> [201] 15 21 19  5 11 16 15  8  8 11  9 20  3  2  9  2 12  9 12 11  5 25  5 10 17
+#> [226]  9  4  7 17  1 14  5 15  5 21  5  3  7 16 10 53  5 18  9  8 15  7 12  5 65
+#> [251]  1 30  9 13  8  1 17  5  1  9 33  7 15  8 11  5  8  9 29  6  3  4  9 39 39
+#> [276]  6 32  6 10  7 27 11  3 11  7  9 11 21 14  2  3 16  6  9  1 12  6  9  9  7
+#> [301] 14  9  5  8 10 11 10 34 13 11  9 21  5  5  7 14 16  3  3  6  5 24 17 12 10
+#> [326]  8  3 27 12 11 12  7  7  2  6  7  5 10 13  8  4 13  6  8 11 12 27  4 18 17
+#> [351]  4 11  5  7 28  4  3 24  5 10  8 15  5  6  1 19  7  7 28 15 12 11  9  8  9
+#> [376] 13 25 25  6  3 12 11  5 10  8 22 47 10  8  5 47  1 12 18 14 18  8  4  7 10
+#> [401] 41 11  1  8  2 11 14  8 13
+#> 
+
+# Local spillover degree sequence with filtering functions
+copenhagen$deg(
+  x_i = function(x) x > 2,
+  y_j = function(y) y > 2,
+  mode = "local"
+)
+#> $out_degree_seq
+#> numeric(0)
+#> 
+#> $in_degree_seq
+#>   [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#>  [38] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#>  [75] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#> [112] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#> 
+```

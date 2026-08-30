@@ -276,6 +276,7 @@ available, they are printed in a standard coefficient table format.
       print.fitinfo = TRUE,
       print.coefmat = TRUE,
       print.call = TRUE,
+      canonical_names = FALSE,
       ...
     )
 
@@ -319,15 +320,15 @@ available, they are printed in a standard coefficient table format.
   (logical) If \`TRUE\` (default), prints the call that generated the
   object.
 
+- `canonical_names`:
+
+  (logical) If \`TRUE\`, prints canonical term names without label
+  substitution. Default is \`FALSE\`.
+
 - `...`:
 
   Additional arguments passed to
   [`printCoefmat`](https://rdrr.io/r/stats/printCoefmat.html).
-
-#### Returns
-
-Prints the summary/object to the console and returns the coefficient
-matrix invisibly (or \`NULL\` if the model has not been estimated).
 
 ------------------------------------------------------------------------
 
@@ -338,7 +339,7 @@ model assessment diagnostics if available.
 
 #### Usage
 
-    iglm.object$plot(stats = FALSE, trace = FALSE, model_assessment = FALSE)
+    iglm.object$plot(stats = FALSE, trace = FALSE, model_assessment = FALSE, ...)
 
 #### Arguments
 
@@ -356,6 +357,13 @@ model assessment diagnostics if available.
 
   (logical) If \`TRUE\`, plot diagnostics from the model assessment (if
   already carried out). Default is \`FALSE\`.
+
+- `...`:
+
+  If the plot of the model_assessment is wanted, additional fits with
+  identical model_assessment terms are currently identified from this
+  argument. The names of the arguments are shown as the legend in the
+  model assessment plots.
 
 ------------------------------------------------------------------------
 
@@ -469,19 +477,23 @@ time.
 
 ### `iglm.object$summary()`
 
-Provides a summary of the estimation results with the following columns:
-Estimate, SE, t-value, and Pr(\>\|t\|). Requires the model to have been
-estimated first.
+Provides a summary of the estimation results. Requires the model to have
+been estimated first.
 
 #### Usage
 
-    iglm.object$summary(digits = 2, ...)
+    iglm.object$summary(digits = 2, canonical_names = FALSE, ...)
 
 #### Arguments
 
 - `digits`:
 
-  (integer) Number of digits for rounding numeric output.
+  (integer) Number of digits for rounding numeric output. Default is 2.
+
+- `canonical_names`:
+
+  (logical) If \`TRUE\`, print canonical term names without label
+  substitution. Default is \`FALSE\`.
 
 - `...`:
 
@@ -490,8 +502,8 @@ estimated first.
 
 #### Returns
 
-Prints the summary to the console and returns the coefficient matrix
-invisibly (or \`NULL\` if the model has not been estimated).
+Prints the summary to the console and invisibly returns the coefficient
+table (or `NULL` if the model has not been estimated).
 
 ------------------------------------------------------------------------
 
@@ -712,7 +724,7 @@ count statistics and re-validates the object.
 
   A
   [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
-  “ object containing the new observed data.
+  object containing the new observed data.
 
 #### Returns
 

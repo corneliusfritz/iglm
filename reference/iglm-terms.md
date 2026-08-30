@@ -3,7 +3,7 @@
 The help pages of
 [`iglm`](https://corneliusfritz.github.io/iglm/reference/iglm.md)
 describe the model with details on model fitting and estimation.
-Generally, a model is specified via it's sufficient statistics, that can
+Generally, a model is specified via its sufficient statistics, that can
 be further decomposed into two parts:
 
 - **\\\mathbf{g}\_i(x_i^\*,y_i^\*) = \mathbf{g}\_i(x_i,y_i)=
@@ -298,6 +298,25 @@ and the network:
 
 - `spillover_yx-term`, `spillover_xy-term`, `spillover_yc-term`,
   `spillover_yc_symm-term`
+
+## Argument Specification (Positional and Named Arguments)
+
+Terms in an `iglm` formula can be specified using named arguments,
+positional arguments, or a combination of both:
+
+- **Positional arguments**: Unnamed arguments (e.g., `edges("local")` or
+  `gwdegree(0.5, "local")`) are mapped sequentially to the term's
+  candidate parameters in the order of their definition (`mandatory`,
+  `defaults`, and `expected`).
+
+- **Mixed arguments**: If some arguments are named (e.g.,
+  `cov_z(mat, mode = "local")`), named arguments are matched first, and
+  positional arguments are mapped to the remaining candidate parameters
+  in order.
+
+- **Excess arguments**: Providing more positional arguments than the
+  term accepts (e.g., `gwdegree(0.5, "local", "extra")`) will produce an
+  unexpected-argument error.
 
 ## References
 

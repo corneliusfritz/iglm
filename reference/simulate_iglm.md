@@ -15,8 +15,8 @@ simulate_iglm(
   display_progress = FALSE,
   offset_nonoverlap = 0,
   cluster = NULL,
-  fix_x = FALSE,
-  fix_z = FALSE
+  fix_x = NULL,
+  fix_z = NULL
 )
 ```
 
@@ -31,10 +31,17 @@ simulate_iglm(
 
 - basis:
 
-  An optional \`iglm.data\` object to serve as the basis for the
-  simulation. If provided, the simulation starts from the state defined
-  in this object. If \`NULL\` (default), the initial state is taken from
-  the \`iglm.data\` object referenced in the \`formula\`.
+  An optional
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  object to serve as the basis (initial state) for the simulation. If
+  provided, the simulation starts from the state (`x_attribute`,
+  `y_attribute`, `z_network`) defined in this object. The \`basis\`
+  object must be consistent with the model data referenced in
+  \`formula\` (same number of actors, directedness, and attribute
+  types). All structural specifications (terms, neighborhood, overlap,
+  and fixed variable flags) are taken from the \`formula\` data object.
+  If \`NULL\` (default), the initial state is taken from the
+  \`iglm.data\` object referenced in the \`formula\`.
 
 - coef:
 
@@ -85,29 +92,26 @@ simulate_iglm(
 - cluster:
 
   Optional parallel cluster object created, for example, by
-  “parallel::makeCluster“. If provided and valid, the function performs
-  a single burn-in simulation on the main R process, then distributes
-  the remaining \`n_simulation\` tasks across the cluster workers using
-  “parallel::parLapply“. The master seed is offset for each worker to
-  ensure different random streams. If \`NULL\` (default), all
-  simulations are run sequentially in the main R process.
+  [`parallel::makeCluster`](https://rdrr.io/r/parallel/makeCluster.html).
+  If provided and valid, the function performs a single burn-in
+  simulation on the main R process, then distributes the remaining
+  \`n_simulation\` tasks across the cluster workers using
+  [`parallel::parLapply`](https://rdrr.io/r/parallel/clusterApply.html).
+  The master seed is offset for each worker to ensure different random
+  streams. If \`NULL\` (default), all simulations are run sequentially
+  in the main R process.
 
 - fix_x:
 
-  Logical. If \`TRUE\`, the simulation holds the \`x_attribute\` fixed
-  at its initial state (from the
-  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
-  object) and only simulates the \`y_attribute\` and \`z_network\`. If
-  \`FALSE\` (default), all components (x, y, z) are simulated according
-  to the model and sampler settings.
+  Optional logical override indicating if \`x_attribute\` should be held
+  fixed during simulation. If \`NULL\` (default), the setting from the
+  model \`iglm.data\` object is used.
 
 - fix_z:
 
-  Logical. If \`TRUE\`, the simulation holds the \`z_network\` fixed at
-  its initial state (from the
-  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
-  object). If \`FALSE\` (default), the network component is simulated
-  according to the model and sampler settings.
+  Optional logical override indicating if \`z_network\` should be held
+  fixed during simulation. If \`NULL\` (default), the setting from the
+  model \`iglm.data\` object is used.
 
 ## Value
 
@@ -116,10 +120,11 @@ A list containing one or two components (depending on \`only_stats\`):
 - \`samples\`:
 
   If \`only_stats = FALSE\`, this is a list of length
-  \`sampler\$n_simulation\` where each element is a \`iglm.data\` object
-  representing one simulated draw from the model. The list has the S3
-  class \`"iglm.data.list"\`. If \`only_stats = TRUE\`, this component
-  is omitted.
+  \`sampler\$n_simulation\` where each element is an
+  [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+  object representing one simulated draw from the model. The list has
+  the S3 class \`"iglm.data.list"\`. If \`only_stats = TRUE\`, this
+  component is omitted.
 
 - \`stats\`:
 
@@ -140,12 +145,13 @@ simulation process is adapted:
 2.  The total number of requested simulations
     (\`sampler\$n_simulation\`) is divided among the cluster workers.
 
-3.  “parallel::parLapply“ is used to run simulations on each worker.
-    Each worker starts from the state obtained after the initial
-    burn-in, performs **zero** additional burn-in (\`n_burn_in = 0\`
-    passed to workers), and generates its assigned share of the
-    simulations. Component sampler seeds are offset based on the worker
-    ID to ensure pseudo-independent random number streams.
+3.  [`parallel::parLapply`](https://rdrr.io/r/parallel/clusterApply.html)
+    is used to run simulations on each worker. Each worker starts from
+    the state obtained after the initial burn-in, performs **zero**
+    additional burn-in (\`n_burn_in = 0\` passed to workers), and
+    generates its assigned share of the simulations. Component sampler
+    seeds are offset based on the worker ID to ensure pseudo-independent
+    random number streams.
 
 4.  Results (simulated objects or statistics) from all workers are
     collected and combined.
@@ -160,18 +166,18 @@ The function stops with an error if:
 - The length of \`coef\` does not match the number of terms derived from
   \`formula\`.
 
-- \`formula_preprocess\` fails.
+- Formula preprocessing fails.
 
-- The \`sampler\` object is not of class \`sampler.iglm\`.
+- The \`sampler\` object is not of class
+  [`sampler.iglm`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md).
 
 - The C++ backend \`xyz_simulate_cpp\` encounters an error.
 
-- Helper functions like \`XYZ_to_R\` or \`is_cluster_active\` are not
-  found.
-
-Warnings may be issued if default sampler settings are used.
-
 ## See also
 
-`iglm` for creating the model object, `sampler.iglm` for creating the
-sampler object, `iglm.data` for the data object structure.
+[`iglm`](https://corneliusfritz.github.io/iglm/reference/iglm.md) for
+creating the model object,
+[`sampler.iglm`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md)
+for creating the sampler object,
+[`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+for the data object structure.
