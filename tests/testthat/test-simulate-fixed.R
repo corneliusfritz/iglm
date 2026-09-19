@@ -603,6 +603,21 @@ test_that("Parallel simulation with cluster initializes workers from burn-in sta
   }
 })
 
+test_that("simulate_iglm throws an error when coef length does not match formula terms", {
+  n_units <- 5
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
+  data_obj <- iglm.data(
+    neighborhood = neighborhood,
+    n_units = n_units,
+    directed = FALSE
+  )
+
+  expect_error(
+    simulate_iglm(data_obj ~ edges(), coef = c(1, 2)),
+    regexp = "Wrong number of coefficients for the wanted terms."
+  )
+})
+
 
 
 

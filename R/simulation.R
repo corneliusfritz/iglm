@@ -166,7 +166,7 @@ simulate_iglm <- function(formula,
   degrees <- preprocessed$includes_degrees
   n_units <- data_obj$n_units
   if (length(coef) != length(preprocessed$term_names)) {
-    return("Wrong number of coefficients for the wanted terms.")
+    stop("Wrong number of coefficients for the wanted terms.", call. = FALSE)
   }
 
   if (is.null(coef_degrees)) {
