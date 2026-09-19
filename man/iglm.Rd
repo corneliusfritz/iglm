@@ -43,8 +43,7 @@ previously saved  \code{\link{iglm.object}} from disk (in RDS format). If provid
 other arguments are ignored and the object is loaded from the file.}
 
 \item{...}{Additional arguments. Unrecognized arguments, particularly those from
-standard \code{glm} (such as \code{data}, \code{family}, \code{subset}, \code{weights},
-\code{offset}, \code{na.action}), trigger informative errors explaining differences in \code{iglm}.}
+standard \code{glm} (such as \code{data} and \code{family}), trigger informative errors explaining differences in \code{iglm}.}
 }
 \value{
 An object of class \code{\link{iglm.object}}.

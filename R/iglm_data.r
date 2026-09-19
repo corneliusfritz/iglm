@@ -200,6 +200,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @param label_x Character string for the label/name of `x_attribute`. Default is `"x"`.
     #' @param label_y Character string for the label/name of `y_attribute`. Default is `"y"`.
     #' @param label_z Character string for the label/name of `z_network`. Default is `"z"`.
+    #' @param n_actor (Deprecated) An integer for the number of units. Please use \code{n_units} instead.
     #' @return A new `iglm.data` object.
     initialize = function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                           neighborhood = NULL, directed = NA, n_units = NA,
@@ -213,13 +214,21 @@ iglm.data_generator <- R6::R6Class("iglm.data",
                           file = NULL,
                           label_x = "x",
                           label_y = "y",
-                          label_z = "z") {
+                          label_z = "z",
+                          n_actor = NULL) {
+      if (is.na(n_units) && !is.null(n_actor)) {
+        warning("'n_actor' is deprecated; please use 'n_units' instead.", call. = FALSE)
+        n_units <- n_actor
+      }
       # browser()
       if (!is.null(file)) {
         if (!file.exists(file)) {
           stop(paste("File", file, "does not exist."))
         }
         data_loaded <- readRDS(file)
+        if (is.list(data_loaded) && !"n_units" %in% names(data_loaded) && "n_actor" %in% names(data_loaded)) {
+          data_loaded$n_units <- data_loaded$n_actor
+        }
         required_fields <- c(
           "x_attribute", "y_attribute", "z_network",
           "neighborhood", "directed", "n_units",
@@ -2373,6 +2382,15 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     n_units = function(value) {
       if (missing(value)) private$.n_units else stop("`n_units` is read-only.", call. = FALSE)
     },
+    #' @field n_actor (`integer`) Deprecated alias for `n_units`.
+    n_actor = function(value) {
+      if (missing(value)) {
+        warning("`n_actor` is deprecated, please use `n_units`.", call. = FALSE)
+        private$.n_units
+      } else {
+        stop("`n_actor` is read-only.", call. = FALSE)
+      }
+    },
     #' @field type_x (`character`) The specified distribution type for the `x_attribute`.
     type_x = function(value) {
       if (missing(value)) private$.type_x else self$set_type_x(value)
@@ -2458,6 +2476,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #' @param label_x Character string for the label/name of `x_attribute`. Default is `"x"`.
 #' @param label_y Character string for the label/name of `y_attribute`. Default is `"y"`.
 #' @param label_z Character string for the label/name of `z_network`. Default is `"z"`.
+#' @param n_actor (Deprecated) An integer for the number of units. Please use \code{n_units} instead.
 #' @return An object of class `iglm.data` (and `R6`).
 #' @references
 #' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
@@ -2506,7 +2525,12 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                       fix_z = FALSE,
                       fix_z_alocal = FALSE,
                       return_neighborhood = TRUE, file = NULL,
-                      label_x = "x", label_y = "y", label_z = "z") {
+                      label_x = "x", label_y = "y", label_z = "z",
+                      n_actor = NULL) {
+  if (is.na(n_units) && !is.null(n_actor)) {
+    warning("'n_actor' is deprecated; please use 'n_units' instead.", call. = FALSE)
+    n_units <- n_actor
+  }
   if (!is.null(z_network)) {
     z_network <- as.matrix(z_network)
   }

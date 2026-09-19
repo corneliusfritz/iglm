@@ -1179,66 +1179,6 @@ check_glm_arguments <- function(args) {
       )
     }
 
-    if ("subset" %in% arg_names) {
-      stop(
-        "Subsetting via 'subset' is not permitted in iglm.\n",
-        "Arbitrarily removing units alters network topology (degrees, neighbor sets, and spillover structure). ",
-        "If you need an induced subgraph, subset the network and attributes simultaneously before ",
-        "constructing the 'iglm.data' object.",
-        call. = FALSE
-      )
-    }
-
-    if ("weights" %in% arg_names) {
-      stop(
-        "'weights' is not supported in iglm.\n",
-        "In network models with interference, observation weights disrupt the joint exponential family / potential functions across interacting units.",
-        call. = FALSE
-      )
-    }
-
-    if ("offset" %in% arg_names) {
-      stop(
-        "'offset' is not supported in iglm.\n",
-        "Unit-level offsets from independent GLMs cannot be directly incorporated into joint network potential functions.",
-        call. = FALSE
-      )
-    }
-
-    if ("na.action" %in% arg_names) {
-      stop(
-        "'na.action' is not supported in iglm.\n",
-        "Unlike standard GLMs where missing rows can be dropped independently, ",
-        "dropping units from a network distorts neighborhood structures and introduces non-random network measurement error.\n",
-        "All units in 'iglm.data' must have complete attribute and network information.",
-        call. = FALSE
-      )
-    }
-
-    if ("contrasts" %in% arg_names) {
-      stop(
-        "'contrasts' is not supported in iglm.\n",
-        "Categorical variables and factor contrasts must be preprocessed prior to constructing 'iglm.data' or using iglm terms.",
-        call. = FALSE
-      )
-    }
-
-    if ("method" %in% arg_names) {
-      stop(
-        "'method' (such as 'glm.fit') is not supported in iglm.\n",
-        "iglm uses MCMC-based estimation and controls specified via 'control = control.iglm()'.",
-        call. = FALSE
-      )
-    }
-
-    if ("start" %in% arg_names) {
-      stop(
-        "'start' is not an argument to iglm().\n",
-        "To provide initial parameter values, use the 'coef' and 'coef_degrees' arguments in iglm().",
-        call. = FALSE
-      )
-    }
-
     # Any other named arguments
     named_extra <- arg_names[nzchar(arg_names)]
     if (length(named_extra) > 0) {

@@ -163,7 +163,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           x_attribute = data_loaded$iglm.data$x_attribute,
           y_attribute = data_loaded$iglm.data$y_attribute,
           z_network = data_loaded$iglm.data$z_network,
-          n_units = data_loaded$iglm.data$n_units,
+          n_units = if (!is.null(data_loaded$iglm.data$n_units)) data_loaded$iglm.data$n_units else data_loaded$iglm.data$n_actor,
           type_x = data_loaded$iglm.data$type_x,
           type_y = data_loaded$iglm.data$type_y,
           scale_x = data_loaded$iglm.data$scale_x,
@@ -1237,7 +1237,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' @param file Optional character string specifying a file path to load a
 #'  previously saved  \code{\link{iglm.object}} from disk (in RDS format). If provided,
 #'  other arguments are ignored and the object is loaded from the file.
-#' @param ... Additional arguments. 
+#' @param ... Additional arguments. Unrecognized arguments, particularly those from
+#'   standard \code{glm} (such as \code{data} and \code{family}), trigger informative errors explaining differences in \code{iglm}.
 #' @aliases iglm.object
 #' @examples
 #' # Example usage:

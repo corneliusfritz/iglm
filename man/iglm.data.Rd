@@ -22,7 +22,8 @@ iglm.data(
   file = NULL,
   label_x = "x",
   label_y = "y",
-  label_z = "z"
+  label_z = "z",
+  n_actor = NULL
 )
 }
 \arguments{
@@ -82,6 +83,8 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.}
 \item{label_y}{Character string for the label/name of `y_attribute`. Default is `"y"`.}
 
 \item{label_z}{Character string for the label/name of `z_network`. Default is `"z"`.}
+
+\item{n_actor}{(Deprecated) An integer for the number of units. Please use \code{n_units} instead.}
 }
 \value{
 An object of class `iglm.data` (and `R6`).

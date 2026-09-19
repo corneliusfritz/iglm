@@ -531,3 +531,33 @@ test_that("iglm.data supports custom label_x, label_y, and label_z", {
   expect_equal(copenhagen$label_y, "duration")
   expect_equal(copenhagen$label_z, "friendship")
 })
+
+test_that("iglm.data supports backward compatibility with n_actor argument and field", {
+  n_nodes <- 6
+  neighborhood <- matrix(1, nrow = n_nodes, ncol = n_nodes)
+
+  # Passing n_actor emits warning and sets n_units
+  expect_warning(
+    d_old <- iglm.data(neighborhood = neighborhood, directed = FALSE, n_actor = n_nodes),
+    regexp = "'n_actor' is deprecated; please use 'n_units' instead."
+  )
+  expect_equal(d_old$n_units, n_nodes)
+
+  # Reading d$n_actor emits warning and returns n_units
+  expect_warning(
+    actor_count <- d_old$n_actor,
+    regexp = "`n_actor` is deprecated, please use `n_units`."
+  )
+  expect_equal(actor_count, n_nodes)
+
+  # Reading an older serialized file with n_actor works
+  saved_state <- d_old$gather()
+  names(saved_state)[names(saved_state) == "n_units"] <- "n_actor"
+  temp_file <- tempfile(fileext = ".rds")
+  on.exit(unlink(temp_file), add = TRUE)
+  saveRDS(saved_state, file = temp_file)
+
+  d_restored <- iglm.data(file = temp_file)
+  expect_equal(d_restored$n_units, n_nodes)
+})
+

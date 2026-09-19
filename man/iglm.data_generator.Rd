@@ -66,6 +66,8 @@ copenhagen$deg(
 
     \item{\code{n_units}}{(`integer`) The total number of units (nodes) in the network.}
 
+    \item{\code{n_actor}}{(`integer`) Deprecated alias for `n_units`.}
+
     \item{\code{type_x}}{(`character`) The specified distribution type for the `x_attribute`.}
 
     \item{\code{type_y}}{(`character`) The specified distribution type for the `y_attribute`.}
@@ -160,7 +162,8 @@ copenhagen$deg(
   file = NULL,
   label_x = "x",
   label_y = "y",
-  label_z = "z"
+  label_z = "z",
+  n_actor = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -203,6 +206,7 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.}
       \item{\code{label_x}}{Character string for the label/name of `x_attribute`. Default is `"x"`.}
       \item{\code{label_y}}{Character string for the label/name of `y_attribute`. Default is `"y"`.}
       \item{\code{label_z}}{Character string for the label/name of `z_network`. Default is `"z"`.}
+      \item{\code{n_actor}}{(Deprecated) An integer for the number of units. Please use \code{n_units} instead.}
     }
     \if{html}{\out{</div>}}
   }
