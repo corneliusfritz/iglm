@@ -304,7 +304,11 @@ results.generator <- R6::R6Class("results",
           stop("Model has not been estimated yet. Cannot plot results.", call. = FALSE)
         }
 
-        plot(private$.llh, type = "l", xlab = "Iteration", las = 1, ylab = "Log-likelihood", bty = "l")
+        adj <- adjust_margin_for_yaxis(private$.llh)
+        old_mar <- par(mar = c(par("mar")[1], adj$mar_left, par("mar")[3], par("mar")[4]))
+        plot(private$.llh, type = "l", xlab = "Iteration", las = 1, ylab = "", bty = "l")
+        title(ylab = "Log-likelihood", line = adj$line)
+        par(old_mar)
 
         if (!is.null(private$.score_degrees)) {
           coefficients_path_np <- matrix(private$.coefficients_path[, seq_len(nrow(private$.var))], ncol = nrow(private$.var))
@@ -422,12 +426,15 @@ results.generator <- R6::R6Class("results",
                 plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
               }
             }
-          } else if (i %in% c("dyadwise_shared_partner_distribution", "dsp_dist",
-                              "edgewise_shared_partner_distribution", "esp_dist")) {
+          } else if (i %in% c(
+            "dyadwise_shared_partner_distribution", "dsp_dist",
+            "edgewise_shared_partner_distribution", "esp_dist"
+          )) {
             xlab_sp <- if (grepl("dyadwise", i) || grepl("^dsp", i)) "Dyadwise Shared Partner" else "Edgewise Shared Partner"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
               xlab_sp <- paste0(xlab_sp, " (Local)")
             }
+            xlab_sp <- get_assessment_constraint_xlab(xlab_sp, tmp_names[k], i, type_x = type_x, type_y = type_y)
             obs_sp <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_sp <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -442,12 +449,12 @@ results.generator <- R6::R6Class("results",
             } else {
               plot_assessment_single(observed = obs_sp, sim_matrix = sim_sp, xlab = xlab_sp)
             }
-
           } else if (i %in% c("geodesic_distances_distribution", "geo_dist")) {
             xlab_geo <- "Geodesic Distance"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
               xlab_geo <- paste0(xlab_geo, " (Local)")
             }
+            xlab_geo <- get_assessment_constraint_xlab(xlab_geo, tmp_names[k], i, type_x = type_x, type_y = type_y)
             obs_geo <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_geo <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
             x_pos <- seq_along(obs_geo)

@@ -12,7 +12,8 @@ iglm(
   sampler = NULL,
   control = NULL,
   name = NULL,
-  file = NULL
+  file = NULL,
+  ...
 )
 }
 \arguments{
@@ -26,8 +27,8 @@ initialized to zero. Length must match the number of terms.}
 
 \item{coef_degrees}{Optional numeric vector specifying the initial degrees
 coefficients. Required if `formula` includes degrees terms, otherwise
-should be `NULL`. Length must match `n_actor` (for undirected) or
-`2 * n_actor` (for directed).}
+should be `NULL`. Length must match `n_units` (for undirected) or
+`2 * n_units` (for directed).}
 
 \item{sampler}{An object of class \code{\link{sampler.iglm}}, controlling the MCMC sampling scheme. If `NULL`,
 default sampler settings will be used.}
@@ -40,6 +41,10 @@ If `NULL`, default control settings will be used.}
 \item{file}{Optional character string specifying a file path to load a
 previously saved  \code{\link{iglm.object}} from disk (in RDS format). If provided,
 other arguments are ignored and the object is loaded from the file.}
+
+\item{...}{Additional arguments. Unrecognized arguments, particularly those from
+standard \code{glm} (such as \code{data}, \code{family}, \code{subset}, \code{weights},
+\code{offset}, \code{na.action}), trigger informative errors explaining differences in \code{iglm}.}
 }
 \value{
 An object of class \code{\link{iglm.object}}.
@@ -51,8 +56,8 @@ where responses of connected units can be dependent.
 It extends GLMs for independent responses to dependent responses and can
 be used for studying spillover in connected populations and other network-mediated phenomena.
 It is based on a joint probability model for dependent
-responses (\eqn{Y}) and connections \eqn{(Z)} conditional on
-predictors (X).
+responses (\eqn{Y}), connections \eqn{(Z)}, and predictors \eqn{(X)}.
+Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.object}}).
 }
 \section{Model Formulation}{
 
@@ -63,7 +68,7 @@ The joint probability density is specified as
 which is defined by two distinct sets of user-specified features:
 \itemize{
   \item \strong{\eqn{\mathbf{g}_i(x_i^*, y_i^*)= (g_i(x_i^*, y_i^*))}}: A vector of unit-level functions (or "g-terms")
-    that describe the relationship between an individual actor \eqn{i}'s
+    that describe the relationship between an individual unit \eqn{i}'s
     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
   \item \strong{\eqn{\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)= (h_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z))}}: A vector of pair-level functions (or "h-terms")
     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})
@@ -83,20 +88,20 @@ all model terms via the formula interface.
 \examples{
 # Example usage:
 # Create a iglm.data data object (example)
-n_actor <- 50
-neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+n_units <- 50
+neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 xyz_obj <- iglm.data(
   neighborhood = neighborhood, directed = FALSE,
   type_x = "binomial", type_y = "binomial"
 )
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
-gt_coef_pop <- rnorm(n = n_actor, -2, 1)
+gt_coef_pop <- rnorm(n = n_units, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(
   n_burn_in = 100, n_simulation = 10,
-  sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-  sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+  sampler_y = sampler.net.attr(n_proposals = n_units * 10),
   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
   init_empty = FALSE
 )

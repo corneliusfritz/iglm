@@ -5,32 +5,32 @@ iglm_print_registered_functions <- function() {
     invisible(.Call(`_iglm_iglm_print_registered_functions`))
 }
 
-xyz_count_global <- function(z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, n_actor, data_list, type_list, type_x, type_y, attr_x_scale, attr_y_scale) {
-    .Call(`_iglm_xyz_count_global`, z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, n_actor, data_list, type_list, type_x, type_y, attr_x_scale, attr_y_scale)
+xyz_count_global <- function(z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, n_units, data_list, type_list, type_x, type_y, attr_x_scale, attr_y_scale) {
+    .Call(`_iglm_xyz_count_global`, z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, n_units, data_list, type_list, type_x, type_y, attr_x_scale, attr_y_scale)
 }
 
-xyz_simulate_cpp <- function(coef, coef_degrees, terms, n_actor, z_network, neighborhood, overlap, x_attribute, y_attribute, init_empty, directed, degrees, data_list, type_list, offset_nonoverlap, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random = FALSE, n_proposals_x = 100L, n_proposals_y = 100L, n_proposals_z = 100L, seed = 123L, n_burn_in = 100L, n_simulation = 1L, only_stats = FALSE, display_progress = FALSE, fix_x = FALSE, fix_z = FALSE, tnt = TRUE) {
-    .Call(`_iglm_xyz_simulate_cpp`, coef, coef_degrees, terms, n_actor, z_network, neighborhood, overlap, x_attribute, y_attribute, init_empty, directed, degrees, data_list, type_list, offset_nonoverlap, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, n_proposals_x, n_proposals_y, n_proposals_z, seed, n_burn_in, n_simulation, only_stats, display_progress, fix_x, fix_z, tnt)
+xyz_simulate_cpp <- function(coef, coef_degrees, terms, n_units, z_network, neighborhood, overlap, x_attribute, y_attribute, init_empty, directed, degrees, data_list, type_list, offset_nonoverlap, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random = FALSE, n_proposals_x = 100L, n_proposals_y = 100L, n_proposals_z = 100L, seed = 123L, n_burn_in = 100L, n_simulation = 1L, only_stats = FALSE, display_progress = FALSE, fix_x = FALSE, fix_z = FALSE, tnt = TRUE) {
+    .Call(`_iglm_xyz_simulate_cpp`, coef, coef_degrees, terms, n_units, z_network, neighborhood, overlap, x_attribute, y_attribute, init_empty, directed, degrees, data_list, type_list, offset_nonoverlap, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, n_proposals_x, n_proposals_y, n_proposals_z, seed, n_burn_in, n_simulation, only_stats, display_progress, fix_x, fix_z, tnt)
 }
 
 pl_estimation <- function(coef, z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, data_list, type_list, display_progress, max_iteration, tol, offset_nonoverlap, non_stop, fix_x, fix_z, attr_x_type, attr_y_type, attr_x_scale, attr_y_scale, nonoverlap_random) {
     .Call(`_iglm_pl_estimation`, coef, z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, data_list, type_list, display_progress, max_iteration, tol, offset_nonoverlap, non_stop, fix_x, fix_z, attr_x_type, attr_y_type, attr_x_scale, attr_y_scale, nonoverlap_random)
 }
 
-invert_mat <- function(diag, offdiag, n_actor) {
-    .Call(`_iglm_invert_mat`, diag, offdiag, n_actor)
+invert_mat <- function(diag, offdiag, n_units) {
+    .Call(`_iglm_invert_mat`, diag, offdiag, n_units)
 }
 
-get_A_inv <- function(n_actor) {
-    .Call(`_iglm_get_A_inv`, n_actor)
+get_A_inv <- function(n_units) {
+    .Call(`_iglm_get_A_inv`, n_units)
 }
 
 outerloop_estimation_pl <- function(coef, coef_degrees, z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, data_list, type_list, display_progress, max_iteration_outer, max_iteration_inner_degrees, max_iteration_inner_nondegrees, tol, offset_nonoverlap, non_stop, var, accelerated, fix_x, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random = TRUE, start = 0L) {
     .Call(`_iglm_outerloop_estimation_pl`, coef, coef_degrees, z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, data_list, type_list, display_progress, max_iteration_outer, max_iteration_inner_degrees, max_iteration_inner_nondegrees, tol, offset_nonoverlap, non_stop, var, accelerated, fix_x, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, start)
 }
 
-xyz_approximate_variability <- function(coef, coef_degrees, terms, n_actor, z_network, neighborhood, overlap, y_attribute, x_attribute, init_empty, directed, data_list, type_list, n_proposals_x, n_proposals_y, n_proposals_z, seed, n_burn_in, n_simulation, display_progress, degrees, offset_nonoverlap, return_samples, fix_x, fix_z, updated_uncertainty, exact, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, tnt = TRUE) {
-    .Call(`_iglm_xyz_approximate_variability`, coef, coef_degrees, terms, n_actor, z_network, neighborhood, overlap, y_attribute, x_attribute, init_empty, directed, data_list, type_list, n_proposals_x, n_proposals_y, n_proposals_z, seed, n_burn_in, n_simulation, display_progress, degrees, offset_nonoverlap, return_samples, fix_x, fix_z, updated_uncertainty, exact, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, tnt)
+xyz_approximate_variability <- function(coef, coef_degrees, terms, n_units, z_network, neighborhood, overlap, y_attribute, x_attribute, init_empty, directed, data_list, type_list, n_proposals_x, n_proposals_y, n_proposals_z, seed, n_burn_in, n_simulation, display_progress, degrees, offset_nonoverlap, return_samples, fix_x, fix_z, updated_uncertainty, exact, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, tnt = TRUE) {
+    .Call(`_iglm_xyz_approximate_variability`, coef, coef_degrees, terms, n_units, z_network, neighborhood, overlap, y_attribute, x_attribute, init_empty, directed, data_list, type_list, n_proposals_x, n_proposals_y, n_proposals_z, seed, n_burn_in, n_simulation, display_progress, degrees, offset_nonoverlap, return_samples, fix_x, fix_z, updated_uncertainty, exact, type_x, type_y, attr_x_scale, attr_y_scale, nonoverlap_random, tnt)
 }
 
 xyz_prepare_pseudo_estimation <- function(z_network, x_attribute, y_attribute, neighborhood, overlap, directed, terms, data_list, type_list, display_progress, type_x, type_y, attr_x_scale, attr_y_scale, return_x = FALSE, return_y = FALSE, return_z = FALSE) {

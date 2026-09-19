@@ -34,7 +34,7 @@ connections (z_network).
 
   (\`logical\`) Indicates if the \`z_network\` is treated as directed.
 
-- `n_actor`:
+- `n_units`:
 
   (\`integer\`) The total number of actors (nodes) in the network.
 
@@ -159,7 +159,7 @@ and one network.
       z_network = NULL,
       neighborhood = NULL,
       directed = NA,
-      n_actor = NA,
+      n_units = NA,
       type_x = "binomial",
       type_y = "binomial",
       scale_x = 1,
@@ -199,10 +199,10 @@ and one network.
   (default), directedness is inferred from the symmetry of
   \`z_network\`.
 
-- `n_actor`:
+- `n_units`:
 
   An integer for the number of actors in the system. If \`NA\`
-  (default), \`n_actor\` is inferred from the attributes or network
+  (default), \`n_units\` is inferred from the attributes or network
   matrices.
 
 - `type_x`:

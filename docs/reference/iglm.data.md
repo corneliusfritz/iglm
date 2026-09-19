@@ -3,7 +3,7 @@
 Creates a \`iglm.data\` object, which stores network and attribute data.
 This function acts as a user-friendly interface to the \`iglm.data\` R6
 class generator. It handles data input, infers parameters like the
-number of actors (\`n_actor\`) and network directedness (\`directed\`)
+number of actors (\`n_units\`) and network directedness (\`directed\`)
 if not explicitly provided, processes network data into a consistent
 edgelist format, calculates the overlap relation based on an optional
 neighborhood definition, and performs extensive validation of all
@@ -18,7 +18,7 @@ iglm.data(
   z_network = NULL,
   neighborhood = NULL,
   directed = TRUE,
-  n_actor = NA,
+  n_units = NA,
   type_x = "binomial",
   type_y = "binomial",
   scale_x = 1,
@@ -59,10 +59,10 @@ iglm.data(
   (default), directedness is inferred from the symmetry of
   \`z_network\`.
 
-- n_actor:
+- n_units:
 
   An integer for the number of actors in the system. If \`NA\`
-  (default), \`n_actor\` is inferred from the attributes or network
+  (default), \`n_units\` is inferred from the attributes or network
   matrices.
 
 - type_x:
@@ -29604,7 +29604,7 @@ tmp_adjacency <- iglm.data(
     0, 1, 1, 0
   ), nrow = 4, byrow = TRUE),
   directed = FALSE,
-  n_actor = 4,
+  n_units = 4,
   type_x = "binomial",
   type_y = "binomial"
 )
@@ -29613,7 +29613,7 @@ tmp_adjacency <- iglm.data(
 tmp_edgelist <- iglm.data(
   z_network = tmp_adjacency$z_network,
   directed = FALSE,
-  n_actor = 4,
+  n_units = 4,
   type_x = "binomial",
   type_y = "binomial"
 )

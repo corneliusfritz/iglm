@@ -48,7 +48,7 @@ Generally, a model is specified via its sufficient statistics,
 that can be further decomposed into two parts:
 \itemize{
   \item \strong{\eqn{\mathbf{g}_i(x_i^*,y_i^*) = \mathbf{g}_i(x_i,y_i)= (g_i(x_i,y_i))}}: A vector of unit-level functions (or "g-terms")
-    that describe the relationship between an individual actor \eqn{i}'s
+    that describe the relationship between an individual unit \eqn{i}'s
     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
   \item \strong{\eqn{\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z) = \mathbf{h}_{i,j}(x,y,z)= (h_{i,j}(x,y,z))}}: A vector of pair-level functions (or "h-terms")
     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})

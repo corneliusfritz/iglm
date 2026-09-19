@@ -18,7 +18,7 @@ legislators in the filtered 10-state subset.
         \code{0} otherwise.
       \item \code{y_attribute}: A Poisson numeric vector of length N.
         Represents the count of hatespeech incidents
-        (\code{actors_data$number_hatespeech}) for each legislator.
+        (\code{legislator_data$number_hatespeech}) for each legislator.
       \item \code{z_network}: A directed edgelist (2-column matrix) of
         size \code{n_edges x 2}. A tie \code{(i, j)} exists if legislator
         \code{i} either mentioned or retweeted legislator \code{j}.

@@ -16,19 +16,13 @@ unit-level attributes (x_attribute, y_attribute) and connections (z_network).
 
 data(copenhagen)
 
-# 1. Standard global degree distribution
-copenhagen$degree_distribution(plot = FALSE)
+# Overall degree distribution
+copenhagen$degree_distribution(prob = FALSE, plot = FALSE)
 
-# 2. Local degree distribution restricted to overlapping neighborhoods
-copenhagen$degree_distribution(mode = "local", plot = FALSE)
-
-# 3. Spillover degree using exact attribute values
-copenhagen$deg_dist(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
-
-# 4. Spillover degree using filtering functions
+# Spillover degree distribution (female to male call connections)
 copenhagen$deg_dist(
-  x_i = function(x) x > mean(x),
-  y_j = function(y) y > mean(y),
+  x_i = 1, # Sender: female
+  x_j = 0, # Receiver: male
   mode = "local",
   plot = FALSE
 )
@@ -70,7 +64,7 @@ copenhagen$deg(
 
     \item{\code{directed}}{(`logical`) Indicates if the `z_network` is treated as directed.}
 
-    \item{\code{n_actor}}{(`integer`) The total number of actors (nodes) in the network.}
+    \item{\code{n_units}}{(`integer`) The total number of units (nodes) in the network.}
 
     \item{\code{type_x}}{(`character`) The specified distribution type for the `x_attribute`.}
 
@@ -127,6 +121,7 @@ copenhagen$deg(
     \item \href{#method-iglm.data-dsp}{\code{iglm.data$dsp()}}
     \item \href{#method-iglm.data-dsp_dist}{\code{iglm.data$dsp_dist()}}
     \item \href{#method-iglm.data-geo}{\code{iglm.data$geo()}}
+    \item \href{#method-iglm.data-geodist}{\code{iglm.data$geodist()}}
     \item \href{#method-iglm.data-geo_dist}{\code{iglm.data$geo_dist()}}
     \item \href{#method-iglm.data-edgewise_shared_partner_distribution}{\code{iglm.data$edgewise_shared_partner_distribution()}}
     \item \href{#method-iglm.data-dyadwise_shared_partner_distribution}{\code{iglm.data$dyadwise_shared_partner_distribution()}}
@@ -134,6 +129,7 @@ copenhagen$deg(
     \item \href{#method-iglm.data-degree}{\code{iglm.data$degree()}}
     \item \href{#method-iglm.data-deg}{\code{iglm.data$deg()}}
     \item \href{#method-iglm.data-deg_dist}{\code{iglm.data$deg_dist()}}
+    \item \href{#method-iglm.data-degree_dist}{\code{iglm.data$degree_dist()}}
     \item \href{#method-iglm.data-plot}{\code{iglm.data$plot()}}
     \item \href{#method-iglm.data-print}{\code{iglm.data$print()}}
     \item \href{#method-iglm.data-clone}{\code{iglm.data$clone()}}
@@ -152,7 +148,7 @@ copenhagen$deg(
   z_network = NULL,
   neighborhood = NULL,
   directed = NA,
-  n_actor = NA,
+  n_units = NA,
   type_x = "binomial",
   type_y = "binomial",
   scale_x = 1,
@@ -177,13 +173,13 @@ copenhagen$deg(
 edgelist or a square adjacency matrix.}
       \item{\code{neighborhood}}{An optional matrix for the neighborhood representing local dependence.
 Can be a 2-column edgelist or a square adjacency matrix.
-A tie in `neighborhood` between actor i and j indicates that j is in the neighborhood of i,
-implying dependence between the respective actors.}
+A tie in `neighborhood` between unit i and j indicates that j is in the neighborhood of i,
+implying dependence between the respective units.}
       \item{\code{directed}}{A logical value indicating if `z_network` is directed.
 If `NA` (default), directedness is inferred from the symmetry of
 `z_network`.}
-      \item{\code{n_actor}}{An integer for the number of actors in the system.
-If `NA` (default), `n_actor` is inferred from the attributes or
+      \item{\code{n_units}}{An integer for the number of units in the system.
+If `NA` (default), `n_units` is inferred from the attributes or
 network matrices.}
       \item{\code{type_x}}{Character string for the type of `x_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
@@ -477,7 +473,7 @@ details necessary to reconstruct the object later.
 \if{latex}{\out{\hypertarget{method-iglm.data-delete_isolates}{}}}
 \subsection{\code{iglm.data$delete_isolates()}}{
   Deletes isolates from the `z_network` and updates the attributes and neighborhood accordingly.
-Isolates are actors that do not have any connections in the `z_network`. This method identifies such actors, removes them from the attributes and neighborhood, and updates the `z_network` to reflect the new actor indices.
+Isolates are units that do not have any connections in the `z_network`. This method identifies such units, removes them from the attributes and neighborhood, and updates the `z_network` to reflect the new unit indices.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$delete_isolates()}
@@ -705,7 +701,14 @@ details necessary to reconstruct the object later.
 This is a two-path matrix (e.g., $A A^T$ or $A^T A$).
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$edgewise_shared_partner(type = "ALL", mode = "global")}
+    \preformatted{iglm.data$edgewise_shared_partner(
+  type = "ALL",
+  mode = "global",
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -722,6 +725,10 @@ Must be one of:
 Default is `"ALL"`.}
       \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all edges,
 or `"local"` to evaluate only edges with overlapping neighborhoods (from `overlap`).}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
     }
     \if{html}{\out{</div>}}
   }
@@ -762,7 +769,14 @@ Can be a 2-column edgelist or a square adjacency matrix.}
   Calculates the matrix of dyadwise shared partners.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$dyadwise_shared_partner(type = "ALL", mode = "global")}
+    \preformatted{iglm.data$dyadwise_shared_partner(
+  type = "ALL",
+  mode = "global",
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -779,6 +793,10 @@ Must be one of:
 Default is `"ALL"`.}
       \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all dyads,
 or `"local"` to evaluate only dyads with overlapping neighborhoods.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
     }
     \if{html}{\out{</div>}}
   }
@@ -799,6 +817,10 @@ or `"local"` to evaluate only dyads with overlapping neighborhoods.}
   value_range = NULL,
   prob = TRUE,
   plot = TRUE,
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
   mode = "global"
 )}
     \if{html}{\out{</div>}}
@@ -812,6 +834,10 @@ is inferred from the data.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
       \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all node pairs,
 or `"local"` to evaluate only pairs with overlapping neighborhoods (from `overlap`).}
     }
@@ -831,7 +857,13 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods (from `overla
 symmetrized `z_network` using a matrix-based BFS algorithm.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$geodesic_distances(mode = "global")}
+    \preformatted{iglm.data$geodesic_distances(
+  mode = "global",
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -839,6 +871,10 @@ symmetrized `z_network` using a matrix-based BFS algorithm.
     \describe{
       \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all pairs,
 or `"local"` to evaluate only pairs with overlapping neighborhoods.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
     }
     \if{html}{\out{</div>}}
   }
@@ -855,7 +891,14 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
   Short alias for `edgewise_shared_partner`.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$esp(type = "ALL", mode = "global")}
+    \preformatted{iglm.data$esp(
+  type = "ALL",
+  mode = "global",
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -863,6 +906,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
     \describe{
       \item{\code{type}}{(character) The type of two-path to calculate. Default is `"ALL"`.}
       \item{\code{mode}}{(character) `"global"` (default) or `"local"`.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
     }
     \if{html}{\out{</div>}}
   }
@@ -883,6 +930,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
   value_range = NULL,
   prob = TRUE,
   plot = TRUE,
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
   mode = "global"
 )}
     \if{html}{\out{</div>}}
@@ -894,6 +945,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
       \item{\code{value_range}}{(numeric vector) Range of counts to tabulate.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns proportions.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
       \item{\code{mode}}{(character) `"global"` (default) or `"local"`.}
     }
     \if{html}{\out{</div>}}
@@ -910,7 +965,14 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
   Short alias for `dyadwise_shared_partner`.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$dsp(type = "ALL", mode = "global")}
+    \preformatted{iglm.data$dsp(
+  type = "ALL",
+  mode = "global",
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -918,6 +980,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
     \describe{
       \item{\code{type}}{(character) The type of two-path to calculate. Default is `"ALL"`.}
       \item{\code{mode}}{(character) `"global"` (default) or `"local"`.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
     }
     \if{html}{\out{</div>}}
   }
@@ -938,6 +1004,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
   value_range = NULL,
   prob = TRUE,
   plot = TRUE,
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
   mode = "global"
 )}
     \if{html}{\out{</div>}}
@@ -949,6 +1019,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
       \item{\code{value_range}}{(numeric vector) Range of counts to tabulate.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns proportions.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
       \item{\code{mode}}{(character) `"global"` (default) or `"local"`.}
     }
     \if{html}{\out{</div>}}
@@ -965,13 +1039,49 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
   Short alias for `geodesic_distances`.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$geo(mode = "global")}
+    \preformatted{iglm.data$geo(mode = "global", x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{mode}}{(character) `"global"` (default) or `"local"`.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A sparse matrix (`dgCMatrix`) of geodesic distances.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-geodist"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-geodist}{}}}
+\subsection{\code{iglm.data$geodist()}}{
+  Short alias for `geodesic_distances`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$geodist(
+  mode = "global",
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{mode}}{(character) `"global"` (default) or `"local"`.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
     }
     \if{html}{\out{</div>}}
   }
@@ -991,6 +1101,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
   value_range = NULL,
   prob = TRUE,
   plot = TRUE,
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
   mode = "global"
 )}
     \if{html}{\out{</div>}}
@@ -1001,6 +1115,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
       \item{\code{value_range}}{(numeric vector) Range of distances to tabulate.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns proportions.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
       \item{\code{mode}}{(character) `"global"` (default) or `"local"`.}
     }
     \if{html}{\out{</div>}}
@@ -1022,6 +1140,10 @@ or `"local"` to evaluate only pairs with overlapping neighborhoods.}
   value_range = NULL,
   prob = TRUE,
   plot = TRUE,
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
   mode = "global"
 )}
     \if{html}{\out{</div>}}
@@ -1037,6 +1159,10 @@ is inferred from the data.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
       \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all edges,
 or `"local"` to evaluate only edges with overlapping neighborhoods.}
     }
@@ -1060,6 +1186,10 @@ or `"local"` to evaluate only edges with overlapping neighborhoods.}
   value_range = NULL,
   prob = TRUE,
   plot = TRUE,
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
   mode = "global"
 )}
     \if{html}{\out{</div>}}
@@ -1075,6 +1205,10 @@ is inferred from the data.}
       \item{\code{prob}}{(logical) If `TRUE` (default), returns a probability
 distribution (proportions). If `FALSE`, returns raw counts.}
       \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{x_i}}{(optional) Sender attribute constraint.}
+      \item{\code{x_j}}{(optional) Receiver attribute constraint.}
+      \item{\code{y_i}}{(optional) Sender attribute constraint.}
+      \item{\code{y_j}}{(optional) Receiver attribute constraint.}
       \item{\code{mode}}{(character) Either `"global"` (default) to evaluate across all dyads,
 or `"local"` to evaluate only dyads with overlapping neighborhoods.}
     }
@@ -1099,7 +1233,7 @@ cross-group spillover pathways.
 \subsection{Topological Scope (\code{mode})}{
 \itemize{
   \item \code{"global"} (default): Evaluates degree distributions across all dyads in the network.
-  \item \code{"local"}: Evaluates local degree distributions restricted strictly to actor pairs
+  \item \code{"local"}: Evaluates local degree distributions restricted strictly to unit pairs
     that share an overlapping neighborhood (\code{overlap}).
 }
 }
@@ -1127,11 +1261,11 @@ Any combination of sender attributes (\code{x_i}, \code{y_i}) and receiver attri
 \subsection{Supported Constraint Formats & Internal Handling}{
 Attribute constraints (\code{x_i}, \code{x_j}, \code{y_i}, \code{y_j}) accept:
 \itemize{
-  \item \strong{Exact scalar values}: For binary attributes, matches actors with that exact value (e.g., \code{x_i = 1}).
+  \item \strong{Exact scalar values}: For binary attributes, matches units with that exact value (e.g., \code{x_i = 1}).
   \item \strong{Continuous / Count shortcuts}: When an attribute is continuous (\code{"normal"}) or count (\code{"poisson"}),
-    setting \code{1} internally selects above-mean actors (\eqn{x_i > \bar{x}}), and \code{0} selects
-    below-or-equal-to-mean actors (\eqn{x_i \le \bar{x}}). Any other numeric value \eqn{v} matches actors with exact value \eqn{v}.
-  \item \strong{Discrete value sets}: Vectors such as \code{x_i = c(1, 2)} match actors with any value in that set.
+    setting \code{1} internally selects above-mean units (\eqn{x_i > \bar{x}}), and \code{0} selects
+    below-or-equal-to-mean units (\eqn{x_i \le \bar{x}}). Any other numeric value \eqn{v} matches units with exact value \eqn{v}.
+  \item \strong{Discrete value sets}: Vectors such as \code{x_i = c(1, 2)} match units with any value in that set.
   \item \strong{Filtering functions}: Custom functions (vectorized or scalar), e.g., \code{x_i = function(x) x > 0.5}
     or \code{y_j = \(y) if (y > 2) TRUE else FALSE}.
 }
@@ -1168,10 +1302,10 @@ If \code{NULL} (default), ranges are inferred from the data.}
       \item{\code{prob}}{(logical) If \code{TRUE} (default), returns a probability
 distribution (proportions). If \code{FALSE}, returns raw counts.}
       \item{\code{plot}}{(logical) If \code{TRUE}, plots the degree distribution barplot(s).}
-      \item{\code{x_i}}{(optional) Exact value, vector, or filtering function for attribute \code{x} of sender actor \eqn{i}.}
-      \item{\code{x_j}}{(optional) Exact value, vector, or filtering function for attribute \code{x} of receiver actor \eqn{j}.}
-      \item{\code{y_i}}{(optional) Exact value, vector, or filtering function for attribute \code{y} of sender actor \eqn{i}.}
-      \item{\code{y_j}}{(optional) Exact value, vector, or filtering function for attribute \code{y} of receiver actor \eqn{j}.}
+      \item{\code{x_i}}{(optional) Exact value, vector, or filtering function for attribute \code{x} of sender unit \eqn{i}.}
+      \item{\code{x_j}}{(optional) Exact value, vector, or filtering function for attribute \code{x} of receiver unit \eqn{j}.}
+      \item{\code{y_i}}{(optional) Exact value, vector, or filtering function for attribute \code{y} of sender unit \eqn{i}.}
+      \item{\code{y_j}}{(optional) Exact value, vector, or filtering function for attribute \code{y} of receiver unit \eqn{j}.}
       \item{\code{mode}}{(character) Either \code{"global"} (default) to evaluate across all dyads,
 or \code{"local"} to evaluate only ties within overlapping neighborhoods (\code{overlap}).}
     }
@@ -1181,25 +1315,19 @@ or \code{"local"} to evaluate only ties within overlapping neighborhoods (\code{
     If the network is directed or if bilateral constraints are provided,
   a list containing two \code{table} objects: \code{out_degree} and \code{in_degree}.
   If undirected without bilateral constraints, a single \code{table} object with
-  the degree distribution.
+  the \code{degree} distribution.
   }
   \subsection{Examples}{
     \if{html}{\out{<div class="r example copy">}}
     \preformatted{data(copenhagen)
 
-# 1. Standard global degree distribution
-copenhagen$degree_distribution(plot = FALSE)
+# Overall degree distribution
+copenhagen$degree_distribution(prob = FALSE, plot = FALSE)
 
-# 2. Local degree distribution restricted to overlapping neighborhoods
-copenhagen$degree_distribution(mode = "local", plot = FALSE)
-
-# 3. Spillover degree using exact attribute values
-copenhagen$deg_dist(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
-
-# 4. Spillover degree using filtering functions
+# Spillover degree distribution (female to male call connections)
 copenhagen$deg_dist(
-  x_i = function(x) x > mean(x),
-  y_j = function(y) y > mean(y),
+  x_i = 1, # Sender: female
+  x_j = 0, # Receiver: male
   mode = "local",
   plot = FALSE
 )
@@ -1214,7 +1342,7 @@ copenhagen$deg_dist(
 \subsection{\code{iglm.data$degree()}}{
   Calculates the degree sequence(s) of the `z_network`.
 
-General function for calculating actor-level degree sequences across global
+General function for calculating unit-level degree sequences across global
 topologies, local neighborhoods, attribute-defined subsets, or directional
 spillover pathways.
   \subsection{Usage}{
@@ -1231,18 +1359,19 @@ spillover pathways.
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{x_i}}{(optional) Exact value, vector, or filtering function for attribute \code{x} of sender actor \eqn{i}.}
-      \item{\code{x_j}}{(optional) Exact value, vector, or filtering function for attribute \code{x} of receiver actor \eqn{j}.}
-      \item{\code{y_i}}{(optional) Exact value, vector, or filtering function for attribute \code{y} of sender actor \eqn{i}.}
-      \item{\code{y_j}}{(optional) Exact value, vector, or filtering function for attribute \code{y} of receiver actor \eqn{j}.}
+      \item{\code{x_i}}{(optional) Exact value, vector, or filtering function for attribute \code{x} of sender unit \eqn{i}.}
+      \item{\code{x_j}}{(optional) Exact value, vector, or filtering function for attribute \code{x} of receiver unit \eqn{j}.}
+      \item{\code{y_i}}{(optional) Exact value, vector, or filtering function for attribute \code{y} of sender unit \eqn{i}.}
+      \item{\code{y_j}}{(optional) Exact value, vector, or filtering function for attribute \code{y} of receiver unit \eqn{j}.}
       \item{\code{mode}}{(character) \code{"global"} (default) or \code{"local"}.}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    If the network is directed or if bilateral constraints are given,
+    If the network is directed or if asymmetric/bipartite bilateral constraints are given,
   a list containing two numeric vectors: \code{out_degree_seq} and \code{in_degree_seq}.
-  If undirected without bilateral constraints, a list containing the vector \code{degree_seq}.
+  If undirected without constraints or with identical bilateral constraints,
+  a list containing the vector \code{degree_seq}.
   }
   \subsection{Examples}{
     \if{html}{\out{<div class="r example copy">}}
@@ -1297,6 +1426,44 @@ Supports standard, local, and attribute-constrained (spillover) degree distribut
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{iglm.data$deg_dist(
+  value_range = NULL,
+  prob = TRUE,
+  plot = TRUE,
+  x_i = NULL,
+  x_j = NULL,
+  y_i = NULL,
+  y_j = NULL,
+  mode = "global"
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{value_range}}{Optional range of degrees to tabulate.}
+      \item{\code{prob}}{(logical) If `TRUE`, returns proportions.}
+      \item{\code{plot}}{(logical) If `TRUE`, plots the distribution.}
+      \item{\code{x_i}}{Optional sender attribute constraint.}
+      \item{\code{x_j}}{Optional receiver attribute constraint.}
+      \item{\code{y_i}}{Optional sender attribute constraint.}
+      \item{\code{y_j}}{Optional receiver attribute constraint.}
+      \item{\code{mode}}{(character) `"global"` (default) or `"local"`.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Degree distribution table(s).
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iglm.data-degree_dist"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-degree_dist}{}}}
+\subsection{\code{iglm.data$degree_dist()}}{
+  Alias for `deg_dist` / `degree_distribution`.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{iglm.data$degree_dist(
   value_range = NULL,
   prob = TRUE,
   plot = TRUE,

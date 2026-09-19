@@ -1,7 +1,6 @@
 test_that("iglm.object print and summary works as expected", {
-  n_actor <- 20
-  neighborhood <- matrix(1, n_actor, n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 20
+  neighborhood <- matrix(1, n_units, n_units)
   
   xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE)
   
@@ -76,9 +75,8 @@ test_that("iglm.object print and summary works as expected", {
 })
 
 test_that("summary and print show labeled names by default and canonical names when canonical_names = TRUE", {
-  n_actor <- 20
-  neighborhood <- matrix(1, n_actor, n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 20
+  neighborhood <- matrix(1, n_units, n_units)
 
   xyz_labeled <- iglm.data(
     neighborhood = neighborhood, directed = TRUE,

@@ -242,10 +242,10 @@ print.iglm.formulainfo <- function(x, ..., max_items = 5) {
 }
 
 
-map_to_mat <- function(map, n_actor) {
+map_to_mat <- function(map, n_units) {
   # Generate empty network
-  mat <- matrix(0, nrow = n_actor, ncol = n_actor)
-  for (i in 1:n_actor) {
+  mat <- matrix(0, nrow = n_units, ncol = n_units)
+  for (i in 1:n_units) {
     if (length(map[[i + 1]]) > 0) {
       mat[i, map[[i + 1]]] <- 1
     }
@@ -253,26 +253,26 @@ map_to_mat <- function(map, n_actor) {
   return(mat)
 }
 
-set_to_vec <- function(set, n_actor) {
+set_to_vec <- function(set, n_units) {
   # Generate empty vector
-  vec <- numeric(length = n_actor)
+  vec <- numeric(length = n_units)
   vec[set] <- 1
   return(vec)
 }
 
-XZ_to_R <- function(x_attribute, z_network, n_actor) {
-  x_attribute <- set_to_vec(set = x_attribute, n_actor = n_actor)
-  z_network <- map_to_mat(map = z_network, n_actor = n_actor)
+XZ_to_R <- function(x_attribute, z_network, n_units) {
+  x_attribute <- set_to_vec(set = x_attribute, n_units = n_units)
+  z_network <- map_to_mat(map = z_network, n_units = n_units)
   return(list(x_attribute = x_attribute, z_network = z_network))
 }
 
-XYZ_to_R <- function(x_attribute, y_attribute, z_network, n_actor, return_adj_mat) {
-  # x_attribute = set_to_vec(set = x_attribute,n_actor = n_actor)
-  # y_attribute = set_to_vec(set = y_attribute,n_actor = n_actor)
+XYZ_to_R <- function(x_attribute, y_attribute, z_network, n_units, return_adj_mat) {
+  # x_attribute = set_to_vec(set = x_attribute,n_units = n_units)
+  # y_attribute = set_to_vec(set = y_attribute,n_units = n_units)
   if (return_adj_mat) {
-    z_network_tmp <- map_to_mat(map = z_network, n_actor = n_actor)
+    z_network_tmp <- map_to_mat(map = z_network, n_units = n_units)
   } else {
-    z_network_tmp <- do.call(rbind, lapply(1:n_actor, FUN = function(x) {
+    z_network_tmp <- do.call(rbind, lapply(1:n_units, FUN = function(x) {
       tmp <- z_network[[x + 1]]
       if (length(tmp) == 0) {
         return(NA)
@@ -298,7 +298,7 @@ check_overlap <- function(mat_1, mat_2) {
   return(duplicated(combined, fromLast = TRUE)[seq_len(nrow(mat_1))])
 }
 
-iglm.data.neighborhood <- function(neighborhood, directed = NA, n_actor = NA) {
+iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
   if (!is.matrix(neighborhood) && !is.data.frame(neighborhood)) {
     if (length(neighborhood) == 0) {
       neighborhood <- matrix(numeric(0), nrow = 0, ncol = 2)
@@ -318,19 +318,19 @@ iglm.data.neighborhood <- function(neighborhood, directed = NA, n_actor = NA) {
     class(res) <- "iglm.data.neighborhood"
     return(res)
   }
-  if (is.na(n_actor)) {
+  if (is.na(n_units)) {
     if (ncol(neighborhood) > 2) {
-      n_actor <- nrow(neighborhood)
+      n_units <- nrow(neighborhood)
     } else {
-      n_actor <- max(neighborhood)
+      n_units <- max(neighborhood)
     }
   }
-  if (is.na(n_actor)) {
-    stop("n_actor could not be inferred. Please provide n_actor.")
+  if (is.na(n_units)) {
+    stop("n_units could not be inferred. Please provide n_units.")
   }
   if (ncol(neighborhood) == 2) {
     sp_nb <- spMatrix(
-      nrow = n_actor, ncol = n_actor,
+      nrow = n_units, ncol = n_units,
       i = neighborhood[, 1], j = neighborhood[, 2], x = rep(1, length(neighborhood[, 2]))
     )
     sp_nb_trans <- sparseMatrix(i = sp_nb@j + 1, j = sp_nb@i + 1, dims = sp_nb@Dim)
@@ -443,9 +443,38 @@ print.iglm.data.list <- function(x, ...) {
 }
 
 formula_preprocess <- function(formula) {
-  data_object <- eval(formula[[2]], envir = environment(formula))
+  if (length(formula) != 3) {
+    stop(
+      "Formula must be two-sided with an 'iglm.data' object on the LHS.\nExample: my_iglm_data ~ edges() + attribute_y()",
+      call. = FALSE
+    )
+  }
+
+  lhs_expr <- formula[[2]]
+  lhs_name <- deparse(lhs_expr)
+  data_object <- tryCatch(
+    eval(lhs_expr, envir = environment(formula)),
+    error = function(e) {
+      stop(
+        sprintf(
+          "The LHS of the formula ('%s') could not be found.\nUnlike standard glm where the response is a column name from a data frame (e.g., 'y ~ ...'), iglm requires an 'iglm.data' object on the LHS.\nWrap your attributes and network into an 'iglm.data' object first:\n  dat <- iglm.data(y_attribute = ..., x_attribute = ..., z_network = ...)\nand specify 'dat ~ ...'.",
+          lhs_name
+        ),
+        call. = FALSE
+      )
+    }
+  )
+
   if (!inherits(data_object, "iglm.data")) {
-    stop("The response in the formula must be an iglm.data object.")
+    stop(
+      sprintf(
+        "The LHS of the formula ('%s') is of class '%s', but iglm requires an 'iglm.data' object.\nUnlike standard glm where the response is a vector or column (e.g., 'y ~ x'), iglm models regression under network interference across an entire connected population.\nWrap your attributes and network into an 'iglm.data' object first:\n  dat <- iglm.data(y_attribute = %s, ...)\nand call:\n  fit <- iglm(dat ~ attribute_y() + spillover_yx() + edges())",
+        lhs_name,
+        class(data_object)[1],
+        lhs_name
+      ),
+      call. = FALSE
+    )
   }
 
   includes_degrees <- "degrees" %in% all.vars(formula)
@@ -901,12 +930,37 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
 }
 
 #' @noRd
+adjust_margin_for_yaxis <- function(y_vals, default_line = 2.5, default_mar_left = 4.1) {
+  r <- range(y_vals, na.rm = TRUE)
+  if (any(!is.finite(r))) {
+    return(list(line = default_line, mar_left = default_mar_left))
+  }
+  ticks <- pretty(r)
+  labels <- format(ticks, trim = TRUE)
+  cex_axis <- if (!is.null(par("cex.axis"))) par("cex.axis") else 1
+  csi <- if (!is.null(par("csi")) && par("csi") > 0) par("csi") else 0.2
+  w_inches <- tryCatch(max(graphics::strwidth(labels, units = "inches", cex = cex_axis)), error = function(e) 0)
+  w_lines <- w_inches / csi
+  ylab_line <- max(default_line, 1 + w_lines + 0.8)
+  mar_left <- max(default_mar_left, ylab_line + 1.2)
+  list(line = ylab_line, mar_left = mar_left)
+}
+
+#' @noRd
 plot_multitrace <- function(mat, xlab = "Iteration", ylab = "Coefficients", las = 1, bty = "l", ...) {
   mat <- as.matrix(mat)
+  r <- range(mat, na.rm = TRUE)
+  if (any(!is.finite(r))) r <- c(0, 1)
+
+  adj <- adjust_margin_for_yaxis(r)
+  old_mar <- par(mar = c(par("mar")[1], adj$mar_left, par("mar")[3], par("mar")[4]))
+  on.exit(par(old_mar), add = TRUE)
+
   plot(NA,
-    xlim = c(1, nrow(mat)), ylim = range(mat, na.rm = TRUE),
-    xlab = xlab, ylab = ylab, las = las, bty = bty, ...
+    xlim = c(1, max(1, nrow(mat))), ylim = r,
+    xlab = xlab, ylab = "", las = las, bty = bty, ...
   )
+  title(ylab = ylab, line = adj$line)
   for (tmp in seq_len(ncol(mat))) {
     lines(y = mat[, tmp], x = seq_len(nrow(mat)), col = tmp)
   }
@@ -980,10 +1034,225 @@ get_assessment_constraint_xlab <- function(base_label, name, base_name,
   if (length(parts) > 0) {
     expr_str <- paste0('paste("', base_label, ' (", ', paste(parts, collapse = ', ", ", '), ', ")")')
     return(parse(text = expr_str)[[1]])
-  } else {
+} else {
     return(base_label)
   }
 }
 
+#' @noRd
+filter_nodes <- function(attr_vec, spec, type = "binomial") {
+  if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
+  if (is.function(spec)) {
+    res <- tryCatch(
+      as.logical(spec(attr_vec)),
+      error = function(e) NULL,
+      warning = function(w) NULL
+    )
+    if (is.null(res) || length(res) != length(attr_vec)) {
+      res <- as.logical(vapply(attr_vec, spec, logical(1)))
+    }
+    return(res)
+  }
+  if (type == "binomial") {
+    attr_vec %in% spec
+  } else {
+    m <- mean(attr_vec)
+    res <- rep(FALSE, length(attr_vec))
+    if (1 %in% spec) res <- res | (attr_vec > m)
+    if (0 %in% spec) res <- res | (attr_vec <= m)
+    other_spec <- spec[!spec %in% c(0, 1)]
+    if (length(other_spec) > 0) res <- res | (attr_vec %in% other_spec)
+    res
+  }
+}
 
+#' @noRd
+get_candidate_dyads <- function(directed, n_units = NULL, overlap = NULL, mode = "global",
+                                x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
+                                x_attribute = NULL, y_attribute = NULL,
+                                type_x = "binomial", type_y = "binomial") {
+  if (is.null(n_units) || n_units < 2) {
+    return(matrix(integer(0), ncol = 2))
+  }
+
+  has_i_constr <- !is.null(x_i) || !is.null(y_i)
+  has_j_constr <- !is.null(x_j) || !is.null(y_j)
+  if (!directed) {
+    if (!has_i_constr && has_j_constr) {
+      x_i <- x_j
+      y_i <- y_j
+      x_j <- NULL
+      y_j <- NULL
+      has_i_constr <- TRUE
+      has_j_constr <- FALSE
+    }
+  }
+  has_constraints <- has_i_constr || has_j_constr
+
+  if (mode == "local") {
+    if (is.null(overlap) || nrow(overlap) == 0) {
+      return(matrix(integer(0), ncol = 2))
+    }
+    if (!directed) {
+      wrong_idx <- overlap[, 1] > overlap[, 2]
+      correct_idx <- overlap[, 1] < overlap[, 2]
+      overlap_clean <- rbind(
+        overlap[correct_idx, c(1, 2), drop = FALSE],
+        overlap[wrong_idx, c(2, 1), drop = FALSE]
+      )
+      dyads <- overlap_clean[!duplicated(overlap_clean), , drop = FALSE]
+    } else {
+      dyads <- overlap[overlap[, 1] != overlap[, 2], , drop = FALSE]
+    }
+  } else {
+    if (!directed) {
+      row_u <- unlist(lapply(2:n_units, function(j) seq_len(j - 1)))
+      col_u <- rep(2:n_units, times = seq_len(n_units - 1))
+      dyads <- cbind(row_u, col_u)
+    } else {
+      row_d <- rep(1:n_units, each = n_units - 1)
+      col_d <- unlist(lapply(1:n_units, function(i) (1:n_units)[-i]))
+      dyads <- cbind(row_d, col_d)
+    }
+  }
+
+  if (nrow(dyads) == 0) {
+    return(matrix(integer(0), ncol = 2))
+  }
+
+  if (has_constraints) {
+    cond_sender <- filter_nodes(x_attribute, x_i, type_x) &
+                   filter_nodes(y_attribute, y_i, type_y)
+    cond_receiver <- filter_nodes(x_attribute, x_j, type_x) &
+                     filter_nodes(y_attribute, y_j, type_y)
+    units_sender <- which(cond_sender)
+    units_receiver <- which(cond_receiver)
+
+    if (directed) {
+      qualifies <- (dyads[, 1] %in% units_sender) & (dyads[, 2] %in% units_receiver)
+    } else {
+      if (has_i_constr && has_j_constr) {
+        qualifies <- ((dyads[, 1] %in% units_sender) & (dyads[, 2] %in% units_receiver)) |
+                     ((dyads[, 1] %in% units_receiver) & (dyads[, 2] %in% units_sender))
+      } else {
+        qualifies <- (dyads[, 1] %in% units_sender) | (dyads[, 2] %in% units_sender)
+      }
+    }
+    dyads <- dyads[qualifies, , drop = FALSE]
+  }
+
+  return(dyads)
+}
+
+#' Check for Misused Arguments from Standard GLMs
+#'
+#' Intercepts arguments commonly passed to base R's \code{glm()} that are either invalid,
+#' unsupported, or handled differently in \code{iglm()}.
+#'
+#' @param args A list of arguments captured from \code{...}.
+#' @return \code{invisible(NULL)} if no unexpected arguments are present.
+#' @noRd
+check_glm_arguments <- function(args) {
+  if (length(args) == 0) {
+    return(invisible(NULL))
+  }
+  arg_names <- names(args)
+
+  # Check for standard glm arguments
+  if (!is.null(arg_names)) {
+    if ("data" %in% arg_names) {
+      stop(
+        "iglm does not accept a 'data' argument in the standard glm sense.\n",
+        "Attributes (x, y) and network adjacency (z) must be bundled into an 'iglm.data' object ",
+        "and passed as the response on the LHS of the formula: iglm(my_iglm_data ~ ...).\n",
+        "Use `iglm.data(...)` to construct your data container first.",
+        call. = FALSE
+      )
+    }
+
+    if ("family" %in% arg_names) {
+      stop(
+        "'family' is not an argument to iglm().\n",
+        "The distributional family is defined when creating the 'iglm.data' object ",
+        "via 'type_y' and 'type_x' (e.g., iglm.data(..., type_y = 'binomial', type_x = 'normal')).",
+        call. = FALSE
+      )
+    }
+
+    if ("subset" %in% arg_names) {
+      stop(
+        "Subsetting via 'subset' is not permitted in iglm.\n",
+        "Arbitrarily removing units alters network topology (degrees, neighbor sets, and spillover structure). ",
+        "If you need an induced subgraph, subset the network and attributes simultaneously before ",
+        "constructing the 'iglm.data' object.",
+        call. = FALSE
+      )
+    }
+
+    if ("weights" %in% arg_names) {
+      stop(
+        "'weights' is not supported in iglm.\n",
+        "In network models with interference, observation weights disrupt the joint exponential family / potential functions across interacting units.",
+        call. = FALSE
+      )
+    }
+
+    if ("offset" %in% arg_names) {
+      stop(
+        "'offset' is not supported in iglm.\n",
+        "Unit-level offsets from independent GLMs cannot be directly incorporated into joint network potential functions.",
+        call. = FALSE
+      )
+    }
+
+    if ("na.action" %in% arg_names) {
+      stop(
+        "'na.action' is not supported in iglm.\n",
+        "Unlike standard GLMs where missing rows can be dropped independently, ",
+        "dropping units from a network distorts neighborhood structures and introduces non-random network measurement error.\n",
+        "All units in 'iglm.data' must have complete attribute and network information.",
+        call. = FALSE
+      )
+    }
+
+    if ("contrasts" %in% arg_names) {
+      stop(
+        "'contrasts' is not supported in iglm.\n",
+        "Categorical variables and factor contrasts must be preprocessed prior to constructing 'iglm.data' or using iglm terms.",
+        call. = FALSE
+      )
+    }
+
+    if ("method" %in% arg_names) {
+      stop(
+        "'method' (such as 'glm.fit') is not supported in iglm.\n",
+        "iglm uses MCMC-based estimation and controls specified via 'control = control.iglm()'.",
+        call. = FALSE
+      )
+    }
+
+    if ("start" %in% arg_names) {
+      stop(
+        "'start' is not an argument to iglm().\n",
+        "To provide initial parameter values, use the 'coef' and 'coef_degrees' arguments in iglm().",
+        call. = FALSE
+      )
+    }
+
+    # Any other named arguments
+    named_extra <- arg_names[nzchar(arg_names)]
+    if (length(named_extra) > 0) {
+      stop(
+        sprintf(
+          "Unrecognized argument(s) passed to iglm(): %s.",
+          paste(paste0("'", named_extra, "'"), collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  # Unnamed positional arguments
+  stop("Unrecognized positional argument(s) passed to iglm().", call. = FALSE)
+}
 

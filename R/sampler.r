@@ -466,13 +466,13 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #' @export
 #' @seealso `sampler.net.attr`, `iglm`, `control.iglm`
 #' @examples
-#' n_actor <- 50
+#' n_units <- 50
 #' sampler_new <- sampler.iglm(
 #'   n_burn_in = 100, n_simulation = 10,
 #'   seed = 42,
-#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
-#'   sampler_z = sampler.net.attr(n_proposals = n_actor^2, tnt = TRUE),
+#'   sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+#'   sampler_y = sampler.net.attr(n_proposals = n_units * 10),
+#'   sampler_z = sampler.net.attr(n_proposals = n_units^2, tnt = TRUE),
 #'   init_empty = FALSE
 #' )
 #' sampler_new

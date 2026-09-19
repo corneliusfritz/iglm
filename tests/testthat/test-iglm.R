@@ -104,7 +104,7 @@ test_that("iglm throws error when covariate object does not exist", {
   z <- matrix(0, n_actor, n_actor)
   x <- c(0, 1, 1, 0)
   y <- c(1, 0, 1, 0)
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = 4, type_x = "binomial", type_y = "binomial")
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = 4, type_x = "binomial", type_y = "binomial")
 
   expect_error(
     iglm(
@@ -189,10 +189,14 @@ test_that("iglm throws error when covariate object does not exist", {
   expect_no_error(m_degrees_updated$estimate())
   expect_equal(dim(m_degrees_updated$results$var), c(0, 0))
 
-  # Test assess removes non-distribution terms like geodesic_distances
+  # Test assess removes non-distribution terms like geodesic_distances, dsp, geo, geodist, esp
   expect_warning(
     m_degrees_updated$assess(formula = ~ degree_distribution + geodesic_distances, plot = FALSE),
     pattern = "Unrecognized terms deleted: geodesic_distances"
+  )
+  expect_warning(
+    m_degrees_updated$assess(formula = ~ degree_distribution + dsp + geo + geodist + esp, plot = FALSE),
+    pattern = "Unrecognized terms deleted: dsp, geo, geodist, esp"
   )
 })
 

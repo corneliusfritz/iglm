@@ -12,3 +12,5 @@ readme.Rmd
 ^Meta$
 ^README\.md$
 ^simulation_study_neighborhood\.R$
+^neighborhood_simulation_results\.png$
+^README\.Rmd$

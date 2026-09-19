@@ -24,32 +24,32 @@ Next, you can create a `iglm` object by specifying the network structure
 and the attributes of interest. Here is a simple example:
 
 ``` r
-n_actors = 100
+n_units = 100
 
-attribute_info = rnorm(n_actors)
+attribute_info = rnorm(n_units)
 attribute_cov = diag(attribute_info)
 edge_cov = outer(attribute_info, attribute_info, FUN = function(x,y){abs(x-y)})
 set.seed(123)
 
 alpha = 0.3
 block <- matrix(nrow = 50, ncol = 50, data = 1)
-neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actors/50, block, simplify=FALSE)))
+neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units/50, block, simplify=FALSE)))
 
 overlapping_degree = 0.5
-neighborhood = matrix(nrow = n_actors, ncol = n_actors, data = 0)
+neighborhood = matrix(nrow = n_units, ncol = n_units, data = 0)
 block <- matrix(nrow = 5, ncol = 5, data = 0)
 size_neighborhood <- 5
 size_overlap <-  ceiling(size_neighborhood*overlapping_degree)
 
-end <- floor((n_actors-size_neighborhood)/size_overlap)
+end <- floor((n_units-size_neighborhood)/size_overlap)
 for(i in 0:end){
   neighborhood[(1+size_overlap*i):(size_neighborhood+size_overlap*i), (1+size_overlap*i):(size_neighborhood+size_overlap*i)] = 1
 }
-neighborhood[(n_actors-size_neighborhood+1):(n_actors), (n_actors-size_neighborhood+1):(n_actors)] = 1
+neighborhood[(n_units-size_neighborhood+1):(n_units), (n_units-size_neighborhood+1):(n_units)] = 1
 
 type_x <- "binomial"
 type_y <- "binomial"
-object = iglm.data(neighborhood = neighborhood, directed = F, type_x = type_x, type_y = type_y, n_actor = n_actors)
+object = iglm.data(neighborhood = neighborhood, directed = F, type_x = type_x, type_y = type_y, n_units = n_units)
 ```
 
 ## Model Specification
@@ -68,11 +68,11 @@ estimation and set all necessary parameters:
 # Parameters of edges(mode = "local"), attribute_y, and attribute_x
 gt_coef = c(3,-1,-1)
 # Parameters for degree effect
-gt_coef_degrees =  c(rnorm(n = n_actors, -2, 1))
+gt_coef_degrees =  c(rnorm(n = n_units, -2, 1))
 # Define the sampler
 sampler_tmp = sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler_x = sampler.net.attr(n_proposals =  n_actors*10),
-                               sampler_y = sampler.net.attr(n_proposals =  n_actors*10),
+                               sampler_x = sampler.net.attr(n_proposals =  n_units*10),
+                               sampler_y = sampler.net.attr(n_proposals =  n_units*10),
                                sampler_z = sampler.net.attr(n_proposals = sum(neighborhood>0)*10),
                                init_empty = F)
 

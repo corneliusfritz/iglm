@@ -10,9 +10,9 @@
 #'   (non-degrees) terms defined in the `formula`.
 #' @param coef_degrees Numeric vector specifying the degrees coefficient
 #'   values (expansiveness/attractiveness). This is required \strong{only if} the
-#'   `formula` includes degrees terms. Its length must be `n_actor` (for
-#'   undirected networks) or `2 * n_actor` (for directed networks), where
-#'   `n_actor` is determined from the `iglm.data` object in the formula.
+#'   `formula` includes degrees terms. Its length must be `n_units` (for
+#'   undirected networks) or `2 * n_units` (for directed networks), where
+#'   `n_units` is determined from the `iglm.data` object in the formula.
 #' @param sampler An object of class `sampler.iglm` (created by
 #'   `sampler.iglm()`) specifying the MCMC sampling parameters. This includes
 #'   the number of simulations (`n_simulation`), burn-in iterations (`n_burn_in`),
@@ -31,7 +31,7 @@
 #'   for the simulation. If provided, the simulation starts from the state (\code{x_attribute},
 #'   \code{y_attribute}, \code{z_network}) defined in this object.
 #'   The `basis` object must be consistent with the model data referenced in `formula`
-#'   (same number of actors, directedness, and attribute types). All structural specifications
+#'   (same number of units, directedness, and attribute types). All structural specifications
 #'   (terms, neighborhood, overlap, and fixed variable flags) are taken from the `formula` data object.
 #'   If `NULL` (default), the initial state is taken from the `iglm.data` object
 #'   referenced in the `formula`.
@@ -130,10 +130,10 @@ simulate_iglm <- function(formula,
         data_obj$directed, basis$directed
       ))
     }
-    if (basis$n_actor != data_obj$n_actor) {
+    if (basis$n_units != data_obj$n_units) {
       stop(sprintf(
-        "The 'basis' object must have the same number of actors as the model data in 'formula' (expected n_actor = %d, got n_actor = %d).",
-        data_obj$n_actor, basis$n_actor
+        "The 'basis' object must have the same number of units as the model data in 'formula' (expected n_units = %d, got n_units = %d).",
+        data_obj$n_units, basis$n_units
       ))
     }
     if (basis$type_x != data_obj$type_x) {
@@ -164,7 +164,7 @@ simulate_iglm <- function(formula,
   }
 
   degrees <- preprocessed$includes_degrees
-  n_actor <- data_obj$n_actor
+  n_units <- data_obj$n_units
   if (length(coef) != length(preprocessed$term_names)) {
     return("Wrong number of coefficients for the wanted terms.")
   }
@@ -180,7 +180,7 @@ simulate_iglm <- function(formula,
     res <- xyz_simulate_cpp(
       coef = coef, coef_degrees = coef_degrees,
       terms = preprocessed$term_names,
-      n_actor = n_actor,
+      n_units = n_units,
       x_attribute = init_x,
       y_attribute = init_y,
       z_network = init_z,
@@ -218,7 +218,7 @@ simulate_iglm <- function(formula,
       coef = coef,
       coef_degrees = coef_degrees,
       terms = preprocessed$term_names,
-      n_actor = n_actor,
+      n_units = n_units,
       x_attribute = init_x,
       y_attribute = init_y,
       z_network = init_z,
@@ -251,7 +251,7 @@ simulate_iglm <- function(formula,
       x_attribute = res_burn_in$simulation_attributes_x[[1]],
       y_attribute = res_burn_in$simulation_attributes_y[[1]],
       z_network = res_burn_in$simulation_networks_z[[1]],
-      n_actor = n_actor, return_adj_mat = FALSE
+      n_units = n_units, return_adj_mat = FALSE
     )
     # tmp_split = split(1:(round(sampler$n_simulation/length(cluster))*length(cluster)), 1:length(cluster))
     tmp_split <- suppressWarnings(split(1:sampler$n_simulation, seq_along(cluster)))
@@ -261,14 +261,14 @@ simulate_iglm <- function(formula,
     }
 
     res_parallel <- parLapply(
-      cl = cluster, X = tmp_split, fun = function(x, preprocessed, n_actor, coef,
+      cl = cluster, X = tmp_split, fun = function(x, preprocessed, n_units, coef,
                                                   coef_degrees, degrees, sampler,
                                                   res_burnin, offset_nonoverlap,
                                                   data_obj, sim_fix_x, sim_fix_z) {
         xyz_simulate_cpp(
           coef = coef, coef_degrees = coef_degrees,
           terms = preprocessed$term_names,
-          n_actor = n_actor,
+          n_units = n_units,
           type_x = data_obj$type_x,
           type_y = data_obj$type_y,
           attr_x_scale = data_obj$scale_x,
@@ -297,7 +297,7 @@ simulate_iglm <- function(formula,
           offset_nonoverlap = offset_nonoverlap,
           tnt = sampler$sampler_z$tnt
         )
-      }, preprocessed = preprocessed, n_actor = n_actor, coef = coef,
+      }, preprocessed = preprocessed, n_units = n_units, coef = coef,
       coef_degrees = coef_degrees, degrees = degrees,
       sampler = sampler, res_burnin = res_burnin, offset_nonoverlap = offset_nonoverlap,
       data_obj = data_obj, sim_fix_x = sim_fix_x, sim_fix_z = sim_fix_z
@@ -330,7 +330,7 @@ simulate_iglm <- function(formula,
         x_attribute = res$simulation_attributes_x[[x]],
         y_attribute = res$simulation_attributes_y[[x]],
         z_network = res$simulation_networks[[x]],
-        n_actor = n_actor, return_adj_mat = FALSE
+        n_units = n_units, return_adj_mat = FALSE
       )
     }
   )
@@ -343,7 +343,7 @@ simulate_iglm <- function(formula,
         y_attribute = tmp[[x]]$y_attribute,
         z_network = tmp[[x]]$z_network,
         directed = data_obj$directed,
-        n_actor = length(tmp[[x]]$x_attribute),
+        n_units = length(tmp[[x]]$x_attribute),
         type_x = data_obj$type_x,
         type_y = data_obj$type_y,
         scale_x = data_obj$scale_x,

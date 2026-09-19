@@ -36,7 +36,7 @@ test_that("Define a iglm.data object and check all functions", {
       0, 1, 1, 0
     ), nrow = 4, byrow = TRUE),
     directed = FALSE,
-    n_actor = 4, x_attribute = c(0, 0, 1, 0),
+    n_units = 4, x_attribute = c(0, 0, 1, 0),
     y_attribute = c(0, 1, 0, 1),
     type_x = "binomial",
     type_y = "binomial"
@@ -105,7 +105,7 @@ test_that("Define a directed iglm.data object and check all functions", {
       0, 1, 0, 0
     ), nrow = 4, byrow = TRUE),
     directed = TRUE,
-    n_actor = 4, x_attribute = c(0, 0, 1, 0),
+    n_units = 4, x_attribute = c(0, 0, 1, 0),
     y_attribute = c(0, 1, 0, 1),
     type_x = "binomial",
     type_y = "binomial"
@@ -149,31 +149,31 @@ test_that("iglm.data validation throws error when attributes or networks contain
 
   # Check x_attribute NA
   expect_error(
-    iglm.data(x_attribute = x_na, y_attribute = y_clean, z_network = z_clean, n_actor = 4, type_x = "normal", type_y = "binomial"),
+    iglm.data(x_attribute = x_na, y_attribute = y_clean, z_network = z_clean, n_units = 4, type_x = "normal", type_y = "binomial"),
     pattern = "'x_attribute' contains missing \\(NA/NaN\\) values."
   )
 
   # Check y_attribute NA
   expect_error(
-    iglm.data(x_attribute = x_clean, y_attribute = y_na, z_network = z_clean, n_actor = 4, type_x = "normal", type_y = "binomial"),
+    iglm.data(x_attribute = x_clean, y_attribute = y_na, z_network = z_clean, n_units = 4, type_x = "normal", type_y = "binomial"),
     pattern = "'y_attribute' contains missing \\(NA/NaN\\) values."
   )
 
   # Check z_network matrix NA
   expect_error(
-    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_na, n_actor = 4, type_x = "normal", type_y = "binomial"),
+    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_na, n_units = 4, type_x = "normal", type_y = "binomial"),
     pattern = "'z_network' contains missing \\(NA/NaN\\) values."
   )
 
   # Check neighborhood matrix NA
   expect_error(
-    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_clean, neighborhood = z_na, n_actor = 4, type_x = "normal", type_y = "binomial"),
+    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_clean, neighborhood = z_na, n_units = 4, type_x = "normal", type_y = "binomial"),
     pattern = "'neighborhood' contains missing \\(NA/NaN\\) values."
   )
 })
 
 test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters", {
-  n_actor <- 6
+  n_units <- 6
   z <- matrix(c(
     0, 1, 1, 0, 0, 0,
     1, 0, 1, 0, 0, 0,
@@ -186,8 +186,8 @@ test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters",
   x <- c(1, 1, 0, 0, 1, 0)
   y <- c(0, 1, 1, 0, 0, 1)
 
-  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
-  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
 
   # Directed default vs constrained
   deg_dir_def <- data_dir$degree_distribution(plot = FALSE)
@@ -228,7 +228,7 @@ test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters",
 })
 
 test_that("Positional arguments work for distribution methods", {
-  n_actor <- 5
+  n_units <- 5
   z <- matrix(c(
     0, 1, 1, 0, 0,
     1, 0, 1, 0, 0,
@@ -238,7 +238,7 @@ test_that("Positional arguments work for distribution methods", {
   ), nrow = 5, byrow = TRUE)
   x <- c(1, 0, 1, 0, 1)
   y <- c(0, 1, 0, 1, 0)
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = TRUE)
 
   expect_no_error(data_obj$edgewise_shared_partner_distribution("OTP", c(0, 3), FALSE, FALSE))
   expect_no_error(data_obj$dyadwise_shared_partner_distribution("OTP", c(0, 3), FALSE, FALSE))
@@ -246,13 +246,13 @@ test_that("Positional arguments work for distribution methods", {
 })
 
 test_that("Undirected constrained degree accounts for canonical edge orientation", {
-  n_actor <- 4
+  n_units <- 4
   # Only edge is between actor 1 and actor 4 (stored as 1 -> 4)
   z <- matrix(0, nrow = 4, ncol = 4)
   z[1, 4] <- z[4, 1] <- 1
   x <- c(1, 0, 0, 0) # actor 1 has x=1
   y <- c(0, 0, 0, 1) # actor 4 has y=1
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
 
   # Degree of actor 1 connecting to y=1 receivers (actor 4)
   deg_1 <- data_obj$degree(x_i = 1, y_j = 1)
@@ -266,7 +266,7 @@ test_that("Undirected constrained degree accounts for canonical edge orientation
 })
 
 test_that("Undirected degree and degree_distribution are equivalent for x_i = 1 vs x_j = 1", {
-  n_actor <- 5
+  n_units <- 5
   z <- matrix(c(
     0, 1, 1, 0, 0,
     1, 0, 1, 0, 1,
@@ -277,7 +277,7 @@ test_that("Undirected degree and degree_distribution are equivalent for x_i = 1 
   x <- c(1, 1, 0, 0, 1) # nodes 1, 2, 5 have x=1
   y <- c(0, 1, 1, 0, 0)
 
-  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
 
   # Single constraint equivalence
   deg_xi <- data_undir$degree(x_i = 1)
@@ -292,8 +292,12 @@ test_that("Undirected degree and degree_distribution are equivalent for x_i = 1 
   # Double constraint x_i = 1, x_j = 1 implies both ends have x = 1 (subgraph on nodes 1, 2, 5)
   # Edges among {1, 2, 5}: (1,2), (2,5) -> node 1 deg=1, node 2 deg=2, node 5 deg=1
   deg_both <- data_undir$degree(x_i = 1, x_j = 1)
-  expect_equal(unname(deg_both$out_degree_seq), c(1, 2, 1))
-  expect_equal(unname(deg_both$in_degree_seq), c(1, 2, 1))
+  expect_equal(unname(deg_both$degree_seq), c(1, 2, 1))
+
+  # Identical constraints on undirected network return a single degree table (not in/out list)
+  dist_both <- data_undir$degree_distribution(x_i = 1, x_j = 1, plot = FALSE)
+  expect_true(inherits(dist_both, "table"))
+  expect_false(is.list(dist_both))
 
   # Single constraint counts full degrees for actors with x=1:
   # Node 1: edges to 2, 3 -> deg = 2
@@ -325,12 +329,12 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
     y_attr <- data_obj$y_attribute
     type_x <- data_obj$type_x
     type_y <- data_obj$type_y
-    n_actor <- data_obj$n_actor
+    n_units <- data_obj$n_units
     z_net <- data_obj$z_network
     overlap <- data_obj$overlap
 
     if (!is.null(x_i) || !is.null(y_i)) {
-      cond_i <- rep(TRUE, n_actor)
+      cond_i <- rep(TRUE, n_units)
       if (!is.null(x_i)) cond_i <- cond_i & binarize_filter(x_attr, x_i, type_x)
       if (!is.null(y_i)) cond_i <- cond_i & binarize_filter(y_attr, y_i, type_y)
       actors_sender <- which(cond_i)
@@ -339,7 +343,7 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
     }
 
     if (!is.null(x_j) || !is.null(y_j)) {
-      cond_j <- rep(TRUE, n_actor)
+      cond_j <- rep(TRUE, n_units)
       if (!is.null(x_j)) cond_j <- cond_j & binarize_filter(x_attr, x_j, type_x)
       if (!is.null(y_j)) cond_j <- cond_j & binarize_filter(y_attr, y_j, type_y)
       actors_receiver <- which(cond_j)
@@ -418,7 +422,7 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
   }
 
   set.seed(42)
-  n_actor <- 15
+  n_units <- 15
   block <- matrix(nrow = 5, ncol = 5, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(3, block, simplify = FALSE)))
   z_dir <- matrix(rbinom(225, 1, 0.3), 15, 15)
@@ -465,20 +469,20 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
 })
 
 test_that("iglm.data supports custom label_x, label_y, and label_z", {
-  n_actor <- 5
+  n_units <- 5
   x <- c(0, 1, 0, 1, 1)
   y <- c(1, 1, 0, 0, 1)
   z <- matrix(c(1, 2, 2, 3, 3, 4), ncol = 2, byrow = TRUE)
 
   # Default labels
-  d_default <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor)
+  d_default <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units)
   expect_equal(d_default$label_x, "x")
   expect_equal(d_default$label_y, "y")
   expect_equal(d_default$label_z, "z")
 
   # Custom labels via constructor
   d_custom <- iglm.data(
-    x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor,
+    x_attribute = x, y_attribute = y, z_network = z, n_units = n_units,
     label_x = "republican", label_y = "turnout", label_z = "friendship"
   )
   expect_equal(d_custom$label_x, "republican")
@@ -499,12 +503,12 @@ test_that("iglm.data supports custom label_x, label_y, and label_z", {
   expect_error(d_custom$set_label_z(NA_character_), "single non-empty character string")
 
   # Explicit labels vs defaults
-  d_def <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor)
+  d_def <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units)
   expect_equal(d_def$label_x, "x")
   expect_equal(d_def$label_y, "y")
   expect_equal(d_def$label_z, "z")
 
-  d_arg <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = n_actor, label_x = "pol_orient", label_y = "participation")
+  d_arg <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, label_x = "pol_orient", label_y = "participation")
   expect_equal(d_arg$label_x, "pol_orient")
   expect_equal(d_arg$label_y, "participation")
 
@@ -515,8 +519,8 @@ test_that("iglm.data supports custom label_x, label_y, and label_z", {
   expect_true(any(grepl("connections \\[advice\\]", out_print)))
 
   # Normal attribute print output shows mean and sd only (no redundant scale)
-  x_norm <- rnorm(n_actor)
-  d_norm <- iglm.data(x_attribute = x_norm, y_attribute = y, z_network = z, n_actor = n_actor, type_x = "normal")
+  x_norm <- rnorm(n_units)
+  d_norm <- iglm.data(x_attribute = x_norm, y_attribute = y, z_network = z, n_units = n_units, type_x = "normal")
   out_norm <- capture.output(d_norm$print())
   expect_true(any(grepl("normal mean = .*sd = ", out_norm)))
   expect_false(any(grepl("scale =", out_norm)))

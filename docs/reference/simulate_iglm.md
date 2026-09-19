@@ -45,9 +45,9 @@ simulate_iglm(
 
   Numeric vector specifying the degrees coefficient values
   (expansiveness/attractiveness). This is required **only if** the
-  \`formula\` includes degrees terms. Its length must be \`n_actor\`
-  (for undirected networks) or \`2 \* n_actor\` (for directed networks),
-  where \`n_actor\` is determined from the \`iglm.data\` object in the
+  \`formula\` includes degrees terms. Its length must be \`n_units\`
+  (for undirected networks) or \`2 \* n_units\` (for directed networks),
+  where \`n_units\` is determined from the \`iglm.data\` object in the
   formula.
 
 - sampler:
