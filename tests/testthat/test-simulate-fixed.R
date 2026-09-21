@@ -392,7 +392,7 @@ test_that("Estimation with fix_z_alocal works", {
 
 test_that("simulate_iglm validates basis consistency", {
   n_units <- 10
-  data_undir <- iglm.data(n_units = n_units, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  data_undir <- iglm.data(n_units = n_units, directed = FALSE, family_x = "binomial", family_y = "binomial")
   
   # Non-iglm.data basis
   expect_error(
@@ -401,31 +401,31 @@ test_that("simulate_iglm validates basis consistency", {
   )
 
   # Directed basis vs undirected model
-  basis_dir <- iglm.data(n_units = n_units, directed = TRUE, type_x = "binomial", type_y = "binomial")
+  basis_dir <- iglm.data(n_units = n_units, directed = TRUE, family_x = "binomial", family_y = "binomial")
   expect_error(
     simulate_iglm(data_undir ~ edges() + attribute_y, coef = c(-1, 0.5), basis = basis_dir),
     "The 'basis' object must have the same directedness as the model data"
   )
 
   # Different number of units
-  basis_diff_n <- iglm.data(n_units = 15, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  basis_diff_n <- iglm.data(n_units = 15, directed = FALSE, family_x = "binomial", family_y = "binomial")
   expect_error(
     simulate_iglm(data_undir ~ edges() + attribute_y, coef = c(-1, 0.5), basis = basis_diff_n),
     "The 'basis' object must have the same number of units as the model data"
   )
 
-  # Different type_x
-  basis_diff_x <- iglm.data(n_units = n_units, directed = FALSE, type_x = "normal", type_y = "binomial")
+  # Different family_x
+  basis_diff_x <- iglm.data(n_units = n_units, directed = FALSE, family_x = "normal", family_y = "binomial")
   expect_error(
     simulate_iglm(data_undir ~ edges() + attribute_y, coef = c(-1, 0.5), basis = basis_diff_x),
-    "The 'basis' object must have the same type_x as the model data"
+    "The 'basis' object must have the same family_x as the model data"
   )
 
-  # Different type_y
-  basis_diff_y <- iglm.data(n_units = n_units, directed = FALSE, type_x = "binomial", type_y = "normal")
+  # Different family_y
+  basis_diff_y <- iglm.data(n_units = n_units, directed = FALSE, family_x = "binomial", family_y = "normal")
   expect_error(
     simulate_iglm(data_undir ~ edges() + attribute_y, coef = c(-1, 0.5), basis = basis_diff_y),
-    "The 'basis' object must have the same type_y as the model data"
+    "The 'basis' object must have the same family_y as the model data"
   )
 })
 

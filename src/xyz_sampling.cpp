@@ -105,8 +105,8 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
                                       std::vector<arma::mat> &data_list,
                                       std::vector<double> &type_list,
                                       std::vector<xyz_ValidateFunction> functions, 
-                                      std::string type_x, 
-                                      std::string type_y, 
+                                      std::string family_x, 
+                                      std::string family_y, 
                                       double attr_x_scale, 
                                       double attr_y_scale) {
   // Start with empty network and zero attributes, filling them incrementally
@@ -114,7 +114,7 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
                        object.neighborhood, 
                        object.overlap,
                        object.overlap_mat,
-                       type_x, type_y, attr_x_scale, attr_y_scale);
+                       family_x, family_y, attr_x_scale, attr_y_scale);
   bool is_full_neighborhood = object.check_if_full_neighborhood();
   arma::vec res(functions.size());
   res.fill(0);
@@ -204,14 +204,14 @@ arma::vec xyz_count_global(const arma::mat& z_network,
                            int n_units,
                            std::vector<arma::mat> &data_list,
                            std::vector<double> &type_list, 
-                           std::string type_x, 
-                           std::string type_y, 
+                           std::string family_x, 
+                           std::string family_y, 
                            double attr_x_scale, 
                            double attr_y_scale) {
   // std::unordered_map< int, std::unordered_set<int>> edges;
   // // Convert the matrix to two unordered_map objects
   // edges = mat_to_map(network,1, n_units);
-  XYZ_class object(n_units,directed, x_attribute,y_attribute,z_network, neighborhood, overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, x_attribute,y_attribute,z_network, neighborhood, overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   // object.initialize(z_network, x_attribute,y_attribute,neighborhood );
   // object.print();
   std::vector<xyz_ValidateFunction> functions, functions_new;
@@ -227,8 +227,8 @@ arma::vec xyz_count_global(const arma::mat& z_network,
                                                     data_list,
                                                     type_list,
                                                     functions, 
-                                                    type_x, 
-                                                    type_y, 
+                                                    family_x, 
+                                                    family_y, 
                                                     attr_x_scale, 
                                                     attr_y_scale));
   global_stats = global_stats + at_zero;
@@ -237,8 +237,8 @@ arma::vec xyz_count_global(const arma::mat& z_network,
   //                                                   data_list,
   //                                                   type_list,
   //                                                   functions, 
-  //                                                   type_x, 
-  //                                                   type_y, 
+  //                                                   family_x, 
+  //                                                   family_y, 
   //                                                   attr_x_scale, 
   //                                                   attr_y_scale));
   // global_stats = global_stats + at_zero;
@@ -254,8 +254,8 @@ arma::vec xyz_count_global_internal(const XYZ_class& object,
                                     int n_units,
                                     std::vector<arma::mat> &data_list,
                                     std::vector<double> &type_list, 
-                                    std::string type_x, 
-                                    std::string type_y, 
+                                    std::string family_x, 
+                                    std::string family_y, 
                                     double attr_x_scale, 
                                     double attr_y_scale) {
   std::vector<xyz_ValidateFunction> functions;
@@ -267,8 +267,8 @@ arma::vec xyz_count_global_internal(const XYZ_class& object,
   arma::vec global_stats(xyz_count_global_statistic(object,
                                                     data_list,
                                                     type_list,
-                                                    functions, type_x, 
-                                                    type_y, 
+                                                    functions, family_x, 
+                                                    family_y, 
                                                     attr_x_scale, 
                                                     attr_y_scale));
   global_stats = global_stats + at_zero;
@@ -862,7 +862,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
                                is_full_neighborhood,
                                functions);
     if(type == "x"){
-      if(object.x_attribute.type == "binomial"){
+      if(object.x_attribute.family == "binomial"){
         if(object.x_attribute.get_val(tmp_i)){
           proposed_change = 0;
           multiplier = -1;
@@ -885,13 +885,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
           }
         }
       }
-      if(object.x_attribute.type == "poisson"){
+      if(object.x_attribute.family == "poisson"){
         double safe_eta = std::min(arma::dot(coef, change_stat), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats += (tmp_val - object.x_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
-      if(object.x_attribute.type == "normal"){
+      if(object.x_attribute.family == "normal"){
         double HR_val = arma::dot(coef, change_stat);
         double tmp_val = R::rnorm(HR_val, sqrt(object.x_attribute.scale)); 
         global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i))/object.x_attribute.scale * change_stat;
@@ -899,7 +899,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       }
     }
     if(type == "y"){
-      if(object.y_attribute.type == "binomial"){
+      if(object.y_attribute.family == "binomial"){
         if(object.y_attribute.get_val(tmp_i)){
           proposed_change = 0;
           multiplier = -1;
@@ -921,13 +921,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
           }
         }
       }
-      if(object.y_attribute.type == "poisson"){
+      if(object.y_attribute.family == "poisson"){
         double safe_eta = std::min(arma::dot(coef, change_stat), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats +=  (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
-      if(object.y_attribute.type == "normal"){
+      if(object.y_attribute.family == "normal"){
         double HR_val = arma::dot(coef, change_stat);
         double tmp_val = R::rnorm(HR_val, sqrt(object.y_attribute.scale)); 
         global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i))/object.y_attribute.scale * change_stat;
@@ -1089,8 +1089,8 @@ List xyz_simulate_cpp(arma::vec& coef,
                       std::vector<arma::mat>& data_list,
                       std::vector<double>& type_list,
                       double offset_nonoverlap,
-                      std::string type_x, 
-                      std::string type_y, 
+                      std::string family_x, 
+                      std::string family_y, 
                       double attr_x_scale, 
                       double attr_y_scale,
                       bool nonoverlap_random = false, 
@@ -1107,7 +1107,7 @@ List xyz_simulate_cpp(arma::vec& coef,
                       bool tnt = true){
   // res(n_simulation);
   // stats2.fill(0);
-  XYZ_class object(n_units,directed, neighborhood, overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, neighborhood, overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   if(!init_empty){
     object.set_info_arma(x_attribute,y_attribute, z_network);
   } else {
@@ -1147,7 +1147,7 @@ List xyz_simulate_cpp(arma::vec& coef,
                                                       n_units,
                                                       data_list,
                                                       type_list,
-                                                      type_x, type_y, 
+                                                      family_x, family_y, 
                                                       attr_x_scale, 
                                                       attr_y_scale);
   // Rcout << global_stats << std::endl;
@@ -1581,8 +1581,8 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
                                                                                          arma::vec &coef_degrees,
                                                                                          double offset_nonoverlap,
                                                                                          bool &non_stop, 
-                                                                                         std::string attr_x_type, 
-                                                                                         std::string attr_y_type, 
+                                                                                         std::string attr_x_family, 
+                                                                                         std::string attr_y_family, 
                                                                                          double x_scale, 
                                                                                          double y_scale, 
                                                                                          bool fix_x) {
@@ -1631,7 +1631,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
       } else if((i >= number_elements_network) && (i < number_elements_network +n_units) && (fix_x == false)){
         // 
         // What to do if we are regarding attribute information (relating to the last entries)
-        if(attr_x_type == "binomial"){
+        if(attr_x_family == "binomial"){
           exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef);
           score_tmp = std::get<0>(pseudo_lh).row(i).t()*
             std::get<1>(pseudo_lh).at(i) -
@@ -1641,12 +1641,12 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
             std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i);
           
         }
-        if(attr_x_type == "poisson"){
+        if(attr_x_family == "poisson"){
           exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef);
           score += (std::get<1>(pseudo_lh).at(i) - exp_tmp.at(0))*std::get<0>(pseudo_lh).row(i).t();
           fisher += exp_tmp.at(0)*
             std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i);
-        } else if(attr_x_type == "normal"){
+        } else if(attr_x_family == "normal"){
           exp_tmp = std::get<0>(pseudo_lh).row(i)*coef;
           score += (std::get<1>(pseudo_lh).at(i) - exp_tmp.at(0))*std::get<0>(pseudo_lh).row(i).t()/x_scale;
           fisher += std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i)/x_scale;
@@ -1655,7 +1655,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
         
       } else {
         
-        if(attr_y_type == "binomial"){
+        if(attr_y_family == "binomial"){
           exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef);
           score_tmp = std::get<0>(pseudo_lh).row(i).t()*
             std::get<1>(pseudo_lh).at(i) -
@@ -1665,12 +1665,12 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
             std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i);
           
         }
-        if(attr_y_type == "poisson"){
+        if(attr_y_family == "poisson"){
           exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef);
           score += (std::get<1>(pseudo_lh).at(i) - exp_tmp.at(0))*std::get<0>(pseudo_lh).row(i).t();
           fisher += exp_tmp.at(0)*
             std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i);
-        } else if(attr_y_type == "normal"){
+        } else if(attr_y_family == "normal"){
           exp_tmp = std::get<0>(pseudo_lh).row(i)*coef;
           score += (std::get<1>(pseudo_lh).at(i) - exp_tmp.at(0))*std::get<0>(pseudo_lh).row(i).t()/y_scale;
           fisher += std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i)/y_scale;
@@ -1711,8 +1711,8 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
     arma::vec &coef_degrees,
     double offset_nonoverlap,
     bool &non_stop,
-    std::string attr_x_type,
-    std::string attr_y_type,
+    std::string attr_x_family,
+    std::string attr_y_family,
     double x_scale,
     double y_scale,
     bool fix_x) {
@@ -1783,7 +1783,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
       
       // --- Component 2: Attribute 'x' ---
       if (fix_x == false) {
-        if (attr_x_type == "binomial") {
+        if (attr_x_family == "binomial") {
           arma::vec eta_x = X_x * coef;
           arma::vec exp_eta_x = arma::exp(eta_x);
           arma::vec prob_x = exp_eta_x / (1.0 + exp_eta_x);
@@ -1792,14 +1792,14 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
           score += X_x.t() * (Y_x - prob_x);
           fisher += X_x.t() * arma::diagmat(var_x) * X_x;
           
-        } else if (attr_x_type == "poisson") {
+        } else if (attr_x_family == "poisson") {
           arma::vec eta_x = X_x * coef;
           arma::vec mu_x = arma::exp(eta_x);
           
           score += X_x.t() * (Y_x - mu_x);
           fisher += X_x.t() * arma::diagmat(mu_x) * X_x;
           
-        } else if (attr_x_type == "normal") {
+        } else if (attr_x_family == "normal") {
           arma::vec mu_x = X_x * coef; 
           score += X_x.t() * (Y_x - mu_x) / x_scale;
           fisher += (X_x.t() * X_x) / x_scale;
@@ -1807,7 +1807,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
       }
       
       // --- Component 3: Attribute 'y' ---
-      if (attr_y_type == "binomial") {
+      if (attr_y_family == "binomial") {
         arma::vec eta_y = X_y * coef;
         arma::vec exp_eta_y = arma::exp(eta_y);
         arma::vec prob_y = exp_eta_y / (1.0 + exp_eta_y);
@@ -1816,14 +1816,14 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
         score += X_y.t() * (Y_y - prob_y);
         fisher += X_y.t() * arma::diagmat(var_y) * X_y;
         
-      } else if (attr_y_type == "poisson") {
+      } else if (attr_y_family == "poisson") {
         arma::vec eta_y = X_y * coef;
         arma::vec mu_y = arma::exp(eta_y);
         
         score += X_y.t() * (Y_y - mu_y);
         fisher += X_y.t() * arma::diagmat(mu_y) * X_y;
         
-      } else if (attr_y_type == "normal") {
+      } else if (attr_y_family == "normal") {
         arma::vec mu_y = X_y * coef;
         
         score += X_y.t() * (Y_y - mu_y) / y_scale;
@@ -1856,8 +1856,8 @@ double calculate_llh(
     bool directed,
     const std::tuple<arma::mat, arma::vec>& pseudo_lh,
     double offset_nonoverlap,
-    const std::string& attr_x_type,
-    const std::string& attr_y_type,
+    const std::string& attr_x_family,
+    const std::string& attr_y_family,
     double x_scale,
     double y_scale,
     int n_units,
@@ -1926,19 +1926,19 @@ double calculate_llh(
   }
   // --- Component 2: Attribute 'x' ---
   if (fix_x == false) {
-    if (attr_x_type == "binomial") {
+    if (attr_x_family == "binomial") {
       // logL = sum( Y*eta - log(1 + exp(eta)) )
       arma::vec eta_x = X_x * coef;
       arma::vec exp_eta_x = arma::exp(eta_x);
       llh += arma::sum(Y_x % eta_x - arma::log1p(exp_eta_x));
       
-    } else if (attr_x_type == "poisson") {
+    } else if (attr_x_family == "poisson") {
       // logL = sum( Y*eta - exp(eta) - lgamma(Y+1) )
       arma::vec eta_x = X_x * coef;
       arma::vec mu_x = arma::exp(eta_x);
       llh += arma::sum(Y_x % eta_x - mu_x - arma::lgamma(Y_x + 1.0));
       
-    } else if (attr_x_type == "normal") {
+    } else if (attr_x_family == "normal") {
       // logL = sum( -0.5*log(2*pi*scale) - (Y - mu)^2 / (2*scale) )
       arma::vec mu_x = X_x * coef;
       double const_x = -0.5 * std::log(2.0 * M_PI * x_scale);
@@ -1948,19 +1948,19 @@ double calculate_llh(
   // Rcout << "Log-likelihood after x component: " << llh << std::endl;
   
   // --- Component 3: Attribute 'y' ---
-  if (attr_y_type == "binomial") {
+  if (attr_y_family == "binomial") {
     // logL = sum( Y*eta - log(1 + exp(eta)) )
     arma::vec eta_y = X_y * coef;
     arma::vec exp_eta_y = arma::exp(eta_y);
     llh += arma::sum(Y_y % eta_y - arma::log1p(exp_eta_y));
     
-  } else if (attr_y_type == "poisson") {
+  } else if (attr_y_family == "poisson") {
     // logL = sum( Y*eta - exp(eta) - lgamma(Y+1) )
     arma::vec eta_y = X_y * coef;
     arma::vec mu_y = arma::exp(eta_y);
     llh += arma::sum(Y_y % eta_y - mu_y - arma::lgamma(Y_y + 1.0));
     
-  } else if (attr_y_type == "normal") {
+  } else if (attr_y_family == "normal") {
     // logL = sum( -0.5*log(2*pi*scale) - (Y - mu)^2 / (2*scale) )
     arma::vec mu_y = X_y * coef;
     double const_y = -0.5 * std::log(2.0 * M_PI * y_scale);
@@ -1982,8 +1982,8 @@ arma::mat get_C_new(
     const arma::vec& coef_degrees,
     double offset_nonoverlap,
     bool fix_x,
-    const std::string& attr_x_type,
-    const std::string& attr_y_type,
+    const std::string& attr_x_family,
+    const std::string& attr_y_family,
     double attr_x_scale,
     double attr_y_scale)
 {
@@ -2048,20 +2048,20 @@ arma::mat get_C_new(
   // 2) attribute x (if present)
   if (!fix_x) {
     arma::vec var_x;
-    if (attr_x_type == "binomial") {
+    if (attr_x_family == "binomial") {
       arma::vec eta_x = X_x * coef;
       arma::vec ex = arma::exp(eta_x);
       arma::vec p = ex / (1.0 + ex);
       var_x = p % (1.0 - p);
-    } else if (attr_x_type == "poisson") { 
+    } else if (attr_x_family == "poisson") { 
       arma::vec eta_x = X_x * coef;
       arma::vec mu = arma::exp(eta_x);
       var_x = mu;               // variance = mu
-    } else if (attr_x_type == "normal") { 
+    } else if (attr_x_family == "normal") { 
       // For normal, variance is constant = attr_x_scale
       var_x = arma::vec(X_x.n_rows, arma::fill::value(1.0/attr_x_scale));
     } else { 
-      Rcpp::stop("Unknown attr_x_type: must be 'binomial', 'poisson' or 'normal'.");
+      Rcpp::stop("Unknown attr_x_family: must be 'binomial', 'poisson' or 'normal'.");
     } 
     // place into w
     w.rows(n_net, n_net + X_x.n_rows - 1) = var_x;
@@ -2070,19 +2070,19 @@ arma::mat get_C_new(
   
   // 3) attribute y
   arma::vec var_y;
-  if (attr_y_type == "binomial") {
+  if (attr_y_family == "binomial") {
     arma::vec eta_y = X_y * coef;
     arma::vec ey = arma::exp(eta_y);
     arma::vec p = ey / (1.0 + ey);
     var_y = p % (1.0 - p);
-  } else if (attr_y_type == "poisson") { 
+  } else if (attr_y_family == "poisson") { 
     arma::vec eta_y = X_y * coef;
     arma::vec mu = arma::exp(eta_y);
     var_y = mu;
-  } else if (attr_y_type == "normal") { 
+  } else if (attr_y_family == "normal") { 
     var_y = arma::vec(X_y.n_rows, arma::fill::value(1.0/attr_y_scale));
   } else { 
-    Rcpp::stop("Unknown attr_y_type: must be 'binomial', 'poisson' or 'normal'.");
+    Rcpp::stop("Unknown attr_y_family: must be 'binomial', 'poisson' or 'normal'.");
   } 
   arma::uword start_y;
   if (!fix_x) start_y = n_net + X_x.n_rows;
@@ -2100,8 +2100,8 @@ arma::mat get_C(arma::vec coef, arma::uvec &i_vec,
                 std::tuple<arma::mat,arma::vec> &pseudo_lh,
                 arma::vec &coef_degrees,
                 double offset_nonoverlap,
-                const std::string& attr_x_type,
-                const std::string& attr_y_type,
+                const std::string& attr_x_family,
+                const std::string& attr_y_family,
                 double attr_x_scale,
                 double attr_y_scale) {
   unsigned int n_units;
@@ -2481,8 +2481,8 @@ List pl_estimation(arma::vec coef,
                    bool non_stop, 
                    bool fix_x, 
                    bool fix_z, 
-                   std::string attr_x_type, 
-                   std::string attr_y_type, 
+                   std::string attr_x_family, 
+                   std::string attr_y_family, 
                    double attr_x_scale, 
                    double attr_y_scale, 
                    bool nonoverlap_random) {
@@ -2501,7 +2501,7 @@ List pl_estimation(arma::vec coef,
   } 
   // Calculates the data in a suitable format -> a vector or 32 x p 
   // (being the dimension of the sufficient statistics) matrices corresponding to the data of each dyad
-  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, attr_x_type, attr_y_type,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, attr_x_family, attr_y_family,attr_x_scale, attr_y_scale);
   
   int k = 1;
   bool non_converged = true;
@@ -2637,7 +2637,7 @@ List pl_estimation(arma::vec coef,
     // 
     // --- Component 2: Attribute 'x' ---
     if (fix_x == false) {
-      if (attr_x_type == "binomial") {
+      if (attr_x_family == "binomial") {
         arma::vec eta_x = X_x * coef;
         arma::vec exp_eta_x = arma::exp(eta_x);
         arma::vec prob_x = exp_eta_x / (1.0 + exp_eta_x);
@@ -2646,14 +2646,14 @@ List pl_estimation(arma::vec coef,
         score += X_x.t() * (Y_x - prob_x);
         fisher += X_x.t() * arma::diagmat(var_x) * X_x;
         
-      } else if (attr_x_type == "poisson") {
+      } else if (attr_x_family == "poisson") {
         arma::vec eta_x = X_x * coef;
         arma::vec mu_x = arma::exp(eta_x);
         
         score += X_x.t() * (Y_x - mu_x);
         fisher += X_x.t() * arma::diagmat(mu_x) * X_x;
         
-      } else if (attr_x_type == "normal") {
+      } else if (attr_x_family == "normal") {
         arma::vec mu_x = X_x * coef; 
         score += X_x.t() * (Y_x - mu_x) / attr_x_scale;
         fisher += (X_x.t() * X_x) / attr_x_scale;
@@ -2661,7 +2661,7 @@ List pl_estimation(arma::vec coef,
     }
     
     // --- Component 3: Attribute 'y' ---
-    if (attr_y_type == "binomial") {
+    if (attr_y_family == "binomial") {
       arma::vec eta_y = X_y * coef;
       arma::vec exp_eta_y = arma::exp(eta_y);
       arma::vec prob_y = exp_eta_y / (1.0 + exp_eta_y);
@@ -2670,14 +2670,14 @@ List pl_estimation(arma::vec coef,
       score += X_y.t() * (Y_y - prob_y);
       fisher += X_y.t() * arma::diagmat(var_y) * X_y;
       
-    } else if (attr_y_type == "poisson") {
+    } else if (attr_y_family == "poisson") {
       arma::vec eta_y = X_y * coef;
       arma::vec mu_y = arma::exp(eta_y);
       
       score += X_y.t() * (Y_y - mu_y);
       fisher += X_y.t() * arma::diagmat(mu_y) * X_y;
       
-    } else if (attr_y_type == "normal") {
+    } else if (attr_y_family == "normal") {
       arma::vec mu_y = X_y * coef;
       
       score += X_y.t() * (Y_y - mu_y) / attr_y_scale;
@@ -2704,8 +2704,8 @@ List pl_estimation(arma::vec coef,
             directed,
             pseudo_lh,
             offset_nonoverlap,
-            attr_x_type,
-            attr_y_type,
+            attr_x_family,
+            attr_y_family,
             attr_x_scale,
             attr_y_scale,
             n_units,
@@ -2830,8 +2830,8 @@ List outerloop_estimation_pl(arma::vec coef,
                              bool var, 
                              bool accelerated, 
                              bool fix_x, 
-                             std::string type_x, 
-                             std::string type_y, 
+                             std::string family_x, 
+                             std::string family_y, 
                              double attr_x_scale, 
                              double attr_y_scale, 
                              bool nonoverlap_random = true,
@@ -2866,7 +2866,7 @@ List outerloop_estimation_pl(arma::vec coef,
     coef_degrees.reshape(n_units,1);
     coefs_degrees.reshape(max_iteration_inner_degrees, n_units);
   }
-  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   // Rcout << "Start"<< std::endl;
   // Rcout << object.n_units<< std::endl;
   
@@ -2960,7 +2960,7 @@ List outerloop_estimation_pl(arma::vec coef,
     //                                                      coef_degrees, 
     //                                                      offset_nonoverlap, 
     //                                                      non_stop, 
-    //                                                      type_x, type_y,  
+    //                                                      family_x, family_y,  
     //                                                      attr_x_scale, attr_y_scale, fix_x);
     // Rcout << std::get<0>(res_nondegrees_alt)<< std::endl;
     if (terms.size() > 0) {
@@ -2975,7 +2975,7 @@ List outerloop_estimation_pl(arma::vec coef,
                                                      coef_degrees, 
                                                      offset_nonoverlap, 
                                                      non_stop, 
-                                                     type_x, type_y, 
+                                                     family_x, family_y, 
                                                      attr_x_scale, attr_y_scale, fix_x);
       coef_nondegrees = std::get<0>(res_nondegrees);
     }
@@ -2987,8 +2987,8 @@ List outerloop_estimation_pl(arma::vec coef,
            directed,
            pseudo_lh,
            offset_nonoverlap,
-           type_x,
-           type_y,
+           family_x,
+           family_y,
            attr_x_scale,
            attr_y_scale,
            n_units,
@@ -3190,8 +3190,8 @@ arma::vec calculate_score_pl(XYZ_class & object,
                              double &offset_nonoverlap, 
                              bool fix_x, 
                              bool fix_z, 
-                             std::string attr_x_type, 
-                             std::string attr_y_type, 
+                             std::string attr_x_family, 
+                             std::string attr_y_family, 
                              double attr_x_scale, 
                              double attr_y_scale, 
                              bool nonoverlap_random) {
@@ -3264,34 +3264,34 @@ arma::vec calculate_score_pl(XYZ_class & object,
   }
   // --- Component 2: Attribute 'x' ---
   if (fix_x == false) {
-    if (attr_x_type == "binomial") {
+    if (attr_x_family == "binomial") {
       arma::vec eta_x = X_x * coef;
       arma::vec exp_eta_x = arma::exp(eta_x);
       arma::vec prob_x = exp_eta_x / (1.0 + exp_eta_x);
       arma::vec var_x = prob_x % (1.0 - prob_x);
       score += X_x.t() * (Y_x - prob_x);
-    } else if (attr_x_type == "poisson") {
+    } else if (attr_x_family == "poisson") {
       arma::vec eta_x = X_x * coef;
       arma::vec mu_x = arma::exp(eta_x);
       score += X_x.t() * (Y_x - mu_x);
-    } else if (attr_x_type == "normal") {
+    } else if (attr_x_family == "normal") {
       arma::vec mu_x = X_x * coef; 
       score += X_x.t() * (Y_x - mu_x) / attr_x_scale;
     }
   }
   
   // --- Component 3: Attribute 'y' ---
-  if (attr_y_type == "binomial") {
+  if (attr_y_family == "binomial") {
     arma::vec eta_y = X_y * coef;
     arma::vec exp_eta_y = arma::exp(eta_y);
     arma::vec prob_y = exp_eta_y / (1.0 + exp_eta_y);
     arma::vec var_y = prob_y % (1.0 - prob_y);
     score += X_y.t() * (Y_y - prob_y);
-  } else if (attr_y_type == "poisson") {
+  } else if (attr_y_family == "poisson") {
     arma::vec eta_y = X_y * coef;
     arma::vec mu_y = arma::exp(eta_y);
     score += X_y.t() * (Y_y - mu_y);
-  } else if (attr_y_type == "normal") {
+  } else if (attr_y_family == "normal") {
     arma::vec mu_y = X_y * coef;
     score += X_y.t() * (Y_y - mu_y) / attr_y_scale;
   }
@@ -3308,8 +3308,8 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
                                      bool fix_x, 
                                      bool updated_uncertainty,
                                      bool exact, 
-                                     std::string attr_x_type, 
-                                     std::string attr_y_type, 
+                                     std::string attr_x_family, 
+                                     std::string attr_y_family, 
                                      double attr_x_scale, 
                                      double attr_y_scale, 
                                      bool nonoverlap_random) {
@@ -3385,37 +3385,37 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
   score_nondegrees += X_net.t() * (Y_net - prob_net);
   // --- Component 2: Attribute 'x' ---
   if (fix_x == false) {
-    if (attr_x_type == "binomial") {
+    if (attr_x_family == "binomial") {
       arma::vec eta_x = X_x * coef_nondegrees;
       arma::vec exp_eta_x = arma::exp(eta_x);
       arma::vec prob_x = exp_eta_x / (1.0 + exp_eta_x);
       arma::vec var_x = prob_x % (1.0 - prob_x);
       
       score_nondegrees += X_x.t() * (Y_x - prob_x);
-    } else if (attr_x_type == "poisson") {
+    } else if (attr_x_family == "poisson") {
       arma::vec eta_x = X_x * coef_nondegrees;
       arma::vec mu_x = arma::exp(eta_x);
       score_nondegrees += X_x.t() * (Y_x - mu_x);
-    } else if (attr_x_type == "normal") {
+    } else if (attr_x_family == "normal") {
       arma::vec mu_x = X_x * coef_nondegrees; 
       score_nondegrees += X_x.t() * (Y_x - mu_x) / attr_x_scale;
     }
   }
   
   // --- Component 3: Attribute 'y' ---
-  if (attr_y_type == "binomial") {
+  if (attr_y_family == "binomial") {
     arma::vec eta_y = X_y * coef_nondegrees;
     arma::vec exp_eta_y = arma::exp(eta_y);
     arma::vec prob_y = exp_eta_y / (1.0 + exp_eta_y);
     arma::vec var_y = prob_y % (1.0 - prob_y);
     
     score_nondegrees += X_y.t() * (Y_y - prob_y);
-  } else if (attr_y_type == "poisson") {
+  } else if (attr_y_family == "poisson") {
     arma::vec eta_y = X_y * coef_nondegrees;
     arma::vec mu_y = arma::exp(eta_y);
     
     score_nondegrees += X_y.t() * (Y_y - mu_y);
-  } else if (attr_y_type == "normal") {
+  } else if (attr_y_family == "normal") {
     arma::vec mu_y = X_y * coef_nondegrees;
     score_nondegrees += X_y.t() * (Y_y - mu_y) / attr_y_scale;
   }
@@ -3435,8 +3435,8 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
     //                        object.z_network.directed,
     //                        pseudo_lh,coef_degrees,
     //                        offset_nonoverlap, 
-    //                        attr_x_type, 
-    //                        attr_y_type, 
+    //                        attr_x_family, 
+    //                        attr_y_family, 
     //                        attr_x_scale, 
     //                        attr_y_scale);
     arma::mat C = get_C_new(coef_nondegrees,i_vec,j_vec,overlap_vec,
@@ -3444,8 +3444,8 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
                             pseudo_lh,coef_degrees, 
                             offset_nonoverlap, 
                             fix_x,
-                            attr_x_type, 
-                            attr_y_type, 
+                            attr_x_family, 
+                            attr_y_family, 
                             attr_x_scale, 
                             attr_y_scale);
     arma::mat A = get_A_exact(i_vec, j_vec,overlap_vec,pseudo_lh, 
@@ -3531,14 +3531,14 @@ List xyz_approximate_variability(arma::vec& coef,
                                  bool fix_z, 
                                  bool updated_uncertainty, 
                                  bool exact, 
-                                 std::string type_x, 
-                                 std::string type_y, 
+                                 std::string family_x, 
+                                 std::string family_y, 
                                  double attr_x_scale, 
                                  double attr_y_scale, 
                                  bool nonoverlap_random,
                                  bool tnt = true){
   // Generate the class with the provided information
-  XYZ_class object(n_units,directed, neighborhood, overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, neighborhood, overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   if(!init_empty){
     // Rcout << "Here" << std::endl;
     object.set_info_arma(x_attribute,y_attribute, z_network);
@@ -3569,7 +3569,7 @@ List xyz_approximate_variability(arma::vec& coef,
                                                       n_units,
                                                       data_list,
                                                       type_list, 
-                                                      type_x, type_y, 
+                                                      family_x, family_y, 
                                                       attr_x_scale, 
                                                       attr_y_scale);
   // Matrix of statistics that hold the simulated statistics
@@ -3695,8 +3695,8 @@ List xyz_approximate_variability(arma::vec& coef,
                       data_list,
                       type_list,
                       offset_nonoverlap, fix_x, updated_uncertainty, exact, 
-                      type_x, 
-                      type_y, 
+                      family_x, 
+                      family_y, 
                       attr_x_scale, 
                       attr_y_scale, 
                       nonoverlap_random).as_row();
@@ -3707,8 +3707,8 @@ List xyz_approximate_variability(arma::vec& coef,
                       data_list,
                       type_list,
                       offset_nonoverlap, fix_x, fix_z, 
-                      type_x, 
-                      type_y, 
+                      family_x, 
+                      family_y, 
                       attr_x_scale, 
                       attr_y_scale, 
                       nonoverlap_random).t();
@@ -3775,8 +3775,8 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
                                          std::vector<arma::mat> &data_list,
                                          std::vector<double> &type_list, 
                                          bool display_progress, 
-                                         std::string type_x,
-                                         std::string type_y,
+                                         std::string family_x,
+                                         std::string family_y,
                                          double attr_x_scale,
                                          double attr_y_scale,
                                          bool return_x = false,
@@ -3786,7 +3786,7 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
   Rcpp::List res, res_x, res_y, res_z;
   int n_units = y_attribute.size();
   // Rcout << "Read Data" << std::endl;
-  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   // Check whether its a fully observed neighbhorhood (this means that everyone knows everyone)
   // This is provided to the sufficient statistics as this might make some calculations unnecessary
   bool is_full_neighborhood = object.check_if_full_neighborhood();

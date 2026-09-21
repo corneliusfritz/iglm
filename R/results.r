@@ -374,8 +374,8 @@ results.generator <- R6::R6Class("results",
         }
         tmp_names <- names(private$.model_assessment$observed)
         base_names <- private$.model_assessment$base_name
-        type_x <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$type_x)) private$.samples[[1]]$type_x else "binomial"
-        type_y <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$type_y)) private$.samples[[1]]$type_y else "binomial"
+        family_x <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_x)) private$.samples[[1]]$family_x else "binomial"
+        family_y <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_y)) private$.samples[[1]]$family_y else "binomial"
         k <- 0
         for (i in base_names) {
           k <- k + 1
@@ -390,7 +390,7 @@ results.generator <- R6::R6Class("results",
                 } else {
                   if (is_local) "Local Outdegree" else "Outdegree"
                 }
-                xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, type_x = type_x, type_y = type_y)
+                xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, family_x = family_x, family_y = family_y)
                 obs_deg <- private$.model_assessment$observed[[tmp_names[k]]][[degree_type]]
                 sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k], degree_type)
 
@@ -410,7 +410,7 @@ results.generator <- R6::R6Class("results",
               # Undirected
               is_local <- grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])
               base_lab <- if (is_local) "Local Degree" else "Degree"
-              xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, type_x = type_x, type_y = type_y)
+              xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, family_x = family_x, family_y = family_y)
               obs_deg <- private$.model_assessment$observed[[tmp_names[k]]]
               sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -434,7 +434,7 @@ results.generator <- R6::R6Class("results",
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
               xlab_sp <- paste0(xlab_sp, " (Local)")
             }
-            xlab_sp <- get_assessment_constraint_xlab(xlab_sp, tmp_names[k], i, type_x = type_x, type_y = type_y)
+            xlab_sp <- get_assessment_constraint_xlab(xlab_sp, tmp_names[k], i, family_x = family_x, family_y = family_y)
             obs_sp <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_sp <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -454,7 +454,7 @@ results.generator <- R6::R6Class("results",
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
               xlab_geo <- paste0(xlab_geo, " (Local)")
             }
-            xlab_geo <- get_assessment_constraint_xlab(xlab_geo, tmp_names[k], i, type_x = type_x, type_y = type_y)
+            xlab_geo <- get_assessment_constraint_xlab(xlab_geo, tmp_names[k], i, family_x = family_x, family_y = family_y)
             obs_geo <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_geo <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
             x_pos <- seq_along(obs_geo)
@@ -478,7 +478,7 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("y_distribution", "y_dist")) {
             obs_y <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_y <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
-            is_normal <- (private$.samples[[1]]$type_y == "normal")
+            is_normal <- (private$.samples[[1]]$family_y == "normal")
             x_pos <- if (is_normal) as.numeric(names(obs_y)) else seq_along(obs_y)
 
             if (add) {
@@ -503,7 +503,7 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("x_distribution", "x_dist")) {
             obs_x <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_x <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
-            is_normal <- (private$.samples[[1]]$type_x == "normal")
+            is_normal <- (private$.samples[[1]]$family_x == "normal")
             x_pos <- if (is_normal) as.numeric(names(obs_x)) else seq_along(obs_x)
 
             if (add) {

@@ -6,29 +6,29 @@
 #include "iglm/helper_functions.h"
 
 // Attribute implementations
-Attribute::Attribute(int a, std::string type_, double scale_) {
+Attribute::Attribute(int a, std::string family_, double scale_) {
     n_units = a;
     scale = scale_;
     arma::vec tmp(a);
     tmp.fill(0);
     attribute = tmp;
-    if(type_ == "binomial" || type_ == "poisson" || type_ == "normal"){
-        type = type_;   
+    if(family_ == "binomial" || family_ == "poisson" || family_ == "normal"){
+        family = family_;   
     } else {
-        Rcpp::Rcout << "Invalid type, we assume that it is binomial (only binomial, poisson, and normal are implemented.)\n";
-        type = "binomial";
+        Rcpp::Rcout << "Invalid family, we assume that it is binomial (only binomial, poisson, and normal are implemented.)\n";
+        family = "binomial";
     }
 }
 
-Attribute::Attribute(int a, arma::vec attribute_tmp, std::string type_, double scale_) {
+Attribute::Attribute(int a, arma::vec attribute_tmp, std::string family_, double scale_) {
     n_units = a;
     scale = scale_;
     attribute = attribute_tmp;
-    if(type_ == "binomial" || type_ == "poisson" || type_ == "normal"){
-        type = type_;   
+    if(family_ == "binomial" || family_ == "poisson" || family_ == "normal"){
+        family = family_;   
     } else {
-        Rcpp::Rcout << "Invalid type, we assume that it is binomial (only binomial, poisson, and normal are implemented.)\n";
-        type = "binomial";
+        Rcpp::Rcout << "Invalid family, we assume that it is binomial (only binomial, poisson, and normal are implemented.)\n";
+        family = "binomial";
     }
 }
 
@@ -246,10 +246,10 @@ void Network::add_edges_from_mat(arma::mat mat) {
 }
 
 // XZ_class implementations
-XZ_class::XZ_class(int n_units_, bool directed_, std::string type_, double scale_):
+XZ_class::XZ_class(int n_units_, bool directed_, std::string family_, double scale_):
     n_units(n_units_),                             
     z_network(n_units_, directed_),              
-    x_attribute(n_units_, type_, scale_)         
+    x_attribute(n_units_, family_, scale_)         
 {
     overlap.resize(n_units + 1);
     neighborhood.resize(n_units + 1);
@@ -268,10 +268,10 @@ XZ_class::XZ_class(int n_units_, bool directed_, std::string type_, double scale
     initialize_overlap_counts();
 }
 
-XZ_class::XZ_class(int n_units_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_):
+XZ_class::XZ_class(int n_units_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string family_, double scale_):
     n_units(n_units_),                             
     z_network(n_units_, directed_),             
-    x_attribute(n_units_, type_, scale_)        
+    x_attribute(n_units_, family_, scale_)        
 {
     overlap.resize(n_units + 1);
     neighborhood.resize(n_units + 1);
@@ -295,10 +295,10 @@ XZ_class::XZ_class(int n_units_, bool directed_, arma::mat neighborhood_, arma::
 
 XZ_class::XZ_class(int n_units_, bool directed_, std::vector<std::vector<int>> neighborhood_,
                    std::vector<std::vector<int>> overlap_,
-                   arma::mat overlap_mat_, std::string type_, double scale_):
+                   arma::mat overlap_mat_, std::string family_, double scale_):
     n_units(n_units_),                             
     z_network(n_units_, directed_),                
-    x_attribute(n_units_, type_, scale_),         
+    x_attribute(n_units_, family_, scale_),         
     overlap_mat(overlap_mat_)                     
 {
     overlap.resize(n_units + 1);
@@ -333,10 +333,10 @@ XZ_class::XZ_class(int n_units_, bool directed_, std::vector<std::vector<int>> n
 }
 
 XZ_class::XZ_class(int n_units_, bool directed_, arma::mat z_network_, arma::vec x_attribute_,
-                   arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_):
+                   arma::mat neighborhood_, arma::mat overlap_, std::string family_, double scale_):
     n_units(n_units_),                               
     z_network(n_units_, directed_, z_network_),      
-    x_attribute(n_units_, x_attribute_, type_, scale_)
+    x_attribute(n_units_, x_attribute_, family_, scale_)
 {
     overlap.resize(n_units + 1);
     neighborhood.resize(n_units + 1);

@@ -11,8 +11,8 @@ iglm.data(
   neighborhood = NULL,
   directed = TRUE,
   n_units = NA,
-  type_x = "binomial",
-  type_y = "binomial",
+  family_x = "binomial",
+  family_y = "binomial",
   scale_x = 1,
   scale_y = 1,
   fix_x = FALSE,
@@ -47,11 +47,11 @@ If `NA` (default), directedness is inferred from the symmetry of
 If `NA` (default), `n_units` is inferred from the attributes or
 network matrices.}
 
-\item{type_x}{Character string for the type of `x_attribute`.
+\item{family_x}{Character string for the family of `x_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 Default is `"binomial"`.}
 
-\item{type_y}{Character string for the type of `y_attribute`.
+\item{family_y}{Character string for the family of `y_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 Default is `"binomial"`.}
 
@@ -117,8 +117,8 @@ tmp_adjacency <- iglm.data(
   ), nrow = 4, byrow = TRUE),
   directed = FALSE,
   n_units = 4,
-  type_x = "binomial",
-  type_y = "binomial"
+  family_x = "binomial",
+  family_y = "binomial"
 )
 
 
@@ -126,8 +126,8 @@ tmp_edgelist <- iglm.data(
   z_network = tmp_adjacency$z_network,
   directed = FALSE,
   n_units = 4,
-  type_x = "binomial",
-  type_y = "binomial"
+  family_x = "binomial",
+  family_y = "binomial"
 )
 
 tmp_edgelist$mean_z()

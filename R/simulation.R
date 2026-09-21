@@ -136,16 +136,16 @@ simulate_iglm <- function(formula,
         data_obj$n_units, basis$n_units
       ))
     }
-    if (basis$type_x != data_obj$type_x) {
+    if (basis$family_x != data_obj$family_x) {
       stop(sprintf(
-        "The 'basis' object must have the same type_x as the model data in 'formula' (expected type_x = '%s', got type_x = '%s').",
-        data_obj$type_x, basis$type_x
+        "The 'basis' object must have the same family_x as the model data in 'formula' (expected family_x = '%s', got family_x = '%s').",
+        data_obj$family_x, basis$family_x
       ))
     }
-    if (basis$type_y != data_obj$type_y) {
+    if (basis$family_y != data_obj$family_y) {
       stop(sprintf(
-        "The 'basis' object must have the same type_y as the model data in 'formula' (expected type_y = '%s', got type_y = '%s').",
-        data_obj$type_y, basis$type_y
+        "The 'basis' object must have the same family_y as the model data in 'formula' (expected family_y = '%s', got family_y = '%s').",
+        data_obj$family_y, basis$family_y
       ))
     }
   }
@@ -184,8 +184,8 @@ simulate_iglm <- function(formula,
       x_attribute = init_x,
       y_attribute = init_y,
       z_network = init_z,
-      type_x = data_obj$type_x,
-      type_y = data_obj$type_y,
+      family_x = data_obj$family_x,
+      family_y = data_obj$family_y,
       attr_x_scale = data_obj$scale_x,
       attr_y_scale = data_obj$scale_y,
       init_empty = sampler$init_empty,
@@ -224,8 +224,8 @@ simulate_iglm <- function(formula,
       z_network = init_z,
       init_empty = sampler$init_empty,
       neighborhood = data_obj$neighborhood,
-      type_x = data_obj$type_x,
-      type_y = data_obj$type_y,
+      family_x = data_obj$family_x,
+      family_y = data_obj$family_y,
       attr_x_scale = data_obj$scale_x,
       attr_y_scale = data_obj$scale_y,
       overlap = data_obj$overlap,
@@ -269,8 +269,8 @@ simulate_iglm <- function(formula,
           coef = coef, coef_degrees = coef_degrees,
           terms = preprocessed$term_names,
           n_units = n_units,
-          type_x = data_obj$type_x,
-          type_y = data_obj$type_y,
+          family_x = data_obj$family_x,
+          family_y = data_obj$family_y,
           attr_x_scale = data_obj$scale_x,
           attr_y_scale = data_obj$scale_y,
           x_attribute = res_burnin$x_attribute,
@@ -344,8 +344,8 @@ simulate_iglm <- function(formula,
         z_network = tmp[[x]]$z_network,
         directed = data_obj$directed,
         n_units = length(tmp[[x]]$x_attribute),
-        type_x = data_obj$type_x,
-        type_y = data_obj$type_y,
+        family_x = data_obj$family_x,
+        family_y = data_obj$family_y,
         scale_x = data_obj$scale_x,
         scale_y = data_obj$scale_y,
         fix_x = data_obj$fix_x,

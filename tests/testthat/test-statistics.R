@@ -15,12 +15,12 @@ test_that("Test some sufficient statistics for undirected networks", {
   }
   neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
 
-  type_x <- "normal"
-  type_y <- "normal"
+  family_x <- "normal"
+  family_y <- "normal"
 
   xyz_obj_new <- iglm.data(
     neighborhood = neighborhood, directed = FALSE,
-    type_x = type_x, type_y = type_y, scale_y = 2, scale_x = 3
+    family_x = family_x, family_y = family_y, scale_y = 2, scale_x = 3
   )
   gt_coef <- c(3, -1, -1)
   gt_coef_pop <- c(rnorm(n = n_units, -2, 1))
@@ -157,12 +157,12 @@ test_that("Test some sufficient statistics for directed networks", {
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
   neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
-  type_x <- "normal"
-  type_y <- "normal"
+  family_x <- "normal"
+  family_y <- "normal"
 
   xyz_obj_new <- iglm.data(
     neighborhood = neighborhood, directed = TRUE,
-    type_x = type_x, type_y = type_y, scale_y = 2, scale_x = 3
+    family_x = family_x, family_y = family_y, scale_y = 2, scale_x = 3
   )
   gt_coef <- c(3, -1, -1)
   gt_coef_pop <- c(rnorm(n = n_units, -2, 1), rnorm(n = n_units, -2, 1))
@@ -296,10 +296,10 @@ test_that("Test some sufficient statistics for directed networks", {
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
   neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
-  type_x <- "poisson"
-  type_y <- "poisson"
+  family_x <- "poisson"
+  family_y <- "poisson"
 
-  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = TRUE, type_x = type_x, type_y = type_y)
+  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = TRUE, family_x = family_x, family_y = family_y)
   gt_coef <- c(3, -1, -1)
   gt_coef_pop <- c(rnorm(n = n_units, -2, 1))
 
@@ -369,10 +369,10 @@ test_that("Test the spillover effects", {
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
   neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
-  type_x <- "binomial"
-  type_y <- "binomial"
+  family_x <- "binomial"
+  family_y <- "binomial"
 
-  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = TRUE, type_x = type_x, type_y = type_y)
+  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = TRUE, family_x = family_x, family_y = family_y)
   gt_coef <- c(5, -1, -1)
   gt_coef_pop <- c(rnorm(n = n_units, -2, 1))
 
@@ -444,7 +444,7 @@ test_that("Test gwdegree, gwodegree, gwidegree vs hand calculation", {
   decay <- 0.5
   expo_min <- 1 - exp(-decay)
 
-  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = neighborhood, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = TRUE)
 
   # Hand calculations for directed statistics
   # 1. Global out-degree:
@@ -477,7 +477,7 @@ test_that("Test gwdegree, gwodegree, gwidegree vs hand calculation", {
     if (d == 0) 0 else sum(expo_min^(0:(d - 1)))
   }))
 
-  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = FALSE)
 
   s_undir <- statistics(data_undir ~ gwdegree(mode = "global", decay = decay) +
                                      gwdegree(mode = "local", decay = decay))
@@ -495,7 +495,7 @@ test_that("Test that tracked global statistics during simulation match exact sta
   z <- matrix(rbinom(n_units * n_units, 1, 0.2), nrow = n_units)
   diag(z) <- 0
 
-  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = neighborhood, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = TRUE)
 
   sampler_obj <- sampler.iglm(
     n_burn_in = 10, n_simulation = 5,
@@ -531,7 +531,7 @@ test_that("Test that tracked global statistics during simulation match exact sta
   z_undir <- ((z_undir + t(z_undir)) > 0) * 1
   diag(z_undir) <- 0
 
-  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = FALSE)
 
   formula_undir <- data_undir ~ edges(mode = "local") +
     gwdegree(mode = "global", decay = 0.5)
@@ -577,8 +577,8 @@ test_that("Test iglm.data degree and spillover distributions with continuous att
   
   neighborhood <- matrix(1, nrow = 8, ncol = 8)
   
-  data_cont <- iglm.data(x_attribute = x_cont, y_attribute = y_cont, z_network = z, neighborhood = neighborhood, n_units = n_units, type_x = "normal", type_y = "normal", directed = TRUE)
-  data_bin <- iglm.data(x_attribute = x_bin, y_attribute = y_bin, z_network = z, neighborhood = neighborhood, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_cont <- iglm.data(x_attribute = x_cont, y_attribute = y_cont, z_network = z, neighborhood = neighborhood, n_units = n_units, family_x = "normal", family_y = "normal", directed = TRUE)
+  data_bin <- iglm.data(x_attribute = x_bin, y_attribute = y_bin, z_network = z, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = TRUE)
   
   # Test iglm_data degree and degree_distribution with mode = "local"
   deg_cont <- data_cont$degree(x_i = 1, y_j = 0, mode = "local")
@@ -607,7 +607,7 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
   data_obj <- iglm.data(
     x_attribute = x, y_attribute = y, z_network = z,
     neighborhood = neighborhood, n_units = n_units,
-    type_x = "binomial", type_y = "binomial", directed = TRUE
+    family_x = "binomial", family_y = "binomial", directed = TRUE
   )
   
   form <- data_obj ~ edges(mode = "global") +
@@ -738,7 +738,7 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
   data_obj <- iglm.data(
     x_attribute = x_cont, y_attribute = y_cont, z_network = z,
     neighborhood = neighborhood, n_units = n_units,
-    type_x = "normal", type_y = "normal", directed = FALSE
+    family_x = "normal", family_y = "normal", directed = FALSE
   )
   
   form <- data_obj ~ edges(mode = "local") +

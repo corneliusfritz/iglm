@@ -68,9 +68,9 @@ copenhagen$deg(
 
     \item{\code{n_actor}}{(`integer`) Deprecated alias for `n_units`.}
 
-    \item{\code{type_x}}{(`character`) The specified distribution type for the `x_attribute`.}
+    \item{\code{family_x}}{(`character`) The specified distribution family for the `x_attribute`.}
 
-    \item{\code{type_y}}{(`character`) The specified distribution type for the `y_attribute`.}
+    \item{\code{family_y}}{(`character`) The specified distribution family for the `y_attribute`.}
 
     \item{\code{scale_x}}{(`numeric`) The scale parameter associated with the `x_attribute`.}
 
@@ -91,8 +91,8 @@ copenhagen$deg(
   \itemize{
     \item \href{#method-iglm.data-initialize}{\code{iglm.data$new()}}
     \item \href{#method-iglm.data-set_z_network}{\code{iglm.data$set_z_network()}}
-    \item \href{#method-iglm.data-set_type_x}{\code{iglm.data$set_type_x()}}
-    \item \href{#method-iglm.data-set_type_y}{\code{iglm.data$set_type_y()}}
+    \item \href{#method-iglm.data-set_family_x}{\code{iglm.data$set_family_x()}}
+    \item \href{#method-iglm.data-set_family_y}{\code{iglm.data$set_family_y()}}
     \item \href{#method-iglm.data-set_scale_x}{\code{iglm.data$set_scale_x()}}
     \item \href{#method-iglm.data-set_scale_y}{\code{iglm.data$set_scale_y()}}
     \item \href{#method-iglm.data-set_x_attribute}{\code{iglm.data$set_x_attribute()}}
@@ -151,8 +151,8 @@ copenhagen$deg(
   neighborhood = NULL,
   directed = NA,
   n_units = NA,
-  type_x = "binomial",
-  type_y = "binomial",
+  family_x = "binomial",
+  family_y = "binomial",
   scale_x = 1,
   scale_y = 1,
   fix_x = FALSE,
@@ -184,10 +184,10 @@ If `NA` (default), directedness is inferred from the symmetry of
       \item{\code{n_units}}{An integer for the number of units in the system.
 If `NA` (default), `n_units` is inferred from the attributes or
 network matrices.}
-      \item{\code{type_x}}{Character string for the type of `x_attribute`.
+      \item{\code{family_x}}{Character string for the family of `x_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 Default is `"binomial"`.}
-      \item{\code{type_y}}{Character string for the type of `y_attribute`.
+      \item{\code{family_y}}{Character string for the family of `y_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 Default is `"binomial"`.}
       \item{\code{scale_x}}{A positive numeric value for scaling (e.g., variance
@@ -237,19 +237,19 @@ edgelist or a square adjacency matrix.
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-iglm.data-set_type_x"></a>}}
-\if{latex}{\out{\hypertarget{method-iglm.data-set_type_x}{}}}
-\subsection{\code{iglm.data$set_type_x()}}{
-  Sets the `type_x` of the `iglm.data` object.
+\if{html}{\out{<a id="method-iglm.data-set_family_x"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_family_x}{}}}
+\subsection{\code{iglm.data$set_family_x()}}{
+  Sets the `family_x` of the `iglm.data` object.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$set_type_x(type_x)}
+    \preformatted{iglm.data$set_family_x(family_x)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{type_x}}{A character string for the type of `x_attribute`.
+      \item{\code{family_x}}{A character string for the family of `x_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 @return The `iglm.data` object itself (`self`), invisibly.}
     }
@@ -258,19 +258,19 @@ Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-iglm.data-set_type_y"></a>}}
-\if{latex}{\out{\hypertarget{method-iglm.data-set_type_y}{}}}
-\subsection{\code{iglm.data$set_type_y()}}{
-  Sets the `type_y` of the `iglm.data` object.
+\if{html}{\out{<a id="method-iglm.data-set_family_y"></a>}}
+\if{latex}{\out{\hypertarget{method-iglm.data-set_family_y}{}}}
+\subsection{\code{iglm.data$set_family_y()}}{
+  Sets the `family_y` of the `iglm.data` object.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.data$set_type_y(type_y)}
+    \preformatted{iglm.data$set_family_y(family_y)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{type_y}}{A character string for the type of `y_attribute`.
+      \item{\code{family_y}}{A character string for the family of `y_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.}
     }
     \if{html}{\out{</div>}}

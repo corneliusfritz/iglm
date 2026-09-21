@@ -14,10 +14,10 @@ test_that("Define a iglm object and check all the results information", {
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
   neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
-  type_x <- "binomial"
-  type_y <- "binomial"
+  family_x <- "binomial"
+  family_y <- "binomial"
 
-  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = type_x, type_y = type_y)
+  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = FALSE, family_x = family_x, family_y = family_y)
   xyz_obj_new$overlap
   gt_coef <- c(3, -1, -1)
   gt_coef_pop <- c(rnorm(n = n_units, -2, 1))

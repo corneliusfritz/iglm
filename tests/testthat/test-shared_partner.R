@@ -19,8 +19,8 @@ test_that("dyadwise_shared_partner and edgewise_shared_partner work with mode in
     z_network = z,
     neighborhood = nb,
     directed = FALSE,
-    type_x = "binomial",
-    type_y = "binomial"
+    family_x = "binomial",
+    family_y = "binomial"
   )
 
   # Hand-calculated dyadwise shared partners (upper triangular):
@@ -99,8 +99,8 @@ test_that("dyadwise_shared_partner and edgewise_shared_partner work with mode in
     z_network = z,
     neighborhood = nb,
     directed = TRUE,
-    type_x = "binomial",
-    type_y = "binomial"
+    family_x = "binomial",
+    family_y = "binomial"
   )
 
   # 1. OTP (Outgoing Two-Path: z_{i,h} * z_{j,h})
@@ -203,7 +203,7 @@ test_that("dyadwise_shared_partner and edgewise_shared_partner work with mode in
 test_that("dyadwise and edgewise shared partner functions validate inputs properly", {
   n_units <- 4
   nb <- matrix(1, 4, 4)
-  data_obj <- iglm.data(neighborhood = nb, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  data_obj <- iglm.data(neighborhood = nb, directed = FALSE, family_x = "binomial", family_y = "binomial")
 
   # Invalid mode argument
   expect_error(data_obj$dyadwise_shared_partner(mode = "invalid"), "'mode' must be either 'global' or 'local'.")
@@ -229,7 +229,7 @@ test_that("dyadwise and edgewise shared partner functions validate inputs proper
   expect_error(data_obj$edgewise_shared_partner_distribution(type = "ITP"), "Type 'ITP' is only for directed networks.")
 
   # Undirected type (symm) on directed network
-  data_dir <- iglm.data(neighborhood = nb, directed = TRUE, type_x = "binomial", type_y = "binomial")
+  data_dir <- iglm.data(neighborhood = nb, directed = TRUE, family_x = "binomial", family_y = "binomial")
   expect_error(data_dir$dyadwise_shared_partner(type = "symm"), "Type 'symm' is only for undirected networks.")
   expect_error(data_dir$edgewise_shared_partner(type = "symm"), "Type 'symm' is only for undirected networks.")
   expect_error(data_dir$dyadwise_shared_partner_distribution(type = "symm"), "Type 'symm' is only for undirected networks.")
@@ -247,7 +247,7 @@ test_that("assess and results$plot work with mode in shared partner distribution
   block <- matrix(nrow = 5, ncol = 5, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 5, block, simplify = FALSE)))
 
-  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, family_x = "binomial", family_y = "binomial")
   gt_coef <- c(1, -0.5, -0.5)
 
   sampler_obj <- sampler.iglm(
@@ -382,7 +382,7 @@ test_that("assess and results$plot work with esp, dsp, geo, and deg aliases and 
   block <- matrix(nrow = 5, ncol = 5, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 5, block, simplify = FALSE)))
 
-  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, family_x = "binomial", family_y = "binomial")
   sampler_obj <- sampler.iglm(
     n_burn_in = 2, n_simulation = 2,
     sampler_x = sampler.net.attr(n_proposals = n_units * 2),
@@ -548,7 +548,7 @@ test_that("assess and results$plot work with constrained esp_dist, dsp_dist, and
   block <- matrix(nrow = 5, ncol = 5, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 5, block, simplify = FALSE)))
 
-  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, family_x = "binomial", family_y = "binomial")
   sampler_obj <- sampler.iglm(
     n_burn_in = 2, n_simulation = 2,
     sampler_x = sampler.net.attr(n_proposals = n_units * 2),
@@ -609,7 +609,7 @@ test_that("hand-coded tests verify degree distribution and all other distributio
   nb[4:6, 4:6] <- 1
 
   d <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = nb,
-                 n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
+                 n_units = n_units, family_x = "binomial", family_y = "binomial", directed = FALSE)
 
   # 1. Degree distribution & deg_dist
   # Unconstrained: degrees are (2, 2, 3, 2, 2, 1) -> 0: 0, 1: 1, 2: 4, 3: 1
@@ -670,7 +670,7 @@ test_that("hand-coded tests verify degree distribution and all other distributio
 
   # Continuous attributes (normal)
   d_cont <- iglm.data(x_attribute = c(1.0, 2.0, 3.0), y_attribute = c(-1.0, 0.0, 1.0),
-                      n_units = 3, type_x = "normal", type_y = "normal")
+                      n_units = 3, family_x = "normal", family_y = "normal")
   x_dens <- d_cont$x_dist(plot = FALSE)
   expect_true(is.numeric(x_dens))
   expect_true(length(x_dens) > 0)
@@ -691,7 +691,7 @@ test_that("hand-coded tests verify degree distribution and all other distributio
   y_dir <- c(0, 1, 0, 1)
 
   d_dir <- iglm.data(x_attribute = x_dir, y_attribute = y_dir, z_network = z_dir,
-                     n_units = n_unit_dir, type_x = "binomial", type_y = "binomial", directed = TRUE)
+                     n_units = n_unit_dir, family_x = "binomial", family_y = "binomial", directed = TRUE)
 
   # Directed Degree:
   # Out-degrees: 1: 2, 2: 1, 3: 1, 4: 0 -> counts: 0: 1, 1: 2, 2: 1

@@ -21,15 +21,15 @@
 #' # Create a iglm.data object
 #' n_units <- 10
 #' neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
-#' type_x <- "binomial"
-#' type_y <- "binomial"
+#' family_x <- "binomial"
+#' family_y <- "binomial"
 #' x_attr_data <- rbinom(n_units, 1, 0.5)
 #' y_attr_data <- rbinom(n_units, 1, 0.5)
 #' z_net_data <- matrix(0, nrow = n_units, ncol = n_units)
 #' object <- iglm.data(
 #'   z_network = z_net_data, x_attribute = x_attr_data,
 #'   y_attribute = y_attr_data, neighborhood = neighborhood,
-#'   directed = FALSE, type_x = type_x, type_y = type_y,
+#'   directed = FALSE, family_x = family_x, family_y = family_y,
 #'   n_units = n_units,
 #'   label_x = "age", label_y = "income"
 #' )
@@ -81,8 +81,8 @@ xyz_count_statistics <- function(preprocessed, ...) {
     z_network = preprocessed$data_object$z_network,
     x_attribute = preprocessed$data_object$x_attribute,
     y_attribute = preprocessed$data_object$y_attribute,
-    type_x = preprocessed$data_object$type_x,
-    type_y = preprocessed$data_object$type_y,
+    family_x = preprocessed$data_object$family_x,
+    family_y = preprocessed$data_object$family_y,
     attr_x_scale = preprocessed$data_object$scale_x,
     attr_y_scale = preprocessed$data_object$scale_y,
     neighborhood = preprocessed$data_object$neighborhood,

@@ -968,15 +968,15 @@ plot_multitrace <- function(mat, xlab = "Iteration", ylab = "Coefficients", las 
 
 #' @noRd
 build_constrained_xlab <- function(base_label, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
-                                   type_x = "binomial", type_y = "binomial") {
-  format_token <- function(spec, var_name, idx, type) {
+                                   family_x = "binomial", family_y = "binomial") {
+  format_token <- function(spec, var_name, idx, family) {
     if (is.null(spec)) return(NULL)
     if (is.function(spec)) {
       return(paste0(var_name, '[', idx, '] == "fn"'))
     }
-    if (type != "binomial" && identical(spec, 1)) {
+    if (family != "binomial" && identical(spec, 1)) {
       paste0(var_name, "[", idx, "] > bar(", var_name, ")")
-    } else if (type != "binomial" && identical(spec, 0)) {
+    } else if (family != "binomial" && identical(spec, 0)) {
       paste0(var_name, "[", idx, "] <= bar(", var_name, ")")
     } else {
       dep <- paste(deparse(spec), collapse = " ")
@@ -988,10 +988,10 @@ build_constrained_xlab <- function(base_label, x_i = NULL, x_j = NULL, y_i = NUL
     }
   }
   parts <- c(
-    format_token(x_i, "x", "i", type_x),
-    format_token(x_j, "x", "j", type_x),
-    format_token(y_i, "y", "i", type_y),
-    format_token(y_j, "y", "j", type_y)
+    format_token(x_i, "x", "i", family_x),
+    format_token(x_j, "x", "j", family_x),
+    format_token(y_i, "y", "i", family_y),
+    format_token(y_j, "y", "j", family_y)
   )
   if (length(parts) == 0) return(base_label)
   expr_str <- paste0('paste("', base_label, ' (", ', paste(parts, collapse = ', ", ", '), ', ")")')
@@ -1000,7 +1000,7 @@ build_constrained_xlab <- function(base_label, x_i = NULL, x_j = NULL, y_i = NUL
 
 #' @noRd
 get_assessment_constraint_xlab <- function(base_label, name, base_name,
-                                           type_x = "binomial", type_y = "binomial") {
+                                           family_x = "binomial", family_y = "binomial") {
   raw_suffix <- sub(paste0("^", base_name, "_?"), "", name)
   tokens <- if (nzchar(raw_suffix)) unlist(strsplit(raw_suffix, "[,]+")) else character(0)
   parts <- c()
@@ -1011,13 +1011,13 @@ get_assessment_constraint_xlab <- function(base_label, name, base_name,
       var_base <- sub("^(x|y)_(i|j)_(.+)$", "\\1", token)
       idx <- sub("^(x|y)_(i|j)_(.+)$", "\\2", token)
       val <- sub("^(x|y)_(i|j)_(.+)$", "\\3", token)
-      type <- if (var_base == "x") type_x else type_y
+      family <- if (var_base == "x") family_x else family_y
       if (idx == "i") has_i <- TRUE
       if (idx == "j") has_j <- TRUE
       
-      if (type != "binomial" && val == "1") {
+      if (family != "binomial" && val == "1") {
         parts <- c(parts, paste0(var_base, "[", idx, "] > bar(", var_base, ")"))
-      } else if (type != "binomial" && val == "0") {
+      } else if (family != "binomial" && val == "0") {
         parts <- c(parts, paste0(var_base, "[", idx, "] <= bar(", var_base, ")"))
       } else {
         parts <- c(parts, paste0(var_base, "[", idx, "] == ", val))
@@ -1040,7 +1040,7 @@ get_assessment_constraint_xlab <- function(base_label, name, base_name,
 }
 
 #' @noRd
-filter_nodes <- function(attr_vec, spec, type = "binomial") {
+filter_nodes <- function(attr_vec, spec, family = "binomial") {
   if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
   if (is.function(spec)) {
     res <- tryCatch(
@@ -1053,7 +1053,7 @@ filter_nodes <- function(attr_vec, spec, type = "binomial") {
     }
     return(res)
   }
-  if (type == "binomial") {
+  if (family == "binomial") {
     attr_vec %in% spec
   } else {
     m <- mean(attr_vec)
@@ -1070,7 +1070,7 @@ filter_nodes <- function(attr_vec, spec, type = "binomial") {
 get_candidate_dyads <- function(directed, n_units = NULL, overlap = NULL, mode = "global",
                                 x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
                                 x_attribute = NULL, y_attribute = NULL,
-                                type_x = "binomial", type_y = "binomial") {
+                                family_x = "binomial", family_y = "binomial") {
   if (is.null(n_units) || n_units < 2) {
     return(matrix(integer(0), ncol = 2))
   }
@@ -1121,10 +1121,10 @@ get_candidate_dyads <- function(directed, n_units = NULL, overlap = NULL, mode =
   }
 
   if (has_constraints) {
-    cond_sender <- filter_nodes(x_attribute, x_i, type_x) &
-                   filter_nodes(y_attribute, y_i, type_y)
-    cond_receiver <- filter_nodes(x_attribute, x_j, type_x) &
-                     filter_nodes(y_attribute, y_j, type_y)
+    cond_sender <- filter_nodes(x_attribute, x_i, family_x) &
+                   filter_nodes(y_attribute, y_i, family_y)
+    cond_receiver <- filter_nodes(x_attribute, x_j, family_x) &
+                     filter_nodes(y_attribute, y_j, family_y)
     units_sender <- which(cond_sender)
     units_receiver <- which(cond_receiver)
 
@@ -1174,7 +1174,7 @@ check_glm_arguments <- function(args) {
       stop(
         "'family' is not an argument to iglm().\n",
         "The distributional family is defined when creating the 'iglm.data' object ",
-        "via 'type_y' and 'type_x' (e.g., iglm.data(..., type_y = 'binomial', type_x = 'normal')).",
+        "via 'family_y' and 'family_x' (e.g., iglm.data(..., family_y = 'binomial', family_x = 'normal')).",
         call. = FALSE
       )
     }

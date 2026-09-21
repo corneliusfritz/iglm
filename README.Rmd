@@ -55,9 +55,9 @@ for(i in 0:end){
 }
 neighborhood[(n_units-size_neighborhood+1):(n_units), (n_units-size_neighborhood+1):(n_units)] = 1
 
-type_x <- "binomial"
-type_y <- "binomial"
-object = iglm.data(neighborhood = neighborhood, directed = F, type_x = type_x, type_y = type_y, n_units = n_units)
+family_x <- "binomial"
+family_y <- "binomial"
+object = iglm.data(neighborhood = neighborhood, directed = F, family_x = family_x, family_y = family_y, n_units = n_units)
 ```
 
 ## Model Specification

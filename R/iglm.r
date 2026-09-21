@@ -42,8 +42,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         z_network = private$.iglm.data$z_network,
         x_attribute = private$.iglm.data$x_attribute,
         y_attribute = private$.iglm.data$y_attribute,
-        type_x = private$.iglm.data$type_x,
-        type_y = private$.iglm.data$type_y,
+        family_x = private$.iglm.data$family_x,
+        family_y = private$.iglm.data$family_y,
         attr_x_scale = private$.iglm.data$scale_x,
         attr_y_scale = private$.iglm.data$scale_y,
         neighborhood = private$.iglm.data$neighborhood,
@@ -164,8 +164,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           y_attribute = data_loaded$iglm.data$y_attribute,
           z_network = data_loaded$iglm.data$z_network,
           n_units = if (!is.null(data_loaded$iglm.data$n_units)) data_loaded$iglm.data$n_units else data_loaded$iglm.data$n_actor,
-          type_x = data_loaded$iglm.data$type_x,
-          type_y = data_loaded$iglm.data$type_y,
+          family_x = data_loaded$iglm.data$family_x,
+          family_y = data_loaded$iglm.data$family_y,
           scale_x = data_loaded$iglm.data$scale_x,
           scale_y = data_loaded$iglm.data$scale_y,
           neighborhood = data_loaded$iglm.data$neighborhood,
@@ -394,11 +394,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
       ranges_tmp <- lapply(seq_along(names_tmp), function(idx) {
         bn <- base_name[idx]
-        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$type_y == "normal") {
+        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$family_y == "normal") {
           all_y <- c(private$.iglm.data$y_attribute, unlist(lapply(private$.results$samples, function(s) s$y_attribute)))
           return(range(all_y, na.rm = TRUE))
         }
-        if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$type_x == "normal") {
+        if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$family_x == "normal") {
           all_x <- c(private$.iglm.data$x_attribute, unlist(lapply(private$.results$samples, function(s) s$x_attribute)))
           return(range(all_x, na.rm = TRUE))
         }
@@ -416,9 +416,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       # For normal distribution terms, re-evaluate observed with the common value_range
       for (idx in seq_along(names_tmp)) {
         bn <- base_name[idx]
-        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$type_y == "normal") {
+        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$family_y == "normal") {
           observed[[idx]] <- private$.iglm.data$y_distribution(value_range = ranges_tmp[[idx]], plot = FALSE)
-        } else if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$type_x == "normal") {
+        } else if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$family_x == "normal") {
           observed[[idx]] <- private$.iglm.data$x_distribution(value_range = ranges_tmp[[idx]], plot = FALSE)
         }
       }
@@ -750,8 +750,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                 n_units = private$.iglm.data$n_units,
                 return_neighborhood = FALSE,
                 directed = private$.iglm.data$directed,
-                type_x = private$.iglm.data$type_x,
-                type_y = private$.iglm.data$type_y,
+                family_x = private$.iglm.data$family_x,
+                family_y = private$.iglm.data$family_y,
                 scale_x = private$.iglm.data$scale_x,
                 scale_y = private$.iglm.data$scale_y,
                 fix_x = private$.iglm.data$fix_x,
@@ -917,7 +917,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' \itemize{
     #'   \item For \strong{Binomial} families: \eqn{\mu = (1 + \exp(-\eta))^{-1}} (Logistic).
     #'   \item For \strong{Poisson} families: \eqn{\mu = \exp(\eta)} (Exponential).
-    #'   \item For \strong{Gaussian} families: \eqn{\mu = \eta} (Identity).
+    #'   \item For \strong{Normal} families: \eqn{\mu = \eta} (Identity).
     #' }
     #' For the network component \code{z}, the linear predictor includes dyadic covariates,
     #' degrees effects (sender/receiver variances), and structural offsets.
@@ -987,11 +987,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           private$.control$return_x <- TRUE
           info <- self$estimate()
           lp <- info$res_x[, -c(1, 2)] %*% private$.coef
-          if (private$.iglm.data$type_x == "binomial") {
+          if (private$.iglm.data$family_x == "binomial") {
             mu <- 1 / (1 + exp(-lp))
-          } else if (private$.iglm.data$type_x == "gaussian") {
+          } else if (private$.iglm.data$family_x == "normal") {
             mu <- lp
-          } else if (private$.iglm.data$type_x == "poisson") {
+          } else if (private$.iglm.data$family_x == "poisson") {
             mu <- exp(lp)
           }
           private$.control$return_x <- FALSE
@@ -1005,11 +1005,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           private$.control$return_y <- TRUE
           info <- self$estimate()
           lp <- info$res_y[, -c(1, 2)] %*% private$.coef
-          if (private$.iglm.data$type_y == "binomial") {
+          if (private$.iglm.data$family_y == "binomial") {
             mu <- 1 / (1 + exp(-lp))
-          } else if (private$.iglm.data$type_y == "gaussian") {
+          } else if (private$.iglm.data$family_y == "normal") {
             mu <- lp
-          } else if (private$.iglm.data$type_y == "poisson") {
+          } else if (private$.iglm.data$family_y == "poisson") {
             mu <- exp(lp)
           }
           res$y <- data.frame(cbind(
@@ -1247,7 +1247,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 #' xyz_obj <- iglm.data(
 #'   neighborhood = neighborhood, directed = FALSE,
-#'   type_x = "binomial", type_y = "binomial"
+#'   family_x = "binomial", family_y = "binomial"
 #' )
 #' # Define ground truth coefficients
 #' gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)

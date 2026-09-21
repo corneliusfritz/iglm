@@ -35,13 +35,13 @@ public:
   }
 
   // Constructors
-  XZ_class(int n_units_, bool directed_, std::string type_, double scale_);
-  XZ_class(int n_units_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_);
+  XZ_class(int n_units_, bool directed_, std::string family_, double scale_);
+  XZ_class(int n_units_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string family_, double scale_);
   XZ_class(int n_units_, bool directed_, std::vector<std::vector<int>> neighborhood_,
            std::vector<std::vector<int>> overlap_,
-           arma::mat overlap_mat_, std::string type_, double scale_);
+           arma::mat overlap_mat_, std::string family_, double scale_);
   XZ_class(int n_units_, bool directed_, arma::mat z_network_, arma::vec x_attribute_,
-           arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_);
+           arma::mat neighborhood_, arma::mat overlap_, std::string family_, double scale_);
   
   // Member functions
   void set_network_from_mat(int n_units_, bool directed_, arma::mat mat);

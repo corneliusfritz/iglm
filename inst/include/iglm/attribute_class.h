@@ -23,13 +23,13 @@ struct IsMoreThan {
 
 class IGLM_API Attribute {
 public:
-  Attribute (int a, std::string type_, double scale_);
-  Attribute (int a, arma::vec attribute_tmp, std::string type_, double scale_);
+  Attribute (int a, std::string family_, double scale_);
+  Attribute (int a, arma::vec attribute_tmp, std::string family_, double scale_);
   
   // Attributes (public)
   arma::vec attribute;
   double scale; 
-  std::string type;
+  std::string family;
   
   // Member functions
   double get_scale() const {

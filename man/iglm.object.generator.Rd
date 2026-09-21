@@ -475,7 +475,7 @@ estimated coefficients \eqn{\hat{\theta}}:
 \itemize{
   \item For \strong{Binomial} families: \eqn{\mu = (1 + \exp(-\eta))^{-1}} (Logistic).
   \item For \strong{Poisson} families: \eqn{\mu = \exp(\eta)} (Exponential).
-  \item For \strong{Gaussian} families: \eqn{\mu = \eta} (Identity).
+  \item For \strong{Normal} families: \eqn{\mu = \eta} (Identity).
 }
 For the network component \code{z}, the linear predictor includes dyadic covariates,
 degrees effects (sender/receiver variances), and structural offsets.

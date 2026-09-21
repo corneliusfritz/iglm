@@ -19,7 +19,7 @@ test_that("results$plot works for trace, stats, and model assessment on undirect
   block <- matrix(nrow = 5, ncol = 5, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 5, block, simplify = FALSE)))
 
-  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, family_x = "binomial", family_y = "binomial")
   gt_coef <- c(1, -1, -1)
   gt_coef_pop <- rnorm(n = n_units, -2, 1)
 
@@ -81,7 +81,7 @@ test_that("results$plot works for directed model with in/out degrees and continu
   block <- matrix(nrow = 5, ncol = 5, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 5, block, simplify = FALSE)))
 
-  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = TRUE, type_x = "normal", type_y = "normal")
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = TRUE, family_x = "normal", family_y = "normal")
   gt_coef <- c(1, -0.5, -0.5)
 
   sampler_obj <- sampler.iglm(
@@ -180,7 +180,7 @@ test_that("Continuous attributes work with degree_distribution and plot methods"
   ), nrow = 5, byrow = TRUE)
   x <- c(1.2, -0.5, 0.8, -1.1, 0.4)
   y <- c(-0.3, 0.9, -0.7, 1.4, -0.1)
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = 5, type_x = "normal", type_y = "normal", directed = FALSE)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = 5, family_x = "normal", family_y = "normal", directed = FALSE)
 
   pdf(NULL)
   expect_no_error(data_obj$degree_distribution(x_i = function(v) v > 0, plot = TRUE))
@@ -192,7 +192,7 @@ test_that("Trace plot works on pure degree models", {
   n_units <- 5
   z <- matrix(0, 5, 5)
   z[1, 2] <- z[2, 1] <- z[3, 4] <- z[4, 3] <- 1
-  data_obj <- iglm.data(z_network = z, n_units = 5, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  data_obj <- iglm.data(z_network = z, n_units = 5, directed = FALSE, family_x = "binomial", family_y = "binomial")
 
   model_fit <- iglm(
     formula = data_obj ~ degrees,
@@ -239,15 +239,15 @@ test_that("results$plot handles asymmetric constrained in and out degree distrib
 })
 
 test_that("Constrained degree labels include x and y constraints", {
-  lab_def_bin <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, type_x = "binomial", type_y = "binomial")
+  lab_def_bin <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, family_x = "binomial", family_y = "binomial")
   expect_true(grepl("x\\[i\\] == 1", paste(deparse(lab_def_bin), collapse = " ")))
   expect_true(grepl("y\\[j\\] == 1", paste(deparse(lab_def_bin), collapse = " ")))
 
-  lab_def_norm <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, type_x = "normal", type_y = "normal")
+  lab_def_norm <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, family_x = "normal", family_y = "normal")
   expect_true(grepl("x\\[i\\] > bar\\(x\\)", paste(deparse(lab_def_norm), collapse = " ")))
   expect_true(grepl("y\\[j\\] > bar\\(y\\)", paste(deparse(lab_def_norm), collapse = " ")))
 
-  lab_assess_custom <- get_assessment_constraint_xlab("Indegree", "degree_distribution_x_i_0,y_j_1", "degree_distribution", type_x = "binomial", type_y = "binomial")
+  lab_assess_custom <- get_assessment_constraint_xlab("Indegree", "degree_distribution_x_i_0,y_j_1", "degree_distribution", family_x = "binomial", family_y = "binomial")
   expect_true(grepl("x\\[i\\] == 0", paste(deparse(lab_assess_custom), collapse = " ")))
   expect_true(grepl("y\\[j\\] == 1", paste(deparse(lab_assess_custom), collapse = " ")))
 })

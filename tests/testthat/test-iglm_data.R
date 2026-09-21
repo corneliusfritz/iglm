@@ -8,8 +8,8 @@ test_that("Define a iglm.data object and check all functions", {
       0, 1, 1, 0
     ), nrow = 4, byrow = TRUE),
     directed = FALSE,
-    type_x = "binomial",
-    type_y = "binomial"
+    family_x = "binomial",
+    family_y = "binomial"
   )
 
   expect_equal(inherits(tmp, "iglm.data"), expected = TRUE)
@@ -38,8 +38,8 @@ test_that("Define a iglm.data object and check all functions", {
     directed = FALSE,
     n_units = 4, x_attribute = c(0, 0, 1, 0),
     y_attribute = c(0, 1, 0, 1),
-    type_x = "binomial",
-    type_y = "binomial"
+    family_x = "binomial",
+    family_y = "binomial"
   )
   # debugonce(tmp$degree)
   expect_equal(tmp$degree()$degree_seq, expected = c(2, 2, 2, 2))
@@ -73,8 +73,8 @@ test_that("Define a directed iglm.data object and check all functions", {
       0, 1, 1, 0
     ), nrow = 4, byrow = TRUE),
     directed = TRUE,
-    type_x = "binomial",
-    type_y = "binomial"
+    family_x = "binomial",
+    family_y = "binomial"
   )
 
   expect_equal(inherits(tmp, "iglm.data"), expected = TRUE)
@@ -107,8 +107,8 @@ test_that("Define a directed iglm.data object and check all functions", {
     directed = TRUE,
     n_units = 4, x_attribute = c(0, 0, 1, 0),
     y_attribute = c(0, 1, 0, 1),
-    type_x = "binomial",
-    type_y = "binomial"
+    family_x = "binomial",
+    family_y = "binomial"
   )
 
   expect_equal(tmp$mean_z(), expected = 5 / 12)
@@ -149,25 +149,25 @@ test_that("iglm.data validation throws error when attributes or networks contain
 
   # Check x_attribute NA
   expect_error(
-    iglm.data(x_attribute = x_na, y_attribute = y_clean, z_network = z_clean, n_units = 4, type_x = "normal", type_y = "binomial"),
+    iglm.data(x_attribute = x_na, y_attribute = y_clean, z_network = z_clean, n_units = 4, family_x = "normal", family_y = "binomial"),
     pattern = "'x_attribute' contains missing \\(NA/NaN\\) values."
   )
 
   # Check y_attribute NA
   expect_error(
-    iglm.data(x_attribute = x_clean, y_attribute = y_na, z_network = z_clean, n_units = 4, type_x = "normal", type_y = "binomial"),
+    iglm.data(x_attribute = x_clean, y_attribute = y_na, z_network = z_clean, n_units = 4, family_x = "normal", family_y = "binomial"),
     pattern = "'y_attribute' contains missing \\(NA/NaN\\) values."
   )
 
   # Check z_network matrix NA
   expect_error(
-    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_na, n_units = 4, type_x = "normal", type_y = "binomial"),
+    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_na, n_units = 4, family_x = "normal", family_y = "binomial"),
     pattern = "'z_network' contains missing \\(NA/NaN\\) values."
   )
 
   # Check neighborhood matrix NA
   expect_error(
-    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_clean, neighborhood = z_na, n_units = 4, type_x = "normal", type_y = "binomial"),
+    iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_clean, neighborhood = z_na, n_units = 4, family_x = "normal", family_y = "binomial"),
     pattern = "'neighborhood' contains missing \\(NA/NaN\\) values."
   )
 })
@@ -186,8 +186,8 @@ test_that("degree_distribution works with custom x_i, x_j, y_i, y_j parameters",
   x <- c(1, 1, 0, 0, 1, 0)
   y <- c(0, 1, 1, 0, 0, 1)
 
-  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = TRUE)
-  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = TRUE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = FALSE)
 
   # Directed default vs constrained
   deg_dir_def <- data_dir$degree_distribution(plot = FALSE)
@@ -238,7 +238,7 @@ test_that("Positional arguments work for distribution methods", {
   ), nrow = 5, byrow = TRUE)
   x <- c(1, 0, 1, 0, 1)
   y <- c(0, 1, 0, 1, 0)
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = TRUE)
 
   expect_no_error(data_obj$edgewise_shared_partner_distribution("OTP", c(0, 3), FALSE, FALSE))
   expect_no_error(data_obj$dyadwise_shared_partner_distribution("OTP", c(0, 3), FALSE, FALSE))
@@ -252,7 +252,7 @@ test_that("Undirected constrained degree accounts for canonical edge orientation
   z[1, 4] <- z[4, 1] <- 1
   x <- c(1, 0, 0, 0) # actor 1 has x=1
   y <- c(0, 0, 0, 1) # actor 4 has y=1
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = FALSE)
 
   # Degree of actor 1 connecting to y=1 receivers (actor 4)
   deg_1 <- data_obj$degree(x_i = 1, y_j = 1)
@@ -277,7 +277,7 @@ test_that("Undirected degree and degree_distribution are equivalent for x_i = 1 
   x <- c(1, 1, 0, 0, 1) # nodes 1, 2, 5 have x=1
   y <- c(0, 1, 1, 0, 0)
 
-  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = FALSE)
 
   # Single constraint equivalence
   deg_xi <- data_undir$degree(x_i = 1)
@@ -310,8 +310,12 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
   old_spillover_algo <- function(data_obj, x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL,
                                  prob = TRUE, value_range = NULL) {
     binarize_filter <- function(attr_vec, spec, type = "binomial") {
-      if (is.null(spec)) return(rep(TRUE, length(attr_vec)))
-      if (is.function(spec)) return(as.logical(spec(attr_vec)))
+      if (is.null(spec)) {
+        return(rep(TRUE, length(attr_vec)))
+      }
+      if (is.function(spec)) {
+        return(as.logical(spec(attr_vec)))
+      }
       if (type == "binomial") {
         attr_vec %in% spec
       } else {
@@ -327,16 +331,16 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
 
     x_attr <- data_obj$x_attribute
     y_attr <- data_obj$y_attribute
-    type_x <- data_obj$type_x
-    type_y <- data_obj$type_y
+    family_x <- data_obj$family_x
+    family_y <- data_obj$family_y
     n_units <- data_obj$n_units
     z_net <- data_obj$z_network
     overlap <- data_obj$overlap
 
     if (!is.null(x_i) || !is.null(y_i)) {
       cond_i <- rep(TRUE, n_units)
-      if (!is.null(x_i)) cond_i <- cond_i & binarize_filter(x_attr, x_i, type_x)
-      if (!is.null(y_i)) cond_i <- cond_i & binarize_filter(y_attr, y_i, type_y)
+      if (!is.null(x_i)) cond_i <- cond_i & binarize_filter(x_attr, x_i, family_x)
+      if (!is.null(y_i)) cond_i <- cond_i & binarize_filter(y_attr, y_i, family_y)
       actors_sender <- which(cond_i)
     } else {
       actors_sender <- which(x_attr > mean(x_attr))
@@ -344,8 +348,8 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
 
     if (!is.null(x_j) || !is.null(y_j)) {
       cond_j <- rep(TRUE, n_units)
-      if (!is.null(x_j)) cond_j <- cond_j & binarize_filter(x_attr, x_j, type_x)
-      if (!is.null(y_j)) cond_j <- cond_j & binarize_filter(y_attr, y_j, type_y)
+      if (!is.null(x_j)) cond_j <- cond_j & binarize_filter(x_attr, x_j, family_x)
+      if (!is.null(y_j)) cond_j <- cond_j & binarize_filter(y_attr, y_j, family_y)
       actors_receiver <- which(cond_j)
     } else {
       actors_receiver <- which(y_attr > mean(y_attr))
@@ -434,7 +438,7 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
   d_dir <- iglm.data(
     x_attribute = x, y_attribute = y, z_network = z_dir,
     neighborhood = neighborhood, directed = TRUE,
-    type_x = "binomial", type_y = "binomial"
+    family_x = "binomial", family_y = "binomial"
   )
 
   old_dir <- old_spillover_algo(d_dir, x_i = 1, y_j = 1)
@@ -456,7 +460,7 @@ test_that("degree_distribution with mode = 'local' is equivalent to the original
   d_undir <- iglm.data(
     x_attribute = x, y_attribute = y, z_network = z_undir,
     neighborhood = neighborhood, directed = FALSE,
-    type_x = "binomial", type_y = "binomial"
+    family_x = "binomial", family_y = "binomial"
   )
 
   old_undir <- old_spillover_algo(d_undir, x_i = 1, y_j = 1)
@@ -520,7 +524,7 @@ test_that("iglm.data supports custom label_x, label_y, and label_z", {
 
   # Normal attribute print output shows mean and sd only (no redundant scale)
   x_norm <- rnorm(n_units)
-  d_norm <- iglm.data(x_attribute = x_norm, y_attribute = y, z_network = z, n_units = n_units, type_x = "normal")
+  d_norm <- iglm.data(x_attribute = x_norm, y_attribute = y, z_network = z, n_units = n_units, family_x = "normal")
   out_norm <- capture.output(d_norm$print())
   expect_true(any(grepl("normal mean = .*sd = ", out_norm)))
   expect_false(any(grepl("scale =", out_norm)))
@@ -559,5 +563,57 @@ test_that("iglm.data supports backward compatibility with n_actor argument and f
 
   d_restored <- iglm.data(file = temp_file)
   expect_equal(d_restored$n_units, n_nodes)
+})
+
+test_that("iglm.data supports family_x and family_y with strict validation", {
+  n_nodes <- 4
+  neighborhood <- matrix(1, nrow = n_nodes, ncol = n_nodes)
+
+  # Standard character strings
+  d_str <- iglm.data(
+    neighborhood = neighborhood, directed = FALSE,
+    family_x = "binomial", family_y = "normal",
+    x_attribute = c(0, 1, 0, 1), y_attribute = rnorm(n_nodes)
+  )
+  expect_equal(d_str$family_x, "binomial")
+  expect_equal(d_str$family_y, "normal")
+
+  d_pois <- iglm.data(
+    neighborhood = neighborhood, directed = FALSE,
+    family_x = "poisson", family_y = "binomial",
+    x_attribute = c(1, 2, 0, 3), y_attribute = c(0, 1, 0, 1)
+  )
+  expect_equal(d_pois$family_x, "poisson")
+  expect_equal(d_pois$family_y, "binomial")
+
+  # "gaussian" and other undefined families throw validation errors
+  expect_error(
+    iglm.data(
+      neighborhood = neighborhood, directed = FALSE,
+      family_x = "gaussian", family_y = "normal",
+      x_attribute = rnorm(n_nodes), y_attribute = rnorm(n_nodes)
+    ),
+    "family_x must be one of 'binomial', 'poisson', or 'normal'."
+  )
+  expect_error(
+    iglm.data(
+      neighborhood = neighborhood, directed = FALSE,
+      family_x = "normal", family_y = "gaussian",
+      x_attribute = rnorm(n_nodes), y_attribute = rnorm(n_nodes)
+    ),
+    "family_y must be one of 'binomial', 'poisson', or 'normal'."
+  )
+  expect_error(
+    iglm.data(
+      neighborhood = neighborhood, directed = FALSE,
+      family_x = "undefined_family", family_y = "normal",
+      x_attribute = rnorm(n_nodes), y_attribute = rnorm(n_nodes)
+    ),
+    "family_x must be one of 'binomial', 'poisson', or 'normal'."
+  )
+
+  # type_x and type_y do not exist (no backward compatibility)
+  expect_null(d_str$type_x)
+  expect_null(d_str$type_y)
 })
 

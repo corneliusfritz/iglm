@@ -20,8 +20,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     .fix_z_alocal = NULL,
     .directed = NULL,
     .n_units = NULL,
-    .type_x = NULL,
-    .type_y = NULL,
+    .family_x = NULL,
+    .family_y = NULL,
     .scale_x = NULL,
     .scale_y = NULL,
     .fix_x = NULL,
@@ -51,17 +51,17 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       }
 
       # Check types
-      valid_types <- c("binomial", "poisson", "normal")
-      if (!private$.type_x %in% valid_types) {
-        errors <- c(errors, "type_x must be one of 'binomial', 'poisson', or 'normal'.")
-      } else if (private$.type_x != "normal" && private$.scale_x != 1) {
-        warning("type_x is not 'normal', but scale_x is not 1. Setting scale_x to 1.")
+      valid_families <- c("binomial", "poisson", "normal")
+      if (length(private$.family_x) != 1 || !private$.family_x %in% valid_families) {
+        errors <- c(errors, "family_x must be one of 'binomial', 'poisson', or 'normal'.")
+      } else if (private$.family_x != "normal" && private$.scale_x != 1) {
+        warning("family_x is not 'normal', but scale_x is not 1. Setting scale_x to 1.")
         private$.scale_x <- 1
       }
-      if (!private$.type_y %in% valid_types) {
-        errors <- c(errors, "type_y must be one of 'binomial', 'poisson', or 'normal'.")
-      } else if (private$.type_y != "normal" && private$.scale_y != 1) {
-        warning("type_y is not 'normal', but scale_y is not 1. Setting scale_y to 1.")
+      if (length(private$.family_y) != 1 || !private$.family_y %in% valid_families) {
+        errors <- c(errors, "family_y must be one of 'binomial', 'poisson', or 'normal'.")
+      } else if (private$.family_y != "normal" && private$.scale_y != 1) {
+        warning("family_y is not 'normal', but scale_y is not 1. Setting scale_y to 1.")
         private$.scale_y <- 1
       }
 
@@ -85,22 +85,22 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       }
 
       # Check attribute value constraints
-      if (private$.type_x == "binomial" && !any(is.na(private$.x_attribute)) && !all(private$.x_attribute %in% c(0, 1))) {
-        errors <- c(errors, "For 'binomial' type, 'x_attribute' must be a binary vector.")
+      if (private$.family_x == "binomial" && !any(is.na(private$.x_attribute)) && !all(private$.x_attribute %in% c(0, 1))) {
+        errors <- c(errors, "For 'binomial' family, 'x_attribute' must be a binary vector.")
       }
       # browser()
-      if (private$.type_x == "poisson" && !any(is.na(private$.x_attribute)) && !all(floor(private$.x_attribute) == private$.x_attribute & private$.x_attribute >= 0)) {
-        errors <- c(errors, "For 'poisson' type, 'x_attribute' must be a vector of non-negative integers.")
+      if (private$.family_x == "poisson" && !any(is.na(private$.x_attribute)) && !all(floor(private$.x_attribute) == private$.x_attribute & private$.x_attribute >= 0)) {
+        errors <- c(errors, "For 'poisson' family, 'x_attribute' must be a vector of non-negative integers.")
       }
-      if (private$.type_y == "binomial" && !any(is.na(private$.y_attribute)) && !all(private$.y_attribute %in% c(0, 1))) {
-        errors <- c(errors, "For 'binomial' type, 'y_attribute' must be a binary vector.")
+      if (private$.family_y == "binomial" && !any(is.na(private$.y_attribute)) && !all(private$.y_attribute %in% c(0, 1))) {
+        errors <- c(errors, "For 'binomial' family, 'y_attribute' must be a binary vector.")
       }
 
       if (!is.logical(private$.fix_z_alocal)) {
         stop("`fix_z_alocal` must be a logical value (TRUE or FALSE).", call. = FALSE)
       }
-      if (private$.type_y == "poisson" && !any(is.na(private$.y_attribute)) && !all(floor(private$.y_attribute) == private$.y_attribute & private$.y_attribute >= 0)) {
-        errors <- c(errors, "For 'poisson' type, 'y_attribute' must be a vector of non-negative integers.")
+      if (private$.family_y == "poisson" && !any(is.na(private$.y_attribute)) && !all(floor(private$.y_attribute) == private$.y_attribute & private$.y_attribute >= 0)) {
+        errors <- c(errors, "For 'poisson' family, 'y_attribute' must be a vector of non-negative integers.")
       }
       # Check z_network format
       if (!is.matrix(private$.z_network) && !inherits(private$.z_network, "Matrix")) {
@@ -178,10 +178,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @param n_units An integer for the number of units in the system.
     #'   If `NA` (default), `n_units` is inferred from the attributes or
     #'   network matrices.
-    #' @param type_x Character string for the type of `x_attribute`.
+    #' @param family_x Character string for the family of `x_attribute`.
     #'   Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
     #'   Default is `"binomial"`.
-    #' @param type_y Character string for the type of `y_attribute`.
+    #' @param family_y Character string for the family of `y_attribute`.
     #'   Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
     #'   Default is `"binomial"`.
     #' @param scale_x A positive numeric value for scaling (e.g., variance
@@ -204,7 +204,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return A new `iglm.data` object.
     initialize = function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                           neighborhood = NULL, directed = NA, n_units = NA,
-                          type_x = "binomial", type_y = "binomial",
+                          family_x = "binomial", family_y = "binomial",
                           scale_x = 1,
                           scale_y = 1,
                           fix_x = FALSE,
@@ -232,7 +232,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         required_fields <- c(
           "x_attribute", "y_attribute", "z_network",
           "neighborhood", "directed", "n_units",
-          "type_x", "type_y", "scale_x",
+          "family_x", "family_y", "scale_x",
           "scale_y", "fix_x", "fix_z", "fix_z_alocal"
         )
         if (!is.list(data_loaded) || !all(required_fields %in% names(data_loaded))) {
@@ -244,8 +244,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         neighborhood <- data_loaded$neighborhood
         directed <- data_loaded$directed
         n_units <- data_loaded$n_units
-        type_x <- data_loaded$type_x
-        type_y <- data_loaded$type_y
+        type_x <- data_loaded$family_x
+        type_y <- data_loaded$family_y
         scale_x <- data_loaded$scale_x
         scale_y <- data_loaded$scale_y
         fix_x <- data_loaded$fix_x
@@ -269,8 +269,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           stop("'neighborhood' contains missing (NA/NaN) values.", call. = FALSE)
         }
       }
-      private$.type_x <- type_x
-      private$.type_y <- type_y
+      private$.family_x <- as.character(family_x)
+      private$.family_y <- as.character(family_y)
       private$.scale_x <- scale_x
       private$.scale_y <- scale_y
       private$.fix_x <- fix_x
@@ -432,22 +432,22 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     },
 
     #' @description
-    #' Sets the `type_x` of the `iglm.data` object.
-    #' @param type_x A character string for the type of `x_attribute`.
+    #' Sets the `family_x` of the `iglm.data` object.
+    #' @param family_x A character string for the family of `x_attribute`.
     #'  Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
     #'  @return The `iglm.data` object itself (`self`), invisibly.
-    set_type_x = function(type_x) {
-      private$.type_x <- type_x
+    set_family_x = function(family_x) {
+      private$.family_x <- as.character(family_x)
       private$.validate()
       invisible(self)
     },
     #' @description
-    #' Sets the `type_y` of the `iglm.data` object.
-    #' @param type_y A character string for the type of `y_attribute`.
+    #' Sets the `family_y` of the `iglm.data` object.
+    #' @param family_y A character string for the family of `y_attribute`.
     #' Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
     #' @return The `iglm.data` object itself (`self`), invisibly.
-    set_type_y = function(type_y) {
-      private$.type_y <- type_y
+    set_family_y = function(family_y) {
+      private$.family_y <- as.character(family_y)
       private$.validate()
       invisible(self)
     },
@@ -537,8 +537,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         neighborhood = private$.neighborhood,
         directed = private$.directed,
         n_units = private$.n_units,
-        type_x = private$.type_x,
-        type_y = private$.type_y,
+        family_x = private$.family_x,
+        family_y = private$.family_y,
         scale_x = private$.scale_x,
         scale_y = private$.scale_y,
         fix_x = private$.fix_x,
@@ -671,7 +671,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (is.null(value_range)) {
         value_range <- range(private$.x_attribute)
       }
-      if (private$.type_x == "normal") {
+      if (private$.family_x == "normal") {
         tmp_density <- density(private$.x_attribute, from = value_range[1], to = value_range[2])
         names(tmp_density$y) <- tmp_density$x
 
@@ -722,7 +722,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (is.null(value_range)) {
         value_range <- range(private$.y_attribute)
       }
-      if (private$.type_y == "normal") {
+      if (private$.family_y == "normal") {
         tmp_density <- density(private$.y_attribute, from = value_range[1], to = value_range[2])
         names(tmp_density$y) <- tmp_density$x
         if (plot) {
@@ -832,10 +832,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           }
         }
         if (has_constraints && nrow(edges) > 0) {
-          cond_sender <- filter_nodes(private$.x_attribute, x_i, private$.type_x) &
-            filter_nodes(private$.y_attribute, y_i, private$.type_y)
-          cond_receiver <- filter_nodes(private$.x_attribute, x_j, private$.type_x) &
-            filter_nodes(private$.y_attribute, y_j, private$.type_y)
+          cond_sender <- filter_nodes(private$.x_attribute, x_i, private$.family_x) &
+            filter_nodes(private$.y_attribute, y_i, private$.family_y)
+          cond_receiver <- filter_nodes(private$.x_attribute, x_j, private$.family_x) &
+            filter_nodes(private$.y_attribute, y_j, private$.family_y)
           units_sender <- which(cond_sender)
           units_receiver <- which(cond_receiver)
 
@@ -1011,7 +1011,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           overlap = private$.overlap, mode = mode,
           x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j,
           x_attribute = private$.x_attribute, y_attribute = private$.y_attribute,
-          type_x = private$.type_x, type_y = private$.type_y
+          family_x = private$.family_x, family_y = private$.family_y
         )
         mask <- matrix(FALSE, private$.n_units, private$.n_units)
         if (nrow(cand) > 0) {
@@ -1082,7 +1082,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         overlap = private$.overlap, mode = mode,
         x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j,
         x_attribute = private$.x_attribute, y_attribute = private$.y_attribute,
-        type_x = private$.type_x, type_y = private$.type_y
+        family_x = private$.family_x, family_y = private$.family_y
       )
 
       if (is.null(private$.descriptives$geodesic_distances[["global"]])) {
@@ -1115,7 +1115,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         prefix <- paste0("Geodesic Distance", if (mode == "local") " (Local)" else "")
         barplot(info,
           ylim = c(0, max(info) * 1.2),
-          xlab = build_constrained_xlab(prefix, x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+          xlab = build_constrained_xlab(prefix, x_i, x_j, y_i, y_j, family_x = private$.family_x, family_y = private$.family_y),
           ylab = ifelse(prob, "Proportion", "Count"),
           las = 1
         )
@@ -1197,7 +1197,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           overlap = private$.overlap, mode = mode,
           x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j,
           x_attribute = private$.x_attribute, y_attribute = private$.y_attribute,
-          type_x = private$.type_x, type_y = private$.type_y
+          family_x = private$.family_x, family_y = private$.family_y
         )
         mask <- matrix(FALSE, private$.n_units, private$.n_units)
         if (nrow(cand) > 0) {
@@ -1392,7 +1392,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         base_lab <- paste0("Number of ", type, if (mode == "local") " (Local)" else "", "- Edgewise Shared Partners")
         barplot(info_table,
           ylim = c(0, max(info_table) * 1.2),
-          xlab = build_constrained_xlab(base_lab, x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+          xlab = build_constrained_xlab(base_lab, x_i, x_j, y_i, y_j, family_x = private$.family_x, family_y = private$.family_y),
           ylab = ifelse(prob, "Proportion", "Count"),
           las = 1
         )
@@ -1466,7 +1466,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         overlap = private$.overlap, mode = mode,
         x_i = x_i, x_j = x_j, y_i = y_i, y_j = y_j,
         x_attribute = private$.x_attribute, y_attribute = private$.y_attribute,
-        type_x = private$.type_x, type_y = private$.type_y
+        family_x = private$.family_x, family_y = private$.family_y
       )
 
       if (is.null(private$.descriptives$dyadwise_shared_partner[[type]])) {
@@ -1502,7 +1502,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (plot) {
         base_lab <- paste0("Number of ", type, if (mode == "local") " (Local)" else "", "- Dyadwise Shared Partners")
         barplot(info_table,
-          xlab = build_constrained_xlab(base_lab, x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+          xlab = build_constrained_xlab(base_lab, x_i, x_j, y_i, y_j, family_x = private$.family_x, family_y = private$.family_y),
           ylab = ifelse(prob, "Proportion", "Count"),
           las = 1, ylim = c(0, max(info_table) * 1.2)
         )
@@ -1680,12 +1680,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
           on.exit(par(op))
           par(mfrow = c(1, 2))
           barplot(info_out,
-            xlab = build_constrained_xlab("Out-Degree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+            xlab = build_constrained_xlab("Out-Degree", x_i, x_j, y_i, y_j, family_x = private$.family_x, family_y = private$.family_y),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(info_out) * 1.2)
           )
           barplot(info_in,
-            xlab = build_constrained_xlab("In-Degree", x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+            xlab = build_constrained_xlab("In-Degree", x_i, x_j, y_i, y_j, family_x = private$.family_x, family_y = private$.family_y),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(info_in) * 1.2)
           )
@@ -1715,7 +1715,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         if (plot) {
           prefix <- if (mode == "local") "Local " else ""
           barplot(info,
-            xlab = build_constrained_xlab(paste0(prefix, "Degree"), x_i, x_j, y_i, y_j, type_x = private$.type_x, type_y = private$.type_y),
+            xlab = build_constrained_xlab(paste0(prefix, "Degree"), x_i, x_j, y_i, y_j, family_x = private$.family_x, family_y = private$.family_y),
             ylab = ifelse(prob, "Proportion", "Count"),
             las = 1, ylim = c(0, max(info) * 1.2)
           )
@@ -1835,8 +1835,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         identical(x_i, x_j) && identical(y_i, y_j)
       is_directed_or_bipartite <- private$.directed || (has_i_constr && has_j_constr && !identical_constraints)
 
-      cond_sender <- filter_nodes(private$.x_attribute, x_i, private$.type_x) & filter_nodes(private$.y_attribute, y_i, private$.type_y)
-      cond_receiver <- filter_nodes(private$.x_attribute, x_j, private$.type_x) & filter_nodes(private$.y_attribute, y_j, private$.type_y)
+      cond_sender <- filter_nodes(private$.x_attribute, x_i, private$.family_x) & filter_nodes(private$.y_attribute, y_i, private$.family_y)
+      cond_receiver <- filter_nodes(private$.x_attribute, x_j, private$.family_x) & filter_nodes(private$.y_attribute, y_j, private$.family_y)
       units_sender <- which(cond_sender)
       units_receiver <- which(cond_receiver)
 
@@ -2061,13 +2061,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       # browser()
       if (is.null(legend_col_n_levels)) {
         if (node_color == "x") {
-          if (private$.type_x == "binomial") {
+          if (private$.family_x == "binomial") {
             legend_col_n_levels <- 2
           } else {
             legend_col_n_levels <- 4
           }
         } else {
-          if (private$.type_y == "binomial") {
+          if (private$.family_y == "binomial") {
             legend_col_n_levels <- 2
           } else {
             legend_col_n_levels <- 4
@@ -2077,13 +2077,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 
       if (is.null(legend_size_n_levels)) {
         if (node_size == "x") {
-          if (private$.type_x == "binomial") {
+          if (private$.family_x == "binomial") {
             legend_size_n_levels <- 2
           } else {
             legend_size_n_levels <- 3
           }
         } else {
-          if (private$.type_y == "binomial") {
+          if (private$.family_y == "binomial") {
             legend_size_n_levels <- 2
           } else {
             legend_size_n_levels <- 3
@@ -2263,31 +2263,31 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       m_nb <- nrow(private$.neighborhood)
       numfmt <- function(v) format(v, digits = digits, trim = TRUE)
 
-      summarize_attr <- function(v, type, scale) {
+      summarize_attr <- function(v, family, scale) {
         v <- as.vector(v)
-        if (type == "binomial") {
+        if (family == "binomial") {
           p1 <- mean(v == 1, na.rm = TRUE)
           paste0("binomial mean = ", numfmt(p1))
-        } else if (type == "poisson") {
+        } else if (family == "poisson") {
           paste0("poisson mean = ", numfmt(mean(v, na.rm = TRUE)))
-        } else if (type == "normal") {
+        } else if (family == "normal") {
           paste0(
             "normal mean = ", numfmt(mean(v, na.rm = TRUE)),
             ", sd = ", numfmt(stats::sd(v, na.rm = TRUE))
           )
         } else {
-          paste0("unknown type; length = ", length(v))
+          paste0("unknown family; length = ", length(v))
         }
       }
 
       x_sum <- summarize_attr(
         private$.x_attribute,
-        private$.type_x,
+        private$.family_x,
         private$.scale_x
       )
       y_sum <- summarize_attr(
         private$.y_attribute,
-        private$.type_y,
+        private$.family_y,
         private$.scale_y
       )
 
@@ -2391,13 +2391,13 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         stop("`n_actor` is read-only.", call. = FALSE)
       }
     },
-    #' @field type_x (`character`) The specified distribution type for the `x_attribute`.
-    type_x = function(value) {
-      if (missing(value)) private$.type_x else self$set_type_x(value)
+    #' @field family_x (`character`) The specified distribution family for the `x_attribute`.
+    family_x = function(value) {
+      if (missing(value)) private$.family_x else self$set_family_x(value)
     },
-    #' @field type_y (`character`) The specified distribution type for the `y_attribute`.
-    type_y = function(value) {
-      if (missing(value)) private$.type_y else self$set_type_y(value)
+    #' @field family_y (`character`) The specified distribution family for the `y_attribute`.
+    family_y = function(value) {
+      if (missing(value)) private$.family_y else self$set_family_y(value)
     },
     #' @field scale_x (`numeric`) The scale parameter associated with the `x_attribute`.
     scale_x = function(value) {
@@ -2451,10 +2451,10 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #' @param n_units An integer for the number of units in the system.
 #'   If `NA` (default), `n_units` is inferred from the attributes or
 #'   network matrices.
-#' @param type_x Character string for the type of `x_attribute`.
+#' @param family_x Character string for the family of `x_attribute`.
 #'   Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 #'   Default is `"binomial"`.
-#' @param type_y Character string for the type of `y_attribute`.
+#' @param family_y Character string for the family of `y_attribute`.
 #'   Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 #'   Default is `"binomial"`.
 #' @param scale_x A positive numeric value for scaling (e.g., variance
@@ -2501,8 +2501,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   ), nrow = 4, byrow = TRUE),
 #'   directed = FALSE,
 #'   n_units = 4,
-#'   type_x = "binomial",
-#'   type_y = "binomial"
+#'   family_x = "binomial",
+#'   family_y = "binomial"
 #' )
 #'
 #'
@@ -2510,8 +2510,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   z_network = tmp_adjacency$z_network,
 #'   directed = FALSE,
 #'   n_units = 4,
-#'   type_x = "binomial",
-#'   type_y = "binomial"
+#'   family_x = "binomial",
+#'   family_y = "binomial"
 #' )
 #'
 #' tmp_edgelist$mean_z()
@@ -2519,7 +2519,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #' @export
 iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
                       neighborhood = NULL, directed = TRUE, n_units = NA,
-                      type_x = "binomial", type_y = "binomial",
+                      family_x = "binomial", family_y = "binomial",
                       scale_x = 1, scale_y = 1,
                       fix_x = FALSE,
                       fix_z = FALSE,
@@ -2545,8 +2545,8 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
     neighborhood = neighborhood,
     directed = as.logical(directed),
     n_units = n_units,
-    type_x = as.character(type_x),
-    type_y = as.character(type_y),
+    family_x = as.character(family_x),
+    family_y = as.character(family_y),
     scale_x = as.numeric(scale_x),
     scale_y = as.numeric(scale_y),
     fix_x = as.logical(fix_x),

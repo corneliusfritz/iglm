@@ -91,7 +91,7 @@ n_units <- 50
 neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 xyz_obj <- iglm.data(
   neighborhood = neighborhood, directed = FALSE,
-  type_x = "binomial", type_y = "binomial"
+  family_x = "binomial", family_y = "binomial"
 )
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)

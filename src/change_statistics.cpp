@@ -354,7 +354,7 @@ auto xyz_stat_edges_x_match_global = CHANGESTAT {
     }
     
   } else if (mode == "x") { 
-    if(object.x_attribute.type != "binomial") {
+    if(object.x_attribute.family != "binomial") {
       Rcpp::stop("The x attribute should be binary for this statistic");
     }
     double res = 0.0; 
@@ -399,7 +399,7 @@ auto xyz_stat_edges_x_match_local = CHANGESTAT {
     
   } else if (mode == "x") {  
     double res = 0.0; 
-    if(object.x_attribute.type != "binomial") {
+    if(object.x_attribute.family != "binomial") {
       Rcpp::stop("The x attribute should be binary for this statistic");
     }
     if (object.z_network.directed) {
@@ -441,7 +441,7 @@ auto xyz_stat_edges_y_match = CHANGESTAT {
     }
     
   } else if (mode == "y") { 
-    if(object.y_attribute.type != "binomial") {
+    if(object.y_attribute.family != "binomial") {
       Rcpp::stop("The y attribute should be binary for this statistic");
     }
     double res = 0.0; 
@@ -491,7 +491,7 @@ auto xyz_stat_edges_y_match_local = CHANGESTAT {
     }
     
   } else if (mode == "y") { 
-    if(object.y_attribute.type != "binomial") {
+    if(object.y_attribute.family != "binomial") {
       Rcpp::stop("The y attribute should be binary for this statistic");
     }
     double res = 0.0; 
