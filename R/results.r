@@ -304,7 +304,11 @@ results.generator <- R6::R6Class("results",
           stop("Model has not been estimated yet. Cannot plot results.", call. = FALSE)
         }
 
-        plot(private$.llh, type = "l", xlab = "Iteration", las = 1, ylab = "Log-likelihood", bty = "l")
+        adj <- adjust_margin_for_yaxis(private$.llh)
+        old_mar <- par(mar = c(par("mar")[1], adj$mar_left, par("mar")[3], par("mar")[4]))
+        plot(private$.llh, type = "l", xlab = "Iteration", las = 1, ylab = "", bty = "l")
+        title(ylab = "Log-likelihood", line = adj$line)
+        par(old_mar)
 
         if (!is.null(private$.score_degrees)) {
           coefficients_path_np <- matrix(private$.coefficients_path[, seq_len(nrow(private$.var))], ncol = nrow(private$.var))
@@ -370,8 +374,8 @@ results.generator <- R6::R6Class("results",
         }
         tmp_names <- names(private$.model_assessment$observed)
         base_names <- private$.model_assessment$base_name
-        type_x <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$type_x)) private$.samples[[1]]$type_x else "binomial"
-        type_y <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$type_y)) private$.samples[[1]]$type_y else "binomial"
+        family_x <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_x)) private$.samples[[1]]$family_x else "binomial"
+        family_y <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_y)) private$.samples[[1]]$family_y else "binomial"
         k <- 0
         for (i in base_names) {
           k <- k + 1
@@ -386,7 +390,7 @@ results.generator <- R6::R6Class("results",
                 } else {
                   if (is_local) "Local Outdegree" else "Outdegree"
                 }
-                xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, type_x = type_x, type_y = type_y)
+                xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, family_x = family_x, family_y = family_y)
                 obs_deg <- private$.model_assessment$observed[[tmp_names[k]]][[degree_type]]
                 sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k], degree_type)
 
@@ -406,7 +410,7 @@ results.generator <- R6::R6Class("results",
               # Undirected
               is_local <- grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])
               base_lab <- if (is_local) "Local Degree" else "Degree"
-              xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, type_x = type_x, type_y = type_y)
+              xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, family_x = family_x, family_y = family_y)
               obs_deg <- private$.model_assessment$observed[[tmp_names[k]]]
               sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -422,12 +426,15 @@ results.generator <- R6::R6Class("results",
                 plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
               }
             }
-          } else if (i %in% c("dyadwise_shared_partner_distribution", "dsp_dist",
-                              "edgewise_shared_partner_distribution", "esp_dist")) {
+          } else if (i %in% c(
+            "dyadwise_shared_partner_distribution", "dsp_dist",
+            "edgewise_shared_partner_distribution", "esp_dist"
+          )) {
             xlab_sp <- if (grepl("dyadwise", i) || grepl("^dsp", i)) "Dyadwise Shared Partner" else "Edgewise Shared Partner"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
               xlab_sp <- paste0(xlab_sp, " (Local)")
             }
+            xlab_sp <- get_assessment_constraint_xlab(xlab_sp, tmp_names[k], i, family_x = family_x, family_y = family_y)
             obs_sp <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_sp <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -442,12 +449,12 @@ results.generator <- R6::R6Class("results",
             } else {
               plot_assessment_single(observed = obs_sp, sim_matrix = sim_sp, xlab = xlab_sp)
             }
-
           } else if (i %in% c("geodesic_distances_distribution", "geo_dist")) {
             xlab_geo <- "Geodesic Distance"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
               xlab_geo <- paste0(xlab_geo, " (Local)")
             }
+            xlab_geo <- get_assessment_constraint_xlab(xlab_geo, tmp_names[k], i, family_x = family_x, family_y = family_y)
             obs_geo <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_geo <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
             x_pos <- seq_along(obs_geo)
@@ -471,7 +478,7 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("y_distribution", "y_dist")) {
             obs_y <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_y <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
-            is_normal <- (private$.samples[[1]]$type_y == "normal")
+            is_normal <- (private$.samples[[1]]$family_y == "normal")
             x_pos <- if (is_normal) as.numeric(names(obs_y)) else seq_along(obs_y)
 
             if (add) {
@@ -496,7 +503,7 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("x_distribution", "x_dist")) {
             obs_x <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_x <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
-            is_normal <- (private$.samples[[1]]$type_x == "normal")
+            is_normal <- (private$.samples[[1]]$family_x == "normal")
             x_pos <- if (is_normal) as.numeric(names(obs_x)) else seq_along(obs_x)
 
             if (add) {

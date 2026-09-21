@@ -142,21 +142,20 @@ test_that("check.IglmTerm generates informative error messages with term name", 
 })
 
 test_that("Positional formula arguments evaluate correctly in model estimation and simulation", {
-  n_actor <- 10
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 10
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
-  x_val <- rep(c(1, 0), length.out = n_actor)
-  y_val <- rep(c(0, 1), length.out = n_actor)
+  x_val <- rep(c(1, 0), length.out = n_units)
+  y_val <- rep(c(0, 1), length.out = n_units)
   z_net <- matrix(c(1, 2, 2, 3, 3, 4), ncol = 2, byrow = TRUE)
-  cov_mat <- matrix(0.5, nrow = n_actor, ncol = n_actor)
+  cov_mat <- matrix(0.5, nrow = n_units, ncol = n_units)
 
   d <- iglm.data(
     x_attribute = x_val,
     y_attribute = y_val,
     z_network = z_net,
     neighborhood = neighborhood,
-    n_actor = n_actor,
+    n_units = n_units,
     directed = FALSE
   )
 

@@ -23,13 +23,13 @@ struct IsMoreThan {
 
 class IGLM_API Attribute {
 public:
-  Attribute (int a, std::string type_, double scale_);
-  Attribute (int a, arma::vec attribute_tmp, std::string type_, double scale_);
+  Attribute (int a, std::string family_, double scale_);
+  Attribute (int a, arma::vec attribute_tmp, std::string family_, double scale_);
   
   // Attributes (public)
   arma::vec attribute;
   double scale; 
-  std::string type;
+  std::string family;
   
   // Member functions
   double get_scale() const {
@@ -43,25 +43,25 @@ public:
   }
   
   double get_val(int from) const {
-    if(from < 1 || from > n_actor) return 0.0;
+    if(from < 1 || from > n_units) return 0.0;
     return(attribute(from-1)/scale);
   }
   
   double get_val_no_scale(int from) const {
-    if(from < 1 || from > n_actor) return 0.0;
+    if(from < 1 || from > n_units) return 0.0;
     return(attribute(from-1));
   }
   
   void print();
   
   void set_attr_0(int from) {
-    if(from >= 1 && from <= n_actor) {
+    if(from >= 1 && from <= n_units) {
         attribute(from-1) = 0;
     }
   }
   
   void set_attr_value(int from, double val) {
-    if(from >= 1 && from <= n_actor) {
+    if(from >= 1 && from <= n_units) {
         attribute(from-1) = val;
     }
   }
@@ -71,13 +71,13 @@ public:
   }
   
   void set_attr_1(int from) {
-    if(from >= 1 && from <= n_actor) {
+    if(from >= 1 && from <= n_units) {
         attribute(from-1) = 1;
     }
   }
 
 private:
-  int n_actor;
+  int n_units;
 };
 
 #endif

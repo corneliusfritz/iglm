@@ -207,7 +207,7 @@ auto xyz_stat_edges_nonb= CHANGESTAT{
       // // The union of the two neighborhoods is saved in intersect_group
       // same_group = intersect_group.size()>0;
       // if(object.get_val_overlap(unit_i, unit_j) != object.get_val_overlap(unit_i,unit_j)){
-      //   Rcout << "There is an issue between actors:" ;
+      //   Rcout << "There is an issue between units:" ;
       //   Rcout << unit_i ;
       //   Rcout << " and " ;
       //   Rcout << unit_j << std::endl;
@@ -285,7 +285,7 @@ auto xyz_stat_attribute_xy_nonb= CHANGESTAT{
   if(mode == "y"){
     
     std::vector<int> difference_result =
-      get_difference_vec(object.all_actors, object.overlap.at(unit_i));
+      get_difference_vec(object.all_units, object.overlap.at(unit_i));
     
     
     double res = 0.0;
@@ -295,7 +295,7 @@ auto xyz_stat_attribute_xy_nonb= CHANGESTAT{
     return(res);
   } else if(mode == "x"){ 
     std::vector<int> difference_result = 
-      get_difference_vec(object.all_actors, object.overlap.at(unit_i));
+      get_difference_vec(object.all_units, object.overlap.at(unit_i));
     double res = 0.0;
     for (int k : difference_result) {
       res+= object.x_attribute.get_val(k);
@@ -354,7 +354,7 @@ auto xyz_stat_edges_x_match_global = CHANGESTAT {
     }
     
   } else if (mode == "x") { 
-    if(object.x_attribute.type != "binomial") {
+    if(object.x_attribute.family != "binomial") {
       Rcpp::stop("The x attribute should be binary for this statistic");
     }
     double res = 0.0; 
@@ -399,7 +399,7 @@ auto xyz_stat_edges_x_match_local = CHANGESTAT {
     
   } else if (mode == "x") {  
     double res = 0.0; 
-    if(object.x_attribute.type != "binomial") {
+    if(object.x_attribute.family != "binomial") {
       Rcpp::stop("The x attribute should be binary for this statistic");
     }
     if (object.z_network.directed) {
@@ -441,7 +441,7 @@ auto xyz_stat_edges_y_match = CHANGESTAT {
     }
     
   } else if (mode == "y") { 
-    if(object.y_attribute.type != "binomial") {
+    if(object.y_attribute.family != "binomial") {
       Rcpp::stop("The y attribute should be binary for this statistic");
     }
     double res = 0.0; 
@@ -491,7 +491,7 @@ auto xyz_stat_edges_y_match_local = CHANGESTAT {
     }
     
   } else if (mode == "y") { 
-    if(object.y_attribute.type != "binomial") {
+    if(object.y_attribute.family != "binomial") {
       Rcpp::stop("The y attribute should be binary for this statistic");
     }
     double res = 0.0; 
@@ -534,7 +534,7 @@ auto xyz_stat_edges_x_out_nonb= CHANGESTAT{
     auto& connections_of_i_all =  object.z_network.adj_list.at(unit_i);
     std::vector<int> connections_of_i;
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
+    // If there is no full neighborhood we need to cut the connections of i to only include other units within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
       connections_of_i = get_difference_vec(connections_of_i_all, object.overlap.at(unit_i));
@@ -589,7 +589,7 @@ auto xyz_stat_edges_x_in_nonb= CHANGESTAT{
     auto& connections_of_i_all =  object.z_network.adj_list_in.at(unit_i);
     std::vector<int> connections_of_i;
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
+    // If there is no full neighborhood we need to cut the connections of i to only include other units within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
       connections_of_i = get_difference_vec(connections_of_i_all, object.overlap.at(unit_i));
@@ -637,7 +637,7 @@ auto xyz_stat_edges_y_out_nonb= CHANGESTAT{
     auto& connections_of_i_all =  object.z_network.adj_list.at(unit_i);
     std::vector<int> connections_of_i;
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
+    // If there is no full neighborhood we need to cut the connections of i to only include other units within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
       connections_of_i = get_difference_vec(connections_of_i_all, object.overlap.at(unit_i));
@@ -692,7 +692,7 @@ auto xyz_stat_edges_y_in_nonb= CHANGESTAT{
     auto& connections_of_i_all =  object.z_network.adj_list_in.at(unit_i);
     std::vector<int> connections_of_i;
     
-    // If there is no full neighborhood we need to cut the connections of i to only include other actors within the same neighborhood
+    // If there is no full neighborhood we need to cut the connections of i to only include other units within the same neighborhood
     if(!is_full_neighborhood){
       // Next we only want to get the connections within the same group
       connections_of_i = get_difference_vec(connections_of_i_all, object.overlap.at(unit_i));
@@ -910,7 +910,7 @@ auto xyz_stat_interaction_edges_yx= CHANGESTAT{
     auto& connections_of_i =  object.adj_list_in_nb.at(unit_i);
     
     for (int k : connections_of_i) {
-      // Rcout << "Attribute of actor";
+      // Rcout << "Attribute of unit";
       // Rcout << k << std::endl;
       // Rcout << object.attribute.get_val(k) << std::endl;
       // if(k != unit_j){

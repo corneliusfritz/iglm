@@ -160,7 +160,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
 
   return_preprocess <- control$return_x + control$return_y + control$return_z > 0
   if (preprocessed$includes_degrees) {
-    n_actor <- length(data_object$x_attribute)
+    n_units <- length(data_object$x_attribute)
     if (is.null(beg_coef)) {
       coef_tmp <- rep(0, length(preprocessed$term_names))
     } else {
@@ -169,9 +169,9 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
 
     if (is.null(beg_coef_degrees)) {
       if (data_object$directed) {
-        coef_tmp_degrees <- rep(0, n_actor * 2)
+        coef_tmp_degrees <- rep(0, n_units * 2)
       } else {
-        coef_tmp_degrees <- rep(0, n_actor)
+        coef_tmp_degrees <- rep(0, n_units)
       }
     } else {
       coef_tmp_degrees <- as.vector(beg_coef_degrees)
@@ -200,8 +200,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
         var = control$var,
         accelerated = control$accelerated,
         fix_x = data_object$fix_x,
-        type_x = data_object$type_x,
-        type_y = data_object$type_y,
+        family_x = data_object$family_x,
+        family_y = data_object$family_y,
         attr_x_scale = data_object$scale_x,
         attr_y_scale = data_object$scale_y,
         start = start
@@ -236,7 +236,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
             coef = res$coefficients_nondegrees,
             coef_degrees = res$coefficients_degrees,
             terms = preprocessed$term_names,
-            n_actor = n_actor,
+            n_units = n_units,
             z_network = data_object$z_network,
             neighborhood = data_object$neighborhood,
             overlap = data_object$overlap,
@@ -262,8 +262,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
             fix_z = data_object$fix_z,
             updated_uncertainty = control$updated_uncertainty,
             exact = control$exact,
-            type_x = data_object$type_x,
-            type_y = data_object$type_y,
+            family_x = data_object$family_x,
+            family_y = data_object$family_y,
             attr_x_scale = data_object$scale_x,
             attr_y_scale = data_object$scale_y
           )
@@ -284,12 +284,12 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
           }
           # browser()
           res_parallel <- parLapply(cl = sampler$cluster, X = tmp_split, fun = function(x, preprocessed,
-                                                                                        n_actor, res, control, term_names) {
+                                                                                        n_units, res, control, term_names) {
             xyz_approximate_variability(
               coef = res$coefficients_nondegrees,
               coef_degrees = res$coefficients_degrees,
               terms = preprocessed$term_names,
-              n_actor = n_actor,
+              n_units = n_units,
               z_network = data_object$z_network,
               neighborhood = data_object$neighborhood,
               overlap = data_object$overlap,
@@ -315,12 +315,12 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
               fix_z = data_object$fix_z,
               updated_uncertainty = control$updated_uncertainty,
               exact = control$exact,
-              type_x = data_object$type_x,
-              type_y = data_object$type_y,
+              family_x = data_object$family_x,
+              family_y = data_object$family_y,
               attr_x_scale = data_object$scale_x,
               attr_y_scale = data_object$scale_y
             )
-          }, preprocessed = preprocessed, n_actor = n_actor, res = res, control = control, term_names = preprocessed$term_names)
+          }, preprocessed = preprocessed, n_units = n_units, res = res, control = control, term_names = preprocessed$term_names)
 
 
           variability_simulations <- list()
@@ -384,7 +384,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
                 x_attribute = res$simulations$simulation_x_attributes[[x]],
                 y_attribute = res$simulations$simulation_y_attributes[[x]],
                 z_network = res$simulations$simulation_z_networks[[x]],
-                n_actor = n_actor, return_adj_mat = F
+                n_units = n_units, return_adj_mat = F
               )
             }
           )
@@ -392,7 +392,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       }
 
       if (data_object$directed) {
-        rownames(res$coefficients_degrees) <- c(paste(c("out-degrees"), 1:n_actor), paste(c("in-degrees"), 1:n_actor))
+        rownames(res$coefficients_degrees) <- c(paste(c("out-degrees"), 1:n_units), paste(c("in-degrees"), 1:n_units))
         rownames(res$coefficients_nondegrees) <- preprocessed$coef_names
         if (control$var && length(preprocessed$term_names) > 0) {
           colnames(res$var) <- preprocessed$coef_names
@@ -401,7 +401,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
 
         colnames(res$coefficients_path) <- c(rownames(res$coefficients_nondegrees), rownames(res$coefficients_degrees))
       } else {
-        rownames(res$coefficients_degrees) <- paste(c("degrees"), 1:n_actor)
+        rownames(res$coefficients_degrees) <- paste(c("degrees"), 1:n_units)
         rownames(res$coefficients_nondegrees) <- preprocessed$coef_names
         if (control$var && length(preprocessed$term_names) > 0) {
           colnames(res$var) <- preprocessed$coef_names
@@ -414,7 +414,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
     }
   } else {
     # Pseudo LH (Nondegrees) ----
-    n_actor <- length(data_object$x_attribute)
+    n_units <- length(data_object$x_attribute)
 
     if (is.null(beg_coef)) {
       coef_tmp <- rep(0, length(preprocessed$term_names))
@@ -442,8 +442,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
         non_stop = control$non_stop,
         fix_x = data_object$fix_x,
         fix_z = data_object$fix_z,
-        attr_x_type = data_object$type_x,
-        attr_y_type = data_object$type_y,
+        attr_x_family = data_object$family_x,
+        attr_y_family = data_object$family_y,
         attr_x_scale = data_object$scale_x,
         attr_y_scale = data_object$scale_y
       )
@@ -481,15 +481,15 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
             coef = res$coefficients, return_samples = control$return_samples,
             coef_degrees = 0,
             terms = preprocessed$term_names,
-            n_actor = data_object$n_actor,
+            n_units = data_object$n_units,
             z_network = data_object$z_network,
             neighborhood = data_object$neighborhood,
             overlap = data_object$overlap,
             x_attribute = data_object$x_attribute,
             y_attribute = data_object$y_attribute,
-            type_x = data_object$type_x,
+            family_x = data_object$family_x,
             tnt = sampler$sampler_z$tnt,
-            type_y = data_object$type_y,
+            family_y = data_object$family_y,
             nonoverlap_random = nonoverlap_random,
             attr_x_scale = data_object$scale_x,
             attr_y_scale = data_object$scale_y,
@@ -524,20 +524,20 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
           }
 
           res_parallel <- parLapply(cl = sampler$cluster, X = tmp_split, fun = function(x, preprocessed,
-                                                                                        n_actor, res, control) {
+                                                                                        n_units, res, control) {
             xyz_approximate_variability(
               coef = res$coefficients,
               coef_degrees = 0,
               terms = preprocessed$term_names,
-              n_actor = n_actor,
+              n_units = n_units,
               z_network = data_object$z_network,
               neighborhood = data_object$neighborhood,
               overlap = data_object$overlap,
               x_attribute = data_object$x_attribute,
               y_attribute = data_object$y_attribute,
               init_empty = sampler$init_empty,
-              type_x = data_object$type_x,
-              type_y = data_object$type_y,
+              family_x = data_object$family_x,
+              family_y = data_object$family_y,
               nonoverlap_random = nonoverlap_random,
               attr_x_scale = data_object$scale_x,
               attr_y_scale = data_object$scale_y,
@@ -560,7 +560,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
               fix_x = data_object$fix_x,
               fix_z = data_object$fix_z
             )
-          }, preprocessed = preprocessed, n_actor = n_actor, res = res, control = control)
+          }, preprocessed = preprocessed, n_units = n_units, res = res, control = control)
 
 
           variability_simulations <- list()
@@ -593,7 +593,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
                 x_attribute = res$simulations$simulation_x_attributes[[x]],
                 y_attribute = res$simulations$simulation_y_attributes[[x]],
                 z_network = res$simulations$simulation_z_networks[[x]],
-                n_actor = n_actor, return_adj_mat = F
+                n_units = n_units, return_adj_mat = F
               )
             }
           )
@@ -626,8 +626,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       return_x = control$return_x,
       return_y = control$return_y,
       return_z = control$return_z,
-      type_x = data_object$type_x,
-      type_y = data_object$type_y,
+      family_x = data_object$family_x,
+      family_y = data_object$family_y,
       attr_x_scale = data_object$scale_x,
       attr_y_scale = data_object$scale_y
     )
@@ -639,7 +639,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       x = res$preprocess, y = names(res$preprocess),
       function(x, y) {
         if (y %in% c("res_x", "res_y")) {
-          colnames(x$data) <- c("target", "actor", preprocessed$coef_names)
+          colnames(x$data) <- c("target", "unit", preprocessed$coef_names)
         } else if (y == "res_z") {
           colnames(x$data) <- c("target", "sender", "receiver", "overlapping", preprocessed$coef_names)
         }

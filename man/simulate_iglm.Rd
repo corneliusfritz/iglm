@@ -27,7 +27,7 @@ See \code{\link{iglm-terms}} for details on specifying the right-hand side terms
 for the simulation. If provided, the simulation starts from the state (\code{x_attribute},
 \code{y_attribute}, \code{z_network}) defined in this object.
 The `basis` object must be consistent with the model data referenced in `formula`
-(same number of actors, directedness, and attribute types). All structural specifications
+(same number of units, directedness, and attribute types). All structural specifications
 (terms, neighborhood, overlap, and fixed variable flags) are taken from the `formula` data object.
 If `NULL` (default), the initial state is taken from the `iglm.data` object
 referenced in the `formula`.}
@@ -37,9 +37,9 @@ referenced in the `formula`.}
 
 \item{coef_degrees}{Numeric vector specifying the degrees coefficient
 values (expansiveness/attractiveness). This is required \strong{only if} the
-`formula` includes degrees terms. Its length must be `n_actor` (for
-undirected networks) or `2 * n_actor` (for directed networks), where
-`n_actor` is determined from the `iglm.data` object in the formula.}
+`formula` includes degrees terms. Its length must be `n_units` (for
+undirected networks) or `2 * n_units` (for directed networks), where
+`n_units` is determined from the `iglm.data` object in the formula.}
 
 \item{sampler}{An object of class `sampler.iglm` (created by
 `sampler.iglm()`) specifying the MCMC sampling parameters. This includes

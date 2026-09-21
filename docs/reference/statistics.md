@@ -35,13 +35,13 @@ the formula terms.
 
 ``` r
 # Create a iglm.data object
-n_actor <- 10
-neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+n_units <- 10
+neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 type_x <- "binomial"
 type_y <- "binomial"
-x_attr_data <- rbinom(n_actor, 1, 0.5)
-y_attr_data <- rbinom(n_actor, 1, 0.5)
-z_net_data <- matrix(0, nrow = n_actor, ncol = n_actor)
+x_attr_data <- rbinom(n_units, 1, 0.5)
+y_attr_data <- rbinom(n_units, 1, 0.5)
+z_net_data <- matrix(0, nrow = n_units, ncol = n_units)
 object <- iglm.data(
   z_network = z_net_data, x_attribute = x_attr_data,
   y_attribute = y_attr_data, neighborhood = neighborhood,

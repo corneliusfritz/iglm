@@ -90,7 +90,8 @@ and control objects, calculating initial statistics, and validating.
   sampler = NULL,
   control = NULL,
   name = NULL,
-  file = NULL
+  file = NULL,
+  ...
 )}
     \if{html}{\out{</div>}}
   }
@@ -114,6 +115,7 @@ parameters. If `NULL`, default settings are used.}
 would be used in plots and model assessment.}
       \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
 the specified .rds file instead of initializing from parameters.}
+      \item{\code{...}}{Additional arguments. Unrecognized arguments will trigger informative errors.}
     }
     \if{html}{\out{</div>}}
   }
@@ -473,7 +475,7 @@ estimated coefficients \eqn{\hat{\theta}}:
 \itemize{
   \item For \strong{Binomial} families: \eqn{\mu = (1 + \exp(-\eta))^{-1}} (Logistic).
   \item For \strong{Poisson} families: \eqn{\mu = \exp(\eta)} (Exponential).
-  \item For \strong{Gaussian} families: \eqn{\mu = \eta} (Identity).
+  \item For \strong{Normal} families: \eqn{\mu = \eta} (Identity).
 }
 For the network component \code{z}, the linear predictor includes dyadic covariates,
 degrees effects (sender/receiver variances), and structural offsets.
@@ -481,7 +483,7 @@ degrees effects (sender/receiver variances), and structural offsets.
   \subsection{Returns}{
     A list containing the requested predictions:
 \describe{
-  \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the actor ID and subsequent
+  \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the unit ID and subsequent
   columns represent the predicted mean values.}
   \item{\code{z}}{A data frame containing the edgelist with columns: \code{sender}, \code{receiver},
   and \code{prediction} (probability or intensity).}

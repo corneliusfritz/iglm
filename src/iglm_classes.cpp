@@ -6,36 +6,36 @@
 #include "iglm/helper_functions.h"
 
 // Attribute implementations
-Attribute::Attribute(int a, std::string type_, double scale_) {
-    n_actor = a;
+Attribute::Attribute(int a, std::string family_, double scale_) {
+    n_units = a;
     scale = scale_;
     arma::vec tmp(a);
     tmp.fill(0);
     attribute = tmp;
-    if(type_ == "binomial" || type_ == "poisson" || type_ == "normal"){
-        type = type_;   
+    if(family_ == "binomial" || family_ == "poisson" || family_ == "normal"){
+        family = family_;   
     } else {
-        Rcpp::Rcout << "Invalid type, we assume that it is binomial (only binomial, poisson, and normal are implemented.)\n";
-        type = "binomial";
+        Rcpp::Rcout << "Invalid family, we assume that it is binomial (only binomial, poisson, and normal are implemented.)\n";
+        family = "binomial";
     }
 }
 
-Attribute::Attribute(int a, arma::vec attribute_tmp, std::string type_, double scale_) {
-    n_actor = a;
+Attribute::Attribute(int a, arma::vec attribute_tmp, std::string family_, double scale_) {
+    n_units = a;
     scale = scale_;
     attribute = attribute_tmp;
-    if(type_ == "binomial" || type_ == "poisson" || type_ == "normal"){
-        type = type_;   
+    if(family_ == "binomial" || family_ == "poisson" || family_ == "normal"){
+        family = family_;   
     } else {
-        Rcpp::Rcout << "Invalid type, we assume that it is binomial (only binomial, poisson, and normal are implemented.)\n";
-        type = "binomial";
+        Rcpp::Rcout << "Invalid family, we assume that it is binomial (only binomial, poisson, and normal are implemented.)\n";
+        family = "binomial";
     }
 }
 
 bool Attribute::check() const {
     int mycount = std::count_if(attribute.begin(),
                                 attribute.end(),
-                                IsMoreThan(n_actor));
+                                IsMoreThan(n_units));
     return(mycount==0);
 }
 
@@ -44,31 +44,31 @@ void Attribute::print() {
 }
 
 // Network implementations
-Network::Network(int n_actor_, bool directed_) {
-    n_actor = n_actor_;
+Network::Network(int n_units_, bool directed_) {
+    n_units = n_units_;
     directed = directed_;
-    adj_list.resize(n_actor + 1);
+    adj_list.resize(n_units + 1);
     if (directed) {
-        adj_list_in.resize(n_actor + 1);
+        adj_list_in.resize(n_units + 1);
     }
-    adj_mat.assign(n_actor * n_actor, 0);
-    out_degrees.assign(n_actor + 1, 0);
-    in_degrees.assign(n_actor + 1, 0);
+    adj_mat.assign(n_units * n_units, 0);
+    out_degrees.assign(n_units + 1, 0);
+    in_degrees.assign(n_units + 1, 0);
     number_edges = 0;
 }
 
-Network::Network(int n_actor_, bool directed_, arma::mat mat) {
-    n_actor = n_actor_;
+Network::Network(int n_units_, bool directed_, arma::mat mat) {
+    n_units = n_units_;
     directed = directed_;
-    adj_list.resize(n_actor + 1);
+    adj_list.resize(n_units + 1);
     if (directed) {
-        adj_list_in.resize(n_actor + 1);
+        adj_list_in.resize(n_units + 1);
     }
-    adj_mat.assign(n_actor * n_actor, 0);
-    out_degrees.assign(n_actor + 1, 0);
-    in_degrees.assign(n_actor + 1, 0);
-    mat_to_map_vec(mat, n_actor, directed, adj_list, adj_list_in, adj_mat);
-    for(int i = 1; i <= n_actor; i++) {
+    adj_mat.assign(n_units * n_units, 0);
+    out_degrees.assign(n_units + 1, 0);
+    in_degrees.assign(n_units + 1, 0);
+    mat_to_map_vec(mat, n_units, directed, adj_list, adj_list_in, adj_mat);
+    for(int i = 1; i <= n_units; i++) {
         out_degrees[i] = adj_list[i].size();
         if (directed) in_degrees[i] = adj_list_in[i].size();
         else in_degrees[i] = out_degrees[i];
@@ -76,20 +76,20 @@ Network::Network(int n_actor_, bool directed_, arma::mat mat) {
     number_edges = count_edges(); 
 }
 
-void Network::set_network_from_mat(int n_actor_, bool directed_, arma::mat mat){
-    n_actor = n_actor_;
+void Network::set_network_from_mat(int n_units_, bool directed_, arma::mat mat){
+    n_units = n_units_;
     directed = directed_;
     adj_list.clear();
-    adj_list.resize(n_actor + 1);
+    adj_list.resize(n_units + 1);
     if (directed) {
         adj_list_in.clear();
-        adj_list_in.resize(n_actor + 1);
+        adj_list_in.resize(n_units + 1);
     }
-    adj_mat.assign(n_actor * n_actor, 0);
-    out_degrees.assign(n_actor + 1, 0);
-    in_degrees.assign(n_actor + 1, 0);
-    mat_to_map_vec(mat, n_actor, directed, adj_list, adj_list_in, adj_mat);
-    for(int i = 1; i <= n_actor; i++) {
+    adj_mat.assign(n_units * n_units, 0);
+    out_degrees.assign(n_units + 1, 0);
+    in_degrees.assign(n_units + 1, 0);
+    mat_to_map_vec(mat, n_units, directed, adj_list, adj_list_in, adj_mat);
+    for(int i = 1; i <= n_units; i++) {
         out_degrees[i] = adj_list[i].size();
         if (directed) in_degrees[i] = adj_list_in[i].size();
         else in_degrees[i] = out_degrees[i];
@@ -180,7 +180,7 @@ std::vector<int> Network::get_common_partners(unsigned int from,unsigned int to,
 
 double Network::count_edges() const {
     double count = 0.0;
-    for(int i=1; i<=n_actor; i++){
+    for(int i=1; i<=n_units; i++){
         count += adj_list[i].size();
     }
     return(count);
@@ -241,77 +241,77 @@ void Network::delete_edge(int from, int to) {
 }
 
 void Network::add_edges_from_mat(arma::mat mat) {
-    mat_to_map_vec(mat, n_actor, directed, adj_list, adj_list_in, adj_mat);
+    mat_to_map_vec(mat, n_units, directed, adj_list, adj_list_in, adj_mat);
     number_edges = count_edges();
 }
 
 // XZ_class implementations
-XZ_class::XZ_class(int n_actor_, bool directed_, std::string type_, double scale_):
-    n_actor(n_actor_),                             
-    z_network(n_actor_, directed_),              
-    x_attribute(n_actor_, type_, scale_)         
+XZ_class::XZ_class(int n_units_, bool directed_, std::string family_, double scale_):
+    n_units(n_units_),                             
+    z_network(n_units_, directed_),              
+    x_attribute(n_units_, family_, scale_)         
 {
-    overlap.resize(n_actor + 1);
-    neighborhood.resize(n_actor + 1);
-    adj_list_nb.resize(n_actor + 1);
-    adj_list_in_nb.resize(n_actor + 1);
-    overlap_bool_mat.assign(n_actor * n_actor, 0);
-    neighborhood_bool_mat.assign(n_actor * n_actor, 0);
+    overlap.resize(n_units + 1);
+    neighborhood.resize(n_units + 1);
+    adj_list_nb.resize(n_units + 1);
+    adj_list_in_nb.resize(n_units + 1);
+    overlap_bool_mat.assign(n_units * n_units, 0);
+    neighborhood_bool_mat.assign(n_units * n_units, 0);
     overlap_mat = arma::zeros<arma::mat>(0, 2);
-    out_degrees_nb.assign(n_actor + 1, 0);
-    in_degrees_nb.assign(n_actor + 1, 0);
-    active_edges_nb_idx.assign(n_actor * n_actor, -1);
+    out_degrees_nb.assign(n_units + 1, 0);
+    in_degrees_nb.assign(n_units + 1, 0);
+    active_edges_nb_idx.assign(n_units * n_units, -1);
     
-    for (int i = 1; i <= n_actor; ++i) { 
-        all_actors.push_back(i);
+    for (int i = 1; i <= n_units; ++i) { 
+        all_units.push_back(i);
     } 
     initialize_overlap_counts();
 }
 
-XZ_class::XZ_class(int n_actor_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_):
-    n_actor(n_actor_),                             
-    z_network(n_actor_, directed_),             
-    x_attribute(n_actor_, type_, scale_)        
+XZ_class::XZ_class(int n_units_, bool directed_, arma::mat neighborhood_, arma::mat overlap_, std::string family_, double scale_):
+    n_units(n_units_),                             
+    z_network(n_units_, directed_),             
+    x_attribute(n_units_, family_, scale_)        
 {
-    overlap.resize(n_actor + 1);
-    neighborhood.resize(n_actor + 1);
-    adj_list_nb.resize(n_actor + 1);
-    adj_list_in_nb.resize(n_actor + 1);
-    overlap_bool_mat.assign(n_actor * n_actor, 0);
-    neighborhood_bool_mat.assign(n_actor * n_actor, 0);
+    overlap.resize(n_units + 1);
+    neighborhood.resize(n_units + 1);
+    adj_list_nb.resize(n_units + 1);
+    adj_list_in_nb.resize(n_units + 1);
+    overlap_bool_mat.assign(n_units * n_units, 0);
+    neighborhood_bool_mat.assign(n_units * n_units, 0);
 
-    mat_to_map_vec(neighborhood_, n_actor, directed_, neighborhood, neighborhood, neighborhood_bool_mat);
-    mat_to_map_vec(overlap_, n_actor, directed_, overlap, overlap, overlap_bool_mat);
+    mat_to_map_vec(neighborhood_, n_units, directed_, neighborhood, neighborhood, neighborhood_bool_mat);
+    mat_to_map_vec(overlap_, n_units, directed_, overlap, overlap, overlap_bool_mat);
     overlap_mat = overlap_;
-    out_degrees_nb.assign(n_actor + 1, 0);
-    in_degrees_nb.assign(n_actor + 1, 0);
-    active_edges_nb_idx.assign(n_actor * n_actor, -1);
+    out_degrees_nb.assign(n_units + 1, 0);
+    in_degrees_nb.assign(n_units + 1, 0);
+    active_edges_nb_idx.assign(n_units * n_units, -1);
     
-    for (int i = 1; i <= n_actor; i++){
-        all_actors.push_back(i);
+    for (int i = 1; i <= n_units; i++){
+        all_units.push_back(i);
     } 
     initialize_overlap_counts();
 }
 
-XZ_class::XZ_class(int n_actor_, bool directed_, std::vector<std::vector<int>> neighborhood_,
+XZ_class::XZ_class(int n_units_, bool directed_, std::vector<std::vector<int>> neighborhood_,
                    std::vector<std::vector<int>> overlap_,
-                   arma::mat overlap_mat_, std::string type_, double scale_):
-    n_actor(n_actor_),                             
-    z_network(n_actor_, directed_),                
-    x_attribute(n_actor_, type_, scale_),         
+                   arma::mat overlap_mat_, std::string family_, double scale_):
+    n_units(n_units_),                             
+    z_network(n_units_, directed_),                
+    x_attribute(n_units_, family_, scale_),         
     overlap_mat(overlap_mat_)                     
 {
-    overlap.resize(n_actor + 1);
-    neighborhood.resize(n_actor + 1);
-    adj_list_nb.resize(n_actor + 1);
-    adj_list_in_nb.resize(n_actor + 1);
-    overlap_bool_mat.assign(n_actor * n_actor, 0);
-    neighborhood_bool_mat.assign(n_actor * n_actor, 0);
-    out_degrees_nb.assign(n_actor + 1, 0);
-    in_degrees_nb.assign(n_actor + 1, 0);
-    active_edges_nb_idx.assign(n_actor * n_actor, -1);
+    overlap.resize(n_units + 1);
+    neighborhood.resize(n_units + 1);
+    adj_list_nb.resize(n_units + 1);
+    adj_list_in_nb.resize(n_units + 1);
+    overlap_bool_mat.assign(n_units * n_units, 0);
+    neighborhood_bool_mat.assign(n_units * n_units, 0);
+    out_degrees_nb.assign(n_units + 1, 0);
+    in_degrees_nb.assign(n_units + 1, 0);
+    active_edges_nb_idx.assign(n_units * n_units, -1);
 
-    for (int i = 1; i <= n_actor; i++){ 
+    for (int i = 1; i <= n_units; i++){ 
         for(int neighbor : neighborhood_[i]) {
             neighborhood[i].push_back(neighbor);
             neighborhood_bool_mat[get_mat_idx(i, neighbor)] = 1;
@@ -327,40 +327,40 @@ XZ_class::XZ_class(int n_actor_, bool directed_, std::vector<std::vector<int>> n
         if(z_network.directed){
             adj_list_in_nb[i] = get_intersection_vec(z_network.adj_list_in[i], overlap[i]);
         }
-        all_actors.push_back(i);
+        all_units.push_back(i);
     }
     initialize_overlap_counts();
 }
 
-XZ_class::XZ_class(int n_actor_, bool directed_, arma::mat z_network_, arma::vec x_attribute_,
-                   arma::mat neighborhood_, arma::mat overlap_, std::string type_, double scale_):
-    n_actor(n_actor_),                               
-    z_network(n_actor_, directed_, z_network_),      
-    x_attribute(n_actor_, x_attribute_, type_, scale_)
+XZ_class::XZ_class(int n_units_, bool directed_, arma::mat z_network_, arma::vec x_attribute_,
+                   arma::mat neighborhood_, arma::mat overlap_, std::string family_, double scale_):
+    n_units(n_units_),                               
+    z_network(n_units_, directed_, z_network_),      
+    x_attribute(n_units_, x_attribute_, family_, scale_)
 {
-    overlap.resize(n_actor + 1);
-    neighborhood.resize(n_actor + 1);
-    adj_list_nb.resize(n_actor + 1);
-    adj_list_in_nb.resize(n_actor + 1);
-    overlap_bool_mat.assign(n_actor * n_actor, 0);
-    neighborhood_bool_mat.assign(n_actor * n_actor, 0);
+    overlap.resize(n_units + 1);
+    neighborhood.resize(n_units + 1);
+    adj_list_nb.resize(n_units + 1);
+    adj_list_in_nb.resize(n_units + 1);
+    overlap_bool_mat.assign(n_units * n_units, 0);
+    neighborhood_bool_mat.assign(n_units * n_units, 0);
 
-    mat_to_map_vec(neighborhood_, n_actor, directed_, neighborhood, neighborhood, neighborhood_bool_mat);
-    mat_to_map_vec(overlap_, n_actor, directed_, overlap, overlap, overlap_bool_mat);
+    mat_to_map_vec(neighborhood_, n_units, directed_, neighborhood, neighborhood, neighborhood_bool_mat);
+    mat_to_map_vec(overlap_, n_units, directed_, overlap, overlap, overlap_bool_mat);
     overlap_mat = overlap_;
-    for (int i = 1; i <= n_actor; i++){
+    for (int i = 1; i <= n_units; i++){
         adj_list_nb[i] = get_intersection_vec(z_network.adj_list[i], overlap[i]);
         if(z_network.directed){
             adj_list_in_nb[i] = get_intersection_vec(z_network.adj_list_in[i], overlap[i]);
         }
-        all_actors.push_back(i);
+        all_units.push_back(i);
     }
     initialize_overlap_counts();
 }
 
-void XZ_class::set_network_from_mat(int n_actor_, bool directed_, arma::mat mat){
-    z_network.set_network_from_mat(n_actor_, directed_, mat); 
-    for (int i = 1; i <= n_actor; i++){
+void XZ_class::set_network_from_mat(int n_units_, bool directed_, arma::mat mat){
+    z_network.set_network_from_mat(n_units_, directed_, mat); 
+    for (int i = 1; i <= n_units; i++){
         adj_list_nb[i] = get_intersection_vec(z_network.adj_list[i], overlap[i]);
         if(z_network.directed){
             adj_list_in_nb[i] = get_intersection_vec(z_network.adj_list_in[i], overlap[i]);
@@ -378,15 +378,15 @@ void XZ_class::initialize_overlap_counts() {
     int K = z_network.directed ? 1 : 2;
     N_total_overlap = (int)overlap_mat.n_rows / K;
     N_1_overlap = 0;
-    out_degrees_nb.assign(n_actor + 1, 0);
-    in_degrees_nb.assign(n_actor + 1, 0);
+    out_degrees_nb.assign(n_units + 1, 0);
+    in_degrees_nb.assign(n_units + 1, 0);
     active_edges_nb.clear();
-    active_edges_nb_idx.assign(n_actor * n_actor, -1);
+    active_edges_nb_idx.assign(n_units * n_units, -1);
     
     for (int idx = 0; idx < (int)overlap_mat.n_rows; ++idx) {
         int from = (int)overlap_mat(idx, 0);
         int to = (int)overlap_mat(idx, 1);
-        if (from >= 1 && from <= z_network.get_n_actor() && to >= 1 && to <= z_network.get_n_actor()) {
+        if (from >= 1 && from <= z_network.get_n_units() && to >= 1 && to <= z_network.get_n_units()) {
             if (z_network.get_val(from, to)) {
                 N_1_overlap++;
                 out_degrees_nb[from]++;
@@ -507,7 +507,7 @@ double XZ_class::count_edges() const {
 
 double XZ_class::count_nb_edges() const {
     double count = 0.0;
-    for(int i=1; i<=n_actor; i++){
+    for(int i=1; i<=n_units; i++){
         count += adj_list_nb[i].size();
     }
     return(count);
@@ -563,8 +563,8 @@ size_t XZ_class::count_common_partners_nb(unsigned int from, unsigned int to, st
 }
 
 bool XZ_class::check_if_full_neighborhood() const {
-    for(int i = 1; i <= n_actor; ++i) {
-        if(neighborhood[i].size() != static_cast<size_t>(n_actor)) {
+    for(int i = 1; i <= n_units; ++i) {
+        if(neighborhood[i].size() != static_cast<size_t>(n_units)) {
             return false; 
         }
     }
@@ -586,9 +586,9 @@ void XZ_class::copy_from(const XZ_class& obj) {
     in_degrees_nb = obj.in_degrees_nb;
     overlap_bool_mat = obj.overlap_bool_mat;
     neighborhood_bool_mat = obj.neighborhood_bool_mat;
-    n_actor = obj.n_actor;
+    n_units = obj.n_units;
     overlap_mat = obj.overlap_mat;
-    all_actors = obj.all_actors;
+    all_units = obj.all_units;
     N_total_overlap = obj.N_total_overlap;
     N_1_overlap = obj.N_1_overlap;
     // Copy the active-edge cache. These two members are derived from
@@ -600,10 +600,10 @@ void XZ_class::copy_from(const XZ_class& obj) {
 }
 
 void XZ_class::set_neighborhood_from_mat(arma::mat mat) {
-    neighborhood_bool_mat.assign(n_actor * n_actor, 0);
-    for (int i = 1; i <= n_actor; i++){
+    neighborhood_bool_mat.assign(n_units * n_units, 0);
+    for (int i = 1; i <= n_units; i++){
         neighborhood[i].clear();
-        for(int j = 1; j <= n_actor; j++) {
+        for(int j = 1; j <= n_units; j++) {
             if(mat(i-1, j-1) == 1) {
                 neighborhood[i].push_back(j);
                 neighborhood_bool_mat[get_mat_idx(i, j)] = 1;
@@ -613,15 +613,15 @@ void XZ_class::set_neighborhood_from_mat(arma::mat mat) {
 }
 
 void XZ_class::neighborhood_initialize() {
-    for (int i = 1; i <= n_actor; i++){
+    for (int i = 1; i <= n_units; i++){
         neighborhood[i].clear();
     }
-    neighborhood_bool_mat.assign(n_actor * n_actor, 0);
+    neighborhood_bool_mat.assign(n_units * n_units, 0);
 }
 
 void XZ_class::assign_neighborhood(const std::unordered_map< int, std::unordered_set<int>>& new_neighborhood) {
-    neighborhood_bool_mat.assign(n_actor * n_actor, 0);
-    for (int i = 1; i <= n_actor; i++){
+    neighborhood_bool_mat.assign(n_units * n_units, 0);
+    for (int i = 1; i <= n_units; i++){
         neighborhood[i].clear();
         for(int neighbor : new_neighborhood.at(i)) {
             neighborhood[i].push_back(neighbor);
@@ -631,16 +631,16 @@ void XZ_class::assign_neighborhood(const std::unordered_map< int, std::unordered
     }
 }
 
-void XZ_class::change_neighborhood(int actor, std::unordered_set<int> new_neighborhood) {
-    for(int old_n : neighborhood[actor]) {
-        neighborhood_bool_mat[get_mat_idx(actor, old_n)] = 0;
+void XZ_class::change_neighborhood(int unit, std::unordered_set<int> new_neighborhood) {
+    for(int old_n : neighborhood[unit]) {
+        neighborhood_bool_mat[get_mat_idx(unit, old_n)] = 0;
     }
-    neighborhood[actor].clear();
+    neighborhood[unit].clear();
     for(int new_n : new_neighborhood) {
-        neighborhood[actor].push_back(new_n);
-        neighborhood_bool_mat[get_mat_idx(actor, new_n)] = 1;
+        neighborhood[unit].push_back(new_n);
+        neighborhood_bool_mat[get_mat_idx(unit, new_n)] = 1;
     }
-    std::sort(neighborhood[actor].begin(), neighborhood[actor].end());
+    std::sort(neighborhood[unit].begin(), neighborhood[unit].end());
 }
 
 // XYZ_class implementations
@@ -651,8 +651,8 @@ void XYZ_class::print() {
 void XYZ_class::set_info_arma(arma::vec x_attribute_, arma::vec y_attribute_, arma::mat z_network_) {
     x_attribute.attribute = x_attribute_;
     y_attribute.attribute = y_attribute_;
-    mat_to_map_vec(z_network_, n_actor, z_network.directed, z_network.adj_list, z_network.adj_list_in, z_network.adj_mat);
-    for (int i = 1; i <= n_actor; i++){
+    mat_to_map_vec(z_network_, n_units, z_network.directed, z_network.adj_list, z_network.adj_list_in, z_network.adj_mat);
+    for (int i = 1; i <= n_units; i++){
         z_network.out_degrees[i] = z_network.adj_list[i].size();
         if (z_network.directed) z_network.in_degrees[i] = z_network.adj_list_in[i].size();
         else z_network.in_degrees[i] = z_network.out_degrees[i];

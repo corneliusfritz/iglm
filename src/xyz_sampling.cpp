@@ -9,8 +9,8 @@
 #include "iglm/extension_api.hpp"
 
 using xyz_ValidateFunction = double(*)(const XYZ_class &object,
-                                    const int &actor_i,
-                                    const int &actor_j,
+                                    const int &unit_i,
+                                    const int &unit_j,
                                     const arma::mat &data,
                                     const double &type,
                                     const std::string &mode, const bool &is_full_neighborhood);
@@ -73,7 +73,7 @@ arma::vec xyz_eval_at_empty_network_new(std::vector<std::string> terms, const XY
     }
     const auto meta = reg.info(name);
     if(meta.value == 1.0){
-      res.at(i) = object.n_actor;
+      res.at(i) = object.n_units;
     } else {
       res.at(i) = meta.value;
     }
@@ -84,8 +84,8 @@ arma::vec xyz_eval_at_empty_network_new(std::vector<std::string> terms, const XY
 
 // Function to call all functions in the vector functions
 inline void xyz_calculate_change_stats(arma::vec & change_stat,
-                                       const int actor_i,
-                                       const int actor_j,
+                                       const int unit_i,
+                                       const int unit_j,
                                        const XYZ_class &object,
                                        const std::vector<arma::mat> &data_list,
                                        const std::vector<double> &type_list,
@@ -95,7 +95,7 @@ inline void xyz_calculate_change_stats(arma::vec & change_stat,
   
   // Rcout << functions.size() << std::endl;
   for (size_t a = 0; a < functions.size(); ++a) {
-    change_stat[a] = functions[a](object, actor_i, actor_j, data_list[a], type_list[a], mode, is_full_neighborhood);
+    change_stat[a] = functions[a](object, unit_i, unit_j, data_list[a], type_list[a], mode, is_full_neighborhood);
   }
 }
 
@@ -105,16 +105,16 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
                                       std::vector<arma::mat> &data_list,
                                       std::vector<double> &type_list,
                                       std::vector<xyz_ValidateFunction> functions, 
-                                      std::string type_x, 
-                                      std::string type_y, 
+                                      std::string family_x, 
+                                      std::string family_y, 
                                       double attr_x_scale, 
                                       double attr_y_scale) {
   // Start with empty network and zero attributes, filling them incrementally
-  XYZ_class alt_object(object.n_actor, object.z_network.directed, 
+  XYZ_class alt_object(object.n_units, object.z_network.directed, 
                        object.neighborhood, 
                        object.overlap,
                        object.overlap_mat,
-                       type_x, type_y, attr_x_scale, attr_y_scale);
+                       family_x, family_y, attr_x_scale, attr_y_scale);
   bool is_full_neighborhood = object.check_if_full_neighborhood();
   arma::vec res(functions.size());
   res.fill(0);
@@ -152,7 +152,7 @@ arma::vec xyz_count_global_statistic( const XYZ_class &object,
   }
 
   // 3. Network edge loop (with full observed X and Y attributes)
-  for (int i = 1; i <= object.n_actor; i++){
+  for (int i = 1; i <= object.n_units; i++){
     tmp_js = object.z_network.adj_list.at(i);
     if(tmp_js.size() > 0){
       auto it = tmp_js.begin();
@@ -201,17 +201,17 @@ arma::vec xyz_count_global(const arma::mat& z_network,
                            const arma::mat& overlap,
                            bool directed,
                            std::vector<std::string> terms,
-                           int n_actor,
+                           int n_units,
                            std::vector<arma::mat> &data_list,
                            std::vector<double> &type_list, 
-                           std::string type_x, 
-                           std::string type_y, 
+                           std::string family_x, 
+                           std::string family_y, 
                            double attr_x_scale, 
                            double attr_y_scale) {
   // std::unordered_map< int, std::unordered_set<int>> edges;
   // // Convert the matrix to two unordered_map objects
-  // edges = mat_to_map(network,1, n_actor);
-  XYZ_class object(n_actor,directed, x_attribute,y_attribute,z_network, neighborhood, overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  // edges = mat_to_map(network,1, n_units);
+  XYZ_class object(n_units,directed, x_attribute,y_attribute,z_network, neighborhood, overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   // object.initialize(z_network, x_attribute,y_attribute,neighborhood );
   // object.print();
   std::vector<xyz_ValidateFunction> functions, functions_new;
@@ -227,8 +227,8 @@ arma::vec xyz_count_global(const arma::mat& z_network,
                                                     data_list,
                                                     type_list,
                                                     functions, 
-                                                    type_x, 
-                                                    type_y, 
+                                                    family_x, 
+                                                    family_y, 
                                                     attr_x_scale, 
                                                     attr_y_scale));
   global_stats = global_stats + at_zero;
@@ -237,8 +237,8 @@ arma::vec xyz_count_global(const arma::mat& z_network,
   //                                                   data_list,
   //                                                   type_list,
   //                                                   functions, 
-  //                                                   type_x, 
-  //                                                   type_y, 
+  //                                                   family_x, 
+  //                                                   family_y, 
   //                                                   attr_x_scale, 
   //                                                   attr_y_scale));
   // global_stats = global_stats + at_zero;
@@ -251,11 +251,11 @@ arma::vec xyz_count_global(const arma::mat& z_network,
 
 arma::vec xyz_count_global_internal(const XYZ_class& object,
                                     std::vector<std::string> terms,
-                                    int n_actor,
+                                    int n_units,
                                     std::vector<arma::mat> &data_list,
                                     std::vector<double> &type_list, 
-                                    std::string type_x, 
-                                    std::string type_y, 
+                                    std::string family_x, 
+                                    std::string family_y, 
                                     double attr_x_scale, 
                                     double attr_y_scale) {
   std::vector<xyz_ValidateFunction> functions;
@@ -267,8 +267,8 @@ arma::vec xyz_count_global_internal(const XYZ_class& object,
   arma::vec global_stats(xyz_count_global_statistic(object,
                                                     data_list,
                                                     type_list,
-                                                    functions, type_x, 
-                                                    type_y, 
+                                                    functions, family_x, 
+                                                    family_y, 
                                                     attr_x_scale, 
                                                     attr_y_scale));
   global_stats = global_stats + at_zero;
@@ -291,17 +291,17 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
   arma::vec change_stat(functions.size());
   arma::vec tmp_vec, tmp_stat;
   
-  // Go through a loop for all actor changes
+  // Go through a loop for all unit changes
   if(object.z_network.directed){
-    for(int i = 1; i <=(object.n_actor); ++i) {
-      for(int j = 1; j <=(object.n_actor); ++j) {
+    for(int i = 1; i <=(object.n_units); ++i) {
+      for(int j = 1; j <=(object.n_units); ++j) {
         if(object.get_val_overlap(i, j)){
           continue;
         } 
         if(i == j){
           continue;
         } 
-        // Calculate the change stat for actor_i, actor_j from 0 to 1
+        // Calculate the change stat for unit_i, unit_j from 0 to 1
         xyz_calculate_change_stats(change_stat, i,
                                    j,
                                    object,
@@ -329,12 +329,12 @@ void xyz_simulate_network_consecutive_mh( const arma::vec &coef,
       }
     }  
   } else {
-    for(int i = 1; i <=(object.n_actor-1); ++i) {
-      for(int j = i+1; j <=(object.n_actor); ++j) {
+    for(int i = 1; i <=(object.n_units-1); ++i) {
+      for(int j = i+1; j <=(object.n_units); ++j) {
         if(object.get_val_overlap(i, j)){
           continue;
         } 
-        // Calculate the change stat for actor_i, actor_j from 0 to 1
+        // Calculate the change stat for unit_i, unit_j from 0 to 1
         xyz_calculate_change_stats(change_stat, i,
                                    j,
                                    object,
@@ -377,11 +377,11 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
   std::string z = "z";
   arma::vec change_stat(functions.size());
   
-  // Go through a loop for all actor changes
+  // Go through a loop for all unit changes
   if(object.z_network.directed){
-    for(int i = 1; i <=(object.n_actor); ++i) {
+    for(int i = 1; i <=(object.n_units); ++i) {
       double coef_degrees_i = coef_degrees(i-1); 
-      for(int j = 1; j <=(object.n_actor); ++j) {
+      for(int j = 1; j <=(object.n_units); ++j) {
         
         if(object.get_val_overlap(i, j)){
           continue;
@@ -389,7 +389,7 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
         if(i==j){
           continue;
         }  
-        // Calculate the change stat for actor_i, actor_j from 0 to 1
+        // Calculate the change stat for unit_i, unit_j from 0 to 1
         xyz_calculate_change_stats(change_stat, i,
                                    j,
                                    object,
@@ -401,7 +401,7 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
         // Rcout << "Got CS" << std::endl;
         
         // 3. Calculate the Hastings Ratios by exp(delta(tmp_entry)*coef)
-        double HR_val = 1.0 / (1.0 + std::exp(-arma::dot(coef_nondegrees, change_stat) - offset_nonoverlap - (coef_degrees_i + coef_degrees(j-1+object.n_actor))));
+        double HR_val = 1.0 / (1.0 + std::exp(-arma::dot(coef_nondegrees, change_stat) - offset_nonoverlap - (coef_degrees_i + coef_degrees(j-1+object.n_units))));
         // 4. Step: Sample a random number between 0 and 1, accept if it is > HR
         if(R::unif_rand() < HR_val){
           if(object.z_network.get_val(i,j) == 0){
@@ -417,13 +417,13 @@ void xyz_simulate_network_consecutive_degrees_mh( const arma::vec &coef_nondegre
       }
     }
   } else {
-    for(int i = 1; i <=(object.n_actor-1); ++i) {
+    for(int i = 1; i <=(object.n_units-1); ++i) {
       double coef_degrees_i = coef_degrees(i-1); 
-      for(int j = i+1; j <=(object.n_actor); ++j) {
+      for(int j = i+1; j <=(object.n_units); ++j) {
         if(object.get_val_overlap(i, j)){
           continue;
         }  
-        // Calculate the change stat for actor_i, actor_j from 0 to 1
+        // Calculate the change stat for unit_i, unit_j from 0 to 1
         xyz_calculate_change_stats(change_stat, i,
                                    j,
                                    object,
@@ -467,8 +467,8 @@ void xyz_simulate_network_consecutive_mh_directed(const arma::vec &coef,
   arma::vec change_stat_11_given_10(functions.size());
   
   
-  for(int i = 1; i <= (object.n_actor - 1); ++i) {
-    for(int j = i + 1; j <= object.n_actor; ++j) {
+  for(int i = 1; i <= (object.n_units - 1); ++i) {
+    for(int j = i + 1; j <= object.n_units; ++j) {
       if(object.get_val_overlap(i, j)){
         continue;
       } 
@@ -544,8 +544,8 @@ void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_
   arma::vec change_stat_11_given_10(functions.size());
   
   
-  for(int i = 1; i <= (object.n_actor - 1); ++i) {
-    for(int j = i + 1; j <= object.n_actor; ++j) {
+  for(int i = 1; i <= (object.n_units - 1); ++i) {
+    for(int j = i + 1; j <= object.n_units; ++j) {
       if(object.get_val_overlap(i, j)){
         continue;
       } 
@@ -568,8 +568,8 @@ void xyz_simulate_network_consecutive_degrees_mh_directed(const arma::vec &coef_
       xyz_calculate_change_stats(change_stat_11_given_10, j, i, object, data_list, type_list, z, is_full_neighborhood, functions);
       object.delete_edge(i, j); 
       
-      double deg_ij = coef_degrees(i - 1) + coef_degrees(j - 1 + object.n_actor);
-      double deg_ji = coef_degrees(j - 1) + coef_degrees(i - 1 + object.n_actor);
+      double deg_ij = coef_degrees(i - 1) + coef_degrees(j - 1 + object.n_units);
+      double deg_ji = coef_degrees(j - 1) + coef_degrees(i - 1 + object.n_units);
       
       double log_P_00 = 0.0;
       double log_P_10 = arma::dot(coef_nondegrees, change_stat_10) + offset_nonoverlap + deg_ij;
@@ -808,7 +808,7 @@ void xyz_simulate_network_mh_degrees(const arma::vec coef_nondegrees,
     
     if (object.z_network.directed) {
       double HR_val = std::exp(arma::dot(coef_nondegrees, tmp_stat) + hr_adj + 
-        multiplier * (coef_degrees(tmp_i - 1) + coef_degrees(tmp_j - 1 + object.n_actor)));
+        multiplier * (coef_degrees(tmp_i - 1) + coef_degrees(tmp_j - 1 + object.n_units)));
       if (R::unif_rand() < HR_val) {
         global_stats += tmp_stat;
         if (proposed_change == 0) object.delete_edge(tmp_i, tmp_j);
@@ -851,7 +851,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
   // Go through a loop for each proposed change
   for(int a = 0; a <=(n_proposals-1); a ++ ) {
     // Here we pick the random entry
-    tmp_i = (int)(R::unif_rand() * object.n_actor) + 1;
+    tmp_i = (int)(R::unif_rand() * object.n_units) + 1;
     // Here we calculate the change stat from turning y_i from 0 to 1
     xyz_calculate_change_stats(change_stat, tmp_i,
                                tmp_i,
@@ -862,7 +862,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
                                is_full_neighborhood,
                                functions);
     if(type == "x"){
-      if(object.x_attribute.type == "binomial"){
+      if(object.x_attribute.family == "binomial"){
         if(object.x_attribute.get_val(tmp_i)){
           proposed_change = 0;
           multiplier = -1;
@@ -885,13 +885,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
           }
         }
       }
-      if(object.x_attribute.type == "poisson"){
+      if(object.x_attribute.family == "poisson"){
         double safe_eta = std::min(arma::dot(coef, change_stat), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats += (tmp_val - object.x_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.x_attribute.set_attr_value(tmp_i, tmp_val);  
       }
-      if(object.x_attribute.type == "normal"){
+      if(object.x_attribute.family == "normal"){
         double HR_val = arma::dot(coef, change_stat);
         double tmp_val = R::rnorm(HR_val, sqrt(object.x_attribute.scale)); 
         global_stats += (tmp_val- object.x_attribute.get_val_no_scale(tmp_i))/object.x_attribute.scale * change_stat;
@@ -899,7 +899,7 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
       }
     }
     if(type == "y"){
-      if(object.y_attribute.type == "binomial"){
+      if(object.y_attribute.family == "binomial"){
         if(object.y_attribute.get_val(tmp_i)){
           proposed_change = 0;
           multiplier = -1;
@@ -921,13 +921,13 @@ void xyz_simulate_attribute_mh( const arma::vec coef,
           }
         }
       }
-      if(object.y_attribute.type == "poisson"){
+      if(object.y_attribute.family == "poisson"){
         double safe_eta = std::min(arma::dot(coef, change_stat), MAX_LOG_RATE);
         double tmp_val = R::rpois(exp(safe_eta)); 
         global_stats +=  (tmp_val - object.y_attribute.get_val_no_scale(tmp_i)) * change_stat;
         object.y_attribute.set_attr_value(tmp_i, tmp_val);  
       }
-      if(object.y_attribute.type == "normal"){
+      if(object.y_attribute.family == "normal"){
         double HR_val = arma::dot(coef, change_stat);
         double tmp_val = R::rnorm(HR_val, sqrt(object.y_attribute.scale)); 
         global_stats += (tmp_val - object.y_attribute.get_val_no_scale(tmp_i))/object.y_attribute.scale * change_stat;
@@ -1077,7 +1077,7 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
 List xyz_simulate_cpp(arma::vec& coef,
                       arma::vec& coef_degrees,
                       std::vector<std::string>& terms,
-                      int& n_actor,
+                      int& n_units,
                       arma::mat z_network,
                       arma::mat neighborhood,
                       arma::mat overlap,
@@ -1089,8 +1089,8 @@ List xyz_simulate_cpp(arma::vec& coef,
                       std::vector<arma::mat>& data_list,
                       std::vector<double>& type_list,
                       double offset_nonoverlap,
-                      std::string type_x, 
-                      std::string type_y, 
+                      std::string family_x, 
+                      std::string family_y, 
                       double attr_x_scale, 
                       double attr_y_scale,
                       bool nonoverlap_random = false, 
@@ -1107,7 +1107,7 @@ List xyz_simulate_cpp(arma::vec& coef,
                       bool tnt = true){
   // res(n_simulation);
   // stats2.fill(0);
-  XYZ_class object(n_actor,directed, neighborhood, overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, neighborhood, overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   if(!init_empty){
     object.set_info_arma(x_attribute,y_attribute, z_network);
   } else {
@@ -1115,7 +1115,7 @@ List xyz_simulate_cpp(arma::vec& coef,
       object.x_attribute.set_attr_from_armavec(x_attribute);
     }
     if(fix_z){
-      object.set_network_from_mat(n_actor, directed, z_network);
+      object.set_network_from_mat(n_units, directed, z_network);
     } else if(!nonoverlap_random){
       for(size_t r = 0; r < z_network.n_rows; ++r){
         int u = static_cast<int>(z_network(r, 0));
@@ -1144,10 +1144,10 @@ List xyz_simulate_cpp(arma::vec& coef,
   // Rcout << "Here"<< std::endl;
   arma::vec global_stats = xyz_count_global_internal( object,
                                                       terms,
-                                                      n_actor,
+                                                      n_units,
                                                       data_list,
                                                       type_list,
-                                                      type_x, type_y, 
+                                                      family_x, family_y, 
                                                       attr_x_scale, 
                                                       attr_y_scale);
   // Rcout << global_stats << std::endl;
@@ -1186,7 +1186,7 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
                                                  arma::uvec &i_vec,
                                                  arma::uvec &j_vec, 
                                                  arma::uvec &overlap_vec, 
-                                                 int n_actor, 
+                                                 int n_units, 
                                                  bool fix_x, 
                                                  bool fix_z) {
   bool is_full_neighborhood = object.check_if_full_neighborhood();
@@ -1202,19 +1202,19 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
   change_stat_attribute_i(functions.size()), change_stat_attribute_j(functions.size());
   double x_i, y_i, z_ij;
   // int ncores = 5;
-  arma::mat res_covs((!fix_z) * (n_actor* (n_actor - 1) * (object.z_network.directed + 1) / 2) + 
-    n_actor * (!fix_x + 1), terms.size());
-  arma::vec res_target((!fix_z) * (n_actor* (n_actor - 1) * (object.z_network.directed + 1) / 2) + 
-    n_actor * (!fix_x + 1));
+  arma::mat res_covs((!fix_z) * (n_units* (n_units - 1) * (object.z_network.directed + 1) / 2) + 
+    n_units * (!fix_x + 1), terms.size());
+  arma::vec res_target((!fix_z) * (n_units* (n_units - 1) * (object.z_network.directed + 1) / 2) + 
+    n_units * (!fix_x + 1));
   
   Progress p(res_target.size(), display_progress);
   int now = 0;
   if(!fix_z){
     if(object.z_network.directed){
-      for(int i: seq(1,n_actor)){
+      for(int i: seq(1,n_units)){
         Rcpp::checkUserInterrupt();
         
-        for(int j: seq(1,n_actor)){
+        for(int j: seq(1,n_units)){
           // Get present values of x_ij, y_i, y_j
           p.increment(); // update progress
           if(i == j){
@@ -1239,8 +1239,8 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
         } 
       }
     } else {
-      for(int i: seq(1,n_actor-1)){
-        for(int j: seq(i+1,n_actor)){
+      for(int i: seq(1,n_units-1)){
+        for(int j: seq(i+1,n_units)){
           // Get present values of x_ij, y_i, y_j
           p.increment(); // update progress
           
@@ -1264,7 +1264,7 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
       }
     }
   } 
-  for(int i: seq(1,n_actor)){
+  for(int i: seq(1,n_units)){
     if(!fix_x){
       p.increment(); 
       x_i = object.x_attribute.get_val_no_scale(i);
@@ -1308,7 +1308,7 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
 //                                     bool display_progress, 
 //                                     arma::vec overlap_vec) {
 //   // Set up objects
-//   int n_actor = object.n_actor;
+//   int n_units = object.n_units;
 //   std::vector<xyz_ValidateFunction> functions;
 //   functions = xyz_change_statistics_generate(terms);
 //   std::string z = "z", x = "x", y = "y";
@@ -1321,12 +1321,12 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
 //   int now = -1;
 //   
 //   if(object.z_network.directed){
-//     std::vector<arma::mat> res(n_actor*(n_actor-1));
-//     Progress p_3(n_actor*(n_actor-1), display_progress);
+//     std::vector<arma::mat> res(n_units*(n_units-1));
+//     Progress p_3(n_units*(n_units-1), display_progress);
 //     
 //     
-//     for(int i: seq(1,n_actor)){
-//       for(int j: seq(1,n_actor)){
+//     for(int i: seq(1,n_units)){
+//       for(int j: seq(1,n_units)){
 //         if(i == j){
 //           continue;
 //         } else {
@@ -1353,11 +1353,11 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
 //     return(res);
 //     
 //   } else {
-//     std::vector<arma::mat> res(n_actor*(n_actor-1)/2);
-//     Progress p_3(n_actor*(n_actor-1)/2, display_progress);
+//     std::vector<arma::mat> res(n_units*(n_units-1)/2);
+//     Progress p_3(n_units*(n_units-1)/2, display_progress);
 //     
-//     for(int i: seq(1,n_actor-1)){
-//       for(int j: seq(i+1,n_actor)){
+//     for(int i: seq(1,n_units-1)){
+//       for(int j: seq(i+1,n_units)){
 //         
 //         // 
 //         // Get present values of x_ij, y_i, y_j
@@ -1395,7 +1395,7 @@ arma::mat get_A_exact(arma::uvec i_vec,
                       arma::vec &coef_nondegrees, 
                       double &offset_nonoverlap, 
                       bool directed, 
-                      int n_actor){
+                      int n_units){
   arma::vec res;
   arma::vec exp_tmp;
   arma::mat A(coef_degrees.size(),coef_degrees.size());
@@ -1406,7 +1406,7 @@ arma::mat get_A_exact(arma::uvec i_vec,
     if(overlap_vec.at(i)){
       if(directed) {
         exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
-          coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1+ n_actor));  
+          coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1+ n_units));  
       } else {
         exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1));  
@@ -1414,7 +1414,7 @@ arma::mat get_A_exact(arma::uvec i_vec,
     } else {
       if(directed) {
         exp_tmp = arma::exp(offset_nonoverlap + std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
-          coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1 + n_actor));
+          coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1 + n_units));
       } else {
         exp_tmp = arma::exp(offset_nonoverlap + std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1));
@@ -1427,9 +1427,9 @@ arma::mat get_A_exact(arma::uvec i_vec,
     
     A.at(i_vec.at(i)-1, i_vec.at(i)-1)+= res.at(0);
     if(directed) {
-      A.at(j_vec.at(i)-1 + n_actor, j_vec.at(i)-1 + n_actor)+= res.at(0);
-      A.at(i_vec.at(i)-1, j_vec.at(i)-1 + n_actor)+= res.at(0);
-      A.at(j_vec.at(i)-1 + n_actor, i_vec.at(i)-1)+= res.at(0);
+      A.at(j_vec.at(i)-1 + n_units, j_vec.at(i)-1 + n_units)+= res.at(0);
+      A.at(i_vec.at(i)-1, j_vec.at(i)-1 + n_units)+= res.at(0);
+      A.at(j_vec.at(i)-1 + n_units, i_vec.at(i)-1)+= res.at(0);
     } else {
       A.at(j_vec.at(i)-1, j_vec.at(i)-1)+= res.at(0);
       A.at(i_vec.at(i)-1, j_vec.at(i)-1)+= res.at(0);
@@ -1449,7 +1449,7 @@ std::tuple< arma::vec, arma::mat> get_B_pl(arma::uvec i_vec,
                                            arma::vec &coef_nondegrees, 
                                            double &offset_nonoverlap, 
                                            bool directed, 
-                                           int n_actor) {
+                                           int n_units) {
   arma::mat B_mat(coef_nondegrees.size(),coef_degrees.size());
   arma::vec A_diag(coef_degrees.size()), res;
   B_mat.fill(0);
@@ -1462,8 +1462,8 @@ std::tuple< arma::vec, arma::mat> get_B_pl(arma::uvec i_vec,
     if(overlap_vec.at(i)){
       if(directed) {
         exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
-          coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1+ n_actor));  
-        cov_degrees.at(j_vec.at(i)-1+ n_actor) = 1;
+          coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1+ n_units));  
+        cov_degrees.at(j_vec.at(i)-1+ n_units) = 1;
       } else {
         exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1));  
@@ -1472,8 +1472,8 @@ std::tuple< arma::vec, arma::mat> get_B_pl(arma::uvec i_vec,
     } else {
       if(directed) {
         exp_tmp = arma::exp(offset_nonoverlap + std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
-          coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1 + n_actor));
-        cov_degrees.at(j_vec.at(i)-1+ n_actor) = 1;
+          coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1 + n_units));
+        cov_degrees.at(j_vec.at(i)-1+ n_units) = 1;
       } else {
         exp_tmp = arma::exp(offset_nonoverlap + std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1));
@@ -1488,8 +1488,8 @@ std::tuple< arma::vec, arma::mat> get_B_pl(arma::uvec i_vec,
     A_diag.at(i_vec.at(i)-1) += res.at(0);
     cov_degrees.at(i_vec.at(i)-1) = 0;
     if(directed) { 
-      cov_degrees.at(j_vec.at(i)-1 + n_actor) = 0;
-      A_diag.at(j_vec.at(i)-1 + n_actor) += res.at(0);
+      cov_degrees.at(j_vec.at(i)-1 + n_units) = 0;
+      A_diag.at(j_vec.at(i)-1 + n_units) += res.at(0);
       
     } else {
       cov_degrees.at(j_vec.at(i)-1) = 0;
@@ -1509,7 +1509,7 @@ arma::mat get_B(arma::uvec i_vec, arma::uvec  j_vec,
                 arma::vec &coef_nondegrees, 
                 double &offset_nonoverlap, 
                 bool directed, 
-                int n_actor) {
+                int n_units) {
   arma::mat B_mat(coef_nondegrees.size(),coef_degrees.size());
   B_mat.fill(0);
   // arma::vec exp_tmp, cov_degrees(coef_degrees.size());
@@ -1521,7 +1521,7 @@ arma::mat get_B(arma::uvec i_vec, arma::uvec  j_vec,
   const arma::mat& X_net = std::get<0>(pseudo_lh);
   
   arma::vec eta = arma::exp(offset_nonoverlap*(1-overlap_vec)+std::get<0>(pseudo_lh).rows(0,number_elements_network-1)*coef_nondegrees +
-    coef_degrees.elem(i_vec-1) + coef_degrees.elem(j_vec-1+ n_actor*directed));
+    coef_degrees.elem(i_vec-1) + coef_degrees.elem(j_vec-1+ n_units*directed));
   
   for (unsigned int i = 0; i < number_elements_network; i++) {
     double current_eta = eta.at(i);
@@ -1543,12 +1543,12 @@ arma::mat get_B(arma::uvec i_vec, arma::uvec  j_vec,
     // Only update if weight is meaningful and finite
     if (weight > 1e-18) {
       arma::uword i_idx = i_vec[i] - 1;
-      arma::uword j_idx = j_vec[i] - 1 + (directed ? n_actor : 0);
+      arma::uword j_idx = j_vec[i] - 1 + (directed ? n_units : 0);
       
       // Apply weight to the transpose of the change statistics row
       const arma::rowvec& x_row = X_net.row(i);
       
-      // B_mat is (p x 2n), we update columns corresponding to actors i and j
+      // B_mat is (p x 2n), we update columns corresponding to units i and j
       B_mat.col(i_idx) += weight * x_row.t();
       B_mat.col(j_idx) += weight * x_row.t();
     }
@@ -1556,7 +1556,7 @@ arma::mat get_B(arma::uvec i_vec, arma::uvec  j_vec,
   
   // for(unsigned int i = 0; i < number_elements_network; i++){
   //   arma::uword i_idx = i_vec[i] - 1;
-  //   arma::uword j_idx = j_vec[i] - 1 + (directed ? n_actor : 0);
+  //   arma::uword j_idx = j_vec[i] - 1 + (directed ? n_units : 0);
   //   double weight = eta.at(i) / std::pow(1.0 + eta.at(i), 2);
   //   const arma::rowvec& x_row = std::get<0>(pseudo_lh).row(i);
   //   
@@ -1581,8 +1581,8 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
                                                                                          arma::vec &coef_degrees,
                                                                                          double offset_nonoverlap,
                                                                                          bool &non_stop, 
-                                                                                         std::string attr_x_type, 
-                                                                                         std::string attr_y_type, 
+                                                                                         std::string attr_x_family, 
+                                                                                         std::string attr_y_family, 
                                                                                          double x_scale, 
                                                                                          double y_scale, 
                                                                                          bool fix_x) {
@@ -1597,7 +1597,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
   fisher.fill(0);
   bool non_converged = true;
   int k = 1;
-  unsigned int n_actor = coef_degrees.n_elem/2;
+  unsigned int n_units = coef_degrees.n_elem/2;
   unsigned int number_elements_network = i_vec.size();
   while(non_converged) {
     // Update the score and fisher info
@@ -1607,10 +1607,10 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
         if(directed){
           if(overlap_vec.at(i)){
             exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef +
-              coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1 + n_actor));
+              coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1 + n_units));
           } else {
             exp_tmp = arma::exp(offset_nonoverlap+std::get<0>(pseudo_lh).row(i)*coef +
-              coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1+ n_actor));
+              coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1+ n_units));
           }
         } else {
           if(overlap_vec.at(i)){
@@ -1628,10 +1628,10 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
         score += score_tmp;
         fisher += v_val * std::get<0>(pseudo_lh).row(i).t() * std::get<0>(pseudo_lh).row(i);
         
-      } else if((i >= number_elements_network) && (i < number_elements_network +n_actor) && (fix_x == false)){
+      } else if((i >= number_elements_network) && (i < number_elements_network +n_units) && (fix_x == false)){
         // 
         // What to do if we are regarding attribute information (relating to the last entries)
-        if(attr_x_type == "binomial"){
+        if(attr_x_family == "binomial"){
           exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef);
           score_tmp = std::get<0>(pseudo_lh).row(i).t()*
             std::get<1>(pseudo_lh).at(i) -
@@ -1641,12 +1641,12 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
             std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i);
           
         }
-        if(attr_x_type == "poisson"){
+        if(attr_x_family == "poisson"){
           exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef);
           score += (std::get<1>(pseudo_lh).at(i) - exp_tmp.at(0))*std::get<0>(pseudo_lh).row(i).t();
           fisher += exp_tmp.at(0)*
             std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i);
-        } else if(attr_x_type == "normal"){
+        } else if(attr_x_family == "normal"){
           exp_tmp = std::get<0>(pseudo_lh).row(i)*coef;
           score += (std::get<1>(pseudo_lh).at(i) - exp_tmp.at(0))*std::get<0>(pseudo_lh).row(i).t()/x_scale;
           fisher += std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i)/x_scale;
@@ -1655,7 +1655,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
         
       } else {
         
-        if(attr_y_type == "binomial"){
+        if(attr_y_family == "binomial"){
           exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef);
           score_tmp = std::get<0>(pseudo_lh).row(i).t()*
             std::get<1>(pseudo_lh).at(i) -
@@ -1665,12 +1665,12 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
             std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i);
           
         }
-        if(attr_y_type == "poisson"){
+        if(attr_y_family == "poisson"){
           exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef);
           score += (std::get<1>(pseudo_lh).at(i) - exp_tmp.at(0))*std::get<0>(pseudo_lh).row(i).t();
           fisher += exp_tmp.at(0)*
             std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i);
-        } else if(attr_y_type == "normal"){
+        } else if(attr_y_family == "normal"){
           exp_tmp = std::get<0>(pseudo_lh).row(i)*coef;
           score += (std::get<1>(pseudo_lh).at(i) - exp_tmp.at(0))*std::get<0>(pseudo_lh).row(i).t()/y_scale;
           fisher += std::get<0>(pseudo_lh).row(i).t()*std::get<0>(pseudo_lh).row(i)/y_scale;
@@ -1686,7 +1686,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat> cond_estimation_nondegree
     // TODO there should be a check for identifiabiliy -> degrees
     if(k == max_iteration){
       non_converged = false;
-    } else if ((sqrt(sum(arma::pow(coefs.row(k)- coefs.row(k-1),2)))<tol) & !non_stop){
+    } else if ((sqrt(sum(arma::pow(coefs.row(k)- coefs.row(k-1),2)))<tol) && !non_stop){
       non_converged = false;
     } else {
       // Reset the score and fisher info
@@ -1711,14 +1711,14 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
     arma::vec &coef_degrees,
     double offset_nonoverlap,
     bool &non_stop,
-    std::string attr_x_type,
-    std::string attr_y_type,
+    std::string attr_x_family,
+    std::string attr_y_family,
     double x_scale,
     double y_scale,
     bool fix_x) {
     
     int n_coef = coef.size();
-    unsigned int n_actor = coef_degrees.n_elem / 2;
+    unsigned int n_units = coef_degrees.n_elem / 2;
     unsigned int n_net = i_vec.n_elem;
     
     // Extract the full design matrix and response vector
@@ -1733,11 +1733,11 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
     arma::vec Y_x, Y_y;
     
     if (fix_x == false) {
-      X_x = X_all.rows(n_net, n_net + n_actor - 1);
-      Y_x = Y_all.subvec(n_net, n_net + n_actor - 1);
+      X_x = X_all.rows(n_net, n_net + n_units - 1);
+      Y_x = Y_all.subvec(n_net, n_net + n_units - 1);
       
-      X_y = X_all.rows(n_net + n_actor, X_all.n_rows - 1);
-      Y_y = Y_all.subvec(n_net + n_actor, Y_all.n_elem - 1);
+      X_y = X_all.rows(n_net + n_units, X_all.n_rows - 1);
+      Y_y = Y_all.subvec(n_net + n_units, Y_all.n_elem - 1);
     } else {
       X_y = X_all.rows(n_net, X_all.n_rows - 1);
       Y_y = Y_all.subvec(n_net, Y_all.n_elem - 1);
@@ -1749,7 +1749,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
     // Pre-calculate degrees indices
     arma::uvec j_pop_indices; 
     if(directed){
-      j_pop_indices = j_vec - 1 + n_actor ;
+      j_pop_indices = j_vec - 1 + n_units ;
     } else {
       j_pop_indices =j_vec - 1;
     }
@@ -1783,7 +1783,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
       
       // --- Component 2: Attribute 'x' ---
       if (fix_x == false) {
-        if (attr_x_type == "binomial") {
+        if (attr_x_family == "binomial") {
           arma::vec eta_x = X_x * coef;
           arma::vec exp_eta_x = arma::exp(eta_x);
           arma::vec prob_x = exp_eta_x / (1.0 + exp_eta_x);
@@ -1792,14 +1792,14 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
           score += X_x.t() * (Y_x - prob_x);
           fisher += X_x.t() * arma::diagmat(var_x) * X_x;
           
-        } else if (attr_x_type == "poisson") {
+        } else if (attr_x_family == "poisson") {
           arma::vec eta_x = X_x * coef;
           arma::vec mu_x = arma::exp(eta_x);
           
           score += X_x.t() * (Y_x - mu_x);
           fisher += X_x.t() * arma::diagmat(mu_x) * X_x;
           
-        } else if (attr_x_type == "normal") {
+        } else if (attr_x_family == "normal") {
           arma::vec mu_x = X_x * coef; 
           score += X_x.t() * (Y_x - mu_x) / x_scale;
           fisher += (X_x.t() * X_x) / x_scale;
@@ -1807,7 +1807,7 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
       }
       
       // --- Component 3: Attribute 'y' ---
-      if (attr_y_type == "binomial") {
+      if (attr_y_family == "binomial") {
         arma::vec eta_y = X_y * coef;
         arma::vec exp_eta_y = arma::exp(eta_y);
         arma::vec prob_y = exp_eta_y / (1.0 + exp_eta_y);
@@ -1816,14 +1816,14 @@ std::tuple<arma::vec, arma::vec, arma::mat, arma::mat>
         score += X_y.t() * (Y_y - prob_y);
         fisher += X_y.t() * arma::diagmat(var_y) * X_y;
         
-      } else if (attr_y_type == "poisson") {
+      } else if (attr_y_family == "poisson") {
         arma::vec eta_y = X_y * coef;
         arma::vec mu_y = arma::exp(eta_y);
         
         score += X_y.t() * (Y_y - mu_y);
         fisher += X_y.t() * arma::diagmat(mu_y) * X_y;
         
-      } else if (attr_y_type == "normal") {
+      } else if (attr_y_family == "normal") {
         arma::vec mu_y = X_y * coef;
         
         score += X_y.t() * (Y_y - mu_y) / y_scale;
@@ -1856,11 +1856,11 @@ double calculate_llh(
     bool directed,
     const std::tuple<arma::mat, arma::vec>& pseudo_lh,
     double offset_nonoverlap,
-    const std::string& attr_x_type,
-    const std::string& attr_y_type,
+    const std::string& attr_x_family,
+    const std::string& attr_y_family,
     double x_scale,
     double y_scale,
-    int n_actor,
+    int n_units,
     bool fix_x, 
     bool fix_z, 
     bool nonoverlap_random) {
@@ -1868,11 +1868,11 @@ double calculate_llh(
   
   if(coef_degrees.size() ==1){
     if(directed){
-      arma::vec tmp = arma::vec(2*n_actor);
+      arma::vec tmp = arma::vec(2*n_units);
       tmp.fill(0.0);
       coef_degrees = tmp;
     } else {
-      arma::vec tmp = arma::vec(n_actor);
+      arma::vec tmp = arma::vec(n_units);
       tmp.fill(0.0);
       coef_degrees = tmp;
     }
@@ -1892,10 +1892,10 @@ double calculate_llh(
   }
   // Rcout << "c" << std::endl;
   if (fix_x == false) {
-    X_x = X_all.rows(n_net, n_net + n_actor - 1);
-    Y_x = Y_all.subvec(n_net, n_net + n_actor - 1);
-    X_y = X_all.rows(n_net + n_actor, X_all.n_rows - 1);
-    Y_y = Y_all.subvec(n_net + n_actor, Y_all.n_elem - 1);
+    X_x = X_all.rows(n_net, n_net + n_units - 1);
+    Y_x = Y_all.subvec(n_net, n_net + n_units - 1);
+    X_y = X_all.rows(n_net + n_units, X_all.n_rows - 1);
+    Y_y = Y_all.subvec(n_net + n_units, Y_all.n_elem - 1);
   } else {
     X_y = X_all.rows(n_net, X_all.n_rows - 1);
     Y_y = Y_all.subvec(n_net, Y_all.n_elem - 1);
@@ -1905,7 +1905,7 @@ double calculate_llh(
   
   arma::uvec j_pop_indices;
   if(directed){
-    j_pop_indices = j_vec - 1 + n_actor;
+    j_pop_indices = j_vec - 1 + n_units;
   } else {
     j_pop_indices = j_vec - 1;
   }
@@ -1926,19 +1926,19 @@ double calculate_llh(
   }
   // --- Component 2: Attribute 'x' ---
   if (fix_x == false) {
-    if (attr_x_type == "binomial") {
+    if (attr_x_family == "binomial") {
       // logL = sum( Y*eta - log(1 + exp(eta)) )
       arma::vec eta_x = X_x * coef;
       arma::vec exp_eta_x = arma::exp(eta_x);
       llh += arma::sum(Y_x % eta_x - arma::log1p(exp_eta_x));
       
-    } else if (attr_x_type == "poisson") {
+    } else if (attr_x_family == "poisson") {
       // logL = sum( Y*eta - exp(eta) - lgamma(Y+1) )
       arma::vec eta_x = X_x * coef;
       arma::vec mu_x = arma::exp(eta_x);
       llh += arma::sum(Y_x % eta_x - mu_x - arma::lgamma(Y_x + 1.0));
       
-    } else if (attr_x_type == "normal") {
+    } else if (attr_x_family == "normal") {
       // logL = sum( -0.5*log(2*pi*scale) - (Y - mu)^2 / (2*scale) )
       arma::vec mu_x = X_x * coef;
       double const_x = -0.5 * std::log(2.0 * M_PI * x_scale);
@@ -1948,19 +1948,19 @@ double calculate_llh(
   // Rcout << "Log-likelihood after x component: " << llh << std::endl;
   
   // --- Component 3: Attribute 'y' ---
-  if (attr_y_type == "binomial") {
+  if (attr_y_family == "binomial") {
     // logL = sum( Y*eta - log(1 + exp(eta)) )
     arma::vec eta_y = X_y * coef;
     arma::vec exp_eta_y = arma::exp(eta_y);
     llh += arma::sum(Y_y % eta_y - arma::log1p(exp_eta_y));
     
-  } else if (attr_y_type == "poisson") {
+  } else if (attr_y_family == "poisson") {
     // logL = sum( Y*eta - exp(eta) - lgamma(Y+1) )
     arma::vec eta_y = X_y * coef;
     arma::vec mu_y = arma::exp(eta_y);
     llh += arma::sum(Y_y % eta_y - mu_y - arma::lgamma(Y_y + 1.0));
     
-  } else if (attr_y_type == "normal") {
+  } else if (attr_y_family == "normal") {
     // logL = sum( -0.5*log(2*pi*scale) - (Y - mu)^2 / (2*scale) )
     arma::vec mu_y = X_y * coef;
     double const_y = -0.5 * std::log(2.0 * M_PI * y_scale);
@@ -1982,16 +1982,16 @@ arma::mat get_C_new(
     const arma::vec& coef_degrees,
     double offset_nonoverlap,
     bool fix_x,
-    const std::string& attr_x_type,
-    const std::string& attr_y_type,
+    const std::string& attr_x_family,
+    const std::string& attr_y_family,
     double attr_x_scale,
     double attr_y_scale)
 {
-  unsigned int n_actor;
+  unsigned int n_units;
   if (directed) {
-    n_actor = coef_degrees.n_elem / 2;
+    n_units = coef_degrees.n_elem / 2;
   } else { 
-    n_actor = coef_degrees.n_elem;
+    n_units = coef_degrees.n_elem;
   }
   // number of network dyads
   const unsigned int n_net = i_vec.n_elem;
@@ -2005,18 +2005,18 @@ arma::mat get_C_new(
   arma::mat X_y; arma::vec Y_y;
   
   if (!fix_x) {
-    X_x = X_all.rows(n_net, n_net + n_actor - 1);
-    Y_x = Y_all.subvec(n_net, n_net + n_actor - 1);
+    X_x = X_all.rows(n_net, n_net + n_units - 1);
+    Y_x = Y_all.subvec(n_net, n_net + n_units - 1);
     
-    X_y = X_all.rows(n_net + n_actor, X_all.n_rows - 1);
-    Y_y = Y_all.subvec(n_net + n_actor, Y_all.n_elem - 1);
+    X_y = X_all.rows(n_net + n_units, X_all.n_rows - 1);
+    Y_y = Y_all.subvec(n_net + n_units, Y_all.n_elem - 1);
   } else { 
     X_y = X_all.rows(n_net, X_all.n_rows - 1);
     Y_y = Y_all.subvec(n_net, Y_all.n_elem - 1);
   }
   // 1) network block, which is logistic
   arma::vec net_offsets = (1.0 - arma::conv_to<arma::vec>::from(overlap_vec)) * offset_nonoverlap;
-  arma::vec eta_net = X_net * coef + net_offsets + coef_degrees.elem(i_vec-1) + coef_degrees.elem(j_vec-1+ n_actor*directed);
+  arma::vec eta_net = X_net * coef + net_offsets + coef_degrees.elem(i_vec-1) + coef_degrees.elem(j_vec-1+ n_units*directed);
   arma::vec exp_eta_net = arma::exp(eta_net);
   arma::vec prob_net(eta_net.n_elem);
   
@@ -2048,20 +2048,20 @@ arma::mat get_C_new(
   // 2) attribute x (if present)
   if (!fix_x) {
     arma::vec var_x;
-    if (attr_x_type == "binomial") {
+    if (attr_x_family == "binomial") {
       arma::vec eta_x = X_x * coef;
       arma::vec ex = arma::exp(eta_x);
       arma::vec p = ex / (1.0 + ex);
       var_x = p % (1.0 - p);
-    } else if (attr_x_type == "poisson") { 
+    } else if (attr_x_family == "poisson") { 
       arma::vec eta_x = X_x * coef;
       arma::vec mu = arma::exp(eta_x);
       var_x = mu;               // variance = mu
-    } else if (attr_x_type == "normal") { 
+    } else if (attr_x_family == "normal") { 
       // For normal, variance is constant = attr_x_scale
       var_x = arma::vec(X_x.n_rows, arma::fill::value(1.0/attr_x_scale));
     } else { 
-      Rcpp::stop("Unknown attr_x_type: must be 'binomial', 'poisson' or 'normal'.");
+      Rcpp::stop("Unknown attr_x_family: must be 'binomial', 'poisson' or 'normal'.");
     } 
     // place into w
     w.rows(n_net, n_net + X_x.n_rows - 1) = var_x;
@@ -2070,19 +2070,19 @@ arma::mat get_C_new(
   
   // 3) attribute y
   arma::vec var_y;
-  if (attr_y_type == "binomial") {
+  if (attr_y_family == "binomial") {
     arma::vec eta_y = X_y * coef;
     arma::vec ey = arma::exp(eta_y);
     arma::vec p = ey / (1.0 + ey);
     var_y = p % (1.0 - p);
-  } else if (attr_y_type == "poisson") { 
+  } else if (attr_y_family == "poisson") { 
     arma::vec eta_y = X_y * coef;
     arma::vec mu = arma::exp(eta_y);
     var_y = mu;
-  } else if (attr_y_type == "normal") { 
+  } else if (attr_y_family == "normal") { 
     var_y = arma::vec(X_y.n_rows, arma::fill::value(1.0/attr_y_scale));
   } else { 
-    Rcpp::stop("Unknown attr_y_type: must be 'binomial', 'poisson' or 'normal'.");
+    Rcpp::stop("Unknown attr_y_family: must be 'binomial', 'poisson' or 'normal'.");
   } 
   arma::uword start_y;
   if (!fix_x) start_y = n_net + X_x.n_rows;
@@ -2100,21 +2100,21 @@ arma::mat get_C(arma::vec coef, arma::uvec &i_vec,
                 std::tuple<arma::mat,arma::vec> &pseudo_lh,
                 arma::vec &coef_degrees,
                 double offset_nonoverlap,
-                const std::string& attr_x_type,
-                const std::string& attr_y_type,
+                const std::string& attr_x_family,
+                const std::string& attr_y_family,
                 double attr_x_scale,
                 double attr_y_scale) {
-  unsigned int n_actor;
+  unsigned int n_units;
   if(directed){
-    n_actor = coef_degrees.n_elem/2;
+    n_units = coef_degrees.n_elem/2;
   } else {
-    n_actor = coef_degrees.n_elem;
+    n_units = coef_degrees.n_elem;
   }
   // The idea is that we first go over the connections  and then the attributes 
   unsigned int number_elements_network = i_vec.size();
   
   arma::vec vec_network = arma::exp(offset_nonoverlap*(1-overlap_vec)+std::get<0>(pseudo_lh).rows(0,number_elements_network-1)*coef +
-    coef_degrees.elem(i_vec-1) + coef_degrees.elem(j_vec-1+ n_actor*directed));
+    coef_degrees.elem(i_vec-1) + coef_degrees.elem(j_vec-1+ n_units*directed));
   arma::vec vec_attribute = arma::exp(std::get<0>(pseudo_lh).rows(number_elements_network,std::get<0>(pseudo_lh).n_rows-1)*coef); 
   arma::vec result = join_cols(vec_network, vec_attribute); 
   arma::vec prob = result/(1+result);
@@ -2144,23 +2144,23 @@ std::tuple<arma::vec,arma::vec, arma::mat, arma::mat>  cond_estimation_degrees_p
                                                                                   int it, 
                                                                                   bool &non_stop, 
                                                                                   bool nonoverlap_random) {
-  int n_actor;
+  int n_units;
   if(directed){
-    n_actor = coef.n_elem/2;
+    n_units = coef.n_elem/2;
   } else { 
-    n_actor = coef.n_elem;
+    n_units = coef.n_elem;
   }
   
   arma::vec  score;
   arma::mat  coefs;
   if(directed){
-    score.reshape(2*n_actor, 1);
+    score.reshape(2*n_units, 1);
     score.fill(0);
-    coefs.reshape(max_iteration+1,2*n_actor);
+    coefs.reshape(max_iteration+1,2*n_units);
   } else {
-    score.reshape(n_actor, 1);
+    score.reshape(n_units, 1);
     score.fill(0);
-    coefs.reshape(max_iteration+1,n_actor);
+    coefs.reshape(max_iteration+1,n_units);
   }
   arma::vec weights, exp_tmp; 
   coefs.row(0)= coef.t();
@@ -2171,19 +2171,19 @@ std::tuple<arma::vec,arma::vec, arma::mat, arma::mat>  cond_estimation_degrees_p
       if(directed){
         if(overlap_vec.at(i)){
           exp_tmp = arma::exp((coef.at(i_vec.at(i)-1) +
-            coef.at(j_vec.at(i)-1 + n_actor)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            coef.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
         } else {
           if(nonoverlap_random){
             exp_tmp = arma::exp(offset_nonoverlap+(coef.at(i_vec.at(i)-1) +
-              coef.at(j_vec.at(i)-1 + n_actor)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);    
+              coef.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);    
           } else {
             exp_tmp = 0.0;
           }
           
         }
         weights = exp_tmp/(1+exp_tmp);
-        if(j_vec.at(i) != n_actor){
-          score.at(j_vec.at(i)-1+ n_actor) += std::get<1>(pseudo_lh).at(i) - weights.at(0);
+        if(j_vec.at(i) != n_units){
+          score.at(j_vec.at(i)-1+ n_units) += std::get<1>(pseudo_lh).at(i) - weights.at(0);
         }
       } else {
         if(overlap_vec.at(i)){
@@ -2210,7 +2210,7 @@ std::tuple<arma::vec,arma::vec, arma::mat, arma::mat>  cond_estimation_degrees_p
     // (otherwise start another iteration and reset score and info)
     if(k == max_iteration){
       non_converged = false;
-    } else if ((sqrt(sum(arma::pow(coefs.row(k)- coefs.row(k-1),2)))<tol) & !non_stop){
+    } else if ((sqrt(sum(arma::pow(coefs.row(k)- coefs.row(k-1),2)))<tol) && !non_stop){
       non_converged = false;
     } else { 
       // Reset the score and fisher info
@@ -2226,29 +2226,29 @@ std::tuple<arma::vec,arma::vec, arma::mat, arma::mat>  cond_estimation_degrees_p
   // double ll_MM,  ll_attributes; 
   // if(directed){
   //   exp_tmp_MM = arma::exp(offset_nonoverlap+(coef_MM.elem(i_vec  -1) +
-  //     coef_MM.elem(j_vec  -1 + n_actor)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
+  //     coef_MM.elem(j_vec  -1 + n_units)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
   //   Rcout << mean(exp_tmp_MM) << std::endl;
-  //   exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_actor)*coef_nondegrees);
+  //   exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees);
   //   arma::vec log_one_min_pi_MM =  - log(1+exp_tmp_MM);
   //   arma::vec log_one_min_pi_rest =  - log(1+exp_rest);
   //   
   //   ll_MM = sum(log_one_min_pi_MM + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+coef_MM.elem(i_vec-1) +
-  //     coef_MM.elem(j_vec  -1 + n_actor) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
-  //   ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_actor)%
-  //     (std::get<0>(pseudo_lh).tail_rows(2*n_actor)*coef_nondegrees));
+  //     coef_MM.elem(j_vec  -1 + n_units) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
+  //   ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_units)%
+  //     (std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees));
   // } else {
   //   exp_tmp_MM = arma::exp(offset_nonoverlap+(coef_MM.elem(i_vec  -1) +
   //     coef_MM.elem(j_vec  -1)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
   //   // Rcout << mean(exp_tmp_MM) << std::endl;
   //   
-  //   exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_actor)*coef_nondegrees);
+  //   exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees);
   //   arma::vec log_one_min_pi_MM =  - log(1+exp_tmp_MM);
   //   arma::vec log_one_min_pi_rest =  - log(1+exp_rest);
   //   
   //   ll_MM = sum(log_one_min_pi_MM + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+coef_MM.elem(i_vec-1) +
   //     coef_MM.elem(j_vec  -1) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
-  //   ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_actor)%
-  //     (std::get<0>(pseudo_lh).tail_rows(2*n_actor)*coef_nondegrees));
+  //   ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_units)%
+  //     (std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees));
   //   
   // }
   // double llh_alt; 
@@ -2274,11 +2274,11 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
                                                                                                int it, 
                                                                                                bool first_it, 
                                                                                                bool nonoverlap_random) {
-  int n_actor;
+  int n_units;
   if(directed){
-    n_actor = coef.n_elem/2;
+    n_units = coef.n_elem/2;
   } else {
-    n_actor = coef.n_elem;
+    n_units = coef.n_elem;
   }
   
   // Define the additional stuff needed for the quasi Newton acceleration
@@ -2287,17 +2287,17 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
   arma::vec  score, score_old;
   arma::mat  coefs;
   if(directed){
-    score.reshape(2*n_actor, 1);
+    score.reshape(2*n_units, 1);
     score.fill(0);
-    score_old.reshape(2*n_actor, 1);
+    score_old.reshape(2*n_units, 1);
     score_old.fill(0);
-    coefs.reshape(max_iteration+1,2*n_actor);
+    coefs.reshape(max_iteration+1,2*n_units);
   } else {
-    score.reshape(n_actor, 1);
+    score.reshape(n_units, 1);
     score.fill(0);
-    score_old.reshape(n_actor, 1);
+    score_old.reshape(n_units, 1);
     score_old.fill(0);
-    coefs.reshape(max_iteration+1,n_actor);
+    coefs.reshape(max_iteration+1,n_units);
   }
   arma::vec weights,weights_old,  exp_tmp, exp_tmp_old; 
   coefs.row(0)= coef.t();
@@ -2312,16 +2312,16 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
       if(directed){
         if(overlap_vec.at(i)){
           exp_tmp = arma::exp((coef.at(i_vec.at(i)-1) +
-            coef.at(j_vec.at(i)-1 + n_actor)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            coef.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
           exp_tmp_old = arma::exp((old_coef_pop.at(i_vec.at(i)-1) +
-            old_coef_pop.at(j_vec.at(i)-1 + n_actor)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            old_coef_pop.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
           
         } else {
           if(nonoverlap_random){
             exp_tmp = arma::exp(offset_nonoverlap+(coef.at(i_vec.at(i)-1) +
-              coef.at(j_vec.at(i)-1 + n_actor)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);  
+              coef.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);  
             exp_tmp_old =  arma::exp(offset_nonoverlap+(old_coef_pop.at(i_vec.at(i)-1) +
-              old_coef_pop.at(j_vec.at(i)-1 + n_actor)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);  
+              old_coef_pop.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);  
           }else {
             exp_tmp = 0.0; 
             exp_tmp_old= 0.0; 
@@ -2329,9 +2329,9 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
         }
         weights = exp_tmp/(1+exp_tmp);
         weights_old = exp_tmp_old/(1+exp_tmp_old);
-        if(j_vec.at(i) != n_actor){
-          score.at(j_vec.at(i)-1+ n_actor) += std::get<1>(pseudo_lh).at(i) - weights.at(0);
-          score_old.at(j_vec.at(i)-1+ n_actor) += std::get<1>(pseudo_lh).at(i) - weights_old.at(0);  
+        if(j_vec.at(i) != n_units){
+          score.at(j_vec.at(i)-1+ n_units) += std::get<1>(pseudo_lh).at(i) - weights.at(0);
+          score_old.at(j_vec.at(i)-1+ n_units) += std::get<1>(pseudo_lh).at(i) - weights_old.at(0);  
         }
       } else {
         if(overlap_vec.at(i)){
@@ -2360,8 +2360,8 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
       score_old.at(i_vec.at(i)-1) +=  std::get<1>(pseudo_lh).at(i) - weights_old.at(0);
     } 
     
-    // Rcout <<score.at(2*n_actor-1) << std::endl;
-    // Rcout <<coef.at(2*n_actor-1) << std::endl;
+    // Rcout <<score.at(2*n_units-1) << std::endl;
+    // Rcout <<coef.at(2*n_units-1) << std::endl;
     
     if(first_it){
       M_new = old_M;
@@ -2390,26 +2390,26 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
     double ll_MM, ll_accel; 
     if(directed){
       exp_tmp_MM = arma::exp(offset_nonoverlap+(coef_MM.elem(i_vec  -1) +
-        coef_MM.elem(j_vec  -1 + n_actor)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
+        coef_MM.elem(j_vec  -1 + n_units)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
       exp_tmp_accel = arma::exp(offset_nonoverlap+(coef_accel.elem(i_vec  -1) +
-        coef_accel.elem(j_vec  -1 + n_actor)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
-      // exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_actor)*coef_nondegrees);
+        coef_accel.elem(j_vec  -1 + n_units)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
+      // exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees);
       arma::vec log_one_min_pi_MM =  - log(1+exp_tmp_MM);
       arma::vec log_one_min_pi_accel =  - log(1+exp_tmp_accel);
       // arma::vec log_one_min_pi_rest =  - log(1+exp_rest);
       
       ll_MM = sum(log_one_min_pi_MM + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+coef_MM.elem(i_vec-1) +
-        coef_MM.elem(j_vec  -1 + n_actor) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
+        coef_MM.elem(j_vec  -1 + n_units) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
       ll_accel = sum(log_one_min_pi_accel + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+ coef_accel.elem(i_vec-1) +
-        coef_accel.elem(j_vec  -1 + n_actor) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
-      // ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_actor)%
-      //   (std::get<0>(pseudo_lh).tail_rows(2*n_actor)*coef_nondegrees));
+        coef_accel.elem(j_vec  -1 + n_units) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
+      // ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_units)%
+      //   (std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees));
     } else {
       exp_tmp_MM = arma::exp(offset_nonoverlap+(coef_MM.elem(i_vec  -1) +
         coef_MM.elem(j_vec  -1)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
       exp_tmp_accel = arma::exp(offset_nonoverlap+(coef_accel.elem(i_vec  -1) +
         coef_accel.elem(j_vec  -1)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
-      // exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_actor)*coef_nondegrees);
+      // exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees);
       arma::vec log_one_min_pi_MM =  - log(1+exp_tmp_MM);
       arma::vec log_one_min_pi_accel =  - log(1+exp_tmp_accel);
       // arma::vec log_one_min_pi_rest =  - log(1+exp_rest);
@@ -2418,8 +2418,8 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
         coef_MM.elem(j_vec  -1) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
       ll_accel = sum(log_one_min_pi_accel + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+ coef_accel.elem(i_vec-1) +
         coef_accel.elem(j_vec  -1) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
-      // ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_actor)%
-      //   (std::get<0>(pseudo_lh).tail_rows(2*n_actor)*coef_nondegrees));
+      // ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_units)%
+      //   (std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees));
       
     }
     
@@ -2438,7 +2438,7 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
     // TODO there should be a check for identifiabiliy -> degrees 
     if(k == max_iteration){
       non_converged = false;
-    } else if ((sqrt(sum(arma::pow(coefs.row(k)- coefs.row(k-1),2)))<tol) & !non_stop){ 
+    } else if ((sqrt(sum(arma::pow(coefs.row(k)- coefs.row(k-1),2)))<tol) && !non_stop){
       non_converged = false;
     } else {  
       // Reset the score and fisher info
@@ -2481,27 +2481,27 @@ List pl_estimation(arma::vec coef,
                    bool non_stop, 
                    bool fix_x, 
                    bool fix_z, 
-                   std::string attr_x_type, 
-                   std::string attr_y_type, 
+                   std::string attr_x_family, 
+                   std::string attr_y_family, 
                    double attr_x_scale, 
                    double attr_y_scale, 
                    bool nonoverlap_random) {
   List res; 
   std::tuple<arma::mat,arma::vec> pseudo_lh;
-  int n_actor = y_attribute.size();
+  int n_units = y_attribute.size();
   arma::uvec  i_vec, j_vec, overlap_vec; 
   if(directed){
-    i_vec = arma::uvec(n_actor*(n_actor-1)); 
-    j_vec = arma::uvec(n_actor*(n_actor-1)); 
-    overlap_vec = arma::uvec(n_actor*(n_actor-1)); 
+    i_vec = arma::uvec(n_units*(n_units-1)); 
+    j_vec = arma::uvec(n_units*(n_units-1)); 
+    overlap_vec = arma::uvec(n_units*(n_units-1)); 
   } else { 
-    i_vec= arma::uvec(n_actor*(n_actor-1)/2); 
-    j_vec= arma::uvec(n_actor*(n_actor-1)/2); 
-    overlap_vec = arma::uvec(n_actor*(n_actor-1)/2); 
+    i_vec= arma::uvec(n_units*(n_units-1)/2); 
+    j_vec= arma::uvec(n_units*(n_units-1)/2); 
+    overlap_vec = arma::uvec(n_units*(n_units-1)/2); 
   } 
   // Calculates the data in a suitable format -> a vector or 32 x p 
   // (being the dimension of the sufficient statistics) matrices corresponding to the data of each dyad
-  XYZ_class object(n_actor,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, attr_x_type, attr_y_type,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, attr_x_family, attr_y_family,attr_x_scale, attr_y_scale);
   
   int k = 1;
   bool non_converged = true;
@@ -2513,7 +2513,7 @@ List pl_estimation(arma::vec coef,
   
   arma::vec exp_tmp, score_tmp; 
   pseudo_lh = xyz_get_info_pl(object,terms,data_list,type_list, display_progress,
-                              i_vec,j_vec, overlap_vec, n_actor, fix_x, fix_z);
+                              i_vec,j_vec, overlap_vec, n_units, fix_x, fix_z);
   
   // arma::uvec where_wrong = find(arma::var(std::get<0>(pseudo_lh), 0) == 0);
   arma::rowvec variances = arma::var(std::get<0>(pseudo_lh), 0, 0);
@@ -2560,7 +2560,7 @@ List pl_estimation(arma::vec coef,
   }
   
   // if(where_wrong.size() >0){
-  //   Rcout << "Some statistics (other than the intercept terms, edges, attribute_x, attribute_y) do not change over all paris/actors (they are excluded from the model since their MLE is negative infinity)" << std::endl;
+  //   Rcout << "Some statistics (other than the intercept terms, edges, attribute_x, attribute_y) do not change over all pairs/units (they are excluded from the model since their MLE is negative infinity)" << std::endl;
   //   arma::uvec where_right = find(arma::var(std::get<0>(pseudo_lh), 0) != 0);
   //   // terms(where_right);
   //   std::get<0>(pseudo_lh) = std::get<0>(pseudo_lh).cols(where_right);
@@ -2584,11 +2584,11 @@ List pl_estimation(arma::vec coef,
   }
   
   if (fix_x == false) {
-    X_x = X_all.rows(n_net*!fix_z, n_net*!fix_z + n_actor - 1);
-    Y_x = Y_all.subvec(n_net*!fix_z, n_net*!fix_z + n_actor - 1);
+    X_x = X_all.rows(n_net*!fix_z, n_net*!fix_z + n_units - 1);
+    Y_x = Y_all.subvec(n_net*!fix_z, n_net*!fix_z + n_units - 1);
     
-    X_y = X_all.rows(n_net*!fix_z + n_actor, X_all.n_rows - 1);
-    Y_y = Y_all.subvec(n_net*!fix_z + n_actor, Y_all.n_elem - 1);
+    X_y = X_all.rows(n_net*!fix_z + n_units, X_all.n_rows - 1);
+    Y_y = Y_all.subvec(n_net*!fix_z + n_units, Y_all.n_elem - 1);
   } else {
     X_y = X_all.rows(n_net*!fix_z, X_all.n_rows - 1);
     Y_y = Y_all.subvec(n_net*!fix_z, Y_all.n_elem - 1);
@@ -2637,7 +2637,7 @@ List pl_estimation(arma::vec coef,
     // 
     // --- Component 2: Attribute 'x' ---
     if (fix_x == false) {
-      if (attr_x_type == "binomial") {
+      if (attr_x_family == "binomial") {
         arma::vec eta_x = X_x * coef;
         arma::vec exp_eta_x = arma::exp(eta_x);
         arma::vec prob_x = exp_eta_x / (1.0 + exp_eta_x);
@@ -2646,14 +2646,14 @@ List pl_estimation(arma::vec coef,
         score += X_x.t() * (Y_x - prob_x);
         fisher += X_x.t() * arma::diagmat(var_x) * X_x;
         
-      } else if (attr_x_type == "poisson") {
+      } else if (attr_x_family == "poisson") {
         arma::vec eta_x = X_x * coef;
         arma::vec mu_x = arma::exp(eta_x);
         
         score += X_x.t() * (Y_x - mu_x);
         fisher += X_x.t() * arma::diagmat(mu_x) * X_x;
         
-      } else if (attr_x_type == "normal") {
+      } else if (attr_x_family == "normal") {
         arma::vec mu_x = X_x * coef; 
         score += X_x.t() * (Y_x - mu_x) / attr_x_scale;
         fisher += (X_x.t() * X_x) / attr_x_scale;
@@ -2661,7 +2661,7 @@ List pl_estimation(arma::vec coef,
     }
     
     // --- Component 3: Attribute 'y' ---
-    if (attr_y_type == "binomial") {
+    if (attr_y_family == "binomial") {
       arma::vec eta_y = X_y * coef;
       arma::vec exp_eta_y = arma::exp(eta_y);
       arma::vec prob_y = exp_eta_y / (1.0 + exp_eta_y);
@@ -2670,14 +2670,14 @@ List pl_estimation(arma::vec coef,
       score += X_y.t() * (Y_y - prob_y);
       fisher += X_y.t() * arma::diagmat(var_y) * X_y;
       
-    } else if (attr_y_type == "poisson") {
+    } else if (attr_y_family == "poisson") {
       arma::vec eta_y = X_y * coef;
       arma::vec mu_y = arma::exp(eta_y);
       
       score += X_y.t() * (Y_y - mu_y);
       fisher += X_y.t() * arma::diagmat(mu_y) * X_y;
       
-    } else if (attr_y_type == "normal") {
+    } else if (attr_y_family == "normal") {
       arma::vec mu_y = X_y * coef;
       
       score += X_y.t() * (Y_y - mu_y) / attr_y_scale;
@@ -2704,11 +2704,11 @@ List pl_estimation(arma::vec coef,
             directed,
             pseudo_lh,
             offset_nonoverlap,
-            attr_x_type,
-            attr_y_type,
+            attr_x_family,
+            attr_y_family,
             attr_x_scale,
             attr_y_scale,
-            n_actor,
+            n_units,
             fix_x, 
             fix_z,nonoverlap_random );
     // Rcout << "Here A" <<  std::endl;
@@ -2736,37 +2736,37 @@ List pl_estimation(arma::vec coef,
   ));
 }
 // [[Rcpp::export]]
-arma::mat invert_mat(double diag, double offdiag,int n_actor){
-  return(1/(diag-offdiag)*arma::mat(n_actor,n_actor, arma::fill::eye) - arma::mat(n_actor, n_actor, arma::fill::value(1/((1/offdiag + n_actor/(diag-offdiag))*pow(diag-offdiag,2)))));
+arma::mat invert_mat(double diag, double offdiag,int n_units){
+  return(1/(diag-offdiag)*arma::mat(n_units,n_units, arma::fill::eye) - arma::mat(n_units, n_units, arma::fill::value(1/((1/offdiag + n_units/(diag-offdiag))*pow(diag-offdiag,2)))));
 }
 
 // [[Rcpp::export]]
-arma::mat get_A_inv(double n_actor){
-  arma::mat A = (n_actor-1)/4*arma::mat(n_actor,n_actor, arma::fill::eye);
-  arma::mat B = arma::mat(n_actor,n_actor-1, arma::fill::value(0.25));
-  B.diag() = arma::vec(n_actor-1, arma::fill::zeros);
+arma::mat get_A_inv(double n_units){
+  arma::mat A = (n_units-1)/4*arma::mat(n_units,n_units, arma::fill::eye);
+  arma::mat B = arma::mat(n_units,n_units-1, arma::fill::value(0.25));
+  B.diag() = arma::vec(n_units-1, arma::fill::zeros);
   
-  arma::mat D = (n_actor-1)/4*arma::mat(n_actor-1,n_actor-1, arma::fill::eye);
-  arma::mat A_inv = 1/A.at(0,0)*arma::mat(n_actor,n_actor, arma::fill::eye);
-  arma::mat D_inv = 1/D.at(0,0)*arma::mat(n_actor-1,n_actor-1, arma::fill::eye);
-  arma::mat part_2 = arma::mat(n_actor-1,n_actor-1, arma::fill::value((n_actor-2)/(n_actor-1)*0.25));
-  part_2.diag() = arma::vec(n_actor-1, arma::fill::value(0.25));
+  arma::mat D = (n_units-1)/4*arma::mat(n_units-1,n_units-1, arma::fill::eye);
+  arma::mat A_inv = 1/A.at(0,0)*arma::mat(n_units,n_units, arma::fill::eye);
+  arma::mat D_inv = 1/D.at(0,0)*arma::mat(n_units-1,n_units-1, arma::fill::eye);
+  arma::mat part_2 = arma::mat(n_units-1,n_units-1, arma::fill::value((n_units-2)/(n_units-1)*0.25));
+  part_2.diag() = arma::vec(n_units-1, arma::fill::value(0.25));
   part_2 = D - part_2;
-  arma::mat part_1 = arma::mat(n_actor,n_actor, arma::fill::value((n_actor-3)/(n_actor-1)*0.25));
-  part_1.diag() = arma::vec(n_actor, arma::fill::value((n_actor-2)/(n_actor-1)*0.25));
-  part_1.row(n_actor-1) = arma::vec(n_actor, arma::fill::value((n_actor-2)/(n_actor-1)*0.25)).as_row();
-  part_1.col(n_actor-1) = arma::vec(n_actor, arma::fill::value((n_actor-2)/(n_actor-1)*0.25)).as_col();
-  part_1.at(n_actor-1, n_actor-1) = 0.25;
+  arma::mat part_1 = arma::mat(n_units,n_units, arma::fill::value((n_units-3)/(n_units-1)*0.25));
+  part_1.diag() = arma::vec(n_units, arma::fill::value((n_units-2)/(n_units-1)*0.25));
+  part_1.row(n_units-1) = arma::vec(n_units, arma::fill::value((n_units-2)/(n_units-1)*0.25)).as_row();
+  part_1.col(n_units-1) = arma::vec(n_units, arma::fill::value((n_units-2)/(n_units-1)*0.25)).as_col();
+  part_1.at(n_units-1, n_units-1) = 0.25;
   part_1 = A - part_1;
   
   // arma::mat part_2 = D - B.t()*A_inv*B;
   // arma::mat part_1 = A - B*D_inv*B.t();
   
-  arma::mat a = part_1.submat(0,0,n_actor-2,n_actor-2);
-  arma::mat b = part_1.submat(n_actor-1,0,n_actor-1,n_actor-2);
+  arma::mat a = part_1.submat(0,0,n_units-2,n_units-2);
+  arma::mat b = part_1.submat(n_units-1,0,n_units-1,n_units-2);
   arma::mat c = b.t();
   arma::mat d = arma::mat(1,1, arma::fill::zeros);
-  d.at(0,0) = part_1.at(n_actor-1,n_actor-1);
+  d.at(0,0) = part_1.at(n_units-1,n_units-1);
   
   
   arma::mat Part_2 = d-b*invert_mat(a.at(1,1), a.at(0,1), a.n_rows)*b.t();
@@ -2779,32 +2779,32 @@ arma::mat get_A_inv(double n_actor){
   arma::mat inv_part_1 = arma::join_rows(arma::join_cols( Part_1_invert, (Part_1_invert*Part_3.t()).t()), 
                                          arma::join_cols( (Part_2_invert.at(0,0)*Part_4).t(), Part_2_invert));
   arma::mat inv_part_2 = invert_mat(part_2.at(1,1), part_2.at(0,1), part_2.n_rows);
-  arma::mat part_3 = -arma::mat(n_actor, n_actor-1, arma::fill::value(1/(n_actor-1)));
-  part_3.diag() = arma::vec(n_actor-1, arma::fill::zeros); 
+  arma::mat part_3 = -arma::mat(n_units, n_units-1, arma::fill::value(1/(n_units-1)));
+  part_3.diag() = arma::vec(n_units-1, arma::fill::zeros); 
   // arma::mat part_3 = -B*D_inv;
   // arma::mat tmp_mat = (inv_part_1* part_3); 
   // Rcout << arma::accu(part_3)<< std::endl;
   // Rcout << "Diagonal"<< std::endl;
-  // Rcout << part_3.at(0,1)*(inv_part_1.at(1,2)*(n_actor-2)+inv_part_1.at(1,n_actor-1))<< std::endl;
+  // Rcout << part_3.at(0,1)*(inv_part_1.at(1,2)*(n_units-2)+inv_part_1.at(1,n_units-1))<< std::endl;
   // Rcout << "Off-Diagonal"<< std::endl;
-  // Rcout << part_3.at(0,1)*(inv_part_1.at(0,1)*(n_actor-3)+
-  //   inv_part_1.at(0,0)+inv_part_1.at(0,n_actor-1))<< std::endl;
+  // Rcout << part_3.at(0,1)*(inv_part_1.at(0,1)*(n_units-3)+
+  //   inv_part_1.at(0,0)+inv_part_1.at(0,n_units-1))<< std::endl;
   // Rcout << "Last Row"<< std::endl;
-  // Rcout << part_3.at(0,1)*(inv_part_1.at(0,n_actor-1)*(n_actor-2)+inv_part_1.at(n_actor-1,n_actor-1))<< std::endl;
+  // Rcout << part_3.at(0,1)*(inv_part_1.at(0,n_units-1)*(n_units-2)+inv_part_1.at(n_units-1,n_units-1))<< std::endl;
   
   
-  arma::mat tmp_mat = arma::mat(n_actor, n_actor-1,
-                                arma::fill::value(part_3.at(0,1)*(inv_part_1.at(0,1)*(n_actor-3)+
-                                  inv_part_1.at(0,0)+inv_part_1.at(0,n_actor-1)))); 
-  tmp_mat.diag() = arma::vec(n_actor-1, arma::fill::value(part_3.at(0,1)*(inv_part_1.at(1,2)*(n_actor-2)+inv_part_1.at(1,n_actor-1))));
-  tmp_mat.row(n_actor-1) = arma::vec(n_actor-1,arma::fill::value(part_3.at(0,1)*(inv_part_1.at(0,n_actor-1)*(n_actor-2)+inv_part_1.at(n_actor-1,n_actor-1)))).as_row();
+  arma::mat tmp_mat = arma::mat(n_units, n_units-1,
+                                arma::fill::value(part_3.at(0,1)*(inv_part_1.at(0,1)*(n_units-3)+
+                                  inv_part_1.at(0,0)+inv_part_1.at(0,n_units-1)))); 
+  tmp_mat.diag() = arma::vec(n_units-1, arma::fill::value(part_3.at(0,1)*(inv_part_1.at(1,2)*(n_units-2)+inv_part_1.at(1,n_units-1))));
+  tmp_mat.row(n_units-1) = arma::vec(n_units-1,arma::fill::value(part_3.at(0,1)*(inv_part_1.at(0,n_units-1)*(n_units-2)+inv_part_1.at(n_units-1,n_units-1)))).as_row();
   // Rcout << tmp_mat<< std::endl;
   
   arma::mat res = arma::join_rows(arma::join_cols( inv_part_1, tmp_mat.t()), 
                                   arma::join_cols( tmp_mat, inv_part_2));
   // Rcout << arma::accu(tmp_mat)<< std::endl;
-  res = arma::join_cols(res, arma::mat(1,2*n_actor-1, arma::fill::zeros));
-  res = arma::join_rows(res, arma::mat(2*n_actor,1, arma::fill::zeros));
+  res = arma::join_cols(res, arma::mat(1,2*n_units-1, arma::fill::zeros));
+  res = arma::join_rows(res, arma::mat(2*n_units,1, arma::fill::zeros));
   return(res);
 }
 
@@ -2830,54 +2830,54 @@ List outerloop_estimation_pl(arma::vec coef,
                              bool var, 
                              bool accelerated, 
                              bool fix_x, 
-                             std::string type_x, 
-                             std::string type_y, 
+                             std::string family_x, 
+                             std::string family_y, 
                              double attr_x_scale, 
                              double attr_y_scale, 
                              bool nonoverlap_random = true,
                              int start = 0) {
   List res; 
   std::tuple<arma::mat,arma::vec> pseudo_lh;
-  int n_actor = y_attribute.size();
+  int n_units = y_attribute.size();
   
-  arma::mat id_mat = arma::mat((double) n_actor,n_actor,arma::fill::eye);
-  arma::mat ones_mat = arma::mat(n_actor,n_actor,arma::fill::ones);
-  arma::mat A_inv = 4/((double)n_actor -2)*(id_mat - 1/(2*(double)n_actor-2)*ones_mat);
+  arma::mat id_mat = arma::mat((double) n_units,n_units,arma::fill::eye);
+  arma::mat ones_mat = arma::mat(n_units,n_units,arma::fill::ones);
+  arma::mat A_inv = 4/((double)n_units -2)*(id_mat - 1/(2*(double)n_units-2)*ones_mat);
   if(directed){
-    A_inv = get_A_inv(n_actor);
+    A_inv = get_A_inv(n_units);
   }
   
   std::tuple<arma::vec, arma::vec,  arma::mat, arma::mat> res_degrees, res_nondegrees, res_nondegrees_alt;
   arma::uvec i_vec, j_vec,overlap_vec;
   arma::mat coefs_degrees; 
-  //  coefs_nondegrees(terms.size()), coefs_degrees(n_actor)
+  //  coefs_nondegrees(terms.size()), coefs_degrees(n_units)
   if(directed){
-    // network_vec = arma::vec(n_actor*(n_actor-1)); 
-    i_vec = arma::uvec(n_actor*(n_actor-1)); 
-    j_vec = arma::uvec(n_actor*(n_actor-1)); 
-    overlap_vec = arma::uvec(n_actor*(n_actor-1)); 
-    coef_degrees.reshape(n_actor*2,1);
-    coefs_degrees.reshape(0, n_actor*2);  
+    // network_vec = arma::vec(n_units*(n_units-1)); 
+    i_vec = arma::uvec(n_units*(n_units-1)); 
+    j_vec = arma::uvec(n_units*(n_units-1)); 
+    overlap_vec = arma::uvec(n_units*(n_units-1)); 
+    coef_degrees.reshape(n_units*2,1);
+    coefs_degrees.reshape(0, n_units*2);  
   } else {
-    // network_vec= arma::vec(n_actor*(n_actor-1)/2); 
-    i_vec= arma::uvec(n_actor*(n_actor-1)/2); 
-    j_vec= arma::uvec(n_actor*(n_actor-1)/2);
-    overlap_vec= arma::uvec(n_actor*(n_actor-1)/2);
-    coef_degrees.reshape(n_actor,1);
-    coefs_degrees.reshape(max_iteration_inner_degrees, n_actor);
+    // network_vec= arma::vec(n_units*(n_units-1)/2); 
+    i_vec= arma::uvec(n_units*(n_units-1)/2); 
+    j_vec= arma::uvec(n_units*(n_units-1)/2);
+    overlap_vec= arma::uvec(n_units*(n_units-1)/2);
+    coef_degrees.reshape(n_units,1);
+    coefs_degrees.reshape(max_iteration_inner_degrees, n_units);
   }
-  XYZ_class object(n_actor,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   // Rcout << "Start"<< std::endl;
-  // Rcout << object.n_actor<< std::endl;
+  // Rcout << object.n_units<< std::endl;
   
   if(display_progress) {
     Rcout << "Starting with the preprocessing" << std::endl;
   }
   pseudo_lh = xyz_get_info_pl(object,terms,data_list,type_list, display_progress,
-                              i_vec,j_vec,overlap_vec, n_actor, fix_x, false);
+                              i_vec,j_vec,overlap_vec, n_units, fix_x, false);
   arma::uvec where_wrong = find(arma::sum(std::get<0>(pseudo_lh), 0) == 0);
   if(where_wrong.size() >0){
-    Rcout << "Some statistics do not change over all paris/actors (they are excluded from the model since their MLE is negative infinity)" << std::endl;
+    Rcout << "Some statistics do not change over all pairs/units (they are excluded from the model since their MLE is negative infinity)" << std::endl;
     arma::uvec where_right = find(arma::var(std::get<0>(pseudo_lh), 0) != 0);
     std::get<0>(pseudo_lh) = std::get<0>(pseudo_lh).cols(where_right);
     coef = coef.rows(where_right);
@@ -2887,7 +2887,7 @@ List outerloop_estimation_pl(arma::vec coef,
   coefs_nondegrees(max_iteration_inner_nondegrees, terms.size());
   
   coefs.row(0)= arma::join_rows(coef.t(), coef_degrees.t());
-  arma::vec score_degrees(n_actor), 
+  arma::vec score_degrees(n_units), 
   score_nondegrees(terms.size()),coef_nondegrees(terms.size());
   
   int k = 1;
@@ -2960,7 +2960,7 @@ List outerloop_estimation_pl(arma::vec coef,
     //                                                      coef_degrees, 
     //                                                      offset_nonoverlap, 
     //                                                      non_stop, 
-    //                                                      type_x, type_y,  
+    //                                                      family_x, family_y,  
     //                                                      attr_x_scale, attr_y_scale, fix_x);
     // Rcout << std::get<0>(res_nondegrees_alt)<< std::endl;
     if (terms.size() > 0) {
@@ -2975,7 +2975,7 @@ List outerloop_estimation_pl(arma::vec coef,
                                                      coef_degrees, 
                                                      offset_nonoverlap, 
                                                      non_stop, 
-                                                     type_x, type_y, 
+                                                     family_x, family_y, 
                                                      attr_x_scale, attr_y_scale, fix_x);
       coef_nondegrees = std::get<0>(res_nondegrees);
     }
@@ -2987,17 +2987,17 @@ List outerloop_estimation_pl(arma::vec coef,
            directed,
            pseudo_lh,
            offset_nonoverlap,
-           type_x,
-           type_y,
+           family_x,
+           family_y,
            attr_x_scale,
            attr_y_scale,
-           n_actor,
+           n_units,
            fix_x, false, nonoverlap_random);
     coefs.row(k) = join_cols(coef_nondegrees, coef_degrees).t();
     if(k == max_iteration_outer){
       non_converged = false;
     } else if ((arma::max(arma::vec{arma::norm(coefs.row(k)- coefs.row(k-1), 2), 
-                          std::abs((llh.at(k) -llh.at(k-1))/llh.at(k))})<tol) & !non_stop){
+                          std::abs((llh.at(k) -llh.at(k-1)) / (std::abs(llh.at(k)) > 1e-10 ? llh.at(k) : 1.0))})<tol) && !non_stop){
       non_converged = false;
     }
     k++;
@@ -3018,13 +3018,13 @@ List outerloop_estimation_pl(arma::vec coef,
                                                          pseudo_lh, 
                                                          coef_degrees, 
                                                          coef_nondegrees, offset_nonoverlap, 
-                                                         object.z_network.directed,object.n_actor );
+                                                         object.z_network.directed,object.n_units );
     arma::mat exact_A = get_A_exact(i_vec, 
                                     j_vec,overlap_vec,
                                     pseudo_lh, 
                                     coef_degrees, 
                                     coef_nondegrees, offset_nonoverlap, 
-                                    object.z_network.directed,object.n_actor );
+                                    object.z_network.directed,object.n_units );
     arma::mat B_mat;
     arma::vec A_diag;
     std::tie(A_diag,B_mat) = res_mat;
@@ -3086,7 +3086,7 @@ List outerloop_estimation_pl(arma::vec coef,
 //                                                                         std::vector<double> &type_list, 
 //                                                                         bool add_info, double prob, int seed) {
 //   // Set up objects
-//   int n_actor = object.n_actor;
+//   int n_units = object.n_units;
 //   bool is_full_neighborhood = object.check_if_full_neighborhood();
 //   
 //   std::vector<xyz_ValidateFunction> functions;
@@ -3096,18 +3096,18 @@ List outerloop_estimation_pl(arma::vec coef,
 //   change_stat_x_j(functions.size()), change_stat_y_i(functions.size()),
 //   change_stat_y_j(functions.size()), change_stat_z_ij(functions.size());
 //   bool x_i, x_j, z_ij, y_i,y_j;
-//   std::vector<arma::mat> res(n_actor*(n_actor-1)/2);
+//   std::vector<arma::mat> res(n_units*(n_units-1)/2);
 //   // int now = 0;
 //   set_seed(seed);
 //   arma::vec change_stat;
-//   NumericVector random_accept= runif(n_actor*(n_actor-1),0,1);
+//   NumericVector random_accept= runif(n_units*(n_units-1),0,1);
 //   // Number of trials
 //   int n_trials = 0; 
 //   // Number of success
 //   int n_success = 0; 
 //   
-//   for(int i: seq(1,n_actor-1)){
-//     for(int j: seq(i+1,n_actor)){
+//   for(int i: seq(1,n_units-1)){
+//     for(int j: seq(i+1,n_units)){
 //       if(random_accept.at(n_trials)>prob){
 //         n_trials++;
 //         continue;
@@ -3190,31 +3190,31 @@ arma::vec calculate_score_pl(XYZ_class & object,
                              double &offset_nonoverlap, 
                              bool fix_x, 
                              bool fix_z, 
-                             std::string attr_x_type, 
-                             std::string attr_y_type, 
+                             std::string attr_x_family, 
+                             std::string attr_y_family, 
                              double attr_x_scale, 
                              double attr_y_scale, 
                              bool nonoverlap_random) {
   // double w_tmp;
   arma::uvec i_vec, j_vec,overlap_vec;
   if(object.z_network.directed){
-    // network_vec = arma::vec(n_actor*(n_actor-1)); 
-    i_vec = arma::uvec(object.n_actor*(object.n_actor-1)); 
-    j_vec = arma::uvec(object.n_actor*(object.n_actor-1)); 
-    overlap_vec = arma::uvec(object.n_actor*(object.n_actor-1)); 
+    // network_vec = arma::vec(n_units*(n_units-1)); 
+    i_vec = arma::uvec(object.n_units*(object.n_units-1)); 
+    j_vec = arma::uvec(object.n_units*(object.n_units-1)); 
+    overlap_vec = arma::uvec(object.n_units*(object.n_units-1)); 
   } else { 
-    // network_vec= arma::vec(n_actor*(n_actor-1)/2); 
-    i_vec= arma::uvec(object.n_actor*(object.n_actor-1)/2); 
-    j_vec= arma::uvec(object.n_actor*(object.n_actor-1)/2); 
-    overlap_vec= arma::uvec(object.n_actor*(object.n_actor-1)/2); 
+    // network_vec= arma::vec(n_units*(n_units-1)/2); 
+    i_vec= arma::uvec(object.n_units*(object.n_units-1)/2); 
+    j_vec= arma::uvec(object.n_units*(object.n_units-1)/2); 
+    overlap_vec= arma::uvec(object.n_units*(object.n_units-1)/2); 
   } 
   
   std::tuple<arma::mat, arma::vec> pseudo_lh = xyz_get_info_pl(object,terms,data_list,
                                                                type_list, false,
                                                                i_vec,j_vec, overlap_vec,
-                                                               object.n_actor, fix_x, fix_z);
+                                                               object.n_units, fix_x, fix_z);
   
-  int n_actor = object.n_actor, n_coef = coef.size();
+  int n_units = object.n_units, n_coef = coef.size();
   unsigned int n_net = i_vec.n_elem*(!fix_z);
   
   const arma::mat& X_all = std::get<0>(pseudo_lh);
@@ -3233,11 +3233,11 @@ arma::vec calculate_score_pl(XYZ_class & object,
   
   
   if (fix_x == false) {
-    X_x = X_all.rows(n_net, n_net + n_actor - 1);
-    Y_x = Y_all.subvec(n_net, n_net + n_actor - 1);
+    X_x = X_all.rows(n_net, n_net + n_units - 1);
+    Y_x = Y_all.subvec(n_net, n_net + n_units - 1);
     
-    X_y = X_all.rows(n_net + n_actor, X_all.n_rows - 1);
-    Y_y = Y_all.subvec(n_net + n_actor, Y_all.n_elem - 1);
+    X_y = X_all.rows(n_net + n_units, X_all.n_rows - 1);
+    Y_y = Y_all.subvec(n_net + n_units, Y_all.n_elem - 1);
   } else {
     X_y = X_all.rows(n_net, X_all.n_rows - 1);
     Y_y = Y_all.subvec(n_net, Y_all.n_elem - 1);
@@ -3264,34 +3264,34 @@ arma::vec calculate_score_pl(XYZ_class & object,
   }
   // --- Component 2: Attribute 'x' ---
   if (fix_x == false) {
-    if (attr_x_type == "binomial") {
+    if (attr_x_family == "binomial") {
       arma::vec eta_x = X_x * coef;
       arma::vec exp_eta_x = arma::exp(eta_x);
       arma::vec prob_x = exp_eta_x / (1.0 + exp_eta_x);
       arma::vec var_x = prob_x % (1.0 - prob_x);
       score += X_x.t() * (Y_x - prob_x);
-    } else if (attr_x_type == "poisson") {
+    } else if (attr_x_family == "poisson") {
       arma::vec eta_x = X_x * coef;
       arma::vec mu_x = arma::exp(eta_x);
       score += X_x.t() * (Y_x - mu_x);
-    } else if (attr_x_type == "normal") {
+    } else if (attr_x_family == "normal") {
       arma::vec mu_x = X_x * coef; 
       score += X_x.t() * (Y_x - mu_x) / attr_x_scale;
     }
   }
   
   // --- Component 3: Attribute 'y' ---
-  if (attr_y_type == "binomial") {
+  if (attr_y_family == "binomial") {
     arma::vec eta_y = X_y * coef;
     arma::vec exp_eta_y = arma::exp(eta_y);
     arma::vec prob_y = exp_eta_y / (1.0 + exp_eta_y);
     arma::vec var_y = prob_y % (1.0 - prob_y);
     score += X_y.t() * (Y_y - prob_y);
-  } else if (attr_y_type == "poisson") {
+  } else if (attr_y_family == "poisson") {
     arma::vec eta_y = X_y * coef;
     arma::vec mu_y = arma::exp(eta_y);
     score += X_y.t() * (Y_y - mu_y);
-  } else if (attr_y_type == "normal") {
+  } else if (attr_y_family == "normal") {
     arma::vec mu_y = X_y * coef;
     score += X_y.t() * (Y_y - mu_y) / attr_y_scale;
   }
@@ -3308,26 +3308,26 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
                                      bool fix_x, 
                                      bool updated_uncertainty,
                                      bool exact, 
-                                     std::string attr_x_type, 
-                                     std::string attr_y_type, 
+                                     std::string attr_x_family, 
+                                     std::string attr_y_family, 
                                      double attr_x_scale, 
                                      double attr_y_scale, 
                                      bool nonoverlap_random) {
   // double w_tmp;
   arma::uvec i_vec, j_vec,overlap_vec;
   if(object.z_network.directed){
-    i_vec = arma::uvec(object.n_actor*(object.n_actor-1)); 
-    j_vec = arma::uvec(object.n_actor*(object.n_actor-1)); 
-    overlap_vec = arma::uvec(object.n_actor*(object.n_actor-1)); 
+    i_vec = arma::uvec(object.n_units*(object.n_units-1)); 
+    j_vec = arma::uvec(object.n_units*(object.n_units-1)); 
+    overlap_vec = arma::uvec(object.n_units*(object.n_units-1)); 
   } else {  
-    i_vec= arma::uvec(object.n_actor*(object.n_actor-1)/2); 
-    j_vec= arma::uvec(object.n_actor*(object.n_actor-1)/2); 
-    overlap_vec= arma::uvec(object.n_actor*(object.n_actor-1)/2); 
+    i_vec= arma::uvec(object.n_units*(object.n_units-1)/2); 
+    j_vec= arma::uvec(object.n_units*(object.n_units-1)/2); 
+    overlap_vec= arma::uvec(object.n_units*(object.n_units-1)/2); 
   }  
   std::tuple<arma::mat, arma::vec> pseudo_lh = xyz_get_info_pl(object,terms,data_list,
                                                                type_list, false,
                                                                i_vec,j_vec, overlap_vec,
-                                                               object.n_actor, fix_x, false);
+                                                               object.n_units, fix_x, false);
   
   
   int n_coef = coef_nondegrees.size();
@@ -3345,11 +3345,11 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
   arma::vec Y_x, Y_y;
   
   if (fix_x == false) {
-    X_x = X_all.rows(n_net, n_net + object.n_actor - 1);
-    Y_x = Y_all.subvec(n_net, n_net + object.n_actor - 1);
+    X_x = X_all.rows(n_net, n_net + object.n_units - 1);
+    Y_x = Y_all.subvec(n_net, n_net + object.n_units - 1);
     
-    X_y = X_all.rows(n_net + object.n_actor, X_all.n_rows - 1);
-    Y_y = Y_all.subvec(n_net + object.n_actor, Y_all.n_elem - 1);
+    X_y = X_all.rows(n_net + object.n_units, X_all.n_rows - 1);
+    Y_y = Y_all.subvec(n_net + object.n_units, Y_all.n_elem - 1);
   } else {
     X_y = X_all.rows(n_net, X_all.n_rows - 1);
     Y_y = Y_all.subvec(n_net, Y_all.n_elem - 1);
@@ -3361,7 +3361,7 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
   // Pre-calculate degrees indices
   arma::uvec j_pop_indices; 
   if(object.z_network.directed){
-    j_pop_indices = j_vec - 1 + object.n_actor ;
+    j_pop_indices = j_vec - 1 + object.n_units ;
   } else {
     j_pop_indices =j_vec - 1;
   }
@@ -3385,37 +3385,37 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
   score_nondegrees += X_net.t() * (Y_net - prob_net);
   // --- Component 2: Attribute 'x' ---
   if (fix_x == false) {
-    if (attr_x_type == "binomial") {
+    if (attr_x_family == "binomial") {
       arma::vec eta_x = X_x * coef_nondegrees;
       arma::vec exp_eta_x = arma::exp(eta_x);
       arma::vec prob_x = exp_eta_x / (1.0 + exp_eta_x);
       arma::vec var_x = prob_x % (1.0 - prob_x);
       
       score_nondegrees += X_x.t() * (Y_x - prob_x);
-    } else if (attr_x_type == "poisson") {
+    } else if (attr_x_family == "poisson") {
       arma::vec eta_x = X_x * coef_nondegrees;
       arma::vec mu_x = arma::exp(eta_x);
       score_nondegrees += X_x.t() * (Y_x - mu_x);
-    } else if (attr_x_type == "normal") {
+    } else if (attr_x_family == "normal") {
       arma::vec mu_x = X_x * coef_nondegrees; 
       score_nondegrees += X_x.t() * (Y_x - mu_x) / attr_x_scale;
     }
   }
   
   // --- Component 3: Attribute 'y' ---
-  if (attr_y_type == "binomial") {
+  if (attr_y_family == "binomial") {
     arma::vec eta_y = X_y * coef_nondegrees;
     arma::vec exp_eta_y = arma::exp(eta_y);
     arma::vec prob_y = exp_eta_y / (1.0 + exp_eta_y);
     arma::vec var_y = prob_y % (1.0 - prob_y);
     
     score_nondegrees += X_y.t() * (Y_y - prob_y);
-  } else if (attr_y_type == "poisson") {
+  } else if (attr_y_family == "poisson") {
     arma::vec eta_y = X_y * coef_nondegrees;
     arma::vec mu_y = arma::exp(eta_y);
     
     score_nondegrees += X_y.t() * (Y_y - mu_y);
-  } else if (attr_y_type == "normal") {
+  } else if (attr_y_family == "normal") {
     arma::vec mu_y = X_y * coef_nondegrees;
     score_nondegrees += X_y.t() * (Y_y - mu_y) / attr_y_scale;
   }
@@ -3424,7 +3424,7 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
   for(unsigned int i = 0; i < i_vec.size(); i++){
     score_degrees.at(i_vec.at(i)-1) +=  std::get<1>(pseudo_lh).at(i) - prob_net.at(i);
     if(object.z_network.directed){
-      score_degrees.at(j_vec.at(i)-1+ object.n_actor) +=  std::get<1>(pseudo_lh).at(i) - prob_net.at(i);
+      score_degrees.at(j_vec.at(i)-1+ object.n_units) +=  std::get<1>(pseudo_lh).at(i) - prob_net.at(i);
     } else {
       score_degrees.at(j_vec.at(i)-1) +=  std::get<1>(pseudo_lh).at(i) - prob_net.at(i);  
     }
@@ -3435,8 +3435,8 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
     //                        object.z_network.directed,
     //                        pseudo_lh,coef_degrees,
     //                        offset_nonoverlap, 
-    //                        attr_x_type, 
-    //                        attr_y_type, 
+    //                        attr_x_family, 
+    //                        attr_y_family, 
     //                        attr_x_scale, 
     //                        attr_y_scale);
     arma::mat C = get_C_new(coef_nondegrees,i_vec,j_vec,overlap_vec,
@@ -3444,8 +3444,8 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
                             pseudo_lh,coef_degrees, 
                             offset_nonoverlap, 
                             fix_x,
-                            attr_x_type, 
-                            attr_y_type, 
+                            attr_x_family, 
+                            attr_y_family, 
                             attr_x_scale, 
                             attr_y_scale);
     arma::mat A = get_A_exact(i_vec, j_vec,overlap_vec,pseudo_lh, 
@@ -3453,14 +3453,14 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
                               coef_nondegrees, 
                               offset_nonoverlap,
                               object.z_network.directed, 
-                              object.n_actor);
+                              object.n_units);
     // clock.tock("A");
     // Rcpp::Rcout << "Calculating A and B matrices for variance estimation" << std::endl;
     // clock.tick("B");
     arma::mat B = get_B(i_vec, j_vec,overlap_vec,
                         pseudo_lh, coef_degrees,coef_nondegrees, offset_nonoverlap,
                         object.z_network.directed,
-                        object.n_actor).t();
+                        object.n_units).t();
     
     arma::mat X;
     // clock.tick("solve");
@@ -3507,7 +3507,7 @@ arma::vec calculate_score_pl_degrees(XYZ_class & object,
 List xyz_approximate_variability(arma::vec& coef,
                                  arma::vec& coef_degrees,
                                  std::vector<std::string>& terms,
-                                 int& n_actor,
+                                 int& n_units,
                                  arma::mat z_network,
                                  arma::mat neighborhood,
                                  arma::mat overlap,
@@ -3531,14 +3531,14 @@ List xyz_approximate_variability(arma::vec& coef,
                                  bool fix_z, 
                                  bool updated_uncertainty, 
                                  bool exact, 
-                                 std::string type_x, 
-                                 std::string type_y, 
+                                 std::string family_x, 
+                                 std::string family_y, 
                                  double attr_x_scale, 
                                  double attr_y_scale, 
                                  bool nonoverlap_random,
                                  bool tnt = true){
   // Generate the class with the provided information
-  XYZ_class object(n_actor,directed, neighborhood, overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, neighborhood, overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   if(!init_empty){
     // Rcout << "Here" << std::endl;
     object.set_info_arma(x_attribute,y_attribute, z_network);
@@ -3548,7 +3548,7 @@ List xyz_approximate_variability(arma::vec& coef,
     }
     if(fix_z){
       // Rcout << "Setting initial empty network" << std::endl;
-      object.set_network_from_mat(n_actor, directed, z_network);  
+      object.set_network_from_mat(n_units, directed, z_network);  
     } else if(!nonoverlap_random){
       for(size_t r = 0; r < z_network.n_rows; ++r){
         int u = static_cast<int>(z_network(r, 0));
@@ -3566,10 +3566,10 @@ List xyz_approximate_variability(arma::vec& coef,
   functions = xyz_change_statistics_generate_new(terms);
   arma::vec global_stats = xyz_count_global_internal( object,
                                                       terms,
-                                                      n_actor,
+                                                      n_units,
                                                       data_list,
                                                       type_list, 
-                                                      type_x, type_y, 
+                                                      family_x, family_y, 
                                                       attr_x_scale, 
                                                       attr_y_scale);
   // Matrix of statistics that hold the simulated statistics
@@ -3695,8 +3695,8 @@ List xyz_approximate_variability(arma::vec& coef,
                       data_list,
                       type_list,
                       offset_nonoverlap, fix_x, updated_uncertainty, exact, 
-                      type_x, 
-                      type_y, 
+                      family_x, 
+                      family_y, 
                       attr_x_scale, 
                       attr_y_scale, 
                       nonoverlap_random).as_row();
@@ -3707,8 +3707,8 @@ List xyz_approximate_variability(arma::vec& coef,
                       data_list,
                       type_list,
                       offset_nonoverlap, fix_x, fix_z, 
-                      type_x, 
-                      type_y, 
+                      family_x, 
+                      family_y, 
                       attr_x_scale, 
                       attr_y_scale, 
                       nonoverlap_random).t();
@@ -3725,7 +3725,7 @@ List xyz_approximate_variability(arma::vec& coef,
     
   }
   if(degrees){
-    int n_deg_terms = directed ? (n_actor * 2) : n_actor;
+    int n_deg_terms = directed ? (n_units * 2) : n_units;
     arma::uvec ind_degrees = arma::regspace<arma::uvec>(terms.size(), terms.size() + n_deg_terms - 1);
     
     arma::mat gradients_degrees = gradients.cols(ind_degrees);
@@ -3775,8 +3775,8 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
                                          std::vector<arma::mat> &data_list,
                                          std::vector<double> &type_list, 
                                          bool display_progress, 
-                                         std::string type_x,
-                                         std::string type_y,
+                                         std::string family_x,
+                                         std::string family_y,
                                          double attr_x_scale,
                                          double attr_y_scale,
                                          bool return_x = false,
@@ -3784,9 +3784,9 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
                                          bool return_z = false) {
   // Set up objects
   Rcpp::List res, res_x, res_y, res_z;
-  int n_actor = y_attribute.size();
+  int n_units = y_attribute.size();
   // Rcout << "Read Data" << std::endl;
-  XYZ_class object(n_actor,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, type_x, type_y,attr_x_scale, attr_y_scale);
+  XYZ_class object(n_units,directed, x_attribute, y_attribute,z_network,neighborhood,overlap, family_x, family_y,attr_x_scale, attr_y_scale);
   // Check whether its a fully observed neighbhorhood (this means that everyone knows everyone)
   // This is provided to the sufficient statistics as this might make some calculations unnecessary
   bool is_full_neighborhood = object.check_if_full_neighborhood();
@@ -3798,13 +3798,13 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
   std::string z = "z", x = "x", y = "y";
   arma::vec i_vec, j_vec,overlap_vec;
   if(directed){
-    i_vec = arma::vec(n_actor*(n_actor-1)); 
-    j_vec = arma::vec(n_actor*(n_actor-1)); 
-    overlap_vec = arma::vec(n_actor*(n_actor-1)); 
+    i_vec = arma::vec(n_units*(n_units-1)); 
+    j_vec = arma::vec(n_units*(n_units-1)); 
+    overlap_vec = arma::vec(n_units*(n_units-1)); 
   } else {  
-    i_vec= arma::vec(n_actor*(n_actor-1)/2); 
-    j_vec= arma::vec(n_actor*(n_actor-1)/2); 
-    overlap_vec = arma::vec(n_actor*(n_actor-1)/2); 
+    i_vec= arma::vec(n_units*(n_units-1)/2); 
+    j_vec= arma::vec(n_units*(n_units-1)/2); 
+    overlap_vec = arma::vec(n_units*(n_units-1)/2); 
   } 
   
   // Just a temporary vector of the change statistics for one dyad of the network
@@ -3814,17 +3814,17 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
   double x_i, y_i, z_ij;
   arma::mat res_covs, res_target;
   if(directed){
-    res_covs = arma::mat(n_actor*(n_actor-1) + n_actor*2,terms.size());
-    res_target = arma::mat(n_actor*(n_actor-1) +n_actor*2,1);
+    res_covs = arma::mat(n_units*(n_units-1) + n_units*2,terms.size());
+    res_target = arma::mat(n_units*(n_units-1) +n_units*2,1);
   } else {
-    res_covs = arma::mat(n_actor*(n_actor-1)/2 + n_actor*2,terms.size());
-    res_target = arma::mat(n_actor*(n_actor-1)/2 +n_actor*2,1);
+    res_covs = arma::mat(n_units*(n_units-1)/2 + n_units*2,terms.size());
+    res_target = arma::mat(n_units*(n_units-1)/2 +n_units*2,1);
   }
-  arma::vec res_actor = arma::linspace<arma::vec>(1.0, (double)n_actor, n_actor);
+  arma::vec res_unit = arma::linspace<arma::vec>(1.0, (double)n_units, n_units);
   int now = 0;
   if(return_z){
-    for(int i: seq(1,n_actor-1)){
-      for(int j: seq(1,n_actor)){
+    for(int i: seq(1,n_units-1)){
+      for(int j: seq(1,n_units)){
         if(i == j){
           continue;
         }
@@ -3861,7 +3861,7 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
     now = 0;
   }
   if(return_x){
-    for(int i: seq(1,n_actor)){
+    for(int i: seq(1,n_units)){
       x_i = object.x_attribute.get_val_no_scale(i);
       xyz_calculate_change_stats(change_stat_attribute_i, i,
                                  i,
@@ -3875,7 +3875,7 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
       res_target.row(now) = x_i;
       now += 1;
     }
-    res_x.push_back(arma::join_rows(res_target.rows(0, now-1),res_actor,
+    res_x.push_back(arma::join_rows(res_target.rows(0, now-1),res_unit,
                                     res_covs.rows(0, now-1)), "data");
     res.push_back(res_x, "res_x");
     res_covs.fill(0);
@@ -3884,7 +3884,7 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
   }
   
   if(return_y){
-    for(int i: seq(1,n_actor)){
+    for(int i: seq(1,n_units)){
       
       y_i = object.y_attribute.get_val_no_scale(i);
       
@@ -3900,7 +3900,7 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
       res_target.row(now) = y_i;
       now += 1;
     }
-    res_y.push_back(arma::join_rows(res_target.rows(0, now-1),res_actor,res_covs.rows(0, now-1)), "data");
+    res_y.push_back(arma::join_rows(res_target.rows(0, now-1),res_unit,res_covs.rows(0, now-1)), "data");
     res.push_back(res_y, "res_y");
     res_covs.fill(0);
     res_target.fill(0);

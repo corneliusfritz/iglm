@@ -1,35 +1,34 @@
 test_that("Test some sufficient statistics for undirected networks", {
-  n_actor <- 100
+  n_units <- 100
   block <- matrix(nrow = 50, ncol = 50, data = 1)
-  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 50, block, simplify = FALSE)))
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 50, block, simplify = FALSE)))
 
   overlapping_degree <- 0.5
-  neighborhood <- matrix(nrow = n_actor, ncol = n_actor, data = 0)
+  neighborhood <- matrix(nrow = n_units, ncol = n_units, data = 0)
   block <- matrix(nrow = 5, ncol = 5, data = 0)
   size_neighborhood <- 5
   size_overlap <- ceiling(size_neighborhood * overlapping_degree)
 
-  end <- floor((n_actor - size_neighborhood) / size_overlap)
+  end <- floor((n_units - size_neighborhood) / size_overlap)
   for (i in 0:end) {
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
-  neighborhood[(n_actor - size_neighborhood + 1):(n_actor), (n_actor - size_neighborhood + 1):(n_actor)] <- 1
+  neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
 
-  # diag(neighborhood) <- 0
-  type_x <- "normal"
-  type_y <- "normal"
+  family_x <- "normal"
+  family_y <- "normal"
 
   xyz_obj_new <- iglm.data(
     neighborhood = neighborhood, directed = FALSE,
-    type_x = type_x, type_y = type_y, scale_y = 2, scale_x = 3
+    family_x = family_x, family_y = family_y, scale_y = 2, scale_x = 3
   )
   gt_coef <- c(3, -1, -1)
-  gt_coef_pop <- c(rnorm(n = n_actor, -2, 1))
+  gt_coef_pop <- c(rnorm(n = n_units, -2, 1))
 
   sampler_new <- sampler.iglm(
     n_burn_in = 1, n_simulation = 5,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 100),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 100),
+    sampler_x = sampler.net.attr(n_proposals = n_units * 100),
+    sampler_y = sampler.net.attr(n_proposals = n_units * 100),
     sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = F
   )
@@ -51,12 +50,12 @@ test_that("Test some sufficient statistics for undirected networks", {
     spillover_yx_scaled(mode = "local"))
   # Count the statistics by hand
   tmp <- model_tmp_new$get_samples()
-  z_network <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
+  z_network <- matrix(0, nrow = tmp[[1]]$n_units, ncol = tmp[[1]]$n_units)
   # Undirected network
   z_network[tmp[[1]]$z_network] <- 1
   z_network[cbind(tmp[[1]]$z_network[, 2], tmp[[1]]$z_network[, 1])] <- 1
 
-  overlap <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
+  overlap <- matrix(0, nrow = tmp[[1]]$n_units, ncol = tmp[[1]]$n_units)
   overlap[tmp[[1]]$overlap] <- 1
   val_xx <- c("spillover_xx_scaled(mode = 'local')" = 0)
   val_yy <- c("spillover_yy_scaled(mode = 'local')" = 0)
@@ -66,7 +65,7 @@ test_that("Test some sufficient statistics for undirected networks", {
   
   x_scaled <- tmp[[1]]$x_attribute / xyz_obj_new$scale_x
   y_scaled <- tmp[[1]]$y_attribute / xyz_obj_new$scale_y
-  for (i in 1:tmp[[1]]$n_actor) {
+  for (i in 1:tmp[[1]]$n_units) {
     if (sum(network_nb[i, ]) == 0) {
       next
     }
@@ -83,8 +82,8 @@ test_that("Test some sufficient statistics for undirected networks", {
   
   sampler_new <- sampler.iglm(
     n_burn_in = 1, n_simulation = 10,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 100),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 100),
+    sampler_x = sampler.net.attr(n_proposals = n_units * 100),
+    sampler_y = sampler.net.attr(n_proposals = n_units * 100),
     sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = F
   )
@@ -143,36 +142,35 @@ test_that("Test some sufficient statistics for undirected networks", {
 
 
 test_that("Test some sufficient statistics for directed networks", {
-  n_actor <- 100
+  n_units <- 100
   block <- matrix(nrow = 50, ncol = 50, data = 1)
-  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 50, block, simplify = FALSE)))
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 50, block, simplify = FALSE)))
 
   overlapping_degree <- 0.5
-  neighborhood <- matrix(nrow = n_actor, ncol = n_actor, data = 0)
+  neighborhood <- matrix(nrow = n_units, ncol = n_units, data = 0)
   block <- matrix(nrow = 5, ncol = 5, data = 0)
   size_neighborhood <- 5
   size_overlap <- ceiling(size_neighborhood * overlapping_degree)
 
-  end <- floor((n_actor - size_neighborhood) / size_overlap)
+  end <- floor((n_units - size_neighborhood) / size_overlap)
   for (i in 0:end) {
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
-  neighborhood[(n_actor - size_neighborhood + 1):(n_actor), (n_actor - size_neighborhood + 1):(n_actor)] <- 1
-  # diag(neighborhood) <- 0
-  type_x <- "normal"
-  type_y <- "normal"
+  neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
+  family_x <- "normal"
+  family_y <- "normal"
 
   xyz_obj_new <- iglm.data(
     neighborhood = neighborhood, directed = TRUE,
-    type_x = type_x, type_y = type_y, scale_y = 2, scale_x = 3
+    family_x = family_x, family_y = family_y, scale_y = 2, scale_x = 3
   )
   gt_coef <- c(3, -1, -1)
-  gt_coef_pop <- c(rnorm(n = n_actor, -2, 1), rnorm(n = n_actor, -2, 1))
+  gt_coef_pop <- c(rnorm(n = n_units, -2, 1), rnorm(n = n_units, -2, 1))
 
   sampler_new <- sampler.iglm(
     n_burn_in = 1, n_simulation = 5,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 100),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 100),
+    sampler_x = sampler.net.attr(n_proposals = n_units * 100),
+    sampler_y = sampler.net.attr(n_proposals = n_units * 100),
     sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = F
   )
@@ -194,12 +192,12 @@ test_that("Test some sufficient statistics for directed networks", {
     spillover_yx_scaled(mode = "local"))
   # Count the statistics by hand
   tmp <- model_tmp_new$get_samples()
-  z_network <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
+  z_network <- matrix(0, nrow = tmp[[1]]$n_units, ncol = tmp[[1]]$n_units)
   # Directed network
   z_network[tmp[[1]]$z_network] <- 1
   # z_network[cbind(tmp[[1]]$z_network[,2], tmp[[1]]$z_network[,1])] <- 1
 
-  overlap <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
+  overlap <- matrix(0, nrow = tmp[[1]]$n_units, ncol = tmp[[1]]$n_units)
   overlap[tmp[[1]]$overlap] <- 1
   val_xx <- c("spillover_xx_scaled(mode = 'local')" = 0)
   val_yy <- c("spillover_yy_scaled(mode = 'local')" = 0)
@@ -208,7 +206,7 @@ test_that("Test some sufficient statistics for directed networks", {
   network_nb <- z_network * overlap
   x_scaled <- tmp[[1]]$x_attribute / xyz_obj_new$scale_x
   y_scaled <- tmp[[1]]$y_attribute / xyz_obj_new$scale_y
-  for (i in 1:tmp[[1]]$n_actor) {
+  for (i in 1:tmp[[1]]$n_units) {
     if (sum(network_nb[i, ]) == 0) {
       next
     }
@@ -225,8 +223,8 @@ test_that("Test some sufficient statistics for directed networks", {
 
   sampler_new <- sampler.iglm(
     n_burn_in = 1, n_simulation = 100,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 100),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 100),
+    sampler_x = sampler.net.attr(n_proposals = n_units * 100),
+    sampler_y = sampler.net.attr(n_proposals = n_units * 100),
     sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = F
   )
@@ -283,32 +281,32 @@ test_that("Test some sufficient statistics for directed networks", {
 
 
 test_that("Test some sufficient statistics for directed networks", {
-  n_actor <- 100
+  n_units <- 100
   block <- matrix(nrow = 50, ncol = 50, data = 1)
-  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 50, block, simplify = FALSE)))
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 50, block, simplify = FALSE)))
 
   overlapping_degree <- 0.5
-  neighborhood <- matrix(nrow = n_actor, ncol = n_actor, data = 0)
+  neighborhood <- matrix(nrow = n_units, ncol = n_units, data = 0)
   block <- matrix(nrow = 5, ncol = 5, data = 0)
   size_neighborhood <- 5
   size_overlap <- ceiling(size_neighborhood * overlapping_degree)
 
-  end <- floor((n_actor - size_neighborhood) / size_overlap)
+  end <- floor((n_units - size_neighborhood) / size_overlap)
   for (i in 0:end) {
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
-  neighborhood[(n_actor - size_neighborhood + 1):(n_actor), (n_actor - size_neighborhood + 1):(n_actor)] <- 1
-  type_x <- "poisson"
-  type_y <- "poisson"
+  neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
+  family_x <- "poisson"
+  family_y <- "poisson"
 
-  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = TRUE, type_x = type_x, type_y = type_y)
+  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = TRUE, family_x = family_x, family_y = family_y)
   gt_coef <- c(3, -1, -1)
-  gt_coef_pop <- c(rnorm(n = n_actor, -2, 1))
+  gt_coef_pop <- c(rnorm(n = n_units, -2, 1))
 
   sampler_new <- sampler.iglm(
     n_burn_in = 10, n_simulation = 1,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+    sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+    sampler_y = sampler.net.attr(n_proposals = n_units * 10),
     sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = F
   )
@@ -328,18 +326,18 @@ test_that("Test some sufficient statistics for directed networks", {
     spillover_yx_scaled(mode = "local"))
   # Count the statistics by hand
   tmp <- model_tmp_new$get_samples()
-  z_network <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
+  z_network <- matrix(0, nrow = tmp[[1]]$n_units, ncol = tmp[[1]]$n_units)
   # Directed network
   z_network[tmp[[1]]$z_network] <- 1
 
-  overlap <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
+  overlap <- matrix(0, nrow = tmp[[1]]$n_units, ncol = tmp[[1]]$n_units)
   overlap[tmp[[1]]$overlap] <- 1
   val_xx <- c("spillover_xx_scaled(mode = 'local')" = 0)
   val_yy <- c("spillover_yy_scaled(mode = 'local')" = 0)
   val_xy <- c("spillover_xy_scaled(mode = 'local')" = 0)
   val_yx <- c("spillover_yx_scaled(mode = 'local')" = 0)
   network_nb <- z_network * overlap
-  for (i in 1:tmp[[1]]$n_actor) {
+  for (i in 1:tmp[[1]]$n_units) {
     if (sum(network_nb[i, ]) == 0) {
       next
     }
@@ -356,32 +354,32 @@ test_that("Test some sufficient statistics for directed networks", {
 
 
 test_that("Test the spillover effects", {
-  n_actor <- 100
+  n_units <- 100
   block <- matrix(nrow = 50, ncol = 50, data = 1)
-  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 50, block, simplify = FALSE)))
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 50, block, simplify = FALSE)))
 
   overlapping_degree <- 0.5
-  neighborhood <- matrix(nrow = n_actor, ncol = n_actor, data = 0)
+  neighborhood <- matrix(nrow = n_units, ncol = n_units, data = 0)
   block <- matrix(nrow = 5, ncol = 5, data = 0)
   size_neighborhood <- 5
   size_overlap <- ceiling(size_neighborhood * overlapping_degree)
 
-  end <- floor((n_actor - size_neighborhood) / size_overlap)
+  end <- floor((n_units - size_neighborhood) / size_overlap)
   for (i in 0:end) {
     neighborhood[(1 + size_overlap * i):(size_neighborhood + size_overlap * i), (1 + size_overlap * i):(size_neighborhood + size_overlap * i)] <- 1
   }
-  neighborhood[(n_actor - size_neighborhood + 1):(n_actor), (n_actor - size_neighborhood + 1):(n_actor)] <- 1
-  type_x <- "binomial"
-  type_y <- "binomial"
+  neighborhood[(n_units - size_neighborhood + 1):(n_units), (n_units - size_neighborhood + 1):(n_units)] <- 1
+  family_x <- "binomial"
+  family_y <- "binomial"
 
-  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = TRUE, type_x = type_x, type_y = type_y)
+  xyz_obj_new <- iglm.data(neighborhood = neighborhood, directed = TRUE, family_x = family_x, family_y = family_y)
   gt_coef <- c(5, -1, -1)
-  gt_coef_pop <- c(rnorm(n = n_actor, -2, 1))
+  gt_coef_pop <- c(rnorm(n = n_units, -2, 1))
 
   sampler_new <- sampler.iglm(
     n_burn_in = 1, n_simulation = 3,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+    sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+    sampler_y = sampler.net.attr(n_proposals = n_units * 10),
     sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
     init_empty = T
   )
@@ -399,18 +397,18 @@ test_that("Test the spillover effects", {
 
   # Count the statistics by hand
   tmp <- model_tmp_new$get_samples()
-  z_network <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
+  z_network <- matrix(0, nrow = tmp[[1]]$n_units, ncol = tmp[[1]]$n_units)
   # Directed network
   z_network[tmp[[1]]$z_network] <- 1
 
-  overlap <- matrix(0, nrow = tmp[[1]]$n_actor, ncol = tmp[[1]]$n_actor)
+  overlap <- matrix(0, nrow = tmp[[1]]$n_units, ncol = tmp[[1]]$n_units)
   overlap[tmp[[1]]$overlap] <- 1
   val_xx <- c("spillover_xx" = 0)
   val_yy <- c("spillover_yy" = 0)
   val_xy <- c("spillover_xy" = 0)
   val_yx <- c("spillover_yx" = 0)
   network_nb <- z_network * overlap
-  for (i in 1:tmp[[1]]$n_actor) {
+  for (i in 1:tmp[[1]]$n_units) {
     if (sum(network_nb[i, ]) == 0) {
       next
     }
@@ -429,7 +427,7 @@ test_that("Test the spillover effects", {
 })
 
 test_that("Test gwdegree, gwodegree, gwidegree vs hand calculation", {
-  n_actor <- 8
+  n_units <- 8
   z <- matrix(c(
     0, 1, 1, 0, 0, 0, 0, 0,
     1, 0, 1, 0, 0, 0, 0, 0,
@@ -446,7 +444,7 @@ test_that("Test gwdegree, gwodegree, gwidegree vs hand calculation", {
   decay <- 0.5
   expo_min <- 1 - exp(-decay)
 
-  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = TRUE)
 
   # Hand calculations for directed statistics
   # 1. Global out-degree:
@@ -479,7 +477,7 @@ test_that("Test gwdegree, gwodegree, gwidegree vs hand calculation", {
     if (d == 0) 0 else sum(expo_min^(0:(d - 1)))
   }))
 
-  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = FALSE)
 
   s_undir <- statistics(data_undir ~ gwdegree(mode = "global", decay = decay) +
                                      gwdegree(mode = "local", decay = decay))
@@ -489,15 +487,15 @@ test_that("Test gwdegree, gwodegree, gwidegree vs hand calculation", {
 })
 
 test_that("Test that tracked global statistics during simulation match exact statistics at all points", {
-  n_actor <- 10
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+  n_units <- 10
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
   set.seed(42)
   x <- c(1, 1, 0, 0, 1, 0, 1, 0, 1, 0)
   y <- c(0, 1, 1, 0, 0, 1, 0, 1, 1, 0)
-  z <- matrix(rbinom(n_actor * n_actor, 1, 0.2), nrow = n_actor)
+  z <- matrix(rbinom(n_units * n_units, 1, 0.2), nrow = n_units)
   diag(z) <- 0
 
-  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = TRUE)
 
   sampler_obj <- sampler.iglm(
     n_burn_in = 10, n_simulation = 5,
@@ -529,11 +527,11 @@ test_that("Test that tracked global statistics during simulation match exact sta
   }
 
   # Test undirected simulation tracking
-  z_undir <- matrix(rbinom(n_actor * n_actor, 1, 0.2), nrow = n_actor)
+  z_undir <- matrix(rbinom(n_units * n_units, 1, 0.2), nrow = n_units)
   z_undir <- ((z_undir + t(z_undir)) > 0) * 1
   diag(z_undir) <- 0
 
-  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = FALSE)
+  data_undir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z_undir, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = FALSE)
 
   formula_undir <- data_undir ~ edges(mode = "local") +
     gwdegree(mode = "global", decay = 0.5)
@@ -557,7 +555,7 @@ test_that("Test that tracked global statistics during simulation match exact sta
 
 test_that("Test iglm.data degree and spillover distributions with continuous attributes binarized at the mean", {
   set.seed(42)
-  n_actor <- 8
+  n_units <- 8
   z <- matrix(c(
     0, 1, 1, 0, 0, 0, 0, 0,
     1, 0, 1, 0, 0, 0, 0, 0,
@@ -579,8 +577,8 @@ test_that("Test iglm.data degree and spillover distributions with continuous att
   
   neighborhood <- matrix(1, nrow = 8, ncol = 8)
   
-  data_cont <- iglm.data(x_attribute = x_cont, y_attribute = y_cont, z_network = z, neighborhood = neighborhood, n_actor = n_actor, type_x = "normal", type_y = "normal", directed = TRUE)
-  data_bin <- iglm.data(x_attribute = x_bin, y_attribute = y_bin, z_network = z, neighborhood = neighborhood, n_actor = n_actor, type_x = "binomial", type_y = "binomial", directed = TRUE)
+  data_cont <- iglm.data(x_attribute = x_cont, y_attribute = y_cont, z_network = z, neighborhood = neighborhood, n_units = n_units, family_x = "normal", family_y = "normal", directed = TRUE)
+  data_bin <- iglm.data(x_attribute = x_bin, y_attribute = y_bin, z_network = z, neighborhood = neighborhood, n_units = n_units, family_x = "binomial", family_y = "binomial", directed = TRUE)
   
   # Test iglm_data degree and degree_distribution with mode = "local"
   deg_cont <- data_cont$degree(x_i = 1, y_j = 0, mode = "local")
@@ -594,13 +592,13 @@ test_that("Test iglm.data degree and spillover distributions with continuous att
 
 test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stats vs MCMC continuous updates (Directed)", {
   set.seed(123)
-  n_actor <- 8
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor) # full neighborhood
+  n_units <- 8
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units) # full neighborhood
   
   # Initial attributes and network
   x <- c(1, 0, 1, 1, 0, 0, 1, 0)
   y <- c(0, 1, 1, 0, 1, 0, 0, 1)
-  z <- matrix(rbinom(n_actor * n_actor, 1, 0.25), nrow = n_actor)
+  z <- matrix(rbinom(n_units * n_units, 1, 0.25), nrow = n_units)
   diag(z) <- 0
   
   decay <- 0.6
@@ -608,8 +606,8 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
   
   data_obj <- iglm.data(
     x_attribute = x, y_attribute = y, z_network = z,
-    neighborhood = neighborhood, n_actor = n_actor,
-    type_x = "binomial", type_y = "binomial", directed = TRUE
+    neighborhood = neighborhood, n_units = n_units,
+    family_x = "binomial", family_y = "binomial", directed = TRUE
   )
   
   form <- data_obj ~ edges(mode = "global") +
@@ -693,7 +691,7 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
   # Verify every sample across simulation matches standalone stats and hand calculation
   for (s in seq_along(samples)) {
     s_obj <- samples[[s]]
-    s_z <- matrix(0, nrow = n_actor, ncol = n_actor)
+    s_z <- matrix(0, nrow = n_units, ncol = n_units)
     if (nrow(s_obj$z_network) > 0) {
       s_z[s_obj$z_network] <- 1
     }
@@ -724,13 +722,13 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
 
 test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stats vs MCMC continuous updates (Undirected with continuous attributes)", {
   set.seed(456)
-  n_actor <- 6
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+  n_units <- 6
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
   
   # Continuous attributes
   x_cont <- c(1.2, -0.5, 0.8, -1.1, 0.4, -0.2)
   y_cont <- c(-0.3, 0.9, -0.7, 1.4, -0.1, 0.5)
-  z <- matrix(rbinom(n_actor * n_actor, 1, 0.3), nrow = n_actor)
+  z <- matrix(rbinom(n_units * n_units, 1, 0.3), nrow = n_units)
   z <- ((z + t(z)) > 0) * 1
   diag(z) <- 0
   
@@ -739,8 +737,8 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
   
   data_obj <- iglm.data(
     x_attribute = x_cont, y_attribute = y_cont, z_network = z,
-    neighborhood = neighborhood, n_actor = n_actor,
-    type_x = "normal", type_y = "normal", directed = FALSE
+    neighborhood = neighborhood, n_units = n_units,
+    family_x = "normal", family_y = "normal", directed = FALSE
   )
   
   form <- data_obj ~ edges(mode = "local") +
@@ -790,7 +788,7 @@ test_that("Comprehensive 3-way test: Hand calculations vs Standalone global stat
   
   for (s in seq_along(samples)) {
     s_obj <- samples[[s]]
-    s_z <- matrix(0, nrow = n_actor, ncol = n_actor)
+    s_z <- matrix(0, nrow = n_units, ncol = n_units)
     if (nrow(s_obj$z_network) > 0) {
       s_z[s_obj$z_network] <- 1
       s_z[s_obj$z_network[, c(2, 1), drop = FALSE]] <- 1

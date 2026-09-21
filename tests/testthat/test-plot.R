@@ -15,18 +15,18 @@ test_that("results$plot error handling works as expected", {
 })
 
 test_that("results$plot works for trace, stats, and model assessment on undirected model", {
-  n_actor <- 20
+  n_units <- 20
   block <- matrix(nrow = 5, ncol = 5, data = 1)
-  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 5, block, simplify = FALSE)))
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 5, block, simplify = FALSE)))
 
-  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, family_x = "binomial", family_y = "binomial")
   gt_coef <- c(1, -1, -1)
-  gt_coef_pop <- rnorm(n = n_actor, -2, 1)
+  gt_coef_pop <- rnorm(n = n_units, -2, 1)
 
   sampler_obj <- sampler.iglm(
     n_burn_in = 2, n_simulation = 5,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 2),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 2),
+    sampler_x = sampler.net.attr(n_proposals = n_units * 2),
+    sampler_y = sampler.net.attr(n_proposals = n_units * 2),
     sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 2),
     init_empty = FALSE
   )
@@ -77,17 +77,17 @@ test_that("results$plot works for trace, stats, and model assessment on undirect
 })
 
 test_that("results$plot works for directed model with in/out degrees and continuous attributes", {
-  n_actor <- 15
+  n_units <- 15
   block <- matrix(nrow = 5, ncol = 5, data = 1)
-  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actor / 5, block, simplify = FALSE)))
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 5, block, simplify = FALSE)))
 
-  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = TRUE, type_x = "normal", type_y = "normal")
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = TRUE, family_x = "normal", family_y = "normal")
   gt_coef <- c(1, -0.5, -0.5)
 
   sampler_obj <- sampler.iglm(
     n_burn_in = 2, n_simulation = 2,
-    sampler_x = sampler.net.attr(n_proposals = n_actor * 2),
-    sampler_y = sampler.net.attr(n_proposals = n_actor * 2),
+    sampler_x = sampler.net.attr(n_proposals = n_units * 2),
+    sampler_y = sampler.net.attr(n_proposals = n_units * 2),
     sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 2),
     init_empty = FALSE
   )
@@ -180,7 +180,7 @@ test_that("Continuous attributes work with degree_distribution and plot methods"
   ), nrow = 5, byrow = TRUE)
   x <- c(1.2, -0.5, 0.8, -1.1, 0.4)
   y <- c(-0.3, 0.9, -0.7, 1.4, -0.1)
-  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_actor = 5, type_x = "normal", type_y = "normal", directed = FALSE)
+  data_obj <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = 5, family_x = "normal", family_y = "normal", directed = FALSE)
 
   pdf(NULL)
   expect_no_error(data_obj$degree_distribution(x_i = function(v) v > 0, plot = TRUE))
@@ -189,10 +189,10 @@ test_that("Continuous attributes work with degree_distribution and plot methods"
 })
 
 test_that("Trace plot works on pure degree models", {
-  n_actor <- 5
+  n_units <- 5
   z <- matrix(0, 5, 5)
   z[1, 2] <- z[2, 1] <- z[3, 4] <- z[4, 3] <- 1
-  data_obj <- iglm.data(z_network = z, n_actor = 5, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  data_obj <- iglm.data(z_network = z, n_units = 5, directed = FALSE, family_x = "binomial", family_y = "binomial")
 
   model_fit <- iglm(
     formula = data_obj ~ degrees,
@@ -210,14 +210,14 @@ test_that("Trace plot works on pure degree models", {
 })
 
 test_that("results$plot handles asymmetric constrained in and out degree distributions properly", {
-  n_actor <- 8
+  n_units <- 8
   z_asym <- matrix(0, 8, 8)
   z_asym[1, 2] <- z_asym[1, 3] <- z_asym[1, 4] <- z_asym[1, 5] <- 1
   d_asym <- iglm.data(
     x_attribute = c(1, 0, 0, 0, 0, 0, 0, 0),
     y_attribute = c(0, 1, 1, 1, 1, 0, 0, 0),
     z_network = z_asym,
-    n_actor = 8,
+    n_units = 8,
     directed = TRUE
   )
 
@@ -239,23 +239,22 @@ test_that("results$plot handles asymmetric constrained in and out degree distrib
 })
 
 test_that("Constrained degree labels include x and y constraints", {
-  lab_def_bin <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, type_x = "binomial", type_y = "binomial")
+  lab_def_bin <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, family_x = "binomial", family_y = "binomial")
   expect_true(grepl("x\\[i\\] == 1", paste(deparse(lab_def_bin), collapse = " ")))
   expect_true(grepl("y\\[j\\] == 1", paste(deparse(lab_def_bin), collapse = " ")))
 
-  lab_def_norm <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, type_x = "normal", type_y = "normal")
+  lab_def_norm <- build_constrained_xlab("Indegree", x_i = 1, y_j = 1, family_x = "normal", family_y = "normal")
   expect_true(grepl("x\\[i\\] > bar\\(x\\)", paste(deparse(lab_def_norm), collapse = " ")))
   expect_true(grepl("y\\[j\\] > bar\\(y\\)", paste(deparse(lab_def_norm), collapse = " ")))
 
-  lab_assess_custom <- get_assessment_constraint_xlab("Indegree", "degree_distribution_x_i_0,y_j_1", "degree_distribution", type_x = "binomial", type_y = "binomial")
+  lab_assess_custom <- get_assessment_constraint_xlab("Indegree", "degree_distribution_x_i_0,y_j_1", "degree_distribution", family_x = "binomial", family_y = "binomial")
   expect_true(grepl("x\\[i\\] == 0", paste(deparse(lab_assess_custom), collapse = " ")))
   expect_true(grepl("y\\[j\\] == 1", paste(deparse(lab_assess_custom), collapse = " ")))
 })
 
 test_that("Multi-model comparison plot handles geodesic distance distributions with Inf and different supports", {
-  n_actor <- 10
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 10
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
   xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE)
   sampler_obj <- sampler.iglm(n_burn_in = 2, n_simulation = 3, init_empty = FALSE)
@@ -344,6 +343,18 @@ test_that("Normal y_distribution assessment preserves continuous densities witho
   dev.off()
 })
 
+test_that("Log-likelihood plot handles very negative values without error and restores margins", {
+  res <- results(size_coef = 2, size_coef_degrees = 0)
+  res$update(
+    llh = c(-1543210.45, -1200000, -800000, -500000, -400000),
+    coefficients_path = matrix(1:10, ncol = 2),
+    estimated = TRUE
+  )
 
-
-
+  pdf(NULL)
+  mar_before <- par("mar")
+  expect_silent(res$plot(trace = TRUE))
+  mar_after <- par("mar")
+  expect_equal(mar_before, mar_after)
+  dev.off()
+})

@@ -1,10 +1,9 @@
 test_that("Simulation with fix_x preserves observed x", {
-  n_actor <- 20
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 20
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
-  obs_x <- rep(c(1, 0), length.out = n_actor)
-  obs_y <- rep(c(0, 1), length.out = n_actor)
+  obs_x <- rep(c(1, 0), length.out = n_units)
+  obs_y <- rep(c(0, 1), length.out = n_units)
   obs_z <- matrix(c(1, 2, 2, 3, 3, 4, 4, 5), ncol = 2, byrow = TRUE)
 
   data_obj <- iglm.data(
@@ -57,12 +56,11 @@ test_that("Simulation with fix_x preserves observed x", {
 })
 
 test_that("Simulation with fix_z preserves observed network", {
-  n_actor <- 15
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 15
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
-  obs_x <- rep(c(1, 0), length.out = n_actor)
-  obs_y <- rep(c(0, 1), length.out = n_actor)
+  obs_x <- rep(c(1, 0), length.out = n_units)
+  obs_y <- rep(c(0, 1), length.out = n_units)
   obs_z <- matrix(c(1, 2, 2, 3, 4, 5, 6, 7), ncol = 2, byrow = TRUE)
 
   data_obj <- iglm.data(
@@ -110,12 +108,11 @@ test_that("Simulation with fix_z preserves observed network", {
 })
 
 test_that("Simulation with both fix_x and fix_z preserves both", {
-  n_actor <- 15
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 15
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
-  obs_x <- rep(c(1, 0), length.out = n_actor)
-  obs_y <- rep(c(0, 1), length.out = n_actor)
+  obs_x <- rep(c(1, 0), length.out = n_units)
+  obs_y <- rep(c(0, 1), length.out = n_units)
   obs_z <- matrix(c(1, 2, 2, 3, 4, 5), ncol = 2, byrow = TRUE)
 
   data_obj <- iglm.data(
@@ -166,14 +163,14 @@ test_that("Simulation with both fix_x and fix_z preserves both", {
 })
 
 test_that("Simulation with fix_z_alocal preserves non-overlapping edges", {
-  n_actor <- 10
-  neighborhood <- matrix(0, nrow = n_actor, ncol = n_actor)
+  n_units <- 10
+  neighborhood <- matrix(0, nrow = n_units, ncol = n_units)
   neighborhood[1:5, 1:5] <- 1
   neighborhood[6:10, 6:10] <- 1
-  diag(neighborhood) <- 0
+  diag(neighborhood) <- 1
 
-  obs_x <- rep(c(1, 0), length.out = n_actor)
-  obs_y <- rep(c(0, 1), length.out = n_actor)
+  obs_x <- rep(c(1, 0), length.out = n_units)
+  obs_y <- rep(c(0, 1), length.out = n_units)
   obs_z <- matrix(c(1, 2, 6, 7, 1, 8, 2, 9), ncol = 2, byrow = TRUE)
 
   data_obj <- iglm.data(
@@ -230,10 +227,9 @@ test_that("Simulation with fix_z_alocal preserves non-overlapping edges", {
 })
 
 test_that("Estimation with fix_x works and produces valid estimates and SEs", {
-  n_actor <- 50
+  n_units <- 50
   block <- matrix(nrow = 25, ncol = 25, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(2, block, simplify = FALSE)))
-  diag(neighborhood) <- 0
 
   set.seed(42)
   data_x <- iglm.data(
@@ -266,10 +262,9 @@ test_that("Estimation with fix_x works and produces valid estimates and SEs", {
 })
 
 test_that("Estimation with fix_z works (autologistic model with fixed network)", {
-  n_actor <- 50
+  n_units <- 50
   block <- matrix(nrow = 25, ncol = 25, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(2, block, simplify = FALSE)))
-  diag(neighborhood) <- 0
 
   set.seed(42)
   sim_net <- matrix(c(1, 2, 2, 3, 3, 4, 26, 27, 27, 28), ncol = 2, byrow = TRUE)
@@ -316,10 +311,9 @@ test_that("Estimation with fix_z works (autologistic model with fixed network)",
 })
 
 test_that("Estimation with both fix_x and fix_z works", {
-  n_actor <- 50
+  n_units <- 50
   block <- matrix(nrow = 25, ncol = 25, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(2, block, simplify = FALSE)))
-  diag(neighborhood) <- 0
 
   set.seed(42)
   sim_net <- matrix(c(1, 2, 2, 3, 3, 4, 26, 27, 27, 28), ncol = 2, byrow = TRUE)
@@ -369,10 +363,9 @@ test_that("Estimation with both fix_x and fix_z works", {
 })
 
 test_that("Estimation with fix_z_alocal works", {
-  n_actor <- 50
+  n_units <- 50
   block <- matrix(nrow = 25, ncol = 25, data = 1)
   neighborhood <- as.matrix(Matrix::bdiag(replicate(2, block, simplify = FALSE)))
-  diag(neighborhood) <- 0
 
   set.seed(42)
   data_alocal <- iglm.data(
@@ -398,8 +391,8 @@ test_that("Estimation with fix_z_alocal works", {
 })
 
 test_that("simulate_iglm validates basis consistency", {
-  n_actor <- 10
-  data_undir <- iglm.data(n_actor = n_actor, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  n_units <- 10
+  data_undir <- iglm.data(n_units = n_units, directed = FALSE, family_x = "binomial", family_y = "binomial")
   
   # Non-iglm.data basis
   expect_error(
@@ -408,40 +401,40 @@ test_that("simulate_iglm validates basis consistency", {
   )
 
   # Directed basis vs undirected model
-  basis_dir <- iglm.data(n_actor = n_actor, directed = TRUE, type_x = "binomial", type_y = "binomial")
+  basis_dir <- iglm.data(n_units = n_units, directed = TRUE, family_x = "binomial", family_y = "binomial")
   expect_error(
     simulate_iglm(data_undir ~ edges() + attribute_y, coef = c(-1, 0.5), basis = basis_dir),
     "The 'basis' object must have the same directedness as the model data"
   )
 
-  # Different number of actors
-  basis_diff_n <- iglm.data(n_actor = 15, directed = FALSE, type_x = "binomial", type_y = "binomial")
+  # Different number of units
+  basis_diff_n <- iglm.data(n_units = 15, directed = FALSE, family_x = "binomial", family_y = "binomial")
   expect_error(
     simulate_iglm(data_undir ~ edges() + attribute_y, coef = c(-1, 0.5), basis = basis_diff_n),
-    "The 'basis' object must have the same number of actors as the model data"
+    "The 'basis' object must have the same number of units as the model data"
   )
 
-  # Different type_x
-  basis_diff_x <- iglm.data(n_actor = n_actor, directed = FALSE, type_x = "normal", type_y = "binomial")
+  # Different family_x
+  basis_diff_x <- iglm.data(n_units = n_units, directed = FALSE, family_x = "normal", family_y = "binomial")
   expect_error(
     simulate_iglm(data_undir ~ edges() + attribute_y, coef = c(-1, 0.5), basis = basis_diff_x),
-    "The 'basis' object must have the same type_x as the model data"
+    "The 'basis' object must have the same family_x as the model data"
   )
 
-  # Different type_y
-  basis_diff_y <- iglm.data(n_actor = n_actor, directed = FALSE, type_x = "binomial", type_y = "normal")
+  # Different family_y
+  basis_diff_y <- iglm.data(n_units = n_units, directed = FALSE, family_x = "binomial", family_y = "normal")
   expect_error(
     simulate_iglm(data_undir ~ edges() + attribute_y, coef = c(-1, 0.5), basis = basis_diff_y),
-    "The 'basis' object must have the same type_y as the model data"
+    "The 'basis' object must have the same family_y as the model data"
   )
 })
 
 test_that("Simulation with init_empty = TRUE and fix_z_alocal = TRUE preserves non-overlapping ties", {
-  n_actor <- 20
-  neighborhood <- matrix(0, nrow = n_actor, ncol = n_actor)
+  n_units <- 20
+  neighborhood <- matrix(0, nrow = n_units, ncol = n_units)
   neighborhood[1:10, 1:10] <- 1
   neighborhood[11:20, 11:20] <- 1
-  diag(neighborhood) <- 0
+  diag(neighborhood) <- 1
 
   obs_z <- matrix(c(
     1, 2,
@@ -455,7 +448,7 @@ test_that("Simulation with init_empty = TRUE and fix_z_alocal = TRUE preserves n
   data_obj <- iglm.data(
     z_network = obs_z,
     neighborhood = neighborhood,
-    n_actor = n_actor,
+    n_units = n_units,
     directed = FALSE,
     fix_z_alocal = TRUE
   )
@@ -488,12 +481,11 @@ test_that("Simulation with init_empty = TRUE and fix_z_alocal = TRUE preserves n
 })
 
 test_that("simulate_iglm preserves custom label_x, label_y, label_z and supports fix_x, fix_z overrides", {
-  n_actor <- 10
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 10
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
-  obs_x <- rep(c(1, 0), length.out = n_actor)
-  obs_y <- rep(c(0, 1), length.out = n_actor)
+  obs_x <- rep(c(1, 0), length.out = n_units)
+  obs_y <- rep(c(0, 1), length.out = n_units)
   obs_z <- matrix(c(1, 2, 2, 3), ncol = 2, byrow = TRUE)
 
   data_obj <- iglm.data(
@@ -525,13 +517,12 @@ test_that("simulate_iglm preserves custom label_x, label_y, label_z and supports
 })
 
 test_that("simulate_iglm validates fix_x and fix_z overrides", {
-  n_actor <- 10
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 10
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
   data_obj <- iglm.data(
-    x_attribute = rep(c(1, 0), length.out = n_actor),
-    y_attribute = rep(c(0, 1), length.out = n_actor),
+    x_attribute = rep(c(1, 0), length.out = n_units),
+    y_attribute = rep(c(0, 1), length.out = n_units),
     z_network = matrix(c(1, 2, 2, 3), ncol = 2, byrow = TRUE),
     neighborhood = neighborhood,
     directed = FALSE
@@ -578,12 +569,11 @@ test_that("simulate_iglm validates fix_x and fix_z overrides", {
 
 test_that("Parallel simulation with cluster initializes workers from burn-in state", {
   skip_on_cran()
-  n_actor <- 10
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 10
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
-  obs_x <- rep(c(1, 0), length.out = n_actor)
-  obs_y <- rep(c(0, 1), length.out = n_actor)
+  obs_x <- rep(c(1, 0), length.out = n_units)
+  obs_y <- rep(c(0, 1), length.out = n_units)
   obs_z <- matrix(c(1, 2, 2, 3), ncol = 2, byrow = TRUE)
 
   data_obj <- iglm.data(
@@ -611,6 +601,21 @@ test_that("Parallel simulation with cluster initializes workers from burn-in sta
   for (s in sim_res$samples) {
     expect_equal(s$x_attribute, obs_x)
   }
+})
+
+test_that("simulate_iglm throws an error when coef length does not match formula terms", {
+  n_units <- 5
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
+  data_obj <- iglm.data(
+    neighborhood = neighborhood,
+    n_units = n_units,
+    directed = FALSE
+  )
+
+  expect_error(
+    simulate_iglm(data_obj ~ edges(), coef = c(1, 2)),
+    regexp = "Wrong number of coefficients for the wanted terms."
+  )
 })
 
 
