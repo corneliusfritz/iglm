@@ -360,7 +360,12 @@ simulate_iglm <- function(formula,
   )
   # browser()
   class(tmp) <- "iglm.data.list"
-  attr(tmp, "neighborhood") <- iglm.data.neighborhood(data_obj$neighborhood)
+  res_nb <- list(
+    neighborhood = data_obj$neighborhood,
+    overlap = data_obj$overlap
+  )
+  class(res_nb) <- "iglm.data.neighborhood"
+  attr(tmp, "neighborhood") <- res_nb
   colnames(res$stats) <- preprocessed$coef_names
   return(list(samples = tmp, stats = res$stats))
 }

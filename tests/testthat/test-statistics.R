@@ -849,6 +849,43 @@ test_that("statistics() supports canonical_names and switches between labeled an
   expect_error(statistics(formula.norm, canonical_names = "TRUE"), "`canonical_names` must be a single non-missing logical value")
 })
 
+test_that("attribute_xy with local mode correctly attributes x to neighbors and y to target", {
+  B <- matrix(0, 3, 3)
+  B[1, 2] <- B[2, 1] <- 1
+  B[2, 3] <- B[3, 2] <- 1
+  diag(B) <- 1
+  x <- c(10, 20, 30)
+  y <- c(1, 2, 3)
+
+  obj <- iglm.data(x_attribute = x, y_attribute = y, neighborhood = B, directed = FALSE,
+                   family_x = "normal", family_y = "normal")
+  # In B (path 1-2-3 with closed neighborhoods N_i = {i} U N(i)):
+  # N_1 = {1, 2}, N_2 = {1, 2, 3}, N_3 = {2, 3}
+  # All pairs of distinct nodes share common neighbors (1-2 via 1,2; 2-3 via 2,3; 1-3 via 2).
+  # mode = "local" sums over distinct overlap partners:
+  # node 1: overlap {2, 3}, sum_x = 20 + 30 = 50, term = 50 * y[1] = 50
+  # node 2: overlap {1, 3}, sum_x = 10 + 30 = 40, term = 40 * y[2] = 80
+  # node 3: overlap {1, 2}, sum_x = 10 + 20 = 30, term = 30 * y[3] = 90
+  # total = 50 + 80 + 90 = 220
+  stat_val <- statistics(obj ~ attribute_xy(mode = "local"))
+  expect_equal(unname(stat_val), 220)
+
+  # mode = "alocal" sums over units not in distinct overlap (only unit itself):
+  # node 1: {1}, sum_x = 10, term = 10 * 1 = 10
+  # node 2: {2}, sum_x = 20, term = 20 * 2 = 40
+  # node 3: {3}, sum_x = 30, term = 30 * 3 = 90
+  # total = 10 + 40 + 90 = 140
+  stat_alocal <- statistics(obj ~ attribute_xy(mode = "alocal"))
+  expect_equal(unname(stat_alocal), 140)
+})
+
+test_that("gwdsp ISP throws error for undirected network", {
+  B <- matrix(1, 4, 4)
+  diag(B) <- 0
+  obj <- iglm.data(x_attribute = rep(0, 4), y_attribute = rep(0, 4), neighborhood = B, directed = FALSE)
+  expect_error(statistics(obj ~ gwdsp(variant = "ISP", decay = 0.5)), "ISP")
+})
+
 
 
 

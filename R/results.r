@@ -8,7 +8,7 @@
 #' bindings of the main `iglm_object`.
 #' @import R6
 #' @import RcppProgress
-#' @importFrom graphics plot lines abline layout title par axis boxplot box polygon barplot legend
+#' @importFrom graphics plot lines points abline layout title par axis boxplot box polygon barplot legend
 results.generator <- R6::R6Class("results",
   private = list(
     .coefficients_path = NULL,
@@ -329,13 +329,40 @@ results.generator <- R6::R6Class("results",
           stop("No model assessment available to plot.", call. = FALSE)
         }
         # Check what parts of the dot_list are of class "iglm_model_assessment" and whose names coincide with the planned "model_assessment"
-        good_ind <- unlist(lapply(dot_list, function(x) inherits(x, "iglm_model_assessment")))
-        dot_list <- dot_list[good_ind]
+        if (length(dot_list) > 0) {
+          good_ind <- vapply(dot_list, function(x) inherits(x, "iglm_model_assessment"), logical(1))
+          extra_plot_args <- dot_list[!good_ind]
+          dot_list <- dot_list[good_ind]
+        } else {
+          extra_plot_args <- list()
+        }
 
-        good_ind <- unlist(lapply(dot_list, function(x) {
-          identical(sort(x$names), sort(private$.model_assessment$names))
-        }))
-        dot_list <- dot_list[good_ind]
+        outline <- if (!is.null(extra_plot_args$outline)) extra_plot_args$outline else FALSE
+        bds_col <- if (!is.null(extra_plot_args$bds_col)) extra_plot_args$bds_col else "gray75"
+        plot_bds <- if (!is.null(extra_plot_args$plot_bds)) extra_plot_args$plot_bds else TRUE
+        pch_bds <- if (!is.null(extra_plot_args$pch_bds)) extra_plot_args$pch_bds else 1
+        cex_bds <- if (!is.null(extra_plot_args$cex_bds)) extra_plot_args$cex_bds else 0.75
+        lwd_bds <- if (!is.null(extra_plot_args$lwd_bds)) extra_plot_args$lwd_bds else 1
+        lty_bds <- if (!is.null(extra_plot_args$lty_bds)) extra_plot_args$lty_bds else 1
+
+        call_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Proportion",
+                                           x_positions = NULL, x_at = NULL, x_labels = NULL,
+                                           use_envelope = FALSE) {
+          plot_assessment_single(
+            observed = observed, sim_matrix = sim_matrix, xlab = xlab, ylab = ylab,
+            x_positions = x_positions, x_at = x_at, x_labels = x_labels,
+            use_envelope = use_envelope, outline = outline, bds_col = bds_col,
+            plot_bds = plot_bds, pch_bds = pch_bds, cex_bds = cex_bds,
+            lwd_bds = lwd_bds, lty_bds = lty_bds
+          )
+        }
+
+        if (length(dot_list) > 0) {
+          good_ind <- vapply(dot_list, function(x) {
+            identical(sort(x$names), sort(private$.model_assessment$names))
+          }, logical(1))
+          dot_list <- dot_list[good_ind]
+        }
         if (length(dot_list) > 0) {
           add <- TRUE
           colors_tmp <- generate_colors(length(dot_list) + 1)
@@ -403,7 +430,7 @@ results.generator <- R6::R6Class("results",
                     model_names = names_tmp, colors = colors_tmp, xlab = xlab_deg
                   )
                 } else {
-                  plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
+                  call_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
                 }
               }
             } else {
@@ -423,7 +450,7 @@ results.generator <- R6::R6Class("results",
                   model_names = names_tmp, colors = colors_tmp, xlab = xlab_deg, lwd_mean = 1
                 )
               } else {
-                plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
+                call_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
               }
             }
           } else if (i %in% c(
@@ -432,7 +459,7 @@ results.generator <- R6::R6Class("results",
           )) {
             xlab_sp <- if (grepl("dyadwise", i) || grepl("^dsp", i)) "Dyadwise Shared Partner" else "Edgewise Shared Partner"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
-              xlab_sp <- paste0(xlab_sp, " (Local)")
+              xlab_sp <- paste0("Local ", xlab_sp)
             }
             xlab_sp <- get_assessment_constraint_xlab(xlab_sp, tmp_names[k], i, family_x = family_x, family_y = family_y)
             obs_sp <- private$.model_assessment$observed[[tmp_names[k]]]
@@ -447,12 +474,12 @@ results.generator <- R6::R6Class("results",
                 model_names = names_tmp, colors = colors_tmp, xlab = xlab_sp
               )
             } else {
-              plot_assessment_single(observed = obs_sp, sim_matrix = sim_sp, xlab = xlab_sp)
+              call_assessment_single(observed = obs_sp, sim_matrix = sim_sp, xlab = xlab_sp)
             }
           } else if (i %in% c("geodesic_distances_distribution", "geo_dist")) {
             xlab_geo <- "Geodesic Distance"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
-              xlab_geo <- paste0(xlab_geo, " (Local)")
+              xlab_geo <- paste0("Local ", xlab_geo)
             }
             xlab_geo <- get_assessment_constraint_xlab(xlab_geo, tmp_names[k], i, family_x = family_x, family_y = family_y)
             obs_geo <- private$.model_assessment$observed[[tmp_names[k]]]
@@ -470,7 +497,7 @@ results.generator <- R6::R6Class("results",
                 x_positions = x_pos, x_at = x_pos, x_labels = x_labs
               )
             } else {
-              plot_assessment_single(
+              call_assessment_single(
                 observed = obs_geo, sim_matrix = sim_geo, xlab = xlab_geo,
                 x_positions = x_pos, x_at = x_pos, x_labels = x_labs
               )
@@ -488,14 +515,14 @@ results.generator <- R6::R6Class("results",
               plot_assessment_multi(
                 observed = obs_y, sim_main = sim_y, sim_dots = sim_dots,
                 model_names = names_tmp, colors = colors_tmp, xlab = "Distribution of Y",
-                ylab = if (is_normal) "Density" else "Percentage",
+                ylab = if (is_normal) "Density" else "Proportion",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )
             } else {
-              plot_assessment_single(
+              call_assessment_single(
                 observed = obs_y, sim_matrix = sim_y, xlab = "Distribution of Y",
-                ylab = if (is_normal) "Density" else "Percentage",
+                ylab = if (is_normal) "Density" else "Proportion",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )
@@ -513,14 +540,14 @@ results.generator <- R6::R6Class("results",
               plot_assessment_multi(
                 observed = obs_x, sim_main = sim_x, sim_dots = sim_dots,
                 model_names = names_tmp, colors = colors_tmp, xlab = "Distribution of X",
-                ylab = if (is_normal) "Density" else "Percentage",
+                ylab = if (is_normal) "Density" else "Proportion",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )
             } else {
-              plot_assessment_single(
+              call_assessment_single(
                 observed = obs_x, sim_matrix = sim_x, xlab = "Distribution of X",
-                ylab = if (is_normal) "Density" else "Percentage",
+                ylab = if (is_normal) "Density" else "Proportion",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )

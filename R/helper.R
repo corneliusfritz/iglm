@@ -293,9 +293,14 @@ XYZ_to_R <- function(x_attribute, y_attribute, z_network, n_units, return_adj_ma
 }
 
 check_overlap <- function(mat_1, mat_2) {
-  colnames(mat_1) <- colnames(mat_2)
-  combined <- rbind(mat_1, mat_2)
-  return(duplicated(combined, fromLast = TRUE)[seq_len(nrow(mat_1))])
+  if (nrow(mat_1) == 0 || nrow(mat_2) == 0) {
+    return(rep(FALSE, nrow(mat_1)))
+  }
+  max_col2 <- max(mat_1[, 2], mat_2[, 2])
+  mult <- as.double(max_col2) + 1.0
+  keys_1 <- as.double(mat_1[, 1]) * mult + as.double(mat_1[, 2])
+  keys_2 <- as.double(mat_2[, 1]) * mult + as.double(mat_2[, 2])
+  keys_1 %in% keys_2
 }
 
 iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
@@ -328,33 +333,35 @@ iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
   if (is.na(n_units)) {
     stop("n_units could not be inferred. Please provide n_units.")
   }
-  if (ncol(neighborhood) == 2) {
-    sp_nb <- spMatrix(
-      nrow = n_units, ncol = n_units,
-      i = neighborhood[, 1], j = neighborhood[, 2], x = rep(1, length(neighborhood[, 2]))
-    )
-    sp_nb_trans <- sparseMatrix(i = sp_nb@j + 1, j = sp_nb@i + 1, dims = sp_nb@Dim)
 
-    overlap <- sp_nb %*% sp_nb_trans
-    overlap <- as(overlap, "TsparseMatrix")
-    overlap <- cbind(
-      overlap@i + 1,
-      overlap@j + 1
-    )
-    overlap <- overlap[overlap[, 1] != overlap[, 2], ]
+  is_adj <- (ncol(neighborhood) > 2) || (nrow(neighborhood) == n_units && ncol(neighborhood) == n_units && (n_units > 2 || any(neighborhood == 0) || all(neighborhood == 1)))
+
+  if (is_adj) {
+    if (!is.na(directed) && !directed) {
+      neighborhood <- pmax(neighborhood, t(neighborhood))
+    }
+    # Enforce closed neighborhood: i in N_i
+    diag(neighborhood) <- 1
+    neighborhood <- which(neighborhood > 0, arr.ind = TRUE)
   } else {
-    positions <- which(neighborhood == 1, arr.ind = T)
-    sp_nb <- spMatrix(
-      nrow = ncol(neighborhood), ncol = ncol(neighborhood),
-      i = positions[, 1], j = positions[, 2], x = rep(1, length(positions[, 2]))
-    )
-    sp_nb_trans <- sparseMatrix(i = sp_nb@j + 1, j = sp_nb@i + 1, dims = sp_nb@Dim)
-
-    overlap <- as.matrix(sp_nb %*% sp_nb_trans > 0)
-    diag(overlap) <- 0
-    overlap <- which(overlap == 1, arr.ind = T)
-    neighborhood <- which(neighborhood == 1, arr.ind = T)
+    if (!is.na(directed) && !directed) {
+      neighborhood <- rbind(neighborhood, neighborhood[, c(2, 1)])
+    }
+    # Enforce closed neighborhood: i in N_i
+    neighborhood <- rbind(neighborhood, cbind(seq_len(n_units), seq_len(n_units)))
+    neighborhood <- neighborhood[!duplicated(neighborhood), , drop = FALSE]
   }
+
+  # Calculate overlap: off-diagonal entries with shared neighbors (N %*% t(N) > 0)
+  sp_nb <- sparseMatrix(
+    i = neighborhood[, 1], j = neighborhood[, 2], x = 1,
+    dims = c(n_units, n_units)
+  )
+  overlap_mat <- as(sp_nb %*% Matrix::t(sp_nb), "TsparseMatrix")
+  overlap <- cbind(overlap_mat@i + 1L, overlap_mat@j + 1L)
+  overlap <- overlap[overlap[, 1] != overlap[, 2], , drop = FALSE]
+  overlap <- overlap[!duplicated(overlap), , drop = FALSE]
+
   res <- list(
     neighborhood = neighborhood,
     overlap = overlap
@@ -364,22 +371,19 @@ iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
 }
 
 get_i <- function(x, i) {
-  stopifnot(is.list(x), length(i) == 1L, is.numeric(i), i >= 1L)
-  k <- 1L
-  for (el in x) {
-    if (k == i) {
-      return(el)
-    }
-    k <- k + 1L
+  if (length(i) != 1L) {
+    stop("`[[` can only extract a single element (length 1). To select multiple samples, use `[` (e.g., samples[c(1, 2)]).", call. = FALSE)
   }
-  stop("subscript out of bounds")
+  if (!is.numeric(i) || i < 1L || i > length(x)) {
+    stop("subscript out of bounds", call. = FALSE)
+  }
+  .subset2(x, i)
 }
 
 #' @export
 #' @method [[ iglm.data.list
 `[[.iglm.data.list` <- function(x, i, ...) {
   item <- get_i(x, i)
-  # browser()
   item$set_neighborhood_overlap(
     attr(x, "neighborhood")$neighborhood,
     attr(x, "neighborhood")$overlap
@@ -396,7 +400,6 @@ append_iglm.data <- function(x, y) {
 #' @export
 #' @method [ iglm.data.list
 `[.iglm.data.list` <- function(x, i, ...) {
-  # browser()
   res <- list()
   k <- 1
   for (j in i) {
@@ -409,6 +412,8 @@ append_iglm.data <- function(x, y) {
     names(res)[k] <- j
     k <- k + 1
   }
+  class(res) <- "iglm.data.list"
+  attr(res, "neighborhood") <- attr(x, "neighborhood")
   res
 }
 
@@ -457,7 +462,7 @@ formula_preprocess <- function(formula) {
     error = function(e) {
       stop(
         sprintf(
-          "The LHS of the formula ('%s') could not be found.\nUnlike standard glm where the response is a column name from a data frame (e.g., 'y ~ ...'), iglm requires an 'iglm.data' object on the LHS.\nWrap your attributes and network into an 'iglm.data' object first:\n  dat <- iglm.data(y_attribute = ..., x_attribute = ..., z_network = ...)\nand specify 'dat ~ ...'.",
+          "LHS of formula ('%s') could not be found.\n`iglm()` requires an 'iglm.data' object on the LHS (e.g., `iglm(dat ~ ...)`).",
           lhs_name
         ),
         call. = FALSE
@@ -468,7 +473,7 @@ formula_preprocess <- function(formula) {
   if (!inherits(data_object, "iglm.data")) {
     stop(
       sprintf(
-        "The LHS of the formula ('%s') is of class '%s', but iglm requires an 'iglm.data' object.\nUnlike standard glm where the response is a vector or column (e.g., 'y ~ x'), iglm models regression under network interference across an entire connected population.\nWrap your attributes and network into an 'iglm.data' object first:\n  dat <- iglm.data(y_attribute = %s, ...)\nand call:\n  fit <- iglm(dat ~ attribute_y() + spillover_yx() + edges())",
+        "LHS of formula ('%s') is of class '%s', but must be an 'iglm.data' object.\nCreate one with 'dat <- iglm.data(y_attribute = %s, ...)' and specify 'dat ~ ...'.",
         lhs_name,
         class(data_object)[1],
         lhs_name
@@ -646,7 +651,7 @@ extract_assessment_matrix <- function(sim_list, metric, subkey = NULL) {
 
 #' @noRd
 plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
-                                  model_names, colors, xlab, ylab = "Percentage",
+                                  model_names, colors, xlab, ylab = "Proportion",
                                   x_at = NULL, x_labels = NULL, x_positions = NULL,
                                   x_margin = 0.3, lwd_mean = 2, use_envelope = FALSE) {
   all_sims <- c(list(sim_main), sim_dots)
@@ -803,10 +808,13 @@ plot_assessment_multi <- function(observed, sim_main, sim_dots = list(),
 }
 
 #' @noRd
-plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentage",
+plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Proportion",
                                    box_col = "#87CEEB80", line_col = "#D55E00",
                                    x_at = NULL, x_labels = NULL, x_positions = NULL,
-                                   x_margin = 0.3, use_envelope = FALSE) {
+                                   x_margin = 0.3, use_envelope = FALSE,
+                                   plot_bds = TRUE, bds_col = "gray75",
+                                   outline = FALSE, pch_bds = 1, cex_bds = 0.75,
+                                   lwd_bds = 1, lty_bds = 1, ...) {
   if (use_envelope) {
     x <- if (!is.null(x_positions)) {
       as.numeric(x_positions)
@@ -889,6 +897,10 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
   
   xlim <- c(min(x) - x_margin, max(x) + x_margin)
   ylim <- range(c(sim_matrix, as.numeric(observed)), na.rm = TRUE)
+  if (any(!is.finite(ylim))) ylim <- c(0, 1)
+  if (diff(ylim) == 0) {
+    ylim <- if (ylim[1] == 0) c(0, 1) else c(ylim[1] - 0.5, ylim[2] + 0.5)
+  }
   
   # 1. Initialize plot (axes = FALSE suppresses default axes and box)
   plot(x, as.vector(observed),
@@ -921,10 +933,23 @@ plot_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Percentag
   box(bty = "l", lwd = 1)
   
   # 4. Plot data layers
-  boxplot(sim_matrix,
+  graphics::boxplot(sim_matrix,
           at = x, boxwex = 0.5,
-          add = TRUE, col = box_col, axes = FALSE, las = 1
+          add = TRUE, col = box_col, axes = FALSE, las = 1,
+          outline = outline
   )
+
+  # Draw 95% simulation bounds at the ends of boxplots matching ergm GOF
+  if (isTRUE(plot_bds) && length(sim_matrix) > 0) {
+    sim_mat <- as.matrix(sim_matrix)
+    if (nrow(sim_mat) > 0 && ncol(sim_mat) == length(x)) {
+      bds <- apply(sim_mat, 2, stats::quantile, probs = c(0.025, 0.975), na.rm = TRUE)
+      graphics::points(x, bds[1, ], pch = pch_bds, cex = cex_bds)
+      graphics::points(x, bds[2, ], pch = pch_bds, cex = cex_bds)
+      graphics::lines(x, bds[1, ], col = bds_col, lwd = lwd_bds, lty = lty_bds)
+      graphics::lines(x, bds[2, ], col = bds_col, lwd = lwd_bds, lty = lty_bds)
+    }
+  }
   
   lines(x, as.vector(observed), type = "l", col = line_col, lwd = 2)
 }
@@ -1162,19 +1187,17 @@ check_glm_arguments <- function(args) {
   if (!is.null(arg_names)) {
     if ("data" %in% arg_names) {
       stop(
-        "iglm does not accept a 'data' argument in the standard glm sense.\n",
-        "Attributes (x, y) and network adjacency (z) must be bundled into an 'iglm.data' object ",
-        "and passed as the response on the LHS of the formula: iglm(my_iglm_data ~ ...).\n",
-        "Use `iglm.data(...)` to construct your data container first.",
+        "'data' is not an argument to 'iglm()'.\n",
+        "Bundle attributes and network adjacency into an 'iglm.data' object and pass it on the LHS: 'iglm(dat ~ ...)'. ",
+        "Use 'iglm.data(...)' to construct the data container.",
         call. = FALSE
       )
     }
 
     if ("family" %in% arg_names) {
       stop(
-        "'family' is not an argument to iglm().\n",
-        "The distributional family is defined when creating the 'iglm.data' object ",
-        "via 'family_y' and 'family_x' (e.g., iglm.data(..., family_y = 'binomial', family_x = 'normal')).",
+        "'family' is not an argument to 'iglm()'.\n",
+        "Specify families when creating the data object: 'iglm.data(..., family_y = ..., family_x = ...)'. ",
         call. = FALSE
       )
     }

@@ -358,3 +358,42 @@ test_that("Log-likelihood plot handles very negative values without error and re
   expect_equal(mar_before, mar_after)
   dev.off()
 })
+
+test_that("Single-model assessment plot draws ERGM-style boundary lines and points at boxplot ends", {
+  obs_deg <- c("0" = 0.4, "1" = 0.3, "2" = 0.2, "3" = 0.1)
+  sim_deg <- matrix(
+    c(
+      0.35, 0.32, 0.21, 0.12,
+      0.45, 0.28, 0.19, 0.08,
+      0.38, 0.31, 0.22, 0.09,
+      0.42, 0.29, 0.18, 0.11,
+      0.40, 0.30, 0.20, 0.10
+    ),
+    nrow = 5, byrow = TRUE,
+    dimnames = list(NULL, c("0", "1", "2", "3"))
+  )
+
+  pdf(NULL)
+  # Default ERGM style with boundary lines and points at ends
+  expect_silent(
+    plot_assessment_single(
+      observed = obs_deg, sim_matrix = sim_deg, xlab = "Degree"
+    )
+  )
+  # Customizable colors and toggles
+  expect_silent(
+    plot_assessment_single(
+      observed = obs_deg, sim_matrix = sim_deg, xlab = "Degree",
+      plot_bds = TRUE, bds_col = "gray50", outline = TRUE
+    )
+  )
+  # Disable boundary lines
+  expect_silent(
+    plot_assessment_single(
+      observed = obs_deg, sim_matrix = sim_deg, xlab = "Degree",
+      plot_bds = FALSE
+    )
+  )
+  dev.off()
+})
+

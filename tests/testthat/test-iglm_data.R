@@ -46,9 +46,8 @@ test_that("Define a iglm.data object and check all functions", {
   expect_equal(tmp$mean_z(), expected = 4 / 6)
   expect_equal(tmp$mean_x(), expected = 1 / 4)
   expect_equal(tmp$mean_y(), expected = 2 / 4)
-  expect_equal(nrow(tmp$overlap) == 12,
-    expected = nrow(tmp$neighborhood) == 12
-  )
+  expect_equal(nrow(tmp$overlap), expected = 12)
+  expect_equal(nrow(tmp$neighborhood), expected = 16)
   tmp$save(file = tmp_name)
   rm(tmp)
   loaded_tmp <- iglm.data(file = tmp_name)
@@ -57,9 +56,8 @@ test_that("Define a iglm.data object and check all functions", {
   expect_equal(loaded_tmp$mean_z(), expected = 4 / 6)
   expect_equal(loaded_tmp$mean_x(), expected = 1 / 4)
   expect_equal(loaded_tmp$mean_y(), expected = 2 / 4)
-  expect_equal(nrow(loaded_tmp$overlap) == 12,
-    expected = nrow(loaded_tmp$neighborhood) == 12
-  )
+  expect_equal(nrow(loaded_tmp$overlap), expected = 12)
+  expect_equal(nrow(loaded_tmp$neighborhood), expected = 16)
 
   file.remove(tmp_name)
 })
@@ -122,9 +120,8 @@ test_that("Define a directed iglm.data object and check all functions", {
   ), nrow = 4, byrow = TRUE)
   expect_equal(tmp$degree()$in_degree_seq, expected = colSums(network_tmp))
   expect_equal(tmp$degree()$out_degree_seq, expected = rowSums(network_tmp))
-  expect_equal(nrow(tmp$overlap) == 12,
-    expected = nrow(tmp$neighborhood) == 12
-  )
+  expect_equal(nrow(tmp$overlap), expected = 12)
+  expect_equal(nrow(tmp$neighborhood), expected = 16)
   tmp$save(file = tmp_name)
   rm(tmp)
   loaded_tmp <- iglm.data(file = tmp_name)
@@ -133,9 +130,8 @@ test_that("Define a directed iglm.data object and check all functions", {
   expect_equal(loaded_tmp$mean_y(), expected = 2 / 4)
   expect_equal(loaded_tmp$degree()$in_degree_seq, expected = colSums(network_tmp))
   expect_equal(loaded_tmp$degree()$out_degree_seq, expected = rowSums(network_tmp))
-  expect_equal(nrow(loaded_tmp$overlap) == 12,
-    expected = nrow(loaded_tmp$neighborhood) == 12
-  )
+  expect_equal(nrow(loaded_tmp$overlap), expected = 12)
+  expect_equal(nrow(loaded_tmp$neighborhood), expected = 16)
   file.remove(tmp_name)
 })
 
@@ -521,6 +517,7 @@ test_that("iglm.data supports custom label_x, label_y, and label_z", {
   expect_true(any(grepl("x_attribute \\[party\\]", out_print)))
   expect_true(any(grepl("y_attribute \\[vote\\]", out_print)))
   expect_true(any(grepl("connections \\[advice\\]", out_print)))
+  expect_true(any(grepl("local dyads.*20 / 20 \\(100.0%\\)", out_print)))
 
   # Normal attribute print output shows mean and sd only (no redundant scale)
   x_norm <- rnorm(n_units)
@@ -616,4 +613,39 @@ test_that("iglm.data supports family_x and family_y with strict validation", {
   expect_null(d_str$type_x)
   expect_null(d_str$type_y)
 })
+
+test_that("asymmetric neighborhood matrix is symmetrized when directed = FALSE", {
+  B <- diag(4)
+  B[1, 2] <- B[1, 3] <- 1
+  Z <- matrix(0, 4, 4)
+  Z[1, 2] <- Z[1, 3] <- Z[2, 3] <- 1
+  Z <- Z + t(Z)
+  el <- which(upper.tri(Z) & Z == 1, arr.ind = TRUE)
+
+  # Matrix neighborhood
+  o_mat <- iglm.data(
+    x_attribute = rep(0, 4), y_attribute = rep(0, 4), z_network = el, neighborhood = B,
+    directed = FALSE, n_units = 4, fix_x = TRUE, fix_z_alocal = FALSE
+  )
+  # Edgelist neighborhood
+  o_el <- iglm.data(
+    x_attribute = rep(0, 4), y_attribute = rep(0, 4), z_network = el, neighborhood = which(B == 1, arr.ind = TRUE),
+    directed = FALSE, n_units = 4, fix_x = TRUE, fix_z_alocal = FALSE
+  )
+
+  # Overlap should be identical regardless of whether B was supplied as matrix or edgelist
+  expect_equal(nrow(o_mat$overlap), nrow(o_el$overlap))
+  expect_true(any(o_mat$overlap[, 1] == 2 & o_mat$overlap[, 2] == 3))
+
+  # Transitive statistic must never have overlapping == 0 when transitive == 1
+  m <- iglm(o_mat ~ edges(mode = "alocal") + transitive + degrees,
+            control = control.iglm(estimate_model = FALSE, return_z = TRUE))
+  r <- m$estimate()$res_z
+  for (row_idx in seq_len(nrow(r))) {
+    if (r[row_idx, "transitive"] > 0) {
+      expect_equal(unname(r[row_idx, "overlapping"]), 1)
+    }
+  }
+})
+
 

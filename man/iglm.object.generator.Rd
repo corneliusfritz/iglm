@@ -162,7 +162,7 @@ model parameters. Requires simulations to have been run first (via
  \code{iglm.object$simulate} or \code{iglm.object_generator$estimate}).
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.object$assess(formula, plot = TRUE)}
+    \preformatted{iglm.object$assess(formula, plot = TRUE, ...)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -174,6 +174,7 @@ The terms should correspond to methods available in the \code{\link{iglm.data}}
 object that end with `distributions`.
 If the term mcmc_diagnostics is included, MCMC diagnostics will also be computed.}
       \item{\code{plot}}{(logical) If `TRUE`, generates plots comparing observed and simulated statistics. Default is `TRUE`.}
+      \item{\code{...}}{Additional arguments passed to \code{plot}.}
     }
     \if{html}{\out{</div>}}
   }

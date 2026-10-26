@@ -1054,7 +1054,9 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
     if(i>n_burn_in){
       if(only_stats){
         // Count global statistics
-        stats.row(i - n_burn_in-1) = global_stats.as_row();
+        if(!functions.empty()){
+          stats.row(i - n_burn_in-1) = global_stats.as_row();
+        }
       } else{
         // Save the object
         // if(!fix_x){
@@ -1064,7 +1066,9 @@ arma::mat xyz_simulate_internal(XYZ_class & object,
         res_y.at(i - n_burn_in-1) =object.y_attribute.attribute;
         res_z.at(i - n_burn_in-1) =object.z_network.adj_list;
         // Count global statistics
-        stats.row(i - n_burn_in-1) = global_stats.as_row();
+        if(!functions.empty()){
+          stats.row(i - n_burn_in-1) = global_stats.as_row();
+        }
       }
     }
     
@@ -1221,16 +1225,18 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
             continue;
           }
           z_ij = object.z_network.get_val(i,j);
-          xyz_calculate_change_stats(change_stat_network, i,
-                                     j,
-                                     object,
-                                     data_list,
-                                     type_list,
-                                     z,
-                                     is_full_neighborhood,
-                                     functions);
-          // change_stat_network(change_stat_network.size()+1) =x_ij;
-          res_covs.row(now)= (change_stat_network).as_row();
+          if(!terms.empty()){
+            xyz_calculate_change_stats(change_stat_network, i,
+                                       j,
+                                       object,
+                                       data_list,
+                                       type_list,
+                                       z,
+                                       is_full_neighborhood,
+                                       functions);
+            // change_stat_network(change_stat_network.size()+1) =x_ij;
+            res_covs.row(now)= (change_stat_network).as_row();
+          }
           res_target.at(now) = z_ij;
           i_vec.at(now) = i;
           j_vec.at(now) = j;
@@ -1245,16 +1251,18 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
           p.increment(); // update progress
           
           z_ij = object.z_network.get_val(i,j);
-          xyz_calculate_change_stats(change_stat_network, i,
-                                     j,
-                                     object,
-                                     data_list,
-                                     type_list,
-                                     z,
-                                     is_full_neighborhood,
-                                     functions);
-          // change_stat_network(change_stat_network.size()+1) =x_ij;
-          res_covs.row(now)= (change_stat_network).as_row();
+          if(!terms.empty()){
+            xyz_calculate_change_stats(change_stat_network, i,
+                                       j,
+                                       object,
+                                       data_list,
+                                       type_list,
+                                       z,
+                                       is_full_neighborhood,
+                                       functions);
+            // change_stat_network(change_stat_network.size()+1) =x_ij;
+            res_covs.row(now)= (change_stat_network).as_row();
+          }
           res_target.at(now) = z_ij;
           i_vec.at(now) = i;
           j_vec.at(now) = j;
@@ -1268,29 +1276,33 @@ std::tuple<arma::mat, arma::vec> xyz_get_info_pl(const XYZ_class& object,
     if(!fix_x){
       p.increment(); 
       x_i = object.x_attribute.get_val_no_scale(i);
-      xyz_calculate_change_stats(change_stat_attribute_i, i,
-                                 i,
-                                 object,
-                                 data_list,
-                                 type_list,
-                                 x,
-                                 is_full_neighborhood,
-                                 functions);
-      res_covs.row(now)= (change_stat_attribute_i).as_row();
+      if(!terms.empty()){
+        xyz_calculate_change_stats(change_stat_attribute_i, i,
+                                   i,
+                                   object,
+                                   data_list,
+                                   type_list,
+                                   x,
+                                   is_full_neighborhood,
+                                   functions);
+        res_covs.row(now)= (change_stat_attribute_i).as_row();
+      }
       res_target.at(now) = x_i;
       now += 1;  
     }
     p.increment(); 
     y_i = object.y_attribute.get_val_no_scale(i);
-    xyz_calculate_change_stats(change_stat_attribute_i, i,
-                               i,
-                               object,
-                               data_list,
-                               type_list,
-                               y,
-                               is_full_neighborhood,
-                               functions);
-    res_covs.row(now)= (change_stat_attribute_i).as_row();
+    if(!terms.empty()){
+      xyz_calculate_change_stats(change_stat_attribute_i, i,
+                                 i,
+                                 object,
+                                 data_list,
+                                 type_list,
+                                 y,
+                                 is_full_neighborhood,
+                                 functions);
+      res_covs.row(now)= (change_stat_attribute_i).as_row();
+    }
     res_target.at(now) = y_i;
     now += 1;
   } 
@@ -1401,22 +1413,23 @@ arma::mat get_A_exact(arma::uvec i_vec,
   arma::mat A(coef_degrees.size(),coef_degrees.size());
   unsigned int number_elements_network = i_vec.size();
   // For the calculation of B we only have to regard network information (relating to the first entries)
+  arma::mat nondeg_mat = coef_nondegrees.is_empty() ? arma::zeros<arma::mat>(number_elements_network, 1) : arma::mat(std::get<0>(pseudo_lh).rows(0, number_elements_network - 1) * coef_nondegrees);
   
   for(unsigned int i = 0; i < number_elements_network; i++){
     if(overlap_vec.at(i)){
       if(directed) {
-        exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
+        exp_tmp = arma::exp(nondeg_mat.row(i) +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1+ n_units));  
       } else {
-        exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
+        exp_tmp = arma::exp(nondeg_mat.row(i) +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1));  
       }
     } else {
       if(directed) {
-        exp_tmp = arma::exp(offset_nonoverlap + std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
+        exp_tmp = arma::exp(offset_nonoverlap + nondeg_mat.row(i) +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1 + n_units));
       } else {
-        exp_tmp = arma::exp(offset_nonoverlap + std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
+        exp_tmp = arma::exp(offset_nonoverlap + nondeg_mat.row(i) +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1));
       }
     }
@@ -1457,32 +1470,35 @@ std::tuple< arma::vec, arma::mat> get_B_pl(arma::uvec i_vec,
   cov_degrees.fill(0);
   unsigned int number_elements_network = i_vec.size();
   // For the calculation of B we only have to regard network information (relating to the first entries)
+  arma::mat nondeg_mat = coef_nondegrees.is_empty() ? arma::zeros<arma::mat>(number_elements_network, 1) : arma::mat(std::get<0>(pseudo_lh).rows(0, number_elements_network - 1) * coef_nondegrees);
   
   for(unsigned int i = 0; i < number_elements_network; i++){
     if(overlap_vec.at(i)){
       if(directed) {
-        exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
+        exp_tmp = arma::exp(nondeg_mat.row(i) +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1+ n_units));  
         cov_degrees.at(j_vec.at(i)-1+ n_units) = 1;
       } else {
-        exp_tmp = arma::exp(std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
+        exp_tmp = arma::exp(nondeg_mat.row(i) +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1));  
         cov_degrees.at(j_vec.at(i)-1) = 1;
       }
     } else {
       if(directed) {
-        exp_tmp = arma::exp(offset_nonoverlap + std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
+        exp_tmp = arma::exp(offset_nonoverlap + nondeg_mat.row(i) +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1 + n_units));
         cov_degrees.at(j_vec.at(i)-1+ n_units) = 1;
       } else {
-        exp_tmp = arma::exp(offset_nonoverlap + std::get<0>(pseudo_lh).row(i)*coef_nondegrees +
+        exp_tmp = arma::exp(offset_nonoverlap + nondeg_mat.row(i) +
           coef_degrees(i_vec.at(i)-1) + coef_degrees(j_vec.at(i)-1));
         cov_degrees.at(j_vec.at(i)-1) = 1;
       }
     }
     cov_degrees.at(i_vec.at(i)-1) = 1;
-    B_mat += exp_tmp.at(0)/(1+exp_tmp.at(0))*1/(1+exp_tmp.at(0))*
-      std::get<0>(pseudo_lh).row(i).t()*cov_degrees.t();
+    if(!coef_nondegrees.is_empty()){
+      B_mat += exp_tmp.at(0)/(1+exp_tmp.at(0))*1/(1+exp_tmp.at(0))*
+        std::get<0>(pseudo_lh).row(i).t()*cov_degrees.t();
+    }
     
     res = exp_tmp.at(0)/(1+exp_tmp.at(0)) - pow(exp_tmp.at(0)/(1+exp_tmp.at(0)),2);
     A_diag.at(i_vec.at(i)-1) += res.at(0);
@@ -1512,6 +1528,9 @@ arma::mat get_B(arma::uvec i_vec, arma::uvec  j_vec,
                 int n_units) {
   arma::mat B_mat(coef_nondegrees.size(),coef_degrees.size());
   B_mat.fill(0);
+  if(coef_nondegrees.is_empty()){
+    return B_mat;
+  }
   // arma::vec exp_tmp, cov_degrees(coef_degrees.size());
   // cov_degrees.fill(0);
   unsigned int number_elements_network = i_vec.size();
@@ -2164,6 +2183,7 @@ std::tuple<arma::vec,arma::vec, arma::mat, arma::mat>  cond_estimation_degrees_p
   }
   arma::vec weights, exp_tmp; 
   coefs.row(0)= coef.t();
+  arma::mat nondeg_mat = coef_nondegrees.is_empty() ? arma::zeros<arma::mat>(i_vec.size(), 1) : arma::mat(std::get<0>(pseudo_lh).rows(0, i_vec.size() - 1) * coef_nondegrees);
   bool non_converged = true;
   int k = 1;
   while(non_converged) {
@@ -2171,11 +2191,11 @@ std::tuple<arma::vec,arma::vec, arma::mat, arma::mat>  cond_estimation_degrees_p
       if(directed){
         if(overlap_vec.at(i)){
           exp_tmp = arma::exp((coef.at(i_vec.at(i)-1) +
-            coef.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            coef.at(j_vec.at(i)-1 + n_units)) + nondeg_mat.row(i));
         } else {
           if(nonoverlap_random){
             exp_tmp = arma::exp(offset_nonoverlap+(coef.at(i_vec.at(i)-1) +
-              coef.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);    
+              coef.at(j_vec.at(i)-1 + n_units)) + nondeg_mat.row(i));    
           } else {
             exp_tmp = 0.0;
           }
@@ -2188,11 +2208,11 @@ std::tuple<arma::vec,arma::vec, arma::mat, arma::mat>  cond_estimation_degrees_p
       } else {
         if(overlap_vec.at(i)){
           exp_tmp = arma::exp( (coef.at(i_vec.at(i)-1) + 
-            coef.at(j_vec.at(i)-1)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            coef.at(j_vec.at(i)-1)) + nondeg_mat.row(i));
         } else {
           if(nonoverlap_random){
             exp_tmp = arma::exp(offset_nonoverlap+(coef.at(i_vec.at(i)-1) + 
-              coef.at(j_vec.at(i)-1)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);  
+              coef.at(j_vec.at(i)-1)) + nondeg_mat.row(i));  
           } else {
             exp_tmp = 0.0;
           }
@@ -2301,6 +2321,7 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
   }
   arma::vec weights,weights_old,  exp_tmp, exp_tmp_old; 
   coefs.row(0)= coef.t();
+  arma::mat nondeg_mat = coef_nondegrees.is_empty() ? arma::zeros<arma::mat>(i_vec.size(), 1) : arma::mat(std::get<0>(pseudo_lh).rows(0, i_vec.size() - 1) * coef_nondegrees);
   if(first_it){
     old_coef_pop = coef;
   }
@@ -2312,16 +2333,16 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
       if(directed){
         if(overlap_vec.at(i)){
           exp_tmp = arma::exp((coef.at(i_vec.at(i)-1) +
-            coef.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            coef.at(j_vec.at(i)-1 + n_units)) + nondeg_mat.row(i));
           exp_tmp_old = arma::exp((old_coef_pop.at(i_vec.at(i)-1) +
-            old_coef_pop.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            old_coef_pop.at(j_vec.at(i)-1 + n_units)) + nondeg_mat.row(i));
           
         } else {
           if(nonoverlap_random){
             exp_tmp = arma::exp(offset_nonoverlap+(coef.at(i_vec.at(i)-1) +
-              coef.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);  
+              coef.at(j_vec.at(i)-1 + n_units)) + nondeg_mat.row(i));  
             exp_tmp_old =  arma::exp(offset_nonoverlap+(old_coef_pop.at(i_vec.at(i)-1) +
-              old_coef_pop.at(j_vec.at(i)-1 + n_units)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);  
+              old_coef_pop.at(j_vec.at(i)-1 + n_units)) + nondeg_mat.row(i));  
           }else {
             exp_tmp = 0.0; 
             exp_tmp_old= 0.0; 
@@ -2336,15 +2357,15 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
       } else {
         if(overlap_vec.at(i)){
           exp_tmp = arma::exp( (coef.at(i_vec.at(i)-1) + 
-            coef.at(j_vec.at(i)-1)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            coef.at(j_vec.at(i)-1)) + nondeg_mat.row(i));
           exp_tmp_old = arma::exp( (old_coef_pop.at(i_vec.at(i)-1) + 
-            old_coef_pop.at(j_vec.at(i)-1)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+            old_coef_pop.at(j_vec.at(i)-1)) + nondeg_mat.row(i));
         } else { 
           if(nonoverlap_random){
             exp_tmp = arma::exp(offset_nonoverlap+(coef.at(i_vec.at(i)-1) + 
-              coef.at(j_vec.at(i)-1)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+              coef.at(j_vec.at(i)-1)) + nondeg_mat.row(i));
             exp_tmp_old =  arma::exp(offset_nonoverlap+(old_coef_pop.at(i_vec.at(i)-1) + 
-              old_coef_pop.at(j_vec.at(i)-1)) + std::get<0>(pseudo_lh).row(i)*coef_nondegrees);
+              old_coef_pop.at(j_vec.at(i)-1)) + nondeg_mat.row(i));
           } else {
             exp_tmp = 0.0; 
             exp_tmp_old= 0.0; 
@@ -2390,34 +2411,34 @@ std::tuple<arma::vec,arma::vec, arma::mat , arma::mat>  cond_estimation_degrees_
     double ll_MM, ll_accel; 
     if(directed){
       exp_tmp_MM = arma::exp(offset_nonoverlap+(coef_MM.elem(i_vec  -1) +
-        coef_MM.elem(j_vec  -1 + n_units)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
+        coef_MM.elem(j_vec  -1 + n_units)) + nondeg_mat.col(0));
       exp_tmp_accel = arma::exp(offset_nonoverlap+(coef_accel.elem(i_vec  -1) +
-        coef_accel.elem(j_vec  -1 + n_units)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
+        coef_accel.elem(j_vec  -1 + n_units)) + nondeg_mat.col(0));
       // exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees);
       arma::vec log_one_min_pi_MM =  - log(1+exp_tmp_MM);
       arma::vec log_one_min_pi_accel =  - log(1+exp_tmp_accel);
       // arma::vec log_one_min_pi_rest =  - log(1+exp_rest);
       
       ll_MM = sum(log_one_min_pi_MM + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+coef_MM.elem(i_vec-1) +
-        coef_MM.elem(j_vec  -1 + n_units) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
+        coef_MM.elem(j_vec  -1 + n_units) + nondeg_mat.col(0)));
       ll_accel = sum(log_one_min_pi_accel + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+ coef_accel.elem(i_vec-1) +
-        coef_accel.elem(j_vec  -1 + n_units) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
+        coef_accel.elem(j_vec  -1 + n_units) + nondeg_mat.col(0)));
       // ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_units)%
       //   (std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees));
     } else {
       exp_tmp_MM = arma::exp(offset_nonoverlap+(coef_MM.elem(i_vec  -1) +
-        coef_MM.elem(j_vec  -1)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
+        coef_MM.elem(j_vec  -1)) + nondeg_mat.col(0));
       exp_tmp_accel = arma::exp(offset_nonoverlap+(coef_accel.elem(i_vec  -1) +
-        coef_accel.elem(j_vec  -1)) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees);
+        coef_accel.elem(j_vec  -1)) + nondeg_mat.col(0));
       // exp_rest = arma::exp(std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees);
       arma::vec log_one_min_pi_MM =  - log(1+exp_tmp_MM);
       arma::vec log_one_min_pi_accel =  - log(1+exp_tmp_accel);
       // arma::vec log_one_min_pi_rest =  - log(1+exp_rest);
       
       ll_MM = sum(log_one_min_pi_MM + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+coef_MM.elem(i_vec-1) +
-        coef_MM.elem(j_vec  -1) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
+        coef_MM.elem(j_vec  -1) + nondeg_mat.col(0)));
       ll_accel = sum(log_one_min_pi_accel + std::get<1>(pseudo_lh).head_rows(i_vec.size())%(offset_nonoverlap+ coef_accel.elem(i_vec-1) +
-        coef_accel.elem(j_vec  -1) + std::get<0>(pseudo_lh).head_rows(i_vec.size())*coef_nondegrees));
+        coef_accel.elem(j_vec  -1) + nondeg_mat.col(0)));
       // ll_attributes =  sum(log_one_min_pi_rest + std::get<1>(pseudo_lh).tail_rows(2*n_units)%
       //   (std::get<0>(pseudo_lh).tail_rows(2*n_units)*coef_nondegrees));
       
@@ -2875,12 +2896,15 @@ List outerloop_estimation_pl(arma::vec coef,
   }
   pseudo_lh = xyz_get_info_pl(object,terms,data_list,type_list, display_progress,
                               i_vec,j_vec,overlap_vec, n_units, fix_x, false);
-  arma::uvec where_wrong = find(arma::sum(std::get<0>(pseudo_lh), 0) == 0);
-  if(where_wrong.size() >0){
-    Rcout << "Some statistics do not change over all pairs/units (they are excluded from the model since their MLE is negative infinity)" << std::endl;
-    arma::uvec where_right = find(arma::var(std::get<0>(pseudo_lh), 0) != 0);
-    std::get<0>(pseudo_lh) = std::get<0>(pseudo_lh).cols(where_right);
-    coef = coef.rows(where_right);
+  arma::uvec where_wrong;
+  if(!terms.empty()){
+    where_wrong = find(arma::sum(std::get<0>(pseudo_lh), 0) == 0);
+    if(where_wrong.size() >0){
+      Rcout << "Some statistics do not change over all pairs/units (they are excluded from the model since their MLE is negative infinity)" << std::endl;
+      arma::uvec where_right = find(arma::var(std::get<0>(pseudo_lh), 0) != 0);
+      std::get<0>(pseudo_lh) = std::get<0>(pseudo_lh).cols(where_right);
+      coef = coef.rows(where_right);
+    }
   }
   arma::mat coefs(max_iteration_outer+1, coef.size() + coef_degrees.size()),
   fisher_degrees(terms.size(),terms.size()), fisher_nondegrees(terms.size(),terms.size()), 
@@ -3719,7 +3743,9 @@ List xyz_approximate_variability(arma::vec& coef,
         res_y.at(i - n_burn_in-1) =object.y_attribute.attribute;  
       }
       // Count global statistics
-      stats.row(i - n_burn_in-1) = global_stats.as_row();
+      if(!functions.empty()){
+        stats.row(i - n_burn_in-1) = global_stats.as_row();
+      }
       // n ++;
     }
     
@@ -3823,7 +3849,8 @@ Rcpp::List xyz_prepare_pseudo_estimation(const arma::mat& z_network,
   arma::vec res_unit = arma::linspace<arma::vec>(1.0, (double)n_units, n_units);
   int now = 0;
   if(return_z){
-    for(int i: seq(1,n_units-1)){
+    int max_i = directed ? n_units : (n_units - 1);
+    for(int i: seq(1, max_i)){
       for(int j: seq(1,n_units)){
         if(i == j){
           continue;

@@ -281,7 +281,13 @@ XZ_class::XZ_class(int n_units_, bool directed_, arma::mat neighborhood_, arma::
     neighborhood_bool_mat.assign(n_units * n_units, 0);
 
     mat_to_map_vec(neighborhood_, n_units, directed_, neighborhood, neighborhood, neighborhood_bool_mat);
-    mat_to_map_vec(overlap_, n_units, directed_, overlap, overlap, overlap_bool_mat);
+    mat_to_map_vec(overlap_, n_units, false, overlap, overlap, overlap_bool_mat);
+    for (int i = 1; i <= n_units; i++) {
+        std::sort(neighborhood[i].begin(), neighborhood[i].end());
+        neighborhood[i].erase(std::unique(neighborhood[i].begin(), neighborhood[i].end()), neighborhood[i].end());
+        std::sort(overlap[i].begin(), overlap[i].end());
+        overlap[i].erase(std::unique(overlap[i].begin(), overlap[i].end()), overlap[i].end());
+    }
     overlap_mat = overlap_;
     out_degrees_nb.assign(n_units + 1, 0);
     in_degrees_nb.assign(n_units + 1, 0);
@@ -321,7 +327,9 @@ XZ_class::XZ_class(int n_units_, bool directed_, std::vector<std::vector<int>> n
             overlap_bool_mat[get_mat_idx(i, over)] = 1;
         }
         std::sort(neighborhood[i].begin(), neighborhood[i].end());
+        neighborhood[i].erase(std::unique(neighborhood[i].begin(), neighborhood[i].end()), neighborhood[i].end());
         std::sort(overlap[i].begin(), overlap[i].end());
+        overlap[i].erase(std::unique(overlap[i].begin(), overlap[i].end()), overlap[i].end());
 
         adj_list_nb[i] = get_intersection_vec(z_network.adj_list[i], overlap[i]);
         if(z_network.directed){
@@ -346,7 +354,13 @@ XZ_class::XZ_class(int n_units_, bool directed_, arma::mat z_network_, arma::vec
     neighborhood_bool_mat.assign(n_units * n_units, 0);
 
     mat_to_map_vec(neighborhood_, n_units, directed_, neighborhood, neighborhood, neighborhood_bool_mat);
-    mat_to_map_vec(overlap_, n_units, directed_, overlap, overlap, overlap_bool_mat);
+    mat_to_map_vec(overlap_, n_units, false, overlap, overlap, overlap_bool_mat);
+    for (int i = 1; i <= n_units; i++) {
+        std::sort(neighborhood[i].begin(), neighborhood[i].end());
+        neighborhood[i].erase(std::unique(neighborhood[i].begin(), neighborhood[i].end()), neighborhood[i].end());
+        std::sort(overlap[i].begin(), overlap[i].end());
+        overlap[i].erase(std::unique(overlap[i].begin(), overlap[i].end()), overlap[i].end());
+    }
     overlap_mat = overlap_;
     for (int i = 1; i <= n_units; i++){
         adj_list_nb[i] = get_intersection_vec(z_network.adj_list[i], overlap[i]);

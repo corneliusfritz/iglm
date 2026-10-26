@@ -341,10 +341,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'   object that end with `distributions`.
     #'   If the term mcmc_diagnostics is included, MCMC diagnostics will also be computed.
     #' @param plot (logical) If `TRUE`, generates plots comparing observed and simulated statistics. Default is `TRUE`.
+    #' @param ... Additional arguments passed to \code{plot}.
     #' @return An object of class `iglm_model_assessment` containing the
     #'   observed statistics and the distribution of simulated statistics.
     #'   The result is also stored internally.
-    assess = function(formula, plot = TRUE) {
+    assess = function(formula, plot = TRUE, ...) {
       if (!private$.results$estimated) {
         stop("Model has not been estimated yet, assessing the fit thus makes little sense.", call. = FALSE)
       }
@@ -445,7 +446,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       class(res) <- "iglm_model_assessment"
       private$.results$set_model_assessment(res)
       if (plot) {
-        private$.results$plot(model_assessment = TRUE)
+        private$.results$plot(model_assessment = TRUE, ...)
       }
       invisible(res)
     },
@@ -677,8 +678,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       now <- Sys.time()
 
       if (private$.iglm.data$fix_z && private$.preprocess$includes_degrees) {
-        warning("fix_z = TRUE is incompatible with models including degree parameters.
-                                                   Setting includes_degrees = FALSE.")
+        warning(
+          "`fix_z = TRUE` is incompatible with degree parameters. Setting `includes_degrees = FALSE`.",
+          call. = FALSE
+        )
         private$.preprocess$includes_degrees <- FALSE
       }
 
@@ -764,7 +767,12 @@ iglm.object.generator <- R6::R6Class("iglm.object",
             }
           )
           class(tmp) <- "iglm.data.list"
-          attr(tmp, "neighborhood") <- iglm.data.neighborhood(private$.iglm.data$neighborhood)
+          res_nb <- list(
+            neighborhood = private$.iglm.data$neighborhood,
+            overlap = private$.iglm.data$overlap
+          )
+          class(res_nb) <- "iglm.data.neighborhood"
+          attr(tmp, "neighborhood") <- res_nb
           info$simulations <- tmp
           colnames(info$stats) <- private$.preprocess$coef_names
         }
@@ -1308,3 +1316,9 @@ iglm <- function(formula = NULL, coef = NULL, coef_degrees = NULL, sampler = NUL
     ...
   )
 }
+
+#' @export
+summary.iglm.object <- function(object, ...) {
+  object$summary(...)
+}
+

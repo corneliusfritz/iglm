@@ -14,3 +14,6 @@ readme.Rmd
 ^simulation_study_neighborhood\.R$
 ^neighborhood_simulation_results\.png$
 ^README\.Rmd$
+^data-raw$
+^.*\.csv$
+^.*\.png$

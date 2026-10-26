@@ -121,7 +121,7 @@ InitIglmTerm <- function(data_object, arglist, ...) {
   }
 
   if (is.null(init_func)) {
-    stop(paste0("Term '", term_name, "' not recognized. No '", init_func_name, "' found in search path or loaded namespaces."))
+    stop(paste0("Term '", term_name, "' not recognized. See ?`iglm-terms` for supported terms."), call. = FALSE)
   }
 
   init_func(data_object = data_object, arglist = arglist, ...)

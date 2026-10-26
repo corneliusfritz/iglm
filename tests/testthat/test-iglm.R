@@ -189,6 +189,16 @@ test_that("iglm throws error when covariate object does not exist", {
   expect_no_error(m_degrees_updated$estimate())
   expect_equal(dim(m_degrees_updated$results$var), c(0, 0))
 
+  # Pure degree model on directed network
+  data_obj_dir <- iglm.data(x_attribute = x, y_attribute = y, z_network = z, n_units = 4, directed = TRUE, family_x = "binomial", family_y = "binomial")
+  m_degrees_dir <- iglm(
+    formula = data_obj_dir ~ degrees,
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2, init_empty = FALSE),
+    control = control.iglm(max_it = 2, display_progress = FALSE, var_method = "Godambe")
+  )
+  expect_no_error(m_degrees_dir$estimate())
+  expect_equal(dim(m_degrees_dir$results$var), c(0, 0))
+
   # Test assess removes non-distribution terms like geodesic_distances, dsp, geo, geodist, esp
   expect_warning(
     m_degrees_updated$assess(formula = ~ degree_distribution + geodesic_distances, plot = FALSE),

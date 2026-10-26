@@ -723,5 +723,24 @@ test_that("hand-coded tests verify degree distribution and all other distributio
   expect_equal(as.numeric(d_dir$geo_dist(x_i = 1, y_j = 1, prob = FALSE, plot = FALSE)), c(3, 1, 0))
 })
 
+test_that("gwesp global ITP runs and calculates without error", {
+  # 4-node directed network
+  z_dir <- matrix(c(
+    0, 1, 1, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+    0, 0, 0, 0
+  ), nrow = 4, byrow = TRUE)
+  nb <- matrix(1, 4, 4)
+  diag(nb) <- 0
+
+  d_dir <- iglm.data(z_network = z_dir, neighborhood = nb, directed = TRUE,
+                     family_x = "binomial", family_y = "binomial")
+
+  stat_itp <- statistics(d_dir ~ gwesp(variant = "ITP", mode = "global", decay = 0.5))
+  expect_true(is.numeric(stat_itp))
+  expect_false(is.nan(stat_itp))
+})
+
 
 

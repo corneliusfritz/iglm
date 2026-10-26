@@ -615,7 +615,7 @@ details necessary to reconstruct the object later.
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{value_range}}{(numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.}
-      \item{\code{prob}}{(logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.}
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns proportions; if `FALSE`, returns counts.}
       \item{\code{plot}}{(logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.}
     }
     \if{html}{\out{</div>}}
@@ -663,7 +663,7 @@ details necessary to reconstruct the object later.
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{value_range}}{(numeric vector) Optional range of values to consider for the distribution. If `NULL` (default), the range is inferred from the data.}
-      \item{\code{prob}}{(logical) If `TRUE` (default), returns probabilities; if `FALSE`, returns frequencies.}
+      \item{\code{prob}}{(logical) If `TRUE` (default), returns proportions; if `FALSE`, returns counts.}
       \item{\code{plot}}{(logical) If `TRUE` (default), plots the distribution using a density plot for continuous data or a bar plot for discrete data.}
     }
     \if{html}{\out{</div>}}
