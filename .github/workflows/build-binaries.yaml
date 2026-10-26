@@ -128,7 +128,7 @@ jobs:
       - name: Rename and Move Binary Package
         run: |
           shopt -s nullglob
-          FILES=(iglm_*.zip iglm_*.tgz iglm_*.tar.gz)
+          FILES=(iglm_*.zip iglm_*.tgz iglm_*.tar.gz iglm_*.tar.xz)
           shopt -u nullglob
 
           if [ ${#FILES[@]} -eq 0 ]; then
@@ -141,6 +141,8 @@ jobs:
 
           if [[ "$BINARY_FILE" == *.tar.gz ]]; then
             EXT="tar.gz"
+          elif [[ "$BINARY_FILE" == *.tar.xz ]]; then
+            EXT="tar.xz"
           elif [[ "$BINARY_FILE" == *.zip ]]; then
             EXT="zip"
           elif [[ "$BINARY_FILE" == *.tgz ]]; then
