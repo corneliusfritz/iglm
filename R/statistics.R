@@ -7,8 +7,10 @@
 #'   name of a \code{\link{iglm.data}} object available in the calling environment.
 #'   Alternatively, the left-hand side can be a \code{iglm.data.list} object to compute statistics
 #'   for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
-#'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
-
+#'   See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.
+#'
+#' @seealso \code{\link{iglm}}, \code{\link{iglm.terms}}, \code{\link{iglm.data}}
+#'
 #' @param canonical_names (logical) If `TRUE`, returns canonical term names without label substitution.
 #'   Default is `FALSE`.
 #'

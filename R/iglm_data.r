@@ -2282,8 +2282,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       pct_overlap <- if (total_dyads > 0) (n_overlap / total_dyads) * 100 else 0
       overlap_str <- sprintf(
         "%s / %s (%.1f%%)",
-        format(n_overlap, big.mark = ",", trim = TRUE),
-        format(total_dyads, big.mark = ",", trim = TRUE),
+        format(n_overlap, trim = TRUE),
+        format(total_dyads, trim = TRUE),
         pct_overlap
       )
 
@@ -2328,7 +2328,6 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         sprintf("connections (fixed = %s)", private$.fix_z)
       }
       cat(sprintf("  %-*s: %s\n", w, edge_label, m_z))
-
       cat(sprintf("  %-*s: %s\n", w, "local dyads", overlap_str))
       cat("\nAttribute summaries\n")
 

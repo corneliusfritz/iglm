@@ -21,7 +21,7 @@ simulate_iglm(
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment.
-See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
+See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.}
 
 \item{basis}{An optional \code{\link{iglm.data}} object to serve as the basis (initial state)
 for the simulation. If provided, the simulation starts from the state (\code{x_attribute},
@@ -124,6 +124,7 @@ The function stops with an error if:
 
 \seealso{
 \code{\link{iglm}} for creating the model object,
+  \code{\link{iglm.terms}} for available model terms,
   \code{\link{sampler.iglm}} for creating the sampler object,
   \code{\link{iglm.data}} for the data object structure.
 }

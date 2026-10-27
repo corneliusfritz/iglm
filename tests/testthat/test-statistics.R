@@ -886,6 +886,105 @@ test_that("gwdsp ISP throws error for undirected network", {
   expect_error(statistics(obj ~ gwdsp(variant = "ISP", decay = 0.5)), "ISP")
 })
 
+test_that("attribute_xz, attribute_yz, and spillover_yc change stats match finite differences on directed networks", {
+  n <- 5
+  nb <- matrix(0, n, n)
+  nb[1:3, 1:3] <- 1
+  nb[3:5, 3:5] <- 1
+  diag(nb) <- 1
+
+  z_dir <- matrix(0, n, n)
+  z_dir[1, 2] <- 1; z_dir[2, 1] <- 1
+  z_dir[2, 3] <- 1; z_dir[3, 1] <- 1
+  z_dir[3, 4] <- 1; z_dir[4, 5] <- 1
+  diag(z_dir) <- 0
+
+  x_bin <- c(1, 0, 1, 1, 0)
+  y_bin <- c(0, 1, 1, 0, 1)
+  v_cov <- c(0.5, -0.2, 1.0, -1.5, 0.8)
+
+  d0 <- iglm.data(z_network = z_dir, x_attribute = x_bin, y_attribute = y_bin,
+                  neighborhood = nb, directed = TRUE, family_x = "binomial", family_y = "binomial")
+
+  # Test attribute_xz(mode = 'local') for x updates
+  form_xz <- d0 ~ attribute_xz(mode = "local")
+  prep_xz <- iglm:::formula_preprocess(form_xz)
+  pseudo_xz <- iglm:::xyz_prepare_pseudo_estimation(
+    z_network = z_dir, x_attribute = x_bin, y_attribute = y_bin,
+    neighborhood = d0$neighborhood, overlap = d0$overlap,
+    directed = TRUE, terms = prep_xz$term_names,
+    data_list = prep_xz$data_list, type_list = prep_xz$type_list,
+    display_progress = FALSE, family_x = "binomial", family_y = "binomial",
+    attr_x_scale = 1.0, attr_y_scale = 1.0,
+    return_x = TRUE, return_y = FALSE, return_z = FALSE
+  )
+  for (i in 1:n) {
+    x_new <- x_bin; x_new[i] <- 1 - x_new[i]
+    d_tog <- iglm.data(z_network = z_dir, x_attribute = x_new, y_attribute = y_bin,
+                       neighborhood = nb, directed = TRUE, family_x = "binomial", family_y = "binomial")
+    s0 <- statistics(form_xz)
+    s1 <- statistics(d_tog ~ attribute_xz(mode = "local"))
+    true_delta <- if (x_bin[i] == 0) (s1 - s0) else (s0 - s1)
+    expect_equal(unname(pseudo_xz$res_x$data[i, 3]), unname(true_delta))
+  }
+
+  # Test attribute_yz(mode = 'local') for y updates
+  form_yz <- d0 ~ attribute_yz(mode = "local")
+  prep_yz <- iglm:::formula_preprocess(form_yz)
+  pseudo_yz <- iglm:::xyz_prepare_pseudo_estimation(
+    z_network = z_dir, x_attribute = x_bin, y_attribute = y_bin,
+    neighborhood = d0$neighborhood, overlap = d0$overlap,
+    directed = TRUE, terms = prep_yz$term_names,
+    data_list = prep_yz$data_list, type_list = prep_yz$type_list,
+    display_progress = FALSE, family_x = "binomial", family_y = "binomial",
+    attr_x_scale = 1.0, attr_y_scale = 1.0,
+    return_x = FALSE, return_y = TRUE, return_z = FALSE
+  )
+  for (i in 1:n) {
+    y_new <- y_bin; y_new[i] <- 1 - y_new[i]
+    d_tog <- iglm.data(z_network = z_dir, x_attribute = x_bin, y_attribute = y_new,
+                       neighborhood = nb, directed = TRUE, family_x = "binomial", family_y = "binomial")
+    s0 <- statistics(form_yz)
+    s1 <- statistics(d_tog ~ attribute_yz(mode = "local"))
+    true_delta <- if (y_bin[i] == 0) (s1 - s0) else (s0 - s1)
+    expect_equal(unname(pseudo_yz$res_y$data[i, 3]), unname(true_delta))
+  }
+
+  # Test spillover_yc(mode = 'local') for y updates
+  form_yc <- d0 ~ spillover_yc(mode = "local", data = v_cov)
+  prep_yc <- iglm:::formula_preprocess(form_yc)
+  pseudo_yc <- iglm:::xyz_prepare_pseudo_estimation(
+    z_network = z_dir, x_attribute = x_bin, y_attribute = y_bin,
+    neighborhood = d0$neighborhood, overlap = d0$overlap,
+    directed = TRUE, terms = prep_yc$term_names,
+    data_list = prep_yc$data_list, type_list = prep_yc$type_list,
+    display_progress = FALSE, family_x = "binomial", family_y = "binomial",
+    attr_x_scale = 1.0, attr_y_scale = 1.0,
+    return_x = FALSE, return_y = TRUE, return_z = FALSE
+  )
+  for (i in 1:n) {
+    y_new <- y_bin; y_new[i] <- 1 - y_new[i]
+    d_tog <- iglm.data(z_network = z_dir, x_attribute = x_bin, y_attribute = y_new,
+                       neighborhood = nb, directed = TRUE, family_x = "binomial", family_y = "binomial")
+    s0 <- statistics(form_yc)
+    s1 <- statistics(d_tog ~ spillover_yc(mode = "local", data = v_cov))
+    true_delta <- if (y_bin[i] == 0) (s1 - s0) else (s0 - s1)
+    expect_equal(unname(pseudo_yc$res_y$data[i, 3]), unname(true_delta))
+  }
+})
+
+test_that("Directed-only terms throw informative errors when used on undirected networks", {
+  n <- 4
+  nb <- matrix(1, n, n)
+  d_und <- iglm.data(z_network = matrix(0, n, n), x_attribute = rep(0, n), y_attribute = rep(0, n),
+                     neighborhood = nb, directed = FALSE)
+  expect_error(statistics(d_und ~ outedges_x), "only for directed")
+  expect_error(statistics(d_und ~ outedges_y), "only for directed")
+  expect_error(statistics(d_und ~ gwodegree), "only for directed")
+  expect_error(statistics(d_und ~ spillover_yx), "only for directed")
+})
+
+
 
 
 

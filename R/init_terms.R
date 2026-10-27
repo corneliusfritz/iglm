@@ -24,6 +24,10 @@
 #' \item \strong{Network Terms}: Depend only on the connections \eqn{z_{i,j}}.
 #' \item \strong{Joint Attribute/Network Terms}: Depend on both individual attributes and connections.
 #' }
+#'
+#' For a comprehensive description and detailed mathematical definitions of all terms,
+#' see the \href{../doc/model-terms.html}{Model Terms vignette} (or run \code{vignette("model-terms", package = "iglm")}).
+#'
 #' @section Category 1: Attribute Terms:
 #'
 #' Below is a detailed description of terms that depend only on nodal attributes:
@@ -53,7 +57,9 @@
 #'   \item \code{\link{inedges_x-term}}, \code{\link{inedges_y-term}}, \code{\link{outedges_x-term}}, \code{\link{outedges_y-term}}
 #'   \item \code{\link{edges_x_match-term}}, \code{\link{edges_y_match-term}}
 #'   \item \code{\link{spillover_xx-term}}, \code{\link{spillover_yy-term}}
+#'   \item \code{\link{spillover_xx_scaled-term}}, \code{\link{spillover_yy_scaled-term}}
 #'   \item \code{\link{spillover_yx-term}}, \code{\link{spillover_xy-term}}, \code{\link{spillover_yc-term}}, \code{\link{spillover_yc_symm-term}}
+#'   \item \code{\link{spillover_yx_scaled-term}}, \code{\link{spillover_xy_scaled-term}}
 #' }
 #'
 #' @section Argument Specification (Positional and Named Arguments):
@@ -80,9 +86,14 @@
 #' Schweinberger, M. and J.R. Stewart (2020). Concentration and Consistency Results for Canonical and Curved Exponential-Family Models of Random Graphs. The Annals of Statistics, 48, 374-396.
 #'
 #' Stewart, J.R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. The Annals of Statistics, to appear.
+#' @seealso \href{../doc/model-terms.html}{Model Terms vignette} (or \code{vignette("model-terms", package = "iglm")}) for a detailed guide and mathematical formulations,
+#'   \code{\link{iglm}} for model fitting and estimation,
+#'   \code{\link{iglm.data}} for data structure,
+#'   \code{\link{simulate_iglm}} for simulation,
+#'   \code{\link{statistics}} for computing observed statistics.
 #'
-#' @name iglm-terms
-#' @aliases iglm-terms iglm.terms
+#' @name iglm.terms
+#' @aliases iglm.terms iglm-terms iglm_terms
 NULL
 
 #' @title Initialize iglm Model Terms
@@ -121,7 +132,7 @@ InitIglmTerm <- function(data_object, arglist, ...) {
   }
 
   if (is.null(init_func)) {
-    stop(paste0("Term '", term_name, "' not recognized. See ?`iglm-terms` for supported terms."), call. = FALSE)
+    stop(paste0("Term '", term_name, "' not recognized. See ?iglm.terms for supported terms."), call. = FALSE)
   }
 
   init_func(data_object = data_object, arglist = arglist, ...)
@@ -288,7 +299,7 @@ check.IglmTerm <- function(data_object, arglist, mandatory = character(0), expec
 
 #' @description \code{degrees}: Degrees: Specifies node-level fixed effects. Estimation requires an MM algorithm constraint.
 #' @name degrees-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 #' @description \code{edges(mode = "global")}: Edges: Captures the baseline propensity of tie formation \eqn{z_{i,j}}, partitioned by structural boundary \eqn{c_{i,j}}.
@@ -298,7 +309,7 @@ NULL
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j}}
 #' }
 #' @name edges-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.edges <- function(data_object, arglist, ...) {
@@ -319,7 +330,7 @@ InitIglmTerm.edges <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) z_{i,j} z_{j,i}} (for \eqn{i < j})
 #' }
 #' @name mutual-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.mutual <- function(data_object, arglist, ...) {
@@ -341,7 +352,7 @@ InitIglmTerm.mutual <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) w_{i,j} z_{i,j}}
 #' }
 #' @name cov_z-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.cov_z <- function(data_object, arglist, ...) {
@@ -365,7 +376,7 @@ InitIglmTerm.cov_z <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) v_i z_{i,j}}
 #' }
 #' @name cov_z_out-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.cov_z_out <- function(data_object, arglist, ...) {
@@ -391,7 +402,7 @@ InitIglmTerm.cov_z_out <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) v_j z_{i,j}}
 #' }
 #' @name cov_z_in-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.cov_z_in <- function(data_object, arglist, ...) {
@@ -413,7 +424,7 @@ InitIglmTerm.cov_z_in <- function(data_object, arglist, ...) {
 #' @description \code{cov_x(data = v)}: Nodal Covariate (X): Effect of a unit-level exogenous covariate \eqn{v_i} on endogenous attribute \eqn{x_i}.
 #' \eqn{g_i(x_i,y_i) = v_i x_i}
 #' @name cov_x-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.cov_x <- function(data_object, arglist, ...) {
@@ -434,7 +445,7 @@ InitIglmTerm.cov_x <- function(data_object, arglist, ...) {
 #' @description \code{cov_y(data = v)}: Nodal Covariate (Y): Effect of a unit-level exogenous covariate \eqn{v_i} on endogenous attribute \eqn{y_i}.
 #' \eqn{g_i(x_i,y_i) = v_i y_i}
 #' @name cov_y-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.cov_y <- function(data_object, arglist, ...) {
@@ -459,7 +470,7 @@ InitIglmTerm.cov_y <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{g_i(x_i,y_i) = x_i \sum_{j \notin \mathcal{N}_i} y_j + y_i \sum_{j \notin \mathcal{N}_i} x_j}
 #' }
 #' @name attribute_xy-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.attribute_xy <- function(data_object, arglist, ...) {
@@ -475,7 +486,7 @@ InitIglmTerm.attribute_xy <- function(data_object, arglist, ...) {
 
 #' @description \code{attribute_yz(mode = "local")}: Attribute Sum (Y-Z): Models the additive effect of \eqn{y_i} and \eqn{y_j} on edge formation within local neighborhoods.
 #' @name attribute_yz-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.attribute_yz <- function(data_object, arglist, ...) {
@@ -491,7 +502,7 @@ InitIglmTerm.attribute_yz <- function(data_object, arglist, ...) {
 
 #' @description \code{attribute_xz(mode = "local")}: Attribute Sum (X-Z): Models the additive effect of \eqn{x_i} and \eqn{x_j} on edge formation within local neighborhoods.
 #' @name attribute_xz-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.attribute_xz <- function(data_object, arglist, ...) {
@@ -512,7 +523,7 @@ InitIglmTerm.attribute_xz <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) y_j z_{i,j}}
 #' }
 #' @name inedges_y-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.inedges_y <- function(data_object, arglist, ...) {
@@ -534,11 +545,12 @@ InitIglmTerm.inedges_y <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) y_i z_{i,j}}
 #' }
 #' @name outedges_y-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.outedges_y <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
+    directed = TRUE,
     expected = list(mode = c("global", "local", "alocal")),
     defaults = list(mode = "global")
   )
@@ -555,7 +567,7 @@ InitIglmTerm.outedges_y <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) x_j z_{i,j}}
 #' }
 #' @name inedges_x-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.inedges_x <- function(data_object, arglist, ...) {
@@ -577,11 +589,12 @@ InitIglmTerm.inedges_x <- function(data_object, arglist, ...) {
 #'   \item \code{alocal}: \eqn{h_{i,j}(x,y,z) = (1 - c_{i,j}) x_i z_{i,j}}
 #' }
 #' @name outedges_x-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.outedges_x <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
+    directed = TRUE,
     expected = list(mode = c("global", "local", "alocal")),
     defaults = list(mode = "global")
   )
@@ -594,7 +607,7 @@ InitIglmTerm.outedges_x <- function(data_object, arglist, ...) {
 #' @description \code{attribute_x}: Attribute (X): Intercept for attribute \eqn{x}.
 #' \eqn{g_i(x_i,y_i) = x_i}
 #' @name attribute_x-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.attribute_x <- function(data_object, arglist, ...) {
@@ -608,7 +621,7 @@ InitIglmTerm.attribute_x <- function(data_object, arglist, ...) {
 #' @description \code{attribute_y}: Attribute (Y): Intercept for attribute \eqn{y}.
 #' \eqn{g_i(x_i,y_i) = y_i}
 #' @name attribute_y-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.attribute_y <- function(data_object, arglist, ...) {
@@ -625,7 +638,7 @@ InitIglmTerm.attribute_y <- function(data_object, arglist, ...) {
 #'   \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} \mathbb{I}(x_i = x_j) z_{i,j}}
 #' }
 #' @name edges_x_match-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.edges_x_match <- function(data_object, arglist, ...) {
@@ -645,7 +658,7 @@ InitIglmTerm.edges_x_match <- function(data_object, arglist, ...) {
 #'   \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} \mathbb{I}(y_i = y_j) z_{i,j}}
 #' }
 #' @name edges_y_match-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.edges_y_match <- function(data_object, arglist, ...) {
@@ -665,7 +678,7 @@ InitIglmTerm.edges_y_match <- function(data_object, arglist, ...) {
 #'   \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i y_j z_{i,j} / \text{deg}(i, \text{local})}
 #' }
 #' @name spillover_yy_scaled-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_yy_scaled <- function(data_object, arglist, ...) {
@@ -685,7 +698,7 @@ InitIglmTerm.spillover_yy_scaled <- function(data_object, arglist, ...) {
 #'   \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i x_j z_{i,j} / \text{deg}(i, \text{local})}
 #' }
 #' @name spillover_xx_scaled-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_xx_scaled <- function(data_object, arglist, ...) {
@@ -705,7 +718,7 @@ InitIglmTerm.spillover_xx_scaled <- function(data_object, arglist, ...) {
 #'   \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} y_i x_j z_{i,j} / \text{deg}(i, \text{local})}
 #' }
 #' @name spillover_yx_scaled-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_yx_scaled <- function(data_object, arglist, ...) {
@@ -725,7 +738,7 @@ InitIglmTerm.spillover_yx_scaled <- function(data_object, arglist, ...) {
 #'   \item \code{local}: \eqn{h_{i,j}(x,y,z) = c_{i,j} x_i y_j z_{i,j} / \text{deg}(i, \text{local})}
 #' }
 #' @name spillover_xy_scaled-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_xy_scaled <- function(data_object, arglist, ...) {
@@ -742,7 +755,7 @@ InitIglmTerm.spillover_xy_scaled <- function(data_object, arglist, ...) {
 #' @description \code{gwesp(data, mode = "global", variant = "OSP", decay = 0)}: Geometrically Weighted Edgewise-Shared Partners: Models triadic closure propensity conditioning on existing edges.
 #' Types dictate path constraint: OTP, ITP, OSP, ISP for directed; symm for undirected.
 #' @name gwesp-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.gwesp <- function(data_object, arglist, ...) {
@@ -772,7 +785,7 @@ InitIglmTerm.gwesp <- function(data_object, arglist, ...) {
 #' @description \code{gwdsp(data, mode = "global", variant = "OSP", decay = 0)}: Geometrically Weighted Dyadwise-Shared Partners: Models triadic potential irrespective of the closing edge.
 #' Types dictate path constraint: OTP, ITP, OSP, ISP for directed; symm for undirected.
 #' @name gwdsp-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.gwdsp <- function(data_object, arglist, ...) {
@@ -799,9 +812,19 @@ InitIglmTerm.gwdsp <- function(data_object, arglist, ...) {
   )
 }
 
+InitIglmTerm.gwesp_symm <- function(data_object, arglist, ...) {
+  arglist$variant <- "symm"
+  InitIglmTerm.gwesp(data_object = data_object, arglist = arglist, ...)
+}
+
+InitIglmTerm.gwdsp_symm <- function(data_object, arglist, ...) {
+  arglist$variant <- "symm"
+  InitIglmTerm.gwdsp(data_object = data_object, arglist = arglist, ...)
+}
+
 #' @description \code{gwdegree(mode = "global", decay = 0)}: Geometrically Weighted Degree: Captures the degree distribution utilizing an exponential decay parameter.
 #' @name gwdegree-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.gwdegree <- function(data_object, arglist, ...) {
@@ -823,7 +846,7 @@ InitIglmTerm.gwdegree <- function(data_object, arglist, ...) {
 
 #' @description \code{gwidegree(mode = "global", decay = 0)}: Geometrically Weighted In-Degree: Captures the in-degree distribution utilizing an exponential decay parameter.
 #' @name gwidegree-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.gwidegree <- function(data_object, arglist, ...) {
@@ -846,11 +869,12 @@ InitIglmTerm.gwidegree <- function(data_object, arglist, ...) {
 
 #' @description \code{gwodegree(mode = "global", decay = 0)}: Geometrically Weighted Out-Degree: Captures the out-degree distribution utilizing an exponential decay parameter.
 #' @name gwodegree-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.gwodegree <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
+    directed = TRUE,
     expected = list(
       decay = "scalar_numeric",
       mode = c("global", "local")
@@ -868,7 +892,7 @@ InitIglmTerm.gwodegree <- function(data_object, arglist, ...) {
 
 #' @description \code{spillover_yc_symm(data = v, mode = "local")}: Symmetric Y-C-Z Treatment Spillover: Bidirectional mapping of exogenous covariate \eqn{v} and endogenous trait \eqn{y} interaction.
 #' @name spillover_yc_symm-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_yc_symm <- function(data_object, arglist, ...) {
@@ -888,7 +912,7 @@ InitIglmTerm.spillover_yc_symm <- function(data_object, arglist, ...) {
 
 #' @description \code{spillover_xy(mode = "local")}: Directed X-Y-Z Treatment Spillover: Maps cross-attribute \eqn{x_i \to y_j} treatment assignment.
 #' @name spillover_xy-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_xy <- function(data_object, arglist, ...) {
@@ -904,7 +928,7 @@ InitIglmTerm.spillover_xy <- function(data_object, arglist, ...) {
 
 #' @description \code{spillover_yc(mode = "local")}: Directed Y-C-Z Treatment Spillover: Exogenous covariate \eqn{v} interacting with endogenous trait \eqn{y}.
 #' @name spillover_yc-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_yc <- function(data_object, arglist, ...) {
@@ -924,11 +948,12 @@ InitIglmTerm.spillover_yc <- function(data_object, arglist, ...) {
 
 #' @description \code{spillover_yx(mode = "local")}: Directed Y-X-Z Treatment Spillover: Maps cross-attribute \eqn{y_i \to x_j} treatment assignment.
 #' @name spillover_yx-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_yx <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
+    directed = TRUE,
     expected = list(mode = "local"),
     defaults = list(mode = "local")
   )
@@ -940,7 +965,7 @@ InitIglmTerm.spillover_yx <- function(data_object, arglist, ...) {
 
 #' @description \code{spillover_yy(mode = "local")}: Symmetric Y-Y-Z Outcome Spillover: Propagates \eqn{y}-outcome spillover effects.
 #' @name spillover_yy-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_yy <- function(data_object, arglist, ...) {
@@ -956,7 +981,7 @@ InitIglmTerm.spillover_yy <- function(data_object, arglist, ...) {
 
 #' @description \code{spillover_xx(mode = "local")}: Symmetric X-X-Z Outcome Spillover: Propagates \eqn{x}-outcome spillover effects.
 #' @name spillover_xx-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.spillover_xx <- function(data_object, arglist, ...) {
@@ -972,7 +997,7 @@ InitIglmTerm.spillover_xx <- function(data_object, arglist, ...) {
 
 #' @description \code{transitive}: Transitivity (Local): Indicator evaluating the presence of a local transitive triad configuration.
 #' @name transitive-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.transitive <- function(data_object, arglist, ...) {
@@ -985,7 +1010,7 @@ InitIglmTerm.transitive <- function(data_object, arglist, ...) {
 
 #' @description \code{nonisolates}: Non-Isolates: Captures frequency of nodes with degree strictly greater than zero.
 #' @name nonisolates-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.nonisolates <- function(data_object, arglist, ...) {
@@ -998,7 +1023,7 @@ InitIglmTerm.nonisolates <- function(data_object, arglist, ...) {
 
 #' @description \code{isolates}: Isolates: Captures frequency of nodes with degree zero.
 #' @name isolates-term
-#' @rdname iglm-terms
+#' @rdname iglm.terms
 NULL
 
 InitIglmTerm.isolates <- function(data_object, arglist, ...) {

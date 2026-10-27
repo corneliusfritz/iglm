@@ -116,7 +116,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' and control objects, calculating initial statistics, and validating.
     #' @param formula A model `formula` object. The left-hand side should be the
     #'   name of a \code{\link{iglm.data}} object available in the calling environment.
-    #'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
+    #'   See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.
     #' @param coef A numeric vector of initial coefficients for the terms in
     #'   the formula (excluding degree coefficeints). If `NULL`, coefficients are
     #'   initialized to zero.
@@ -1199,6 +1199,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' responses (\eqn{Y}), connections \eqn{(Z)}, and predictors \eqn{(X)}.
 #' Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.object}}).
 #'
+#' For details on available model terms and specifying model formulas, see \code{\link{iglm.terms}} (or \code{\link[=iglm.terms]{iglm-terms}}) and the \href{../doc/model-terms.html}{Model Terms vignette} (or run \code{vignette("model-terms", package = "iglm")}).
+#'
 #' @section Model Formulation:
 #'
 #' The joint probability density is specified as
@@ -1220,16 +1222,22 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' including local dependence limited to overlapping neighborhoods.
 #' This help page documents the various statistics available in 'iglm',
 #' corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
-#' components of the joint model. See \code{\link{iglm-terms}} for details on specifying
+#' components of the joint model. See \code{\link{iglm.terms}} for details on specifying
 #' all model terms via the formula interface.
 #'
+#' @seealso
+#' \code{\link{iglm.terms}} and the \href{../doc/model-terms.html}{Model Terms vignette} (or \code{vignette("model-terms", package = "iglm")}) for model terms and sufficient statistics,
+#' \code{\link{iglm.data}} for data structure and preparation,
+#' \code{\link{sampler.iglm}} for MCMC sampler configuration,
+#' \code{\link{control.iglm}} for estimation control parameters,
+#' \code{\link{simulate_iglm}} for simulation from an iglm model,
+#' \code{\link{statistics}} for computing observed sufficient statistics.
 #'
 #' @return An object of class \code{\link{iglm.object}}.
 #'
-#'
 #' @param formula A model `formula` object. The left-hand side should be the
 #'   name of a `iglm.data` object available in the calling environment.
-#'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
+#'   See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.
 #' @param coef Optional numeric vector of initial coefficients for the structural
 #'   (non-degrees) terms in `formula`. If `NULL`, coefficients are
 #'   initialized to zero. Length must match the number of terms.

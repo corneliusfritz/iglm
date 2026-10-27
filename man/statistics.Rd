@@ -11,7 +11,7 @@ statistics(formula, canonical_names = FALSE)
 name of a \code{\link{iglm.data}} object available in the calling environment.
 Alternatively, the left-hand side can be a \code{iglm.data.list} object to compute statistics
 for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
-See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
+See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.}
 
 \item{canonical_names}{(logical) If `TRUE`, returns canonical term names without label substitution.
 Default is `FALSE`.}
@@ -43,4 +43,7 @@ object <- iglm.data(
 )
 statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
 statistics(object ~ edges(mode = "local") + attribute_y + attribute_x, canonical_names = TRUE)
+}
+\seealso{
+\code{\link{iglm}}, \code{\link{iglm.terms}}, \code{\link{iglm.data}}
 }

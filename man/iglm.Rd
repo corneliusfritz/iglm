@@ -19,7 +19,7 @@ iglm(
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment.
-See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
+See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.}
 
 \item{coef}{Optional numeric vector of initial coefficients for the structural
 (non-degrees) terms in `formula`. If `NULL`, coefficients are
@@ -57,6 +57,8 @@ be used for studying spillover in connected populations and other network-mediat
 It is based on a joint probability model for dependent
 responses (\eqn{Y}), connections \eqn{(Z)}, and predictors \eqn{(X)}.
 Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.object}}).
+
+For details on available model terms and specifying model formulas, see \code{\link{iglm.terms}} (or \code{\link[=iglm.terms]{iglm-terms}}) and the \href{../doc/model-terms.html}{Model Terms vignette} (or run \code{vignette("model-terms", package = "iglm")}).
 }
 \section{Model Formulation}{
 
@@ -80,7 +82,7 @@ behavior (via \eqn{g_i}) and dyadic, network-based dependencies (via \eqn{h_{i,j
 including local dependence limited to overlapping neighborhoods.
 This help page documents the various statistics available in 'iglm',
 corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
-components of the joint model. See \code{\link{iglm-terms}} for details on specifying
+components of the joint model. See \code{\link{iglm.terms}} for details on specifying
 all model terms via the formula interface.
 }
 
@@ -136,4 +138,12 @@ Schweinberger, M. and M.S. Handcock (2015). Local Dependence in Random Graph Mod
 Schweinberger, M. and J.R. Stewart (2020). Concentration and Consistency Results for Canonical and Curved Exponential-Family Models of Random Graphs. The Annals of Statistics, 48, 374-396.
 
 Stewart, J.R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. The Annals of Statistics, to appear.
+}
+\seealso{
+\code{\link{iglm.terms}} and the \href{../doc/model-terms.html}{Model Terms vignette} (or \code{vignette("model-terms", package = "iglm")}) for model terms and sufficient statistics,
+\code{\link{iglm.data}} for data structure and preparation,
+\code{\link{sampler.iglm}} for MCMC sampler configuration,
+\code{\link{control.iglm}} for estimation control parameters,
+\code{\link{simulate_iglm}} for simulation from an iglm model,
+\code{\link{statistics}} for computing observed sufficient statistics.
 }

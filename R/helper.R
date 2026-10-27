@@ -371,12 +371,8 @@ iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
 }
 
 get_i <- function(x, i) {
-  if (length(i) != 1L) {
-    stop("`[[` can only extract a single element (length 1). To select multiple samples, use `[` (e.g., samples[c(1, 2)]).", call. = FALSE)
-  }
-  if (!is.numeric(i) || i < 1L || i > length(x)) {
-    stop("subscript out of bounds", call. = FALSE)
-  }
+  stopifnot(is.list(x), length(i) == 1L, is.numeric(i), i >= 1L)
+  if (i > length(x)) stop("subscript out of bounds")
   .subset2(x, i)
 }
 

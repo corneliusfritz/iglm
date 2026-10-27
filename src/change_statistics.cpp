@@ -312,7 +312,12 @@ EFFECT_REGISTER("attribute_xy_alocal", ::xyz_stat_attribute_xy_nonb,
 
 auto xyz_stat_attribute_yz_nb = CHANGESTAT {
   if (mode == "y") {
-    return (object.adj_list_nb.at(unit_i).size());
+    if (object.z_network.directed) {
+      return (object.adj_list_nb.at(unit_i).size() +
+              object.adj_list_in_nb.at(unit_i).size());
+    } else {
+      return (object.adj_list_nb.at(unit_i).size());
+    }
   } else if (mode == "z") {
     if (!object.get_val_overlap(unit_i, unit_j))
       return 0.0;
@@ -327,7 +332,12 @@ EFFECT_REGISTER("attribute_yz_local", ::xyz_stat_attribute_yz_nb,
 
 auto xyz_stat_attribute_xz_nb = CHANGESTAT {
   if (mode == "x") {
-    return (object.adj_list_nb.at(unit_i).size());
+    if (object.z_network.directed) {
+      return (object.adj_list_nb.at(unit_i).size() +
+              object.adj_list_in_nb.at(unit_i).size());
+    } else {
+      return (object.adj_list_nb.at(unit_i).size());
+    }
   } else if (mode == "z") {
     if (!object.get_val_overlap(unit_i, unit_j))
       return 0.0;
@@ -648,6 +658,9 @@ EFFECT_REGISTER("inedges_x_global", ::xyz_stat_edges_x_in, "inedges_x_global",
                 0);
 
 auto xyz_stat_edges_y_out_nb = CHANGESTAT {
+  if (!object.z_network.directed) {
+    Rcpp::stop("This statistic is only for directed networks");
+  }
   if (mode == "y") {
     return (object.adj_list_nb.at(unit_i).size());
   } else if (mode == "z") {
@@ -661,6 +674,9 @@ EFFECT_REGISTER("outedges_y_local", ::xyz_stat_edges_y_out_nb,
                 "outedges_y_local", 0);
 
 auto xyz_stat_edges_y_out_nonb = CHANGESTAT {
+  if (!object.z_network.directed) {
+    Rcpp::stop("This statistic is only for directed networks");
+  }
   if (mode == "y") {
     auto &connections_of_i_all = object.z_network.adj_list.at(unit_i);
     std::vector<int> connections_of_i;
@@ -913,7 +929,7 @@ auto xyz_stat_interaction_edges_y_cov = CHANGESTAT {
     // What to do if the attribute change stat is wanted
     // y_i from 0 -> 1
     double res = 0.0;
-    auto &connections_of_i = object.adj_list_nb.at(unit_i);
+    auto &connections_of_i = object.adj_list_in_nb.at(unit_i);
 
     for (int k : connections_of_i) {
       // if(k != unit_j){
