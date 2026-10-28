@@ -13,19 +13,19 @@ test_that("Optimized GWESP statistics are correct", {
   # OTP(4,3): {1, 2} (count=2)
   # ITP(3,4): {} (count=0)
 
-  n_actor <- 4
-  adj <- matrix(0, n_actor, n_actor)
+  n_units <- 4
+  adj <- matrix(0, n_units, n_units)
   adj[1, 3] <- 1
   adj[2, 3] <- 1
   adj[4, 1] <- 1
   adj[4, 2] <- 1
 
   data_obj <- iglm.data(
-    x_attribute = rep(0, n_actor),
-    y_attribute = rep(0, n_actor),
+    x_attribute = rep(0, n_units),
+    y_attribute = rep(0, n_units),
     z_network = adj,
     directed = TRUE,
-    n_actor = n_actor
+    n_units = n_units
   )
 
   # We test via calculate_statistics if available, or just simulate_iglm
@@ -47,18 +47,18 @@ test_that("Optimized GWESP statistics are correct", {
 })
 
 test_that("TNT sampler preserves sorted adjacency lists and correct counts", {
-  n_actor <- 50
-  adj <- matrix(0, n_actor, n_actor)
+  n_units <- 50
+  adj <- matrix(0, n_units, n_units)
   set.seed(42)
   adj[sample(length(adj), 100)] <- 1
   diag(adj) <- 0
 
   data_obj <- iglm.data(
-    x_attribute = rbinom(n_actor, 1, 0.5),
-    y_attribute = rbinom(n_actor, 1, 0.5),
+    x_attribute = rbinom(n_units, 1, 0.5),
+    y_attribute = rbinom(n_units, 1, 0.5),
     z_network = adj,
     directed = TRUE,
-    n_actor = n_actor
+    n_units = n_units
   )
 
   # If sorting or counts were wrong, multiple simulations would likely crash or
@@ -81,14 +81,14 @@ test_that("TNT sampler preserves sorted adjacency lists and correct counts", {
 })
 
 test_that("simulate_iglm returns networks when only_stats = FALSE", {
-  n_actor <- 10
-  adj <- matrix(0, n_actor, n_actor)
+  n_units <- 10
+  adj <- matrix(0, n_units, n_units)
   data_obj <- iglm.data(
-    x_attribute = rep(0, n_actor),
-    y_attribute = rep(0, n_actor),
+    x_attribute = rep(0, n_units),
+    y_attribute = rep(0, n_units),
     z_network = adj,
     directed = TRUE,
-    n_actor = n_actor
+    n_units = n_units
   )
 
   sampler <- sampler.iglm(n_simulation = 2, n_burn_in = 0)

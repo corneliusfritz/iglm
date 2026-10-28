@@ -108,6 +108,13 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      - name: Use C++14 for R 4.1 dependencies on Windows
+        if: runner.os == 'Windows' && matrix.config.r == '4.1'
+        run: |
+          mkdir -p ~/.R
+          echo 'CXX11 = $(CXX14)' >> ~/.R/Makevars.win
+        shell: bash
+
       - name: Fix OBJCXX for macOS arm64 (R 4.1/4.2)
         if: runner.os == 'macOS' && matrix.config.os == 'macos-latest' && (matrix.config.r == '4.1' || matrix.config.r == '4.2')
         run: |
@@ -128,7 +135,7 @@ jobs:
       - name: Rename and Move Binary Package
         run: |
           shopt -s nullglob
-          FILES=(iglm_*.zip iglm_*.tgz iglm_*.tar.gz)
+          FILES=(iglm_*.zip iglm_*.tgz iglm_*.tar.gz iglm_*.tar.xz)
           shopt -u nullglob
 
           if [ ${#FILES[@]} -eq 0 ]; then
@@ -141,6 +148,8 @@ jobs:
 
           if [[ "$BINARY_FILE" == *.tar.gz ]]; then
             EXT="tar.gz"
+          elif [[ "$BINARY_FILE" == *.tar.xz ]]; then
+            EXT="tar.xz"
           elif [[ "$BINARY_FILE" == *.zip ]]; then
             EXT="zip"
           elif [[ "$BINARY_FILE" == *.tgz ]]; then

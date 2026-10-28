@@ -36,8 +36,8 @@ The following preprocessing steps were carried out:
   \item \bold{Temporal Aggregation:} Proximity data (Bluetooth scans)
     were aggregated into sessions. A session break was defined by any
     temporal gap exceeding 10 minutes.
-  \item \bold{Recursive Pruning:} A recursive filter removed actors with missing
-    gender information or isolated actors in either the
+  \item \bold{Recursive Pruning:} A recursive filter removed units with missing
+    gender information or isolated units in either the
     friendship (\code{z_network}) or proximity (\code{neighborhood}) networks,
 }
 }

@@ -96,8 +96,8 @@ initialized to zero. Length must match the number of terms.</p></dd>
 <dt id="arg-coef-degrees">coef_degrees<a class="anchor" aria-label="anchor" href="#arg-coef-degrees"></a></dt>
 <dd><p>Optional numeric vector specifying the initial degrees
 coefficients. Required if `formula` includes degrees terms, otherwise
-should be `NULL`. Length must match `n_actor` (for undirected) or
-`2 * n_actor` (for directed).</p></dd>
+should be `NULL`. Length must match `n_units` (for undirected) or
+`2 * n_units` (for directed).</p></dd>
 
 
 <dt id="arg-sampler">sampler<a class="anchor" aria-label="anchor" href="#arg-sampler"></a></dt>
@@ -159,20 +159,20 @@ all model terms via the formula interface.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example usage:</span></span></span>
 <span class="r-in"><span><span class="co"># Create a iglm.data data object (example)</span></span></span>
-<span class="r-in"><span><span class="va">n_actor</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></span>
-<span class="r-in"><span><span class="va">neighborhood</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">n_actor</span>, ncol <span class="op">=</span> <span class="va">n_actor</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n_units</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></span>
+<span class="r-in"><span><span class="va">neighborhood</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">n_units</span>, ncol <span class="op">=</span> <span class="va">n_units</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">xyz_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="iglm.data.html">iglm.data</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  neighborhood <span class="op">=</span> <span class="va">neighborhood</span>, directed <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  type_x <span class="op">=</span> <span class="st">"binomial"</span>, type_y <span class="op">=</span> <span class="st">"binomial"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Define ground truth coefficients</span></span></span>
 <span class="r-in"><span><span class="va">gt_coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges_local"</span> <span class="op">=</span> <span class="fl">3</span>, <span class="st">"attribute_y"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, <span class="st">"attribute_x"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">gt_coef_pop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n_actor</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gt_coef_pop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n_units</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Define MCMC sampler</span></span></span>
 <span class="r-in"><span><span class="va">sampler_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="sampler.iglm.html">sampler.iglm</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  n_burn_in <span class="op">=</span> <span class="fl">100</span>, n_simulation <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>  sampler_x <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  sampler_y <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_actor</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  sampler_x <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_units</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  sampler_y <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="va">n_units</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  sampler_z <span class="op">=</span> <span class="fu"><a href="sampler.net.attr.html">sampler.net.attr</a></span><span class="op">(</span>n_proposals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">neighborhood</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  init_empty <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

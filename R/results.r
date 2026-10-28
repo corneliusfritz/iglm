@@ -8,7 +8,7 @@
 #' bindings of the main `iglm_object`.
 #' @import R6
 #' @import RcppProgress
-#' @importFrom graphics plot lines abline layout title par axis boxplot box polygon barplot legend
+#' @importFrom graphics plot lines points abline layout title par axis boxplot box polygon barplot legend
 results.generator <- R6::R6Class("results",
   private = list(
     .coefficients_path = NULL,
@@ -81,7 +81,7 @@ results.generator <- R6::R6Class("results",
     #'   side effect of storing the assessment results.
     set_model_assessment = function(res) {
       if (!inherits(res, "iglm_model_assessment")) {
-        stop("`res` must be of class `iglm_model_assessment`.", call. = FALSE)
+        stop("'res' must be of class 'iglm_model_assessment'.", call. = FALSE)
       }
       private$.model_assessment <- res
       invisible(self)
@@ -91,7 +91,7 @@ results.generator <- R6::R6Class("results",
     #' @param prediction An object containing the prediction results (is a list of class `iglm.prediction`.
     set_prediction = function(prediction) {
       if (!inherits(prediction, "iglm.prediction")) {
-        stop("`prediction` must be of class `iglm.prediction`.", call. = FALSE)
+        stop("'prediction' must be of class 'iglm.prediction'.", call. = FALSE)
       }
       private$.prediction <- prediction
     },
@@ -233,7 +233,7 @@ results.generator <- R6::R6Class("results",
       }
       if (!is.null(samples)) {
         if (!"iglm.data.list" %in% class(samples)) {
-          stop("`samples` must be of class `iglm.data.list`.", call. = FALSE)
+          stop("'samples' must be of class 'iglm.data.list'.", call. = FALSE)
         } else {
           if (length(private$.samples) == 0) {
             private$.samples <- samples
@@ -288,7 +288,7 @@ results.generator <- R6::R6Class("results",
       }
 
       if (!isTRUE(stats) && !isTRUE(trace) && !isTRUE(model_assessment)) {
-        stop("At least one of `stats`, `trace`, or `model_assessment` must be TRUE.", call. = FALSE)
+        stop("At least one of 'stats', 'trace', or 'model_assessment' must be TRUE.", call. = FALSE)
       }
       if (isTRUE(stats)) {
         if (length(private$.stats) == 0) {
@@ -304,7 +304,11 @@ results.generator <- R6::R6Class("results",
           stop("Model has not been estimated yet. Cannot plot results.", call. = FALSE)
         }
 
-        plot(private$.llh, type = "l", xlab = "Iteration", las = 1, ylab = "Log-likelihood", bty = "l")
+        adj <- adjust_margin_for_yaxis(private$.llh)
+        old_mar <- par(mar = c(par("mar")[1], adj$mar_left, par("mar")[3], par("mar")[4]))
+        plot(private$.llh, type = "l", xlab = "Iteration", las = 1, ylab = "", bty = "l")
+        title(ylab = "Log-likelihood", line = adj$line)
+        par(old_mar)
 
         if (!is.null(private$.score_degrees)) {
           coefficients_path_np <- matrix(private$.coefficients_path[, seq_len(nrow(private$.var))], ncol = nrow(private$.var))
@@ -325,13 +329,40 @@ results.generator <- R6::R6Class("results",
           stop("No model assessment available to plot.", call. = FALSE)
         }
         # Check what parts of the dot_list are of class "iglm_model_assessment" and whose names coincide with the planned "model_assessment"
-        good_ind <- unlist(lapply(dot_list, function(x) inherits(x, "iglm_model_assessment")))
-        dot_list <- dot_list[good_ind]
+        if (length(dot_list) > 0) {
+          good_ind <- vapply(dot_list, function(x) inherits(x, "iglm_model_assessment"), logical(1))
+          extra_plot_args <- dot_list[!good_ind]
+          dot_list <- dot_list[good_ind]
+        } else {
+          extra_plot_args <- list()
+        }
 
-        good_ind <- unlist(lapply(dot_list, function(x) {
-          identical(sort(x$names), sort(private$.model_assessment$names))
-        }))
-        dot_list <- dot_list[good_ind]
+        outline <- if (!is.null(extra_plot_args$outline)) extra_plot_args$outline else FALSE
+        bds_col <- if (!is.null(extra_plot_args$bds_col)) extra_plot_args$bds_col else "gray75"
+        plot_bds <- if (!is.null(extra_plot_args$plot_bds)) extra_plot_args$plot_bds else TRUE
+        pch_bds <- if (!is.null(extra_plot_args$pch_bds)) extra_plot_args$pch_bds else 1
+        cex_bds <- if (!is.null(extra_plot_args$cex_bds)) extra_plot_args$cex_bds else 0.75
+        lwd_bds <- if (!is.null(extra_plot_args$lwd_bds)) extra_plot_args$lwd_bds else 1
+        lty_bds <- if (!is.null(extra_plot_args$lty_bds)) extra_plot_args$lty_bds else 1
+
+        call_assessment_single <- function(observed, sim_matrix, xlab, ylab = "Proportion",
+                                           x_positions = NULL, x_at = NULL, x_labels = NULL,
+                                           use_envelope = FALSE) {
+          plot_assessment_single(
+            observed = observed, sim_matrix = sim_matrix, xlab = xlab, ylab = ylab,
+            x_positions = x_positions, x_at = x_at, x_labels = x_labels,
+            use_envelope = use_envelope, outline = outline, bds_col = bds_col,
+            plot_bds = plot_bds, pch_bds = pch_bds, cex_bds = cex_bds,
+            lwd_bds = lwd_bds, lty_bds = lty_bds
+          )
+        }
+
+        if (length(dot_list) > 0) {
+          good_ind <- vapply(dot_list, function(x) {
+            identical(sort(x$names), sort(private$.model_assessment$names))
+          }, logical(1))
+          dot_list <- dot_list[good_ind]
+        }
         if (length(dot_list) > 0) {
           add <- TRUE
           colors_tmp <- generate_colors(length(dot_list) + 1)
@@ -370,8 +401,8 @@ results.generator <- R6::R6Class("results",
         }
         tmp_names <- names(private$.model_assessment$observed)
         base_names <- private$.model_assessment$base_name
-        type_x <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$type_x)) private$.samples[[1]]$type_x else "binomial"
-        type_y <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$type_y)) private$.samples[[1]]$type_y else "binomial"
+        family_x <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_x)) private$.samples[[1]]$family_x else "binomial"
+        family_y <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_y)) private$.samples[[1]]$family_y else "binomial"
         k <- 0
         for (i in base_names) {
           k <- k + 1
@@ -386,7 +417,7 @@ results.generator <- R6::R6Class("results",
                 } else {
                   if (is_local) "Local Outdegree" else "Outdegree"
                 }
-                xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, type_x = type_x, type_y = type_y)
+                xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, family_x = family_x, family_y = family_y)
                 obs_deg <- private$.model_assessment$observed[[tmp_names[k]]][[degree_type]]
                 sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k], degree_type)
 
@@ -399,14 +430,14 @@ results.generator <- R6::R6Class("results",
                     model_names = names_tmp, colors = colors_tmp, xlab = xlab_deg
                   )
                 } else {
-                  plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
+                  call_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
                 }
               }
             } else {
               # Undirected
               is_local <- grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])
               base_lab <- if (is_local) "Local Degree" else "Degree"
-              xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, type_x = type_x, type_y = type_y)
+              xlab_deg <- get_assessment_constraint_xlab(base_lab, tmp_names[k], i, family_x = family_x, family_y = family_y)
               obs_deg <- private$.model_assessment$observed[[tmp_names[k]]]
               sim_deg <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -419,15 +450,18 @@ results.generator <- R6::R6Class("results",
                   model_names = names_tmp, colors = colors_tmp, xlab = xlab_deg, lwd_mean = 1
                 )
               } else {
-                plot_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
+                call_assessment_single(observed = obs_deg, sim_matrix = sim_deg, xlab = xlab_deg)
               }
             }
-          } else if (i %in% c("dyadwise_shared_partner_distribution", "dsp_dist",
-                              "edgewise_shared_partner_distribution", "esp_dist")) {
+          } else if (i %in% c(
+            "dyadwise_shared_partner_distribution", "dsp_dist",
+            "edgewise_shared_partner_distribution", "esp_dist"
+          )) {
             xlab_sp <- if (grepl("dyadwise", i) || grepl("^dsp", i)) "Dyadwise Shared Partner" else "Edgewise Shared Partner"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
-              xlab_sp <- paste0(xlab_sp, " (Local)")
+              xlab_sp <- paste0("Local ", xlab_sp)
             }
+            xlab_sp <- get_assessment_constraint_xlab(xlab_sp, tmp_names[k], i, family_x = family_x, family_y = family_y)
             obs_sp <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_sp <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
 
@@ -440,14 +474,14 @@ results.generator <- R6::R6Class("results",
                 model_names = names_tmp, colors = colors_tmp, xlab = xlab_sp
               )
             } else {
-              plot_assessment_single(observed = obs_sp, sim_matrix = sim_sp, xlab = xlab_sp)
+              call_assessment_single(observed = obs_sp, sim_matrix = sim_sp, xlab = xlab_sp)
             }
-
           } else if (i %in% c("geodesic_distances_distribution", "geo_dist")) {
             xlab_geo <- "Geodesic Distance"
             if (grepl("mode_local", tmp_names[k]) || grepl("local", tmp_names[k])) {
-              xlab_geo <- paste0(xlab_geo, " (Local)")
+              xlab_geo <- paste0("Local ", xlab_geo)
             }
+            xlab_geo <- get_assessment_constraint_xlab(xlab_geo, tmp_names[k], i, family_x = family_x, family_y = family_y)
             obs_geo <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_geo <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
             x_pos <- seq_along(obs_geo)
@@ -463,7 +497,7 @@ results.generator <- R6::R6Class("results",
                 x_positions = x_pos, x_at = x_pos, x_labels = x_labs
               )
             } else {
-              plot_assessment_single(
+              call_assessment_single(
                 observed = obs_geo, sim_matrix = sim_geo, xlab = xlab_geo,
                 x_positions = x_pos, x_at = x_pos, x_labels = x_labs
               )
@@ -471,7 +505,7 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("y_distribution", "y_dist")) {
             obs_y <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_y <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
-            is_normal <- (private$.samples[[1]]$type_y == "normal")
+            is_normal <- (family_y == "normal")
             x_pos <- if (is_normal) as.numeric(names(obs_y)) else seq_along(obs_y)
 
             if (add) {
@@ -481,14 +515,14 @@ results.generator <- R6::R6Class("results",
               plot_assessment_multi(
                 observed = obs_y, sim_main = sim_y, sim_dots = sim_dots,
                 model_names = names_tmp, colors = colors_tmp, xlab = "Distribution of Y",
-                ylab = if (is_normal) "Density" else "Percentage",
+                ylab = if (is_normal) "Density" else "Proportion",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )
             } else {
-              plot_assessment_single(
+              call_assessment_single(
                 observed = obs_y, sim_matrix = sim_y, xlab = "Distribution of Y",
-                ylab = if (is_normal) "Density" else "Percentage",
+                ylab = if (is_normal) "Density" else "Proportion",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )
@@ -496,7 +530,7 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("x_distribution", "x_dist")) {
             obs_x <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_x <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
-            is_normal <- (private$.samples[[1]]$type_x == "normal")
+            is_normal <- (family_x == "normal")
             x_pos <- if (is_normal) as.numeric(names(obs_x)) else seq_along(obs_x)
 
             if (add) {
@@ -506,14 +540,14 @@ results.generator <- R6::R6Class("results",
               plot_assessment_multi(
                 observed = obs_x, sim_main = sim_x, sim_dots = sim_dots,
                 model_names = names_tmp, colors = colors_tmp, xlab = "Distribution of X",
-                ylab = if (is_normal) "Density" else "Percentage",
+                ylab = if (is_normal) "Density" else "Proportion",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )
             } else {
-              plot_assessment_single(
+              call_assessment_single(
                 observed = obs_x, sim_matrix = sim_x, xlab = "Distribution of X",
-                ylab = if (is_normal) "Density" else "Percentage",
+                ylab = if (is_normal) "Density" else "Proportion",
                 x_positions = x_pos, x_at = pretty(x_pos), x_labels = pretty(x_pos),
                 use_envelope = is_normal
               )
@@ -563,7 +597,7 @@ results.generator <- R6::R6Class("results",
       } else {
         cat("Statistics from Simulations Not Available\n")
       }
-      if (!is.null(private$.samples)) {
+      if (length(private$.samples) > 0) {
         cat("Samples Available of class:", class(private$.samples), "\n")
       } else {
         cat("Samples Not Available\n")
@@ -574,47 +608,51 @@ results.generator <- R6::R6Class("results",
   active = list(
     #' @field coefficients_path (`matrix` or `NULL`) Read-only. The path of all estimated coefficients across iterations.
     coefficients_path = function(value) {
-      if (missing(value)) private$.coefficients_path else stop("`coefficients_path` is read-only.", call. = FALSE)
+      if (missing(value)) private$.coefficients_path else stop("'coefficients_path' is read-only.", call. = FALSE)
     },
     #' @field samples (`list` or `NULL`) Read-only. A list of simulated `iglm.data` objects (class `iglm.data.list`).
     samples = function(value) {
-      if (missing(value)) private$.samples else stop("`samples` is read-only.", call. = FALSE)
+      if (missing(value)) private$.samples else stop("'samples' is read-only.", call. = FALSE)
     },
     #' @field stats (`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` obect from `coda`.
     stats = function(value) {
-      if (missing(value)) private$.stats else stop("`stats` is read-only.", call. = FALSE)
+      if (missing(value)) private$.stats else stop("'stats' is read-only.", call. = FALSE)
     },
     #' @field var (`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-degrees coefficients.
     var = function(value) {
-      if (missing(value)) private$.var else stop("`var` is read-only.", call. = FALSE)
+      if (missing(value)) private$.var else stop("'var' is read-only.", call. = FALSE)
     },
     #' @field fisher_degrees (`matrix` or `NULL`) Read-only. Fisher information matrix for degrees coefficients.
     fisher_degrees = function(value) {
-      if (missing(value)) private$.fisher_degrees else stop("`fisher_degrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.fisher_degrees else stop("'fisher_degrees' is read-only.", call. = FALSE)
     },
     #' @field fisher_nondegrees (`matrix` or `NULL`) Read-only. Fisher information matrix for non-degrees coefficients.
     fisher_nondegrees = function(value) {
-      if (missing(value)) private$.fisher_nondegrees else stop("`fisher_nondegrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.fisher_nondegrees else stop("'fisher_nondegrees' is read-only.", call. = FALSE)
     },
     #' @field score_degrees (`numeric` or `NULL`) Read-only. Score vector for degrees coefficients.
     score_degrees = function(value) {
-      if (missing(value)) private$.score_degrees else stop("`score_degrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.score_degrees else stop("'score_degrees' is read-only.", call. = FALSE)
     },
     #' @field score_nondegrees (`numeric` or `NULL`) Read-only. Score vector for non-degrees coefficients.
     score_nondegrees = function(value) {
-      if (missing(value)) private$.score_nondegrees else stop("`score_nondegrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.score_nondegrees else stop("'score_nondegrees' is read-only.", call. = FALSE)
     },
     #' @field llh (`numeric` or `NULL`) Read-only. Vector of log-likelihood values recorded during estimation.
     llh = function(value) {
-      if (missing(value)) private$.llh else stop("`llh` is read-only.", call. = FALSE)
+      if (missing(value)) private$.llh else stop("'llh' is read-only.", call. = FALSE)
     },
     #' @field model_assessment (`list` or `NULL`) Read-only. Results from model assessment (goodness-of-fit).
     model_assessment = function(value) {
-      if (missing(value)) private$.model_assessment else stop("`model_assessment` is read-only.", call. = FALSE)
+      if (missing(value)) private$.model_assessment else stop("'model_assessment' is read-only.", call. = FALSE)
     },
     #' @field estimated (`logical`) Read-only. Flag indicating if estimation has been completed.
     estimated = function(value) {
-      if (missing(value)) private$.estimated else stop("`estimated` is read-only.", call. = FALSE)
+      if (missing(value)) private$.estimated else stop("'estimated' is read-only.", call. = FALSE)
+    },
+    #' @field prediction (`list` or `NULL`) Read-only. Results from prediction.
+    prediction = function(value) {
+      if (missing(value)) private$.prediction else stop("'prediction' is read-only.", call. = FALSE)
     }
   )
 )
@@ -646,8 +684,7 @@ results <- function(size_coef, size_coef_degrees, file = NULL) {
 }
 
 #' @importFrom grDevices hcl
-generate_colors <- function(n, chroma = 35, luminance = 85, seed = 123) {
-  if (!is.null(seed)) set.seed(seed)
+generate_colors <- function(n, chroma = 35, luminance = 85, seed = NULL) {
   hues <- seq(15, 375, length.out = n + 1)[1:n]
   # Construct hex codes using the HCL space
   colors <- hcl(h = hues, c = chroma, l = luminance)

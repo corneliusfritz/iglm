@@ -42,8 +42,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         z_network = private$.iglm.data$z_network,
         x_attribute = private$.iglm.data$x_attribute,
         y_attribute = private$.iglm.data$y_attribute,
-        type_x = private$.iglm.data$type_x,
-        type_y = private$.iglm.data$type_y,
+        family_x = private$.iglm.data$family_x,
+        family_y = private$.iglm.data$family_y,
         attr_x_scale = private$.iglm.data$scale_x,
         attr_y_scale = private$.iglm.data$scale_y,
         neighborhood = private$.iglm.data$neighborhood,
@@ -52,7 +52,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         terms = private$.preprocess$term_names,
         data_list = private$.preprocess$data_list,
         type_list = private$.preprocess$type_list,
-        n_actor = private$.iglm.data$n_actor
+        n_units = private$.iglm.data$n_units
       ))
       names(counts) <- private$.preprocess$coef_names
       private$.sufficient_statistics <- counts
@@ -63,7 +63,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' check fails.
     .validate = function() {
       if (!is.character(private$.name) || length(private$.name) != 1) {
-        stop("`name` must be a single character string.", call. = FALSE)
+        stop("'name' must be a single character string.", call. = FALSE)
       }
 
       if (is.null(private$.formula) || !inherits(private$.formula, "formula")) {
@@ -83,13 +83,13 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         if (!is.numeric(private$.coef_degrees)) {
           stop("Invalid coef_degrees in iglm.object.", call. = FALSE)
         }
-        expected_length <- private$.iglm.data$n_actor +
-          private$.iglm.data$directed * private$.iglm.data$n_actor
+        expected_length <- private$.iglm.data$n_units +
+          private$.iglm.data$directed * private$.iglm.data$n_units
         if (length(private$.coef_degrees) != expected_length) {
-          stop("Length of coef_degrees does not match number of actors in data object.", call. = FALSE)
+          stop("Length of coef_degrees does not match number of units in data object.", call. = FALSE)
         }
         if (length(private$.coef_degrees_internal) != expected_length) {
-          stop("Length of coef_degrees does not match number of actors in data object.", call. = FALSE)
+          stop("Length of coef_degrees does not match number of units in data object.", call. = FALSE)
         }
       }
       if (!is.null(private$.results)) {
@@ -116,7 +116,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' and control objects, calculating initial statistics, and validating.
     #' @param formula A model `formula` object. The left-hand side should be the
     #'   name of a \code{\link{iglm.data}} object available in the calling environment.
-    #'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
+    #'   See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.
     #' @param coef A numeric vector of initial coefficients for the terms in
     #'   the formula (excluding degree coefficeints). If `NULL`, coefficients are
     #'   initialized to zero.
@@ -131,13 +131,16 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'   parameters. If `NULL`, default settings are used.
     #' @param file (character or `NULL`) If provided, loads the sampler state from
     #'  the specified .rds file instead of initializing from parameters.
+    #' @param ... Additional arguments. Unrecognized arguments will trigger informative errors.
     #' @return A new `iglm.object`.
     initialize = function(formula = NULL, coef = NULL,
                           coef_degrees = NULL,
                           sampler = NULL,
                           control = NULL,
                           name = NULL,
-                          file = NULL) {
+                          file = NULL,
+                          ...) {
+      check_glm_arguments(list(...))
       # browser()
       if (!is.null(file)) {
         if (missing(file) || !is.character(file) || length(file) != 1) {
@@ -160,13 +163,19 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           x_attribute = data_loaded$iglm.data$x_attribute,
           y_attribute = data_loaded$iglm.data$y_attribute,
           z_network = data_loaded$iglm.data$z_network,
-          n_actor = data_loaded$iglm.data$n_actor,
-          type_x = data_loaded$iglm.data$type_x,
-          type_y = data_loaded$iglm.data$type_y,
+          n_units = if (!is.null(data_loaded$iglm.data$n_units)) data_loaded$iglm.data$n_units else data_loaded$iglm.data$n_actor,
+          family_x = data_loaded$iglm.data$family_x,
+          family_y = data_loaded$iglm.data$family_y,
           scale_x = data_loaded$iglm.data$scale_x,
           scale_y = data_loaded$iglm.data$scale_y,
           neighborhood = data_loaded$iglm.data$neighborhood,
-          directed = data_loaded$iglm.data$directed
+          directed = data_loaded$iglm.data$directed,
+          fix_x = if (!is.null(data_loaded$iglm.data$fix_x)) data_loaded$iglm.data$fix_x else FALSE,
+          fix_z = if (!is.null(data_loaded$iglm.data$fix_z)) data_loaded$iglm.data$fix_z else FALSE,
+          fix_z_alocal = if (!is.null(data_loaded$iglm.data$fix_z_alocal)) data_loaded$iglm.data$fix_z_alocal else TRUE,
+          label_x = if (!is.null(data_loaded$iglm.data$label_x)) data_loaded$iglm.data$label_x else "x",
+          label_y = if (!is.null(data_loaded$iglm.data$label_y)) data_loaded$iglm.data$label_y else "y",
+          label_z = if (!is.null(data_loaded$iglm.data$label_z)) data_loaded$iglm.data$label_z else "z"
         )
         private$.coef <- data_loaded$coef
         private$.coef_degrees <- data_loaded$coef_degrees
@@ -201,11 +210,14 @@ iglm.object.generator <- R6::R6Class("iglm.object",
               data_loaded$results$model_assessment
           )
         }
+        if (length(data_loaded$results$prediction) > 0) {
+          private$.results$set_prediction(data_loaded$results$prediction)
+        }
         private$.control <- data_loaded$control
         private$.sampler <- data_loaded$sampler
       } else {
         if (!inherits(formula, "formula")) {
-          stop("`formula` must be a formula object.")
+          stop("'formula' must be a formula object.")
         }
         private$.formula <- formula
         if (is.null(name)) {
@@ -221,22 +233,22 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           private$.coef <- rep(0, length(private$.preprocess$coef_names))
         } else {
           if (!is.numeric(coef) || any(!is.finite(coef))) {
-            stop("`coef` must contain finite numeric values (no NA, NaN, or Inf).", call. = FALSE)
+            stop("'coef' must contain finite numeric values (no NA, NaN, or Inf).", call. = FALSE)
           }
           private$.coef <- coef
         }
         if (is.null(coef_degrees)) {
           private$.coef_degrees <- rep(
             0,
-            private$.iglm.data$n_actor +
-              private$.iglm.data$directed * private$.iglm.data$n_actor
+            private$.iglm.data$n_units +
+              private$.iglm.data$directed * private$.iglm.data$n_units
           )
         } else {
           if (private$.preprocess$includes_degrees == FALSE) {
-            stop("The formula does not include degrees terms, so `coef_degrees` should be NULL.")
+            stop("The formula does not include degrees terms, so 'coef_degrees' should be NULL.")
           }
           if (!is.numeric(coef_degrees) || any(!is.finite(coef_degrees))) {
-            stop("`coef_degrees` must contain finite numeric values (no NA, NaN, or Inf).", call. = FALSE)
+            stop("'coef_degrees' must contain finite numeric values (no NA, NaN, or Inf).", call. = FALSE)
           }
           private$.coef_degrees <- coef_degrees
         }
@@ -255,10 +267,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         # --- Handle sampler ---
         if (is.null(sampler)) {
           sampler.x.obj <- sampler.net.attr(
-            n_proposals = self$iglm.data$n_actor * 10
+            n_proposals = self$iglm.data$n_units * 10
           )
           sampler.y.obj <- sampler.net.attr(
-            n_proposals = self$iglm.data$n_actor * 10
+            n_proposals = self$iglm.data$n_units * 10
           )
           sampler.z.obj <- sampler.net.attr(
             n_proposals = nrow(self$iglm.data$overlap) * 10
@@ -273,7 +285,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           )
         } else {
           if (!inherits(sampler, "sampler.iglm")) {
-            stop("`sampler` must be a 'sampler.iglm' object created with sampler.iglm().")
+            stop("'sampler' must be a 'sampler.iglm' object created with 'sampler.iglm()'.")
           }
           private$.sampler <- sampler
         }
@@ -338,10 +350,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'   object that end with `distributions`.
     #'   If the term mcmc_diagnostics is included, MCMC diagnostics will also be computed.
     #' @param plot (logical) If `TRUE`, generates plots comparing observed and simulated statistics. Default is `TRUE`.
+    #' @param ... Additional arguments passed to \code{plot}.
     #' @return An object of class `iglm_model_assessment` containing the
     #'   observed statistics and the distribution of simulated statistics.
     #'   The result is also stored internally.
-    assess = function(formula, plot = TRUE) {
+    assess = function(formula, plot = TRUE, ...) {
       if (!private$.results$estimated) {
         stop("Model has not been estimated yet, assessing the fit thus makes little sense.", call. = FALSE)
       }
@@ -359,7 +372,6 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         include_mcmc <- FALSE
         sufficient_statistics <- NULL
       }
-
 
 
       names_tmp <- attr(terms(formula), "term.labels")
@@ -392,11 +404,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
       ranges_tmp <- lapply(seq_along(names_tmp), function(idx) {
         bn <- base_name[idx]
-        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$type_y == "normal") {
+        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$family_y == "normal") {
           all_y <- c(private$.iglm.data$y_attribute, unlist(lapply(private$.results$samples, function(s) s$y_attribute)))
           return(range(all_y, na.rm = TRUE))
         }
-        if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$type_x == "normal") {
+        if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$family_x == "normal") {
           all_x <- c(private$.iglm.data$x_attribute, unlist(lapply(private$.results$samples, function(s) s$x_attribute)))
           return(range(all_x, na.rm = TRUE))
         }
@@ -414,20 +426,20 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       # For normal distribution terms, re-evaluate observed with the common value_range
       for (idx in seq_along(names_tmp)) {
         bn <- base_name[idx]
-        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$type_y == "normal") {
+        if (bn %in% c("y_distribution", "y_dist") && private$.iglm.data$family_y == "normal") {
           observed[[idx]] <- private$.iglm.data$y_distribution(value_range = ranges_tmp[[idx]], plot = FALSE)
-        } else if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$type_x == "normal") {
+        } else if (bn %in% c("x_distribution", "x_dist") && private$.iglm.data$family_x == "normal") {
           observed[[idx]] <- private$.iglm.data$x_distribution(value_range = ranges_tmp[[idx]], plot = FALSE)
         }
       }
 
       simulated <- lapply(private$.results$samples,
-        function(object, info_tmp, names_tmp) {
+        function(object, names_tmp) {
           res <- eval_change(formula = formula, object = object, additional_args = ranges_tmp)
           names(res) <- names_tmp
           return(res)
         },
-        names_tmp = names_tmp, info_tmp = info_tmp
+        names_tmp = names_tmp
       )
 
 
@@ -443,7 +455,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       class(res) <- "iglm_model_assessment"
       private$.results$set_model_assessment(res)
       if (plot) {
-        private$.results$plot(model_assessment = TRUE)
+        private$.results$plot(model_assessment = TRUE, ...)
       }
       invisible(res)
     },
@@ -472,7 +484,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                      canonical_names = FALSE, ...) {
       # Validation
       if (length(digits) != 1 || !is.numeric(digits) || digits < 0) {
-        stop("`digits` must be a single non-negative integer.", call. = FALSE)
+        stop("'digits' must be a single non-negative integer.", call. = FALSE)
       }
 
       # --- Prepare outputs for dynamic width calculation ---
@@ -565,9 +577,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           }
           if (private$.iglm.data$directed) {
             cat("  Outdegrees:\n")
-            print(format_summary(private$.coef_degrees[1:private$.iglm.data$n_actor], digits), quote = FALSE)
+            print(format_summary(private$.coef_degrees[1:private$.iglm.data$n_units], digits), quote = FALSE)
             cat("\n  Indegrees:\n")
-            print(format_summary(private$.coef_degrees[(private$.iglm.data$n_actor + 1):(2 * private$.iglm.data$n_actor)], digits), quote = FALSE)
+            print(format_summary(private$.coef_degrees[(private$.iglm.data$n_units + 1):(2 * private$.iglm.data$n_units)], digits), quote = FALSE)
           } else {
             print(format_summary(as.vector(private$.coef_degrees), digits), quote = FALSE)
           }
@@ -628,7 +640,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @return The name of the object as a character string.
     set_name = function(name) {
       if (!is.character(name) || length(name) != 1) {
-        stop("`name` must be a single character string.", call. = FALSE)
+        stop("'name' must be a single character string.", call. = FALSE)
       }
       private$.name <- name
     },
@@ -639,7 +651,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @return Invisibly returns `NULL`.
     set_control = function(control) {
       if (!inherits(control, "control.iglm")) {
-        stop("`control` must be a 'control.iglm' object created with control.iglm().")
+        stop("'control' must be a 'control.iglm' object created with 'control.iglm()'.")
       }
       private$.control <- control
     },
@@ -653,7 +665,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       }
       extension <- tools::file_ext(file)
       if (tolower(extension) != "rds") {
-        stop("File extension must be .rds", call. = FALSE)
+        stop("File extension must be '.rds'", call. = FALSE)
       }
       data_to_save <- self$gather()
       saveRDS(data_to_save, file = file)
@@ -674,9 +686,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       # browser()
       now <- Sys.time()
 
-      if (private$.iglm.data$fix_z & private$.preprocess$includes_degrees) {
-        warning("fix_z = TRUE is incompatible with models including degree parameters.
-                                                   Setting includes_degrees = FALSE.")
+      if (private$.iglm.data$fix_z && private$.preprocess$includes_degrees) {
+        warning(
+          "`fix_z = TRUE` is incompatible with degree parameters. Setting `includes_degrees = FALSE`.",
+          call. = FALSE
+        )
         private$.preprocess$includes_degrees <- FALSE
       }
 
@@ -699,7 +713,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           coefficients_degrees_internal <- info$coefficients_degrees
           tmp <- private$.iglm.data$degree()
           if (private$.iglm.data$directed) {
-            coefficients_degrees_internal[which(tmp$in_degree_seq == 0) + private$.iglm.data$n_actor] <- NA
+            coefficients_degrees_internal[which(tmp$in_degree_seq == 0) + private$.iglm.data$n_units] <- NA
             coefficients_degrees_internal[which(tmp$out_degree_seq == 0)] <- NA
           } else {
             coefficients_degrees_internal[which(tmp$degree_seq == 0)] <- NA
@@ -719,14 +733,14 @@ iglm.object.generator <- R6::R6Class("iglm.object",
             private$.results$resize(
               size_coef = length(info$coefficients_nondegrees),
               size_coef_degrees =
-                (private$.iglm.data$n_actor + private$.iglm.data$n_actor * private$.iglm.data$directed) *
+                (private$.iglm.data$n_units + private$.iglm.data$n_units * private$.iglm.data$directed) *
                   private$.preprocess$includes_degrees
             )
           } else {
             private$.results$resize(
               size_coef = length(info$coefficients),
               size_coef_degrees =
-                (private$.iglm.data$n_actor + private$.iglm.data$n_actor * private$.iglm.data$directed) *
+                (private$.iglm.data$n_units + private$.iglm.data$n_units * private$.iglm.data$directed) *
                   private$.preprocess$includes_degrees
             )
           }
@@ -745,11 +759,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
                 x_attribute = info$simulations[[x]]$x_attribute,
                 y_attribute = info$simulations[[x]]$y_attribute,
                 z_network = info$simulations[[x]]$z_network,
-                n_actor = private$.iglm.data$n_actor,
+                n_units = private$.iglm.data$n_units,
                 return_neighborhood = FALSE,
                 directed = private$.iglm.data$directed,
-                type_x = private$.iglm.data$type_x,
-                type_y = private$.iglm.data$type_y,
+                family_x = private$.iglm.data$family_x,
+                family_y = private$.iglm.data$family_y,
                 scale_x = private$.iglm.data$scale_x,
                 scale_y = private$.iglm.data$scale_y,
                 fix_x = private$.iglm.data$fix_x,
@@ -762,7 +776,12 @@ iglm.object.generator <- R6::R6Class("iglm.object",
             }
           )
           class(tmp) <- "iglm.data.list"
-          attr(tmp, "neighborhood") <- iglm.data.neighborhood(private$.iglm.data$neighborhood)
+          res_nb <- list(
+            neighborhood = private$.iglm.data$neighborhood,
+            overlap = private$.iglm.data$overlap
+          )
+          class(res_nb) <- "iglm.data.neighborhood"
+          attr(tmp, "neighborhood") <- res_nb
           info$simulations <- tmp
           colnames(info$stats) <- private$.preprocess$coef_names
         }
@@ -865,7 +884,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         only_stats = only_stats,
         display_progress = display_progress,
         offset_nonoverlap = offset_nonoverlap,
-        cluster = private$.control$cluster,
+        cluster = private$.sampler$cluster,
         basis = basis
       )
 
@@ -875,7 +894,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         estimated = length(private$.coef) > 0
       )
       private$.validate()
-      invisible(private$.results$simulation)
+      invisible(private$.results$samples)
     },
     #' @description
     #' Calculates predicted values for the nodal covariates (\code{x}), the outcome variable (\code{y}),
@@ -915,14 +934,14 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' \itemize{
     #'   \item For \strong{Binomial} families: \eqn{\mu = (1 + \exp(-\eta))^{-1}} (Logistic).
     #'   \item For \strong{Poisson} families: \eqn{\mu = \exp(\eta)} (Exponential).
-    #'   \item For \strong{Gaussian} families: \eqn{\mu = \eta} (Identity).
+    #'   \item For \strong{Normal} families: \eqn{\mu = \eta} (Identity).
     #' }
     #' For the network component \code{z}, the linear predictor includes dyadic covariates,
     #' degrees effects (sender/receiver variances), and structural offsets.
     #'
     #' @return A list containing the requested predictions:
     #' \describe{
-    #'   \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the actor ID and subsequent
+    #'   \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the unit ID and subsequent
     #'   columns represent the predicted mean values.}
     #'   \item{\code{z}}{A data frame containing the edgelist with columns: \code{sender}, \code{receiver},
     #'   and \code{prediction} (probability or intensity).}
@@ -932,39 +951,37 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       if (!private$.results$estimated) {
         stop("Model has not been estimated yet, prediction thus makes little sense.", call. = FALSE)
       }
+      variant <- match.arg(variant)
       res <- list()
-      if (length(variant) > 1) {
-        stop("Please provide only one variant: 'conditional' or 'marginal'.", call. = FALSE)
-      }
       if (variant == "marginal") {
-        if (is.null(private$.results$samples)) {
+        if (length(private$.results$samples) == 0) {
           self$simulate()
         }
         if ("x" %in% type) {
           res$x <- data.frame(cbind(
-            1:private$.iglm.data$n_actor, private$.iglm.data$x_attribute,
-            rowMeans(vapply(private$.results$samples, function(x) x$x_attribute, numeric(private$.iglm.data$n_actor)))
+            1:private$.iglm.data$n_units, private$.iglm.data$x_attribute,
+            rowMeans(vapply(private$.results$samples, function(x) x$x_attribute, numeric(private$.iglm.data$n_units)))
           ))
-          names(res$x) <- c("actor", "target", "prediction")
+          names(res$x) <- c("unit", "target", "prediction")
         }
         if ("y" %in% type) {
           res$y <- data.frame(cbind(
-            1:private$.iglm.data$n_actor, private$.iglm.data$y_attribute,
-            rowMeans(vapply(private$.results$samples, function(x) x$y_attribute, numeric(private$.iglm.data$n_actor)))
+            1:private$.iglm.data$n_units, private$.iglm.data$y_attribute,
+            rowMeans(vapply(private$.results$samples, function(x) x$y_attribute, numeric(private$.iglm.data$n_units)))
           ))
-          names(res$y) <- c("actor", "target", "prediction")
+          names(res$y) <- c("unit", "target", "prediction")
         }
         if ("z" %in% type) {
           matrices_list <- lapply(private$.results$samples, function(x) {
             sparseMatrix(x$z_network[, 1], x$z_network[, 2],
               symmetric = !x$directed,
-              dims = c(x$n_actor, x$n_actor)
+              dims = c(x$n_units, x$n_units)
             )
           })
           res_z <- Reduce("+", matrices_list) / length(matrices_list)
           res_z <- as.matrix(res_z)
-          rownames(res_z) <- colnames(res_z) <- paste0(1:private$.iglm.data$n_actor)
-          network_obs <- matrix(0, nrow = private$.iglm.data$n_actor, ncol = private$.iglm.data$n_actor)
+          rownames(res_z) <- colnames(res_z) <- paste0(1:private$.iglm.data$n_units)
+          network_obs <- matrix(0, nrow = private$.iglm.data$n_units, ncol = private$.iglm.data$n_units)
           network_obs[private$.iglm.data$z_network] <- 1
           res$z <- data.frame(
             sender = rownames(res_z)[row(res_z)],
@@ -974,8 +991,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           )
         }
       } else if (variant == "conditional") {
-        # browser()
         control_old <- private$.control
+        on.exit(private$.control <- control_old, add = TRUE)
         private$.control$estimate_model <- FALSE
         private$.control$display_progress <- FALSE
         private$.control$return_x <-
@@ -984,12 +1001,12 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         if ("x" %in% type) {
           private$.control$return_x <- TRUE
           info <- self$estimate()
-          lp <- info$res_x[, -c(1, 2)] %*% private$.coef
-          if (private$.iglm.data$type_x == "binomial") {
+          lp <- info$res_x[, -c(1, 2), drop = FALSE] %*% private$.coef
+          if (private$.iglm.data$family_x == "binomial") {
             mu <- 1 / (1 + exp(-lp))
-          } else if (private$.iglm.data$type_x == "gaussian") {
+          } else if (private$.iglm.data$family_x == "normal") {
             mu <- lp
-          } else if (private$.iglm.data$type_x == "poisson") {
+          } else if (private$.iglm.data$family_x == "poisson") {
             mu <- exp(lp)
           }
           private$.control$return_x <- FALSE
@@ -997,24 +1014,24 @@ iglm.object.generator <- R6::R6Class("iglm.object",
             info$res_x[, c(2, 1)],
             mu
           ))
-          names(res$x) <- c("actor", "target", "prediction")
+          names(res$x) <- c("unit", "target", "prediction")
         }
         if ("y" %in% type) {
           private$.control$return_y <- TRUE
           info <- self$estimate()
-          lp <- info$res_y[, -c(1, 2)] %*% private$.coef
-          if (private$.iglm.data$type_y == "binomial") {
+          lp <- info$res_y[, -c(1, 2), drop = FALSE] %*% private$.coef
+          if (private$.iglm.data$family_y == "binomial") {
             mu <- 1 / (1 + exp(-lp))
-          } else if (private$.iglm.data$type_y == "gaussian") {
+          } else if (private$.iglm.data$family_y == "normal") {
             mu <- lp
-          } else if (private$.iglm.data$type_y == "poisson") {
+          } else if (private$.iglm.data$family_y == "poisson") {
             mu <- exp(lp)
           }
           res$y <- data.frame(cbind(
             info$res_y[, c(2, 1)],
             mu
           ))
-          names(res$y) <- c("actor", "target", "prediction")
+          names(res$y) <- c("unit", "target", "prediction")
 
           private$.control$return_y <- FALSE
         }
@@ -1023,8 +1040,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           # debugonce(estimate_xyz)
           info <- self$estimate()
           # private$.control$offset_nonoverlap[]
-          lp <- info$res_z[, -c(1, 2, 3, 4)] %*% private$.coef + private$.coef_degrees[info$res_z[, 3]] +
-            private$.coef_degrees[info$res_z[, 3] + private$.iglm.data$n_actor * private$.iglm.data$directed] +
+          lp <- info$res_z[, -c(1, 2, 3, 4), drop = FALSE] %*% private$.coef + private$.coef_degrees[info$res_z[, 2]] +
+            private$.coef_degrees[info$res_z[, 3] + private$.iglm.data$n_units * private$.iglm.data$directed] +
             private$.control$offset_nonoverlap * (1 - info$res_z[, 4])
           mu <- 1 / (1 + exp(-lp))
           res$z <- data.frame(cbind(
@@ -1057,11 +1074,11 @@ iglm.object.generator <- R6::R6Class("iglm.object",
       private$.coef <- coef
       if (private$.preprocess$includes_degrees) {
         if (is.null(coef_degrees)) {
-          stop("Model includes degrees effects; `coef_degrees` must be provided.", call. = FALSE)
+          stop("Model includes degrees effects; 'coef_degrees' must be provided.", call. = FALSE)
         }
         if (length(coef_degrees) != length(private$.coef_degrees)) {
           stop(paste0(
-            "Length of `coef_degrees` (", length(coef_degrees),
+            "Length of 'coef_degrees' (", length(coef_degrees),
             ") does not match the number of degrees coefficients (",
             length(private$.coef_degrees), ")."
           ), call. = FALSE)
@@ -1079,8 +1096,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'   the simulated networks, invisibly. Returns an error if no samples
     #'   are available.
     get_samples = function() {
-      if (is.null(private$.results$samples)) {
-        stop("No samples available. Please run `simulate()` first.", call. = FALSE)
+      if (is.null(private$.results$samples) || length(private$.results$samples) == 0) {
+        stop("No samples available. Please run 'simulate()' first.", call. = FALSE)
       } else {
         invisible(private$.results$samples)
       }
@@ -1093,7 +1110,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #'  @return The \code{\link{iglm.object}} itself, invisibly.
     set_sampler = function(sampler) {
       if (!inherits(sampler, "sampler.iglm")) {
-        stop("`sampler` must be a 'sampler.iglm' object created with sampler.iglm().")
+        stop("'sampler' must be a 'sampler.iglm' object created with 'sampler.iglm()'.")
       }
       private$.sampler <- sampler
       if (private$.control$display_progress) {
@@ -1129,22 +1146,22 @@ iglm.object.generator <- R6::R6Class("iglm.object",
   active = list(
     #' @field formula (`formula`) Read-only. The model formula specifying terms and data object.
     formula = function(value) {
-      if (missing(value)) private$.formula else stop("`formula` is read-only.", call. = FALSE)
+      if (missing(value)) private$.formula else stop("'formula' is read-only.", call. = FALSE)
     },
 
     #' @field coef (`numeric`) Read-only. The current vector of non-degrees coefficient estimates or initial values.
     coef = function(value) {
-      if (missing(value)) private$.coef else stop("`coef` is read-only.", call. = FALSE)
+      if (missing(value)) private$.coef else stop("'coef' is read-only.", call. = FALSE)
     },
 
     #' @field coef_degrees (`numeric` or `NULL`) Read-only. The current vector of degrees coefficient estimates or initial values, or `NULL` if not applicable.
     coef_degrees = function(value) {
-      if (missing(value)) private$.coef_degrees else stop("`coef_degrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.coef_degrees else stop("'coef_degrees' is read-only.", call. = FALSE)
     },
 
     #' @field results (`results`) Read-only. The \code{\link{results}} R6 object containing all estimation and simulation outputs.
     results = function(value) {
-      if (missing(value)) private$.results else stop("`results` is read-only.", call. = FALSE)
+      if (missing(value)) private$.results else stop("'results' is read-only.", call. = FALSE)
     },
 
     #' @field iglm.data (`iglm.data`) The associated \code{\link{iglm.data}} R6 object containing the network and attribute data.
@@ -1168,12 +1185,12 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
     #' @field name (`character`) The name of the model.
     name = function(value) {
-      if (missing(value)) private$.name else if (is.character(value)) self$name <- value else stop("`name` must be a character string.", call. = FALSE)
+      if (missing(value)) private$.name else if (is.character(value)) self$name <- value else stop("'name' must be a character string.", call. = FALSE)
     },
 
     #' @field sufficient_statistics (`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.
     sufficient_statistics = function(value) {
-      if (missing(value)) private$.sufficient_statistics else stop("`sufficient_statistics` is read-only.", call. = FALSE)
+      if (missing(value)) private$.sufficient_statistics else stop("'sufficient_statistics' is read-only.", call. = FALSE)
     }
   )
 )
@@ -1186,8 +1203,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' It extends GLMs for independent responses to dependent responses and can
 #' be used for studying spillover in connected populations and other network-mediated phenomena.
 #' It is based on a joint probability model for dependent
-#' responses (\eqn{Y}) and connections \eqn{(Z)} conditional on
-#' predictors (X).
+#' responses (\eqn{Y}), connections \eqn{(Z)}, and predictors \eqn{(X)}.
+#' Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.object}}).
+#'
+#' For details on available model terms and specifying model formulas, see \code{\link{iglm.terms}} (or \code{\link[=iglm.terms]{iglm-terms}}) and the \href{../doc/model-terms.html}{Model Terms vignette} (or run \code{vignette("model-terms", package = "iglm")}).
 #'
 #' @section Model Formulation:
 #'
@@ -1197,7 +1216,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' which is defined by two distinct sets of user-specified features:
 #' \itemize{
 #'   \item \strong{\eqn{\mathbf{g}_i(x_i^*, y_i^*)= (g_i(x_i^*, y_i^*))}}: A vector of unit-level functions (or "g-terms")
-#'     that describe the relationship between an individual actor \eqn{i}'s
+#'     that describe the relationship between an individual unit \eqn{i}'s
 #'     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
 #'   \item \strong{\eqn{\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)= (h_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z))}}: A vector of pair-level functions (or "h-terms")
 #'     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})
@@ -1210,23 +1229,29 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' including local dependence limited to overlapping neighborhoods.
 #' This help page documents the various statistics available in 'iglm',
 #' corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
-#' components of the joint model. See \code{\link{iglm-terms}} for details on specifying
+#' components of the joint model. See \code{\link{iglm.terms}} for details on specifying
 #' all model terms via the formula interface.
 #'
+#' @seealso
+#' \code{\link{iglm.terms}} and the \href{../doc/model-terms.html}{Model Terms vignette} (or \code{vignette("model-terms", package = "iglm")}) for model terms and sufficient statistics,
+#' \code{\link{iglm.data}} for data structure and preparation,
+#' \code{\link{sampler.iglm}} for MCMC sampler configuration,
+#' \code{\link{control.iglm}} for estimation control parameters,
+#' \code{\link{simulate_iglm}} for simulation from an iglm model,
+#' \code{\link{statistics}} for computing observed sufficient statistics.
 #'
 #' @return An object of class \code{\link{iglm.object}}.
 #'
-#'
 #' @param formula A model `formula` object. The left-hand side should be the
 #'   name of a `iglm.data` object available in the calling environment.
-#'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
+#'   See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.
 #' @param coef Optional numeric vector of initial coefficients for the structural
 #'   (non-degrees) terms in `formula`. If `NULL`, coefficients are
 #'   initialized to zero. Length must match the number of terms.
 #' @param coef_degrees Optional numeric vector specifying the initial degrees
 #'   coefficients. Required if `formula` includes degrees terms, otherwise
-#'   should be `NULL`. Length must match `n_actor` (for undirected) or
-#'   `2 * n_actor` (for directed).
+#'   should be `NULL`. Length must match `n_units` (for undirected) or
+#'   `2 * n_units` (for directed).
 #' @param sampler An object of class \code{\link{sampler.iglm}}, controlling the MCMC sampling scheme. If `NULL`,
 #'   default sampler settings will be used.
 #' @param control An object of class \code{\link{control.iglm}}, specifying parameters for the estimation algorithm.
@@ -1235,24 +1260,26 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' @param file Optional character string specifying a file path to load a
 #'  previously saved  \code{\link{iglm.object}} from disk (in RDS format). If provided,
 #'  other arguments are ignored and the object is loaded from the file.
+#' @param ... Additional arguments. Unrecognized arguments, particularly those from
+#'   standard \code{glm} (such as \code{data} and \code{family}), trigger informative errors explaining differences in \code{iglm}.
 #' @aliases iglm.object
 #' @examples
 #' # Example usage:
 #' # Create a iglm.data data object (example)
-#' n_actor <- 50
-#' neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+#' n_units <- 50
+#' neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 #' xyz_obj <- iglm.data(
 #'   neighborhood = neighborhood, directed = FALSE,
-#'   type_x = "binomial", type_y = "binomial"
+#'   family_x = "binomial", family_y = "binomial"
 #' )
 #' # Define ground truth coefficients
 #' gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
-#' gt_coef_pop <- rnorm(n = n_actor, -2, 1)
+#' gt_coef_pop <- rnorm(n = n_units, -2, 1)
 #' # Define MCMC sampler
 #' sampler_new <- sampler.iglm(
 #'   n_burn_in = 100, n_simulation = 10,
-#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+#'   sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+#'   sampler_y = sampler.net.attr(n_proposals = n_units * 10),
 #'   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
 #'   init_empty = FALSE
 #' )
@@ -1291,8 +1318,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #'
 #' @export
 iglm <- function(formula = NULL, coef = NULL, coef_degrees = NULL, sampler = NULL,
-                 control = NULL, name = NULL, file = NULL) {
-  # browser()
+                 control = NULL, name = NULL, file = NULL, ...) {
+  check_glm_arguments(list(...))
   iglm.object.generator$new(
     formula = formula,
     coef = coef,
@@ -1300,7 +1327,13 @@ iglm <- function(formula = NULL, coef = NULL, coef_degrees = NULL, sampler = NUL
     sampler = sampler,
     control = control,
     name = name,
-    file = file
+    file = file,
+    ...
   )
+}
+
+#' @export
+summary.iglm.object <- function(object, ...) {
+  object$summary(...)
 }
 

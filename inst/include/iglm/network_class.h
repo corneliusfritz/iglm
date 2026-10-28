@@ -21,17 +21,17 @@ public:
   std::vector<int> in_degrees;
 
   inline size_t get_mat_idx(int from, int to) const {
-    if (from < 1 || from > n_actor || to < 1 || to > n_actor) {
+    if (from < 1 || from > n_units || to < 1 || to > n_units) {
         return 0; // Or some safe default, though get_val will check it
     }
-    return (size_t)(from - 1) * n_actor + (to - 1);
+    return (size_t)(from - 1) * n_units + (to - 1);
   }
 
   // Constructors
-  Network (int n_actor_, bool directed_);
-  Network (int n_actor_, bool directed_, arma::mat mat);
+  Network (int n_units_, bool directed_);
+  Network (int n_units_, bool directed_, arma::mat mat);
   
-  void set_network_from_mat(int n_actor_, bool directed_, arma::mat mat);
+  void set_network_from_mat(int n_units_, bool directed_, arma::mat mat);
   void change_edge(int from, int to);
   
   size_t count_common_partners(unsigned int from, unsigned int to, std::string type = "OSP") const;
@@ -40,7 +40,7 @@ public:
   double count_edges() const;
   
   inline double get_val(int from, int to) const {
-    if (from < 1 || from > n_actor || to < 1 || to > n_actor) {
+    if (from < 1 || from > n_units || to < 1 || to > n_units) {
         return 0.0;
     }
     size_t idx = get_mat_idx(from, to);
@@ -48,13 +48,13 @@ public:
     return adj_mat[idx] ? 1.0 : 0.0;
   }
   
-  int get_n_actor() const { return n_actor; }
+  int get_n_units() const { return n_units; }
   
   void add_edge(int from, int to);
   void delete_edge(int from, int to);
   void add_edges_from_mat(arma::mat mat);
   
 private:
-  int n_actor;
+  int n_units;
 };
 #endif

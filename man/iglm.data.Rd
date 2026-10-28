@@ -10,9 +10,9 @@ iglm.data(
   z_network = NULL,
   neighborhood = NULL,
   directed = TRUE,
-  n_actor = NA,
-  type_x = "binomial",
-  type_y = "binomial",
+  n_units = NA,
+  family_x = "binomial",
+  family_y = "binomial",
   scale_x = 1,
   scale_y = 1,
   fix_x = FALSE,
@@ -22,7 +22,8 @@ iglm.data(
   file = NULL,
   label_x = "x",
   label_y = "y",
-  label_z = "z"
+  label_z = "z",
+  n_actor = NULL
 )
 }
 \arguments{
@@ -35,22 +36,22 @@ edgelist or a square adjacency matrix.}
 
 \item{neighborhood}{An optional matrix for the neighborhood representing local dependence.
 Can be a 2-column edgelist or a square adjacency matrix.
-A tie in `neighborhood` between actor i and j indicates that j is in the neighborhood of i,
-implying dependence between the respective actors.}
+A tie in `neighborhood` between unit i and j indicates that j is in the neighborhood of i,
+implying dependence between the respective units.}
 
 \item{directed}{A logical value indicating if `z_network` is directed.
 If `NA` (default), directedness is inferred from the symmetry of
 `z_network`.}
 
-\item{n_actor}{An integer for the number of actors in the system.
-If `NA` (default), `n_actor` is inferred from the attributes or
+\item{n_units}{An integer for the number of units in the system.
+If `NA` (default), `n_units` is inferred from the attributes or
 network matrices.}
 
-\item{type_x}{Character string for the type of `x_attribute`.
+\item{family_x}{Character string for the family of `x_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 Default is `"binomial"`.}
 
-\item{type_y}{Character string for the type of `y_attribute`.
+\item{family_y}{Character string for the family of `y_attribute`.
 Must be one of `"binomial"`, `"poisson"`, or `"normal"`.
 Default is `"binomial"`.}
 
@@ -65,7 +66,7 @@ during estimation/simulation (fixed design in regression). Default is `FALSE`.}
 
 \item{fix_z}{(logical) If `TRUE`, the 'z' network is held fixed
 during estimation/simulation (fixed network design). Default is `FALSE`.
-Setting this to TRUE, allows practicioners to estimate autologistic actor attribute models,
+Setting this to TRUE, allows practicioners to estimate autologistic unit attribute models,
 which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).}
 
 \item{fix_z_alocal}{(logical) If `TRUE`, edges outside the overlap region
@@ -82,6 +83,8 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.}
 \item{label_y}{Character string for the label/name of `y_attribute`. Default is `"y"`.}
 
 \item{label_z}{Character string for the label/name of `z_network`. Default is `"z"`.}
+
+\item{n_actor}{(Deprecated) An integer for the number of units. Please use \code{n_units} instead.}
 }
 \value{
 An object of class `iglm.data` (and `R6`).
@@ -89,7 +92,7 @@ An object of class `iglm.data` (and `R6`).
 \description{
 Creates a `iglm.data` object, which stores network and attribute data.
 This function acts as a user-friendly interface to the `iglm.data` R6 class generator.
-It handles data input, infers parameters like the number of actors (`n_actor`)
+It handles data input, infers parameters like the number of units (`n_units`)
 and network directedness (`directed`) if not explicitly provided, processes
 network data into a consistent edgelist format, calculates the overlap
 relation based on an optional neighborhood definition, and performs
@@ -113,18 +116,18 @@ tmp_adjacency <- iglm.data(
     0, 1, 1, 0
   ), nrow = 4, byrow = TRUE),
   directed = FALSE,
-  n_actor = 4,
-  type_x = "binomial",
-  type_y = "binomial"
+  n_units = 4,
+  family_x = "binomial",
+  family_y = "binomial"
 )
 
 
 tmp_edgelist <- iglm.data(
   z_network = tmp_adjacency$z_network,
   directed = FALSE,
-  n_actor = 4,
-  type_x = "binomial",
-  type_y = "binomial"
+  n_units = 4,
+  family_x = "binomial",
+  family_y = "binomial"
 )
 
 tmp_edgelist$mean_z()

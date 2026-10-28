@@ -12,13 +12,14 @@ iglm(
   sampler = NULL,
   control = NULL,
   name = NULL,
-  file = NULL
+  file = NULL,
+  ...
 )
 }
 \arguments{
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a `iglm.data` object available in the calling environment.
-See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
+See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.}
 
 \item{coef}{Optional numeric vector of initial coefficients for the structural
 (non-degrees) terms in `formula`. If `NULL`, coefficients are
@@ -26,8 +27,8 @@ initialized to zero. Length must match the number of terms.}
 
 \item{coef_degrees}{Optional numeric vector specifying the initial degrees
 coefficients. Required if `formula` includes degrees terms, otherwise
-should be `NULL`. Length must match `n_actor` (for undirected) or
-`2 * n_actor` (for directed).}
+should be `NULL`. Length must match `n_units` (for undirected) or
+`2 * n_units` (for directed).}
 
 \item{sampler}{An object of class \code{\link{sampler.iglm}}, controlling the MCMC sampling scheme. If `NULL`,
 default sampler settings will be used.}
@@ -40,6 +41,9 @@ If `NULL`, default control settings will be used.}
 \item{file}{Optional character string specifying a file path to load a
 previously saved  \code{\link{iglm.object}} from disk (in RDS format). If provided,
 other arguments are ignored and the object is loaded from the file.}
+
+\item{...}{Additional arguments. Unrecognized arguments, particularly those from
+standard \code{glm} (such as \code{data} and \code{family}), trigger informative errors explaining differences in \code{iglm}.}
 }
 \value{
 An object of class \code{\link{iglm.object}}.
@@ -51,8 +55,10 @@ where responses of connected units can be dependent.
 It extends GLMs for independent responses to dependent responses and can
 be used for studying spillover in connected populations and other network-mediated phenomena.
 It is based on a joint probability model for dependent
-responses (\eqn{Y}) and connections \eqn{(Z)} conditional on
-predictors (X).
+responses (\eqn{Y}), connections \eqn{(Z)}, and predictors \eqn{(X)}.
+Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.object}}).
+
+For details on available model terms and specifying model formulas, see \code{\link{iglm.terms}} (or \code{\link[=iglm.terms]{iglm-terms}}) and the \href{../doc/model-terms.html}{Model Terms vignette} (or run \code{vignette("model-terms", package = "iglm")}).
 }
 \section{Model Formulation}{
 
@@ -63,7 +69,7 @@ The joint probability density is specified as
 which is defined by two distinct sets of user-specified features:
 \itemize{
   \item \strong{\eqn{\mathbf{g}_i(x_i^*, y_i^*)= (g_i(x_i^*, y_i^*))}}: A vector of unit-level functions (or "g-terms")
-    that describe the relationship between an individual actor \eqn{i}'s
+    that describe the relationship between an individual unit \eqn{i}'s
     predictors (\eqn{x_i}) and their own response (\eqn{y_i}).
   \item \strong{\eqn{\mathbf{h}_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z)= (h_{i,j}(x_i^*,x_j^*, y_i^*, y_j^*, z))}}: A vector of pair-level functions (or "h-terms")
     that specify how the connections (\eqn{z}) and responses (\eqn{y_i, y_j})
@@ -76,27 +82,27 @@ behavior (via \eqn{g_i}) and dyadic, network-based dependencies (via \eqn{h_{i,j
 including local dependence limited to overlapping neighborhoods.
 This help page documents the various statistics available in 'iglm',
 corresponding to the \eqn{g_i} (attribute-level) and \eqn{h_{i,j}} (pair-level)
-components of the joint model. See \code{\link{iglm-terms}} for details on specifying
+components of the joint model. See \code{\link{iglm.terms}} for details on specifying
 all model terms via the formula interface.
 }
 
 \examples{
 # Example usage:
 # Create a iglm.data data object (example)
-n_actor <- 50
-neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+n_units <- 50
+neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 xyz_obj <- iglm.data(
   neighborhood = neighborhood, directed = FALSE,
-  type_x = "binomial", type_y = "binomial"
+  family_x = "binomial", family_y = "binomial"
 )
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
-gt_coef_pop <- rnorm(n = n_actor, -2, 1)
+gt_coef_pop <- rnorm(n = n_units, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(
   n_burn_in = 100, n_simulation = 10,
-  sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-  sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+  sampler_y = sampler.net.attr(n_proposals = n_units * 10),
   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
   init_empty = FALSE
 )
@@ -132,4 +138,12 @@ Schweinberger, M. and M.S. Handcock (2015). Local Dependence in Random Graph Mod
 Schweinberger, M. and J.R. Stewart (2020). Concentration and Consistency Results for Canonical and Curved Exponential-Family Models of Random Graphs. The Annals of Statistics, 48, 374-396.
 
 Stewart, J.R. and M. Schweinberger (2025). Pseudo-Likelihood-Based M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors of Increasing Dimension. The Annals of Statistics, to appear.
+}
+\seealso{
+\code{\link{iglm.terms}} and the \href{../doc/model-terms.html}{Model Terms vignette} (or \code{vignette("model-terms", package = "iglm")}) for model terms and sufficient statistics,
+\code{\link{iglm.data}} for data structure and preparation,
+\code{\link{sampler.iglm}} for MCMC sampler configuration,
+\code{\link{control.iglm}} for estimation control parameters,
+\code{\link{simulate_iglm}} for simulation from an iglm model,
+\code{\link{statistics}} for computing observed sufficient statistics.
 }

@@ -90,7 +90,8 @@ and control objects, calculating initial statistics, and validating.
   sampler = NULL,
   control = NULL,
   name = NULL,
-  file = NULL
+  file = NULL,
+  ...
 )}
     \if{html}{\out{</div>}}
   }
@@ -99,7 +100,7 @@ and control objects, calculating initial statistics, and validating.
     \describe{
       \item{\code{formula}}{A model `formula` object. The left-hand side should be the
 name of a \code{\link{iglm.data}} object available in the calling environment.
-See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.}
+See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.}
       \item{\code{coef}}{A numeric vector of initial coefficients for the terms in
 the formula (excluding degree coefficeints). If `NULL`, coefficients are
 initialized to zero.}
@@ -114,6 +115,7 @@ parameters. If `NULL`, default settings are used.}
 would be used in plots and model assessment.}
       \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
 the specified .rds file instead of initializing from parameters.}
+      \item{\code{...}}{Additional arguments. Unrecognized arguments will trigger informative errors.}
     }
     \if{html}{\out{</div>}}
   }
@@ -160,7 +162,7 @@ model parameters. Requires simulations to have been run first (via
  \code{iglm.object$simulate} or \code{iglm.object_generator$estimate}).
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{iglm.object$assess(formula, plot = TRUE)}
+    \preformatted{iglm.object$assess(formula, plot = TRUE, ...)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -172,6 +174,7 @@ The terms should correspond to methods available in the \code{\link{iglm.data}}
 object that end with `distributions`.
 If the term mcmc_diagnostics is included, MCMC diagnostics will also be computed.}
       \item{\code{plot}}{(logical) If `TRUE`, generates plots comparing observed and simulated statistics. Default is `TRUE`.}
+      \item{\code{...}}{Additional arguments passed to \code{plot}.}
     }
     \if{html}{\out{</div>}}
   }
@@ -473,7 +476,7 @@ estimated coefficients \eqn{\hat{\theta}}:
 \itemize{
   \item For \strong{Binomial} families: \eqn{\mu = (1 + \exp(-\eta))^{-1}} (Logistic).
   \item For \strong{Poisson} families: \eqn{\mu = \exp(\eta)} (Exponential).
-  \item For \strong{Gaussian} families: \eqn{\mu = \eta} (Identity).
+  \item For \strong{Normal} families: \eqn{\mu = \eta} (Identity).
 }
 For the network component \code{z}, the linear predictor includes dyadic covariates,
 degrees effects (sender/receiver variances), and structural offsets.
@@ -481,7 +484,7 @@ degrees effects (sender/receiver variances), and structural offsets.
   \subsection{Returns}{
     A list containing the requested predictions:
 \describe{
-  \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the actor ID and subsequent
+  \item{\code{x}, \code{y}}{A matrix or data frame where the first column is the unit ID and subsequent
   columns represent the predicted mean values.}
   \item{\code{z}}{A data frame containing the edgelist with columns: \code{sender}, \code{receiver},
   and \code{prediction} (probability or intensity).}

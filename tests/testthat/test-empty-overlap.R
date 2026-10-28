@@ -1,8 +1,7 @@
 test_that("iglm handles empty overlap matrices gracefully", {
-  n_actor <- 10
-  neighborhood <- matrix(1, n_actor, n_actor)
-  diag(neighborhood) <- 0
-  xyz_obj <- iglm.data(neighborhood = neighborhood, n_actor = n_actor, return_neighborhood = FALSE, directed = FALSE)
+  n_units <- 10
+  neighborhood <- matrix(1, n_units, n_units)
+  xyz_obj <- iglm.data(neighborhood = neighborhood, n_units = n_units, return_neighborhood = FALSE, directed = FALSE)
   
   # The sampler_z tries to sample from the overlap_mat. 
   # If empty, this could cause out-of-bounds access in C++ without guards.
@@ -23,10 +22,9 @@ test_that("iglm handles empty overlap matrices gracefully", {
 })
 
 test_that("iglm handles empty overlap matrices with degrees gracefully", {
-  n_actor <- 5
-  neighborhood <- matrix(1, n_actor, n_actor)
-  diag(neighborhood) <- 0
-  xyz_obj <- iglm.data(neighborhood = neighborhood, n_actor = n_actor, return_neighborhood = FALSE, directed = FALSE)
+  n_units <- 5
+  neighborhood <- matrix(1, n_units, n_units)
+  xyz_obj <- iglm.data(neighborhood = neighborhood, n_units = n_units, return_neighborhood = FALSE, directed = FALSE)
   
   # Test with degrees sampler
   sampler_new <- sampler.iglm(
@@ -37,7 +35,7 @@ test_that("iglm handles empty overlap matrices with degrees gracefully", {
   model <- iglm(
     formula = xyz_obj ~ edges(mode = "local") + degrees,
     coef = -2,
-    coef_degrees = rep(-1, n_actor),
+    coef_degrees = rep(-1, n_units),
     sampler = sampler_new,
     control = control.iglm(max_it = 2, display_progress = FALSE)
   )

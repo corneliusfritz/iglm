@@ -41,8 +41,8 @@ iglm(
 
   Optional numeric vector specifying the initial degrees coefficients.
   Required if \`formula\` includes degrees terms, otherwise should be
-  \`NULL\`. Length must match \`n_actor\` (for undirected) or \`2 \*
-  n_actor\` (for directed).
+  \`NULL\`. Length must match \`n_units\` (for undirected) or \`2 \*
+  n_units\` (for directed).
 
 - sampler:
 
@@ -127,20 +127,20 @@ of Increasing Dimension. The Annals of Statistics, to appear.
 ``` r
 # Example usage:
 # Create a iglm.data data object (example)
-n_actor <- 50
-neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+n_units <- 50
+neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 xyz_obj <- iglm.data(
   neighborhood = neighborhood, directed = FALSE,
   type_x = "binomial", type_y = "binomial"
 )
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
-gt_coef_pop <- rnorm(n = n_actor, -2, 1)
+gt_coef_pop <- rnorm(n = n_units, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(
   n_burn_in = 100, n_simulation = 10,
-  sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-  sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+  sampler_y = sampler.net.attr(n_proposals = n_units * 10),
   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
   init_empty = FALSE
 )

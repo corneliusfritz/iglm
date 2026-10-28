@@ -7,13 +7,13 @@
   };
 </script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Constructor for the iglm.data R6 object — iglm.data"><meta name="description" content="Creates a `iglm.data` object, which stores network and attribute data.
 This function acts as a user-friendly interface to the `iglm.data` R6 class generator.
-It handles data input, infers parameters like the number of actors (`n_actor`)
+It handles data input, infers parameters like the number of actors (`n_units`)
 and network directedness (`directed`) if not explicitly provided, processes
 network data into a consistent edgelist format, calculates the overlap
 relation based on an optional neighborhood definition, and performs
 extensive validation of all inputs."><meta property="og:description" content="Creates a `iglm.data` object, which stores network and attribute data.
 This function acts as a user-friendly interface to the `iglm.data` R6 class generator.
-It handles data input, infers parameters like the number of actors (`n_actor`)
+It handles data input, infers parameters like the number of actors (`n_units`)
 and network directedness (`directed`) if not explicitly provided, processes
 network data into a consistent edgelist format, calculates the overlap
 relation based on an optional neighborhood definition, and performs
@@ -54,7 +54,7 @@ extensive validation of all inputs."><meta property="og:image" content="https://
     <div class="ref-description section level2">
     <p>Creates a `iglm.data` object, which stores network and attribute data.
 This function acts as a user-friendly interface to the `iglm.data` R6 class generator.
-It handles data input, infers parameters like the number of actors (`n_actor`)
+It handles data input, infers parameters like the number of actors (`n_units`)
 and network directedness (`directed`) if not explicitly provided, processes
 network data into a consistent edgelist format, calculates the overlap
 relation based on an optional neighborhood definition, and performs
@@ -69,7 +69,7 @@ extensive validation of all inputs.</p>
 <span>  z_network <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  neighborhood <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  directed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  n_actor <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  n_units <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  type_x <span class="op">=</span> <span class="st">"binomial"</span>,</span>
 <span>  type_y <span class="op">=</span> <span class="st">"binomial"</span>,</span>
 <span>  scale_x <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -112,9 +112,9 @@ If `NA` (default), directedness is inferred from the symmetry of
 `z_network`.</p></dd>
 
 
-<dt id="arg-n-actor">n_actor<a class="anchor" aria-label="anchor" href="#arg-n-actor"></a></dt>
+<dt id="arg-n-actor">n_units<a class="anchor" aria-label="anchor" href="#arg-n-actor"></a></dt>
 <dd><p>An integer for the number of actors in the system.
-If `NA` (default), `n_actor` is inferred from the attributes or
+If `NA` (default), `n_units` is inferred from the attributes or
 network matrices.</p></dd>
 
 
@@ -29648,7 +29648,7 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.</p></d
 <span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  directed <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  n_actor <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  n_units <span class="op">=</span> <span class="fl">4</span>,</span></span>
 <span class="r-in"><span>  type_x <span class="op">=</span> <span class="st">"binomial"</span>,</span></span>
 <span class="r-in"><span>  type_y <span class="op">=</span> <span class="st">"binomial"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -29657,7 +29657,7 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.</p></d
 <span class="r-in"><span><span class="va">tmp_edgelist</span> <span class="op">&lt;-</span> <span class="fu">iglm.data</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  z_network <span class="op">=</span> <span class="va">tmp_adjacency</span><span class="op">$</span><span class="va">z_network</span>,</span></span>
 <span class="r-in"><span>  directed <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  n_actor <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  n_units <span class="op">=</span> <span class="fl">4</span>,</span></span>
 <span class="r-in"><span>  type_x <span class="op">=</span> <span class="st">"binomial"</span>,</span></span>
 <span class="r-in"><span>  type_y <span class="op">=</span> <span class="st">"binomial"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

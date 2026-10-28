@@ -7,8 +7,10 @@
 #'   name of a \code{\link{iglm.data}} object available in the calling environment.
 #'   Alternatively, the left-hand side can be a \code{iglm.data.list} object to compute statistics
 #'   for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
-#'   See \code{\link{iglm-terms}} for details on specifying the right-hand side terms.
-
+#'   See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.
+#'
+#' @seealso \code{\link{iglm}}, \code{\link{iglm.terms}}, \code{\link{iglm.data}}
+#'
 #' @param canonical_names (logical) If `TRUE`, returns canonical term names without label substitution.
 #'   Default is `FALSE`.
 #'
@@ -19,17 +21,18 @@
 #'
 #' @examples
 #' # Create a iglm.data object
-#' n_actor <- 10
-#' neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-#' type_x <- "binomial"
-#' type_y <- "binomial"
-#' x_attr_data <- rbinom(n_actor, 1, 0.5)
-#' y_attr_data <- rbinom(n_actor, 1, 0.5)
-#' z_net_data <- matrix(0, nrow = n_actor, ncol = n_actor)
+#' n_units <- 10
+#' neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
+#' family_x <- "binomial"
+#' family_y <- "binomial"
+#' x_attr_data <- rbinom(n_units, 1, 0.5)
+#' y_attr_data <- rbinom(n_units, 1, 0.5)
+#' z_net_data <- matrix(0, nrow = n_units, ncol = n_units)
 #' object <- iglm.data(
 #'   z_network = z_net_data, x_attribute = x_attr_data,
 #'   y_attribute = y_attr_data, neighborhood = neighborhood,
-#'   directed = FALSE, type_x = type_x, type_y = type_y,
+#'   directed = FALSE, family_x = family_x, family_y = family_y,
+#'   n_units = n_units,
 #'   label_x = "age", label_y = "income"
 #' )
 #' statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)
@@ -37,15 +40,24 @@
 #' @export
 statistics <- function(formula, canonical_names = FALSE) {
   if (!is.logical(canonical_names) || length(canonical_names) != 1 || is.na(canonical_names)) {
-    stop("`canonical_names` must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+    stop("'canonical_names' must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+  }
+  if (!inherits(formula, "formula") || length(formula) != 3) {
+    stop(
+      "Formula must be two-sided with an 'iglm.data' object on the LHS.\nExample: my_iglm_data ~ edges() + attribute_y()",
+      call. = FALSE
+    )
   }
   tmp_obj <- eval(formula[[2]], envir = environment(formula))
   if (inherits(tmp_obj, "iglm.data.list")) {
     k <- length(tmp_obj)
+    if (k == 0) {
+      return(matrix(numeric(0), nrow = 0, ncol = 0))
+    }
     lhs_call <- formula[[2]]
     rhs_part <- formula[[3]]
     f_env <- environment(formula)
-    formula_list <- lapply(1:k, function(i) {
+    formula_list <- lapply(seq_len(k), function(i) {
       new_lhs <- call("[[", lhs_call, i)
       new_formula_call <- call("~", new_lhs, rhs_part)
       as.formula(new_formula_call, env = f_env)
@@ -74,14 +86,14 @@ statistics <- function(formula, canonical_names = FALSE) {
 
 
 xyz_count_statistics <- function(preprocessed, ...) {
-  n_actor_tmp <- length(preprocessed$data_object$x_attribute)
+  n_units_tmp <- length(preprocessed$data_object$x_attribute)
   # browser()
   xyz_count_global(
     z_network = preprocessed$data_object$z_network,
     x_attribute = preprocessed$data_object$x_attribute,
     y_attribute = preprocessed$data_object$y_attribute,
-    type_x = preprocessed$data_object$type_x,
-    type_y = preprocessed$data_object$type_y,
+    family_x = preprocessed$data_object$family_x,
+    family_y = preprocessed$data_object$family_y,
     attr_x_scale = preprocessed$data_object$scale_x,
     attr_y_scale = preprocessed$data_object$scale_y,
     neighborhood = preprocessed$data_object$neighborhood,
@@ -90,6 +102,6 @@ xyz_count_statistics <- function(preprocessed, ...) {
     terms = preprocessed$term_names,
     data_list = preprocessed$data_list,
     type_list = preprocessed$type_list,
-    n_actor = n_actor_tmp
+    n_units = n_units_tmp
   )
 }

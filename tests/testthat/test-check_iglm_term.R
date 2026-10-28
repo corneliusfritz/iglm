@@ -10,14 +10,16 @@ test_that("check.IglmTerm generates informative error messages with term name", 
   arglist_mutual <- list(base_name = "mutual", label = "mutual(mode = 'global')")
   expect_error(
     check.IglmTerm(data_obj_undirected, arglist_mutual, directed = TRUE),
-    pattern = "Term 'mutual' is only for directed networks."
+    regexp = "Term 'mutual' is only for directed networks.",
+    fixed = TRUE
   )
 
   # Test directed error fallback to label if base_name is missing
   arglist_mutual_no_base <- list(label = "mutual(mode = 'global')")
   expect_error(
     check.IglmTerm(data_obj_undirected, arglist_mutual_no_base, directed = TRUE),
-    pattern = "Term 'mutual' is only for directed networks."
+    regexp = "Term 'mutual' is only for directed networks.",
+    fixed = TRUE
   )
 
   # Test directed error fallback to caller function name
@@ -27,53 +29,60 @@ test_that("check.IglmTerm generates informative error messages with term name", 
   }
   expect_error(
     InitIglmTerm.test_term(data_obj_undirected, list()),
-    pattern = "Term 'test_term' is only for directed networks."
+    regexp = "Term 'test_term' is only for directed networks.",
+    fixed = TRUE
   )
 
   # Test mandatory argument error
   expect_error(
     check.IglmTerm(data_obj_directed, arglist_mutual, mandatory = "mode"),
-    pattern = "Argument 'mode' is mandatory for term 'mutual'."
+    regexp = "Argument 'mode' is mandatory for term 'mutual'.",
+    fixed = TRUE
   )
 
   # Test expected argument value error
   arglist_invalid_mode <- list(base_name = "mutual", mode = "invalid_mode")
   expect_error(
     check.IglmTerm(data_obj_directed, arglist_invalid_mode, expected = list(mode = c("global", "local"))),
-    pattern = "Argument 'mode' of term 'mutual' must be one of: global, local"
+    regexp = "Argument 'mode' of term 'mutual' must be one of: global, local",
+    fixed = TRUE
   )
 
   # Test expected type error (numeric)
   arglist_non_numeric <- list(base_name = "cov_z", z_matrix = "not_numeric")
   expect_error(
     check.IglmTerm(data_obj_directed, arglist_non_numeric, expected = list(z_matrix = "numeric")),
-    pattern = "Argument 'z_matrix' of term 'cov_z' must be numeric."
+    regexp = "Argument 'z_matrix' of term 'cov_z' must be numeric.",
+    fixed = TRUE
   )
 
   # Test expected type error (matrix)
   expect_error(
     check.IglmTerm(data_obj_directed, arglist_non_numeric, expected = list(z_matrix = "matrix")),
-    pattern = "Argument 'z_matrix' of term 'cov_z' must be a matrix or numeric vector."
+    regexp = "Argument 'z_matrix' of term 'cov_z' must be a matrix or numeric vector.",
+    fixed = TRUE
   )
 
   # Test expected NA/NaN error for numeric vector
   arglist_na_numeric <- list(base_name = "cov_z", z_matrix = c(1, NA, 3))
   expect_error(
     check.IglmTerm(data_obj_directed, arglist_na_numeric, expected = list(z_matrix = "numeric")),
-    pattern = "Argument 'z_matrix' of term 'cov_z' contains missing \\(NA/NaN\\) values."
+    regexp = "Argument 'z_matrix' of term 'cov_z' contains missing \\(NA/NaN\\) values."
   )
 
   # Test expected type error (scalar_numeric)
   arglist_vector_numeric <- list(base_name = "gwdegree", decay = c(0.1, 0.2))
   expect_error(
     check.IglmTerm(data_obj_directed, arglist_vector_numeric, expected = list(decay = "scalar_numeric")),
-    pattern = "Argument 'decay' of term 'gwdegree' must be a single numeric value."
+    regexp = "Argument 'decay' of term 'gwdegree' must be a single numeric value.",
+    fixed = TRUE
   )
 
   # Test unexpected argument error on gwdegree
   expect_error(
     InitIglmTerm.gwdegree(data_obj_directed, list(base_name = "gwdegree", x_i = 1)),
-    pattern = "Unexpected argument 'x_i' passed to term 'gwdegree'."
+    regexp = "Unexpected argument 'x_i' passed to term 'gwdegree'.",
+    fixed = TRUE
   )
 
   # Test positional arguments normalization (..1, ..2)
@@ -115,48 +124,53 @@ test_that("check.IglmTerm generates informative error messages with term name", 
   # Test unexpected extra positional argument error
   expect_error(
     InitIglmTerm.gwdegree(data_obj_directed, list(base_name = "gwdegree", ..1 = 0.5, ..2 = "local", ..3 = "extra")),
-    pattern = "Unexpected argument '..3' passed to term 'gwdegree'."
+    regexp = "Unexpected argument '..3' passed to term 'gwdegree'.",
+    fixed = TRUE
   )
 
   # Test no-argument terms reject excess arguments
   expect_error(
     InitIglmTerm.attribute_x(data_obj_undirected, list(base_name = "attribute_x", ..1 = "extra")),
-    pattern = "Unexpected argument '..1' passed to term 'attribute_x'."
+    regexp = "Unexpected argument '..1' passed to term 'attribute_x'.",
+    fixed = TRUE
   )
   expect_error(
     InitIglmTerm.attribute_y(data_obj_undirected, list(base_name = "attribute_y", foo = 1)),
-    pattern = "Unexpected argument 'foo' passed to term 'attribute_y'."
+    regexp = "Unexpected argument 'foo' passed to term 'attribute_y'.",
+    fixed = TRUE
   )
   expect_error(
     InitIglmTerm.transitive(data_obj_undirected, list(base_name = "transitive", ..1 = "extra")),
-    pattern = "Unexpected argument '..1' passed to term 'transitive'."
+    regexp = "Unexpected argument '..1' passed to term 'transitive'.",
+    fixed = TRUE
   )
   expect_error(
     InitIglmTerm.nonisolates(data_obj_undirected, list(base_name = "nonisolates", ..1 = "extra")),
-    pattern = "Unexpected argument '..1' passed to term 'nonisolates'."
+    regexp = "Unexpected argument '..1' passed to term 'nonisolates'.",
+    fixed = TRUE
   )
   expect_error(
     InitIglmTerm.isolates(data_obj_undirected, list(base_name = "isolates", ..1 = "extra")),
-    pattern = "Unexpected argument '..1' passed to term 'isolates'."
+    regexp = "Unexpected argument '..1' passed to term 'isolates'.",
+    fixed = TRUE
   )
 })
 
 test_that("Positional formula arguments evaluate correctly in model estimation and simulation", {
-  n_actor <- 10
-  neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-  diag(neighborhood) <- 0
+  n_units <- 10
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 
-  x_val <- rep(c(1, 0), length.out = n_actor)
-  y_val <- rep(c(0, 1), length.out = n_actor)
+  x_val <- rep(c(1, 0), length.out = n_units)
+  y_val <- rep(c(0, 1), length.out = n_units)
   z_net <- matrix(c(1, 2, 2, 3, 3, 4), ncol = 2, byrow = TRUE)
-  cov_mat <- matrix(0.5, nrow = n_actor, ncol = n_actor)
+  cov_mat <- matrix(0.5, nrow = n_units, ncol = n_units)
 
   d <- iglm.data(
     x_attribute = x_val,
     y_attribute = y_val,
     z_network = z_net,
     neighborhood = neighborhood,
-    n_actor = n_actor,
+    n_units = n_units,
     directed = FALSE
   )
 
