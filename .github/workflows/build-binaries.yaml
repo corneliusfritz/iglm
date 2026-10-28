@@ -111,8 +111,7 @@ jobs:
       - name: Use C++14 for R 4.1 dependencies on Windows
         if: runner.os == 'Windows' && matrix.config.r == '4.1'
         run: |
-          mkdir -p ~/.R
-          echo 'CXX11 = $(CXX14)' >> ~/.R/Makevars.win
+          Rscript -e 'makevars <- file.path(Sys.getenv("RUNNER_TEMP"), "Makevars.win"); writeLines("CXX11 = $(CXX14)", makevars); cat(paste0("R_MAKEVARS_USER=", normalizePath(makevars, winslash = "/"), "\n"), file = Sys.getenv("GITHUB_ENV"), append = TRUE)'
         shell: bash
 
       - name: Fix OBJCXX for macOS arm64 (R 4.1/4.2)
