@@ -40,15 +40,24 @@
 #' @export
 statistics <- function(formula, canonical_names = FALSE) {
   if (!is.logical(canonical_names) || length(canonical_names) != 1 || is.na(canonical_names)) {
-    stop("`canonical_names` must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+    stop("'canonical_names' must be a single non-missing logical value (TRUE or FALSE).", call. = FALSE)
+  }
+  if (!inherits(formula, "formula") || length(formula) != 3) {
+    stop(
+      "Formula must be two-sided with an 'iglm.data' object on the LHS.\nExample: my_iglm_data ~ edges() + attribute_y()",
+      call. = FALSE
+    )
   }
   tmp_obj <- eval(formula[[2]], envir = environment(formula))
   if (inherits(tmp_obj, "iglm.data.list")) {
     k <- length(tmp_obj)
+    if (k == 0) {
+      return(matrix(numeric(0), nrow = 0, ncol = 0))
+    }
     lhs_call <- formula[[2]]
     rhs_part <- formula[[3]]
     f_env <- environment(formula)
-    formula_list <- lapply(1:k, function(i) {
+    formula_list <- lapply(seq_len(k), function(i) {
       new_lhs <- call("[[", lhs_call, i)
       new_formula_call <- call("~", new_lhs, rhs_part)
       as.formula(new_formula_call, env = f_env)

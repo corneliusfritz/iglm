@@ -29,6 +29,8 @@
 \alias{spillover_xy_scaled-term}
 \alias{gwesp-term}
 \alias{gwdsp-term}
+\alias{gwesp_symm-term}
+\alias{gwdsp_symm-term}
 \alias{gwdegree-term}
 \alias{gwidegree-term}
 \alias{gwodegree-term}
@@ -199,6 +201,10 @@ Types dictate path constraint: OTP, ITP, OSP, ISP for directed; symm for undirec
 \code{gwdsp(data, mode = "global", variant = "OSP", decay = 0)}: Geometrically Weighted Dyadwise-Shared Partners: Models triadic potential irrespective of the closing edge.
 Types dictate path constraint: OTP, ITP, OSP, ISP for directed; symm for undirected.
 
+\code{gwesp_symm(decay = 0, mode = "global")}: Geometrically Weighted Edgewise Shared Partner (Symmetric): Captures transitivity/closure in undirected networks. Alias for \code{gwesp(..., variant = "symm")}.
+
+\code{gwdsp_symm(decay = 0, mode = "global")}: Geometrically Weighted Dyadwise Shared Partner (Symmetric): Captures shared partner distribution in undirected networks. Alias for \code{gwdsp(..., variant = "symm")}.
+
 \code{gwdegree(mode = "global", decay = 0)}: Geometrically Weighted Degree: Captures the degree distribution utilizing an exponential decay parameter.
 
 \code{gwidegree(mode = "global", decay = 0)}: Geometrically Weighted In-Degree: Captures the in-degree distribution utilizing an exponential decay parameter.
@@ -243,7 +249,7 @@ Below is a detailed description of terms that depend only on the network structu
   \item \code{\link{cov_z-term}}, \code{\link{cov_z_in-term}}, \code{\link{cov_z_out-term}}
   \item \code{\link{degrees-term}}
   \item \code{\link{gwdegree-term}}, \code{\link{gwidegree-term}}, \code{\link{gwodegree-term}}
-  \item \code{\link{gwesp-term}}, \code{\link{gwdsp-term}}
+  \item \code{\link{gwesp-term}}, \code{\link{gwdsp-term}}, \code{\link{gwesp_symm-term}}, \code{\link{gwdsp_symm-term}}
   \item \code{\link{transitive-term}}, \code{\link{nonisolates-term}}, \code{\link{isolates-term}}
 }
 }

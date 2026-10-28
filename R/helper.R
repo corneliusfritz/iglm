@@ -32,10 +32,9 @@ get_rank <- function(new_vals, ref_data) {
 update_formula_remove_terms <- function(formula, terms_to_remove) {
   rhs_terms <- attr(terms(formula), "term.labels")
   rhs_terms_updated <- rhs_terms[!rhs_terms %in% terms_to_remove]
-  new_formula <- as.formula(paste(
-    deparse(formula[[2]]), "~",
-    paste(rhs_terms_updated, collapse = " + ")
-  ))
+  rhs_str <- if (length(rhs_terms_updated) == 0) "0" else paste(rhs_terms_updated, collapse = " + ")
+  lhs_str <- paste(deparse(formula[[2]]), collapse = " ")
+  new_formula <- as.formula(paste(lhs_str, "~", rhs_str))
   environment(new_formula) <- environment(formula)
   new_formula
 }
@@ -92,7 +91,7 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
     env <- environment(formula)
     if (is.null(env)) env <- parent.frame()
   }
-  rhs_expr <- formula[[3L]]
+  rhs_expr <- if (length(formula) == 2L) formula[[2L]] else formula[[3L]]
   terms_exprs <- .split_plus(rhs_expr)
 
   out <- list()
@@ -106,10 +105,12 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
       }
       taken_names <- c(taken_names, base_name)
 
-      out[[base_name]] <- list(
+      entry <- list(
         label = .deparse1(term_expr),
         base_name = base_name
       )
+      attr(entry, "term_type") <- "symbol"
+      out[[base_name]] <- entry
     } else if (is.call(term_expr)) {
       fun_sym <- term_expr[[1L]]
       base_name <- if (is.symbol(fun_sym)) as.character(fun_sym) else .deparse1(fun_sym)
@@ -163,6 +164,7 @@ rhs_terms_as_list <- function(formula, env = NULL, evaluate_calls = FALSE) {
         list(base_name = base_name)
       )
       if (!is.null(evaluated)) entry$.evaluated <- evaluated
+      attr(entry, "term_type") <- "call"
 
       # For the elt_name (key in the output list), we still want the full name
       # but we MUST NOT change base_name in the entry list
@@ -197,11 +199,21 @@ print.iglm.formulainfo <- function(x, ..., max_items = 5) {
 
   for (nm in names(x)) {
     term <- x[[nm]]
+    ttype <- attr(term, "term_type")
+    if (is.null(ttype)) {
+      ttype <- if (!is.null(term$type) && term$type %in% c("symbol", "call")) {
+        term$type
+      } else if (identical(term$label, term$base_name)) {
+        "symbol"
+      } else {
+        "call"
+      }
+    }
 
-    cat("$", nm, " (", term$type, ")\n", sep = "")
+    cat("$", nm, " (", ttype, ")\n", sep = "")
     cat("  label: ", term$label, "\n", sep = "")
 
-    if (term$type == "symbol") {
+    if (ttype == "symbol") {
       # show value class or small preview
       val <- term$value
       if (is.null(val)) {
@@ -215,9 +227,9 @@ print.iglm.formulainfo <- function(x, ..., max_items = 5) {
           sep = ""
         )
       }
-    } else if (term$type == "call") {
+    } else if (ttype == "call") {
       # show each argument entry
-      arg_names <- setdiff(names(term), c("name", "type", "label", ".evaluated"))
+      arg_names <- setdiff(names(term), c("name", "label", "base_name", ".evaluated"))
       if (length(arg_names) == 0L) {
         cat("  (no arguments)\n\n")
       } else {
@@ -308,7 +320,7 @@ iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
     if (length(neighborhood) == 0) {
       neighborhood <- matrix(numeric(0), nrow = 0, ncol = 2)
     } else {
-      stop("`neighborhood` must be a matrix or data frame.", call. = FALSE)
+      stop("'neighborhood' must be a matrix or data frame.", call. = FALSE)
     }
   }
 
@@ -331,7 +343,7 @@ iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
     }
   }
   if (is.na(n_units)) {
-    stop("n_units could not be inferred. Please provide n_units.")
+    stop("'n_units' could not be inferred. Please provide 'n_units'.")
   }
 
   is_adj <- (ncol(neighborhood) > 2) || (nrow(neighborhood) == n_units && ncol(neighborhood) == n_units && (n_units > 2 || any(neighborhood == 0) || all(neighborhood == 1)))
@@ -370,20 +382,22 @@ iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
   return(res)
 }
 
-get_i <- function(x, i) {
-  stopifnot(is.list(x), length(i) == 1L, is.numeric(i), i >= 1L)
-  if (i > length(x)) stop("subscript out of bounds")
-  .subset2(x, i)
-}
-
 #' @export
 #' @method [[ iglm.data.list
 `[[.iglm.data.list` <- function(x, i, ...) {
-  item <- get_i(x, i)
-  item$set_neighborhood_overlap(
-    attr(x, "neighborhood")$neighborhood,
-    attr(x, "neighborhood")$overlap
-  )
+  if (missing(i) || length(i) != 1L) {
+    stop("subscript out of bounds")
+  }
+  item <- unclass(x)[[i]]
+  nb <- attr(x, "neighborhood")
+  if (!is.null(nb) && !is.null(item) && inherits(item, "iglm.data")) {
+    if (nrow(item$neighborhood) == 0) {
+      item$set_neighborhood_overlap(
+        nb$neighborhood,
+        nb$overlap
+      )
+    }
+  }
   item
 }
 
@@ -396,21 +410,10 @@ append_iglm.data <- function(x, y) {
 #' @export
 #' @method [ iglm.data.list
 `[.iglm.data.list` <- function(x, i, ...) {
-  res <- list()
-  k <- 1
-  for (j in i) {
-    item <- get_i(x, j)
-    item$set_neighborhood_overlap(
-      attr(x, "neighborhood")$neighborhood,
-      attr(x, "neighborhood")$overlap
-    )
-    res[[k]] <- item
-    names(res)[k] <- j
-    k <- k + 1
-  }
-  class(res) <- "iglm.data.list"
-  attr(res, "neighborhood") <- attr(x, "neighborhood")
-  res
+  sub <- if (missing(i)) unclass(x) else unclass(x)[i]
+  class(sub) <- "iglm.data.list"
+  attr(sub, "neighborhood") <- attr(x, "neighborhood")
+  sub
 }
 
 #' @export
@@ -458,7 +461,7 @@ formula_preprocess <- function(formula) {
     error = function(e) {
       stop(
         sprintf(
-          "LHS of formula ('%s') could not be found.\n`iglm()` requires an 'iglm.data' object on the LHS (e.g., `iglm(dat ~ ...)`).",
+          "LHS of formula ('%s') could not be found.\n'iglm()' requires an 'iglm.data' object on the LHS (e.g., 'iglm(dat ~ ...)').",
           lhs_name
         ),
         call. = FALSE
@@ -1203,7 +1206,7 @@ check_glm_arguments <- function(args) {
     if (length(named_extra) > 0) {
       stop(
         sprintf(
-          "Unrecognized argument(s) passed to iglm(): %s.",
+          "Unrecognized argument(s) passed to 'iglm()': %s.",
           paste(paste0("'", named_extra, "'"), collapse = ", ")
         ),
         call. = FALSE
@@ -1212,6 +1215,6 @@ check_glm_arguments <- function(args) {
   }
 
   # Unnamed positional arguments
-  stop("Unrecognized positional argument(s) passed to iglm().", call. = FALSE)
+  stop("Unrecognized positional argument(s) passed to 'iglm()'.", call. = FALSE)
 }
 

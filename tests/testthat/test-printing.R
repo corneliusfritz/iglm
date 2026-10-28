@@ -132,3 +132,24 @@ test_that("summary and print show labeled names by default and canonical names w
   out_print_canonical <- capture.output(model$print(canonical_names = TRUE))
   expect_true(any(grepl("attribute_x", out_print_canonical)))
 })
+
+test_that("print.iglm.formulainfo prints call and symbol terms cleanly", {
+  fi <- rhs_terms_as_list(~ edges(mode = "local") + some_symbol)
+  expect_s3_class(fi, "iglm.formulainfo")
+  expect_equal(attr(fi$edges, "term_type"), "call")
+  expect_equal(attr(fi$some_symbol, "term_type"), "symbol")
+
+  out <- capture.output(print(fi))
+  expect_true(any(grepl("<iglm.formulainfo>", out)))
+  expect_true(any(grepl("\\$edges.*\\(call\\)", out)))
+  expect_true(any(grepl("\\$some_symbol \\(symbol\\)", out)))
+  expect_false(any(grepl("base_name =", out)))
+})
+
+test_that("results$print reports Samples Not Available when empty", {
+  res <- results(size_coef = 1, size_coef_degrees = 0)
+  out_empty <- capture.output(res$print())
+  expect_true(any(grepl("Samples Not Available", out_empty)))
+  expect_false(any(grepl("Samples Available", out_empty)))
+})
+

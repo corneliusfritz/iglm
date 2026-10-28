@@ -844,9 +844,9 @@ test_that("statistics() supports canonical_names and switches between labeled an
   expect_equal(unname(stats_labeled), unname(stats_canonical))
 
   # Validation of canonical_names parameter
-  expect_error(statistics(formula.norm, canonical_names = NA), "`canonical_names` must be a single non-missing logical value")
-  expect_error(statistics(formula.norm, canonical_names = c(TRUE, FALSE)), "`canonical_names` must be a single non-missing logical value")
-  expect_error(statistics(formula.norm, canonical_names = "TRUE"), "`canonical_names` must be a single non-missing logical value")
+  expect_error(statistics(formula.norm, canonical_names = NA), "'canonical_names' must be a single non-missing logical value")
+  expect_error(statistics(formula.norm, canonical_names = c(TRUE, FALSE)), "'canonical_names' must be a single non-missing logical value")
+  expect_error(statistics(formula.norm, canonical_names = "TRUE"), "'canonical_names' must be a single non-missing logical value")
 })
 
 test_that("attribute_xy with local mode correctly attributes x to neighbors and y to target", {
@@ -984,7 +984,88 @@ test_that("Directed-only terms throw informative errors when used on undirected 
   expect_error(statistics(d_und ~ spillover_yx), "only for directed")
 })
 
+test_that("Covariate terms enforce mandatory data argument and bounds", {
+  n <- 4
+  adj <- matrix(0, n, n)
+  adj[1, 2] <- adj[2, 3] <- adj[3, 4] <- 1
+  dat_dir <- iglm.data(z_network = adj, n_units = n, directed = TRUE)
+  dat_undir <- iglm.data(z_network = adj + t(adj), n_units = n, directed = FALSE)
 
+  # Missing data argument
+  expect_error(statistics(dat_dir ~ cov_x()), "Argument 'data' is mandatory for term 'cov_x'")
+  expect_error(statistics(dat_dir ~ cov_y()), "Argument 'data' is mandatory for term 'cov_y'")
+  expect_error(statistics(dat_dir ~ cov_z()), "Argument 'data' is mandatory for term 'cov_z'")
+  expect_error(statistics(dat_dir ~ cov_z_in()), "Argument 'data' is mandatory for term 'cov_z_in'")
+  expect_error(statistics(dat_dir ~ cov_z_out()), "Argument 'data' is mandatory for term 'cov_z_out'")
+  expect_error(statistics(dat_dir ~ spillover_yc()), "Argument 'data' is mandatory for term 'spillover_yc'")
+  expect_error(statistics(dat_undir ~ spillover_yc_symm()), "Argument 'data' is mandatory for term 'spillover_yc_symm'")
 
+  # Length mismatch for monadic covariates
+  short_v <- c(1, 2)
+  expect_error(statistics(dat_dir ~ cov_x(short_v)), "must have length 4")
+  expect_error(statistics(dat_dir ~ cov_y(short_v)), "must have length 4")
+  expect_error(statistics(dat_dir ~ cov_z_in(short_v)), "must have length 4")
+  expect_error(statistics(dat_dir ~ cov_z_out(short_v)), "must have length 4")
+  expect_error(statistics(dat_dir ~ spillover_yc(short_v)), "must have length 4")
+  expect_error(statistics(dat_undir ~ spillover_yc_symm(short_v)), "must have length 4")
 
+  # 2D matrix passed to monadic covariate
+  mat_2d <- matrix(1, 2, 2)
+  expect_error(statistics(dat_dir ~ cov_x(mat_2d)), "must be a vector or 1-row matrix")
 
+  # Dyadic covariate dimension mismatch for cov_z
+  expect_error(statistics(dat_dir ~ cov_z(matrix(1, 3, 3))), "must be a 4 x 4 square matrix")
+  expect_error(statistics(dat_dir ~ cov_z(matrix(1, 4, 3))), "must be a 4 x 4 square matrix")
+  expect_error(statistics(dat_dir ~ cov_z(1:4)), "must be a matrix")
+
+  # Valid statistics evaluation
+  v <- c(1, 2, 3, 4)
+  mat4 <- matrix(1:16, 4, 4)
+  s_x <- statistics(dat_dir ~ cov_x(v))
+  expect_equal(length(s_x), 1L)
+  expect_false(is.na(s_x))
+
+  s_y <- statistics(dat_dir ~ cov_y(v))
+  expect_equal(length(s_y), 1L)
+  expect_false(is.na(s_y))
+
+  s_z <- statistics(dat_dir ~ cov_z(mat4))
+  expect_equal(length(s_z), 1L)
+  expect_false(is.na(s_z))
+
+  s_zin <- statistics(dat_dir ~ cov_z_in(v))
+  expect_equal(length(s_zin), 1L)
+  expect_false(is.na(s_zin))
+
+  s_zout <- statistics(dat_dir ~ cov_z_out(v))
+  expect_equal(length(s_zout), 1L)
+  expect_false(is.na(s_zout))
+
+  s_spill <- statistics(dat_dir ~ spillover_yc(v))
+  expect_equal(length(s_spill), 1L)
+  expect_false(is.na(s_spill))
+
+  s_spill_symm <- statistics(dat_undir ~ spillover_yc_symm(v))
+  expect_equal(length(s_spill_symm), 1L)
+  expect_false(is.na(s_spill_symm))
+})
+
+test_that("gwesp_symm and gwdsp_symm terms work for undirected networks", {
+  n <- 5
+  adj <- matrix(0, n, n)
+  adj[1, 2] <- adj[2, 3] <- adj[3, 1] <- 1
+  adj <- adj + t(adj)
+  dat_undir <- iglm.data(z_network = adj, n_units = n, directed = FALSE)
+  dat_dir <- iglm.data(z_network = adj, n_units = n, directed = TRUE)
+
+  s_gwesp <- statistics(dat_undir ~ gwesp_symm(decay = 0.5))
+  expect_equal(length(s_gwesp), 1L)
+  expect_false(is.na(s_gwesp))
+
+  s_gwdsp <- statistics(dat_undir ~ gwdsp_symm(decay = 0.5))
+  expect_equal(length(s_gwdsp), 1L)
+  expect_false(is.na(s_gwdsp))
+
+  expect_error(statistics(dat_dir ~ gwesp_symm(decay = 0.5)))
+  expect_error(statistics(dat_dir ~ gwdsp_symm(decay = 0.5)))
+})

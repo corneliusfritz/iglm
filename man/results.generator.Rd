@@ -35,6 +35,8 @@ bindings of the main `iglm_object`.
     \item{\code{model_assessment}}{(`list` or `NULL`) Read-only. Results from model assessment (goodness-of-fit).}
 
     \item{\code{estimated}}{(`logical`) Read-only. Flag indicating if estimation has been completed.}
+
+    \item{\code{prediction}}{(`list` or `NULL`) Read-only. Results from prediction.}
   }
   \if{html}{\out{</div>}}
 }

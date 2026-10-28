@@ -97,7 +97,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       }
 
       if (!is.logical(private$.fix_z_alocal)) {
-        stop("`fix_z_alocal` must be a logical value (TRUE or FALSE).", call. = FALSE)
+        stop("'fix_z_alocal' must be a logical value (TRUE or FALSE).", call. = FALSE)
       }
       if (private$.family_y == "poisson" && !any(is.na(private$.y_attribute)) && !all(floor(private$.y_attribute) == private$.y_attribute & private$.y_attribute >= 0)) {
         errors <- c(errors, "For 'poisson' family, 'y_attribute' must be a vector of non-negative integers.")
@@ -223,7 +223,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       # browser()
       if (!is.null(file)) {
         if (!file.exists(file)) {
-          stop(paste("File", file, "does not exist."))
+          stop(paste0("File '", file, "' does not exist."))
         }
         data_loaded <- readRDS(file)
         if (is.list(data_loaded) && !"n_units" %in% names(data_loaded) && "n_actor" %in% names(data_loaded)) {
@@ -351,12 +351,12 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         private$.z_network <- matrix(private$.z_network, ncol = 2)
       }
 
-      if (is.null(x_attribute) | (length(x_attribute) != private$.n_units)) {
+      if (is.null(x_attribute) || length(x_attribute) == 0) {
         private$.x_attribute <- numeric(length = private$.n_units)
       } else {
         private$.x_attribute <- x_attribute
       }
-      if (is.null(y_attribute) | (length(y_attribute) != private$.n_units)) {
+      if (is.null(y_attribute) || length(y_attribute) == 0) {
         private$.y_attribute <- numeric(length = private$.n_units)
       } else {
         private$.y_attribute <- y_attribute
@@ -495,7 +495,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return The `iglm.data` object itself (`self`), invisibly.
     set_label_x = function(label_x) {
       if (!is.character(label_x) || length(label_x) != 1 || is.na(label_x) || nchar(trimws(label_x)) == 0) {
-        stop("`label_x` must be a single non-empty character string.", call. = FALSE)
+        stop("'label_x' must be a single non-empty character string.", call. = FALSE)
       }
       private$.label_x <- as.character(label_x)
       invisible(self)
@@ -506,7 +506,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return The `iglm.data` object itself (`self`), invisibly.
     set_label_y = function(label_y) {
       if (!is.character(label_y) || length(label_y) != 1 || is.na(label_y) || nchar(trimws(label_y)) == 0) {
-        stop("`label_y` must be a single non-empty character string.", call. = FALSE)
+        stop("'label_y' must be a single non-empty character string.", call. = FALSE)
       }
       private$.label_y <- as.character(label_y)
       invisible(self)
@@ -517,7 +517,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @return The `iglm.data` object itself (`self`), invisibly.
     set_label_z = function(label_z) {
       if (!is.character(label_z) || length(label_z) != 1 || is.na(label_z) || nchar(trimws(label_z)) == 0) {
-        stop("`label_z` must be a single non-empty character string.", call. = FALSE)
+        stop("'label_z' must be a single non-empty character string.", call. = FALSE)
       }
       private$.label_z <- as.character(label_z)
       invisible(self)
@@ -553,7 +553,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #' @param fix_z_alocal A logical value indicating whether alocal edges should be treated as fixed or not.
     set_fix_z_alocal = function(fix_z_alocal) {
       if (!is.logical(fix_z_alocal)) {
-        stop("`fix_z_alocal` must be a logical value (TRUE or FALSE).", call. = FALSE)
+        stop("'fix_z_alocal' must be a logical value (TRUE or FALSE).", call. = FALSE)
       }
       private$.fix_z_alocal <- fix_z_alocal
       private$.validate()
@@ -606,7 +606,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       }
       extension <- tools::file_ext(file)
       if (tolower(extension) != "rds") {
-        stop("File extension must be .rds", call. = FALSE)
+        stop("File extension must be '.rds'", call. = FALSE)
       }
 
       data_to_save <- self$gather()
@@ -2168,7 +2168,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       } else {
         # sanity: make sure dimensions match
         if (!is.matrix(coords) || nrow(coords) != igraph::vcount(g) || ncol(coords) < 2) {
-          stop("`coords` must be a matrix with nrow = vcount(g) and at least 2 columns.")
+          stop("'coords' must be a matrix with nrow = vcount(g) and at least 2 columns.")
         }
       }
       if (show_overlap && !is.null(private$.neighborhood) && nrow(private$.neighborhood) > 0) {
@@ -2385,7 +2385,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (missing(value)) {
         if (is.null(private$.neighborhood)) matrix(0, nrow = 0, ncol = 2) else private$.neighborhood
       } else {
-        stop("`neighborhood` is read-only.", call. = FALSE)
+        stop("'neighborhood' is read-only.", call. = FALSE)
       }
     },
 
@@ -2394,26 +2394,26 @@ iglm.data_generator <- R6::R6Class("iglm.data",
       if (missing(value)) {
         if (is.null(private$.overlap)) matrix(0, nrow = 0, ncol = 2) else private$.overlap
       } else {
-        stop("`overlap` is read-only.", call. = FALSE)
+        stop("'overlap' is read-only.", call. = FALSE)
       }
     },
 
     #' @field directed (`logical`) Indicates if the `z_network` is treated as directed.
     directed = function(value) {
-      if (missing(value)) private$.directed else stop("`directed` is read-only.", call. = FALSE)
+      if (missing(value)) private$.directed else stop("'directed' is read-only.", call. = FALSE)
     },
 
     #' @field n_units (`integer`) The total number of units (nodes) in the network.
     n_units = function(value) {
-      if (missing(value)) private$.n_units else stop("`n_units` is read-only.", call. = FALSE)
+      if (missing(value)) private$.n_units else stop("'n_units' is read-only.", call. = FALSE)
     },
     #' @field n_actor (`integer`) Deprecated alias for `n_units`.
     n_actor = function(value) {
       if (missing(value)) {
-        warning("`n_actor` is deprecated, please use `n_units`.", call. = FALSE)
+        warning("'n_actor' is deprecated, please use 'n_units'.", call. = FALSE)
         private$.n_units
       } else {
-        stop("`n_actor` is read-only.", call. = FALSE)
+        stop("'n_actor' is read-only.", call. = FALSE)
       }
     },
     #' @field family_x (`character`) The specified distribution family for the `x_attribute`.
@@ -2442,7 +2442,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     },
     #' @field descriptives (`list`)A list storing computed descriptive statistics for the network and attributes.
     descriptives = function(value) {
-      if (missing(value)) private$.descriptives else stop("`descriptives` is read-only.", call. = FALSE)
+      if (missing(value)) private$.descriptives else stop("'descriptives' is read-only.", call. = FALSE)
     },
     #' @field fix_z_alocal (`logical`) Flag indicating whether nonoverlap edges are treated as random.
     fix_z_alocal = function(value) {
@@ -2564,8 +2564,8 @@ iglm.data <- function(x_attribute = NULL, y_attribute = NULL, z_network = NULL,
   }
 
   iglm.data_generator$new(
-    x_attribute = as.numeric(x_attribute),
-    y_attribute = as.numeric(y_attribute),
+    x_attribute = if (is.null(x_attribute)) NULL else as.numeric(x_attribute),
+    y_attribute = if (is.null(y_attribute)) NULL else as.numeric(y_attribute),
     z_network = z_network,
     neighborhood = neighborhood,
     directed = as.logical(directed),

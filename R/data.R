@@ -3,7 +3,7 @@
 #' @description
 #' This data object is data derived from the Twitter
 #' (X) interactions between U.S. state legislators, which is a subset of the
-#' data analyzed in Fritz et al. (2025).'
+#' data analyzed in Fritz et al. (2025).
 #' The data is filtered to include only legislators from 10 states (NY, CA, TX,
 #' FL, IL, PA, OH, GA, NC, MI) and is further subset to the largest
 #' connected component based on mention or retweet activity.

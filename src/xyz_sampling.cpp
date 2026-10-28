@@ -2590,8 +2590,7 @@ List pl_estimation(arma::vec coef,
   int n_coef = coef.size();
   unsigned int n_net = i_vec.n_elem;
   
-  arma::mat coefs(max_iteration+1, coef.size()), fisher(coef.size(),coef.size(), arma::fill::zeros);
-  k++;
+  arma::mat coefs(max_iteration + 1, coef.size()), fisher(coef.size(), coef.size(), arma::fill::zeros);
   // Extract the full design matrix and response vector
   const arma::mat& X_all = std::get<0>(pseudo_lh);
   const arma::vec& Y_all = std::get<1>(pseudo_lh);
@@ -2705,19 +2704,10 @@ List pl_estimation(arma::vec coef,
       fisher += (X_y.t() * X_y) / attr_y_scale;
     }
     // --- 4. Update and Check Convergence ---
-    // Rcout <<  fisher << std::endl;
-    // Rcout <<  arma::inv(fisher) << std::endl;
     coef += (arma::solve(fisher, score));
-    // Rcout << coef <<  std::endl;
-    // Rcout << coefs.n_rows <<  std::endl;
-    // Rcout << k <<  std::endl;
-    // Rcout << coefs.row(k) <<  std::endl;
-    // Rcout << "Here" <<  std::endl;
     coefs.row(k) = coef.t();
-    // Rcout << "Here" <<  std::endl;
-    // Rcout << stand_in <<  std::endl;
     
-    llhs.at(k-2) = calculate_llh(coef, 
+    llhs.at(k - 1) = calculate_llh(coef, 
             stand_in,
             i_vec,
             j_vec,
@@ -2732,7 +2722,6 @@ List pl_estimation(arma::vec coef,
             n_units,
             fix_x, 
             fix_z,nonoverlap_random );
-    // Rcout << "Here A" <<  std::endl;
     if (k == max_iteration) {
       non_converged = false;
     } else if ((arma::norm(coefs.row(k) - coefs.row(k - 1)) < tol) && !non_stop) {
@@ -2745,15 +2734,13 @@ List pl_estimation(arma::vec coef,
     Rcpp::Rcout.flush();  
     Rcout << "Done with the estimation" << std::endl;
   }
-  // coef.rows(ind_degrees) = coef_degrees;
-  // coef.rows(ind_nondegrees) = coef_nondegrees;
-  return(List::create(_["coefficients"] =coef,
-                      _["coefficients_path"] =coefs.rows(2,k-1),
-                      _["score"] =score,
+  return(List::create(_["coefficients"] = coef,
+                      _["coefficients_path"] = coefs.rows(0, k - 1),
+                      _["score"] = score,
                       _["where_wrong"] = where_wrong,
                       _["fisher"] = fisher,
                       _["var"] = arma::inv(fisher), 
-                      _["llh"] = llhs.head(k-2)
+                      _["llh"] = llhs.head(k - 1)
   ));
 }
 // [[Rcpp::export]]

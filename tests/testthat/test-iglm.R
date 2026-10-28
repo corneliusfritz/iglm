@@ -50,6 +50,7 @@ test_that("Define a iglm object, simulate, estimate, assess", {
   expect_equal(inherits(model_tmp_new, "iglm.object"), expected = TRUE)
   expect_equal(length(model_tmp_new$results$samples), expected = 0)
   expect_equal(model_tmp_new$results$stats, expected = NULL)
+  expect_error(model_tmp_new$get_samples(), "No samples available. Please run 'simulate()' first.", fixed = TRUE)
 
   model_tmp_new$simulate()
 
@@ -112,7 +113,8 @@ test_that("iglm throws error when covariate object does not exist", {
       coef = c(1),
       sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
     ),
-    pattern = "Could not evaluate argument 'data' in term 'cov_x': object 'non_existent_covariate_var' not found"
+    regexp = "Could not evaluate argument 'data' in term 'cov_x': object 'non_existent_covariate_var' not found",
+    fixed = TRUE
   )
 
   expect_error(
@@ -121,7 +123,8 @@ test_that("iglm throws error when covariate object does not exist", {
       coef = c(1),
       sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
     ),
-    pattern = "Could not evaluate argument '..1' in term 'cov_x': object 'non_existent_covariate_var' not found"
+    regexp = "Could not evaluate argument '..1' in term 'cov_x': object 'non_existent_covariate_var' not found",
+    fixed = TRUE
   )
 
   expect_error(
@@ -130,7 +133,8 @@ test_that("iglm throws error when covariate object does not exist", {
       coef = c(1),
       sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
     ),
-    pattern = "Could not evaluate argument 'data' in term 'cov_x': custom error message"
+    regexp = "Could not evaluate argument 'data' in term 'cov_x': custom error message",
+    fixed = TRUE
   )
 
   # Finite coefficient checks
@@ -140,7 +144,7 @@ test_that("iglm throws error when covariate object does not exist", {
       coef = c(NA),
       sampler = sampler.iglm(n_burn_in = 2, n_simulation = 1, init_empty = FALSE)
     ),
-    pattern = "coef.*must contain finite numeric values"
+    regexp = "coef.*must contain finite numeric values"
   )
 
   # Empty formula RHS check
@@ -149,25 +153,29 @@ test_that("iglm throws error when covariate object does not exist", {
       formula = data_obj ~ 1,
       coef = c(1)
     ),
-    pattern = "Formula must contain at least one term"
+    regexp = "Formula must contain at least one term"
   )
 
   # Control parameter bounds & type checks
   expect_error(
     control.iglm(max_it = 10.5),
-    pattern = "`max_it` must be a positive integer"
+    regexp = "'max_it' must be a positive integer",
+    fixed = TRUE
   )
   expect_error(
     control.iglm(max_it = Inf),
-    pattern = "`max_it` must be a positive integer"
+    regexp = "'max_it' must be a positive integer",
+    fixed = TRUE
   )
   expect_error(
     control.iglm(tol = Inf),
-    pattern = "`tol` must be a positive number"
+    regexp = "'tol' must be a positive number",
+    fixed = TRUE
   )
   expect_error(
     control.iglm(offset_nonoverlap = Inf),
-    pattern = "`offset_nonoverlap` must be a single numeric value"
+    regexp = "'offset_nonoverlap' must be a single numeric value",
+    fixed = TRUE
   )
 
   # Pure degree model check
@@ -202,13 +210,217 @@ test_that("iglm throws error when covariate object does not exist", {
   # Test assess removes non-distribution terms like geodesic_distances, dsp, geo, geodist, esp
   expect_warning(
     m_degrees_updated$assess(formula = ~ degree_distribution + geodesic_distances, plot = FALSE),
-    pattern = "Unrecognized terms deleted: geodesic_distances"
+    regexp = "Unrecognized terms deleted: geodesic_distances",
+    fixed = TRUE
   )
   expect_warning(
     m_degrees_updated$assess(formula = ~ degree_distribution + dsp + geo + geodist + esp, plot = FALSE),
-    pattern = "Unrecognized terms deleted: dsp, geo, geodist, esp"
+    regexp = "Unrecognized terms deleted: dsp, geo, geodist, esp",
+    fixed = TRUE
   )
 })
+
+test_that("update_formula_remove_terms handles dropping all terms", {
+  f <- y ~ x1 + x2
+  f_updated <- update_formula_remove_terms(f, c("x1", "x2"))
+  expect_equal(deparse(f_updated), "y ~ 0")
+
+  f_one <- update_formula_remove_terms(f, "x1")
+  expect_equal(deparse(f_one), "y ~ x2")
+})
+
+test_that("iglm accepts NULL sampler without atomic vector error", {
+  n <- 4
+  dat <- iglm.data(n_units = n, directed = FALSE)
+  m <- iglm(dat ~ edges(), sampler = NULL, control = control.iglm(max_it = 1))
+  expect_true(inherits(m, "iglm.object"))
+  m$estimate()
+  expect_equal(colnames(m$results$coefficients_path), "edges()")
+})
+
+test_that("rhs_terms_as_list supports one-sided formulas", {
+  res <- rhs_terms_as_list(~ edges() + attribute_x)
+  expect_equal(length(res), 2)
+  expect_true("edges" %in% names(res))
+  expect_true("attribute_x" %in% names(res))
+})
+
+test_that("iglm loads data flags and custom labels correctly from file", {
+  n <- 5
+  neighborhood <- matrix(1, n, n)
+  dat <- iglm.data(
+    n_units = n, directed = FALSE,
+    neighborhood = neighborhood,
+    fix_x = TRUE, fix_z = TRUE, fix_z_alocal = FALSE,
+    label_x = "custom_x", label_y = "custom_y", label_z = "custom_z"
+  )
+  m <- iglm(dat ~ edges(mode = "local"), sampler = sampler.iglm(n_simulation = 2, init_empty = FALSE), control = control.iglm(max_it = 1))
+  tmp_file <- tempfile(fileext = ".rds")
+  m$save(file = tmp_file)
+
+  m_loaded <- iglm(file = tmp_file)
+  expect_true(m_loaded$iglm.data$fix_x)
+  expect_true(m_loaded$iglm.data$fix_z)
+  expect_false(m_loaded$iglm.data$fix_z_alocal)
+  expect_equal(m_loaded$iglm.data$label_x, "custom_x")
+  expect_equal(m_loaded$iglm.data$label_y, "custom_y")
+  expect_equal(m_loaded$iglm.data$label_z, "custom_z")
+  unlink(tmp_file)
+})
+
+test_that("simulate_iglm rejects invalid sampler object", {
+  n <- 4
+  dat <- iglm.data(n_units = n, directed = FALSE)
+  expect_error(
+    simulate_iglm(dat ~ edges(), coef = 0, sampler = "not_a_sampler"),
+    regexp = "'sampler' must be a 'sampler.iglm' object created with 'sampler.iglm()'.",
+    fixed = TRUE
+  )
+})
+
+test_that("statistics rejects one-sided formulas with informative message", {
+  expect_error(
+    statistics(~ edges()),
+    regexp = "Formula must be two-sided with an 'iglm.data' object on the LHS.",
+    fixed = TRUE
+  )
+})
+
+test_that("predict() handles default arguments, restores control state, and sets results$prediction", {
+  n_actor <- 6
+  block <- matrix(1, n_actor, n_actor)
+  dat <- iglm.data(neighborhood = block, directed = FALSE, family_x = "binomial", family_y = "binomial")
+
+  sampler_obj <- sampler.iglm(
+    n_burn_in = 2, n_simulation = 2,
+    sampler_x = sampler.net.attr(n_proposals = 10),
+    sampler_y = sampler.net.attr(n_proposals = 10),
+    sampler_z = sampler.net.attr(n_proposals = 20),
+    init_empty = FALSE
+  )
+
+  m <- iglm(
+    formula = dat ~ edges(mode = "local") + attribute_y + attribute_x,
+    coef = c(1, -0.5, 0.5),
+    sampler = sampler_obj,
+    control = control.iglm(accelerated = FALSE, max_it = 5, display_progress = FALSE)
+  )
+
+  # Check that predict() errors before estimation
+  expect_error(m$predict(), regexp = "Model has not been estimated yet", fixed = TRUE)
+
+  # Estimate model
+  m$estimate()
+  expect_true(m$results$estimated)
+
+  # Check item 2: predict() with default arguments should not error
+  pred <- expect_no_error(m$predict())
+  expect_s3_class(pred, "iglm.prediction")
+  expect_true(all(c("x", "y", "z") %in% names(pred)))
+
+  # Check item 4: results$prediction active binding returns prediction and is read-only
+  expect_identical(m$results$prediction, pred)
+  expect_error(m$results$prediction <- list(), regexp = "'prediction' is read-only.", fixed = TRUE)
+
+  # Check item 3: predict(variant = 'conditional') restores control and allows future estimation
+  expect_true(m$control$estimate_model)
+  pred_cond <- m$predict(variant = "conditional")
+  expect_true(m$control$estimate_model)
+  expect_no_error(m$estimate())
+  expect_true(m$results$estimated)
+
+  # Check item 4: saving and restoring preserves results$prediction
+  tmp_file <- tempfile(fileext = ".rds")
+  m$save(file = tmp_file)
+  m_loaded <- iglm(file = tmp_file)
+  expect_identical(m_loaded$results$prediction, pred_cond)
+  unlink(tmp_file)
+})
+
+test_that("simulate() returns samples invisibly and supports parallel cluster from sampler", {
+  n_actor <- 6
+  block <- matrix(1, n_actor, n_actor)
+  dat <- iglm.data(neighborhood = block, directed = FALSE, family_x = "binomial", family_y = "binomial")
+
+  sampler_obj <- sampler.iglm(
+    n_burn_in = 2, n_simulation = 2,
+    sampler_x = sampler.net.attr(n_proposals = 10),
+    sampler_y = sampler.net.attr(n_proposals = 10),
+    sampler_z = sampler.net.attr(n_proposals = 20),
+    init_empty = FALSE
+  )
+
+  m <- iglm(
+    formula = dat ~ edges(mode = "local") + attribute_y,
+    coef = c(0.5, -0.5),
+    sampler = sampler_obj,
+    control = control.iglm(accelerated = FALSE, max_it = 2, display_progress = FALSE)
+  )
+
+  # Check item 6: simulate() returns samples invisibly
+  sim_samples <- m$simulate()
+  expect_true(is.list(sim_samples))
+  expect_equal(length(sim_samples), 2)
+  expect_identical(sim_samples, m$results$samples)
+
+  # Check item 5: simulate() works with parallel cluster attached to sampler
+  m_parallel <- iglm(
+    formula = dat ~ edges(mode = "local") + attribute_y,
+    coef = c(0.5, -0.5),
+    sampler = sampler_obj,
+    control = control.iglm(accelerated = FALSE, max_it = 2, display_progress = FALSE)
+  )
+  cl <- parallel::makeCluster(1)
+  on.exit(parallel::stopCluster(cl), add = TRUE)
+  m_parallel$sampler$set_cluster(cl)
+  expect_false(is.null(m_parallel$sampler$cluster))
+
+  sim_parallel <- expect_no_error(m_parallel$simulate())
+  expect_equal(length(sim_parallel), 2)
+  expect_identical(sim_parallel, m_parallel$results$samples)
+})
+
+test_that("predict(variant = 'marginal') automatically triggers simulation when samples are empty", {
+  n_actor <- 4
+  block <- matrix(1, n_actor, n_actor)
+  dat <- iglm.data(neighborhood = block, directed = FALSE)
+  m <- iglm(
+    formula = dat ~ edges(mode = "local"), coef = -1,
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 3, init_empty = FALSE),
+    control = control.iglm(max_it = 1, display_progress = FALSE)
+  )
+  m$results$update(estimated = TRUE)
+  expect_equal(length(m$results$samples), 0)
+
+  pred <- expect_no_error(m$predict(variant = "marginal"))
+  expect_equal(length(m$results$samples), 3)
+  expect_s3_class(pred, "iglm.prediction")
+})
+
+test_that("predict(variant = 'conditional') correctly uses sender degree coefficients and handles single term", {
+  n_actor <- 4
+  block <- matrix(1, n_actor, n_actor)
+  dat <- iglm.data(neighborhood = block, directed = TRUE)
+  # Node 1 has positive expansiveness, node 2 has negative expansiveness
+  coef_deg <- c(5, -5, 0, 0, 0, 0, 0, 0)
+  m <- iglm(
+    formula = dat ~ edges(mode = "local") + degrees,
+    coef = 0, coef_degrees = coef_deg,
+    control = control.iglm(max_it = 1, display_progress = FALSE)
+  )
+  m$results$update(estimated = TRUE)
+
+  pred <- expect_no_error(m$predict(variant = "conditional", type = "z"))
+  pz <- pred$z
+  p_1_3 <- pz$prediction[pz$sender == 1 & pz$receiver == 3]
+  p_2_3 <- pz$prediction[pz$sender == 2 & pz$receiver == 3]
+  # Sender 1 must have higher predicted tie probability to node 3 than sender 2
+  expect_gt(p_1_3, p_2_3)
+})
+
+
+
+
 
 
 

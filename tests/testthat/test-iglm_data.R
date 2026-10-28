@@ -146,25 +146,25 @@ test_that("iglm.data validation throws error when attributes or networks contain
   # Check x_attribute NA
   expect_error(
     iglm.data(x_attribute = x_na, y_attribute = y_clean, z_network = z_clean, n_units = 4, family_x = "normal", family_y = "binomial"),
-    pattern = "'x_attribute' contains missing \\(NA/NaN\\) values."
+    regexp = "'x_attribute' contains missing \\(NA/NaN\\) values."
   )
 
   # Check y_attribute NA
   expect_error(
     iglm.data(x_attribute = x_clean, y_attribute = y_na, z_network = z_clean, n_units = 4, family_x = "normal", family_y = "binomial"),
-    pattern = "'y_attribute' contains missing \\(NA/NaN\\) values."
+    regexp = "'y_attribute' contains missing \\(NA/NaN\\) values."
   )
 
   # Check z_network matrix NA
   expect_error(
     iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_na, n_units = 4, family_x = "normal", family_y = "binomial"),
-    pattern = "'z_network' contains missing \\(NA/NaN\\) values."
+    regexp = "'z_network' contains missing \\(NA/NaN\\) values."
   )
 
   # Check neighborhood matrix NA
   expect_error(
     iglm.data(x_attribute = x_clean, y_attribute = y_clean, z_network = z_clean, neighborhood = z_na, n_units = 4, family_x = "normal", family_y = "binomial"),
-    pattern = "'neighborhood' contains missing \\(NA/NaN\\) values."
+    regexp = "'neighborhood' contains missing \\(NA/NaN\\) values."
   )
 })
 
@@ -547,7 +547,7 @@ test_that("iglm.data supports backward compatibility with n_actor argument and f
   # Reading d$n_actor emits warning and returns n_units
   expect_warning(
     actor_count <- d_old$n_actor,
-    regexp = "`n_actor` is deprecated, please use `n_units`."
+    regexp = "'n_actor' is deprecated, please use 'n_units'."
   )
   expect_equal(actor_count, n_nodes)
 
@@ -647,5 +647,91 @@ test_that("asymmetric neighborhood matrix is symmetrized when directed = FALSE",
     }
   }
 })
+
+test_that("iglm.data validation rejects attribute length mismatches", {
+  expect_error(
+    iglm.data(x_attribute = c(1, 2), n_units = 5),
+    "Length of 'x_attribute' must be equal to 'n_units'."
+  )
+  expect_error(
+    iglm.data(y_attribute = c(1, 2, 3), n_units = 5),
+    "Length of 'y_attribute' must be equal to 'n_units'."
+  )
+})
+
+test_that("iglm.data.list subsetting supports positive, negative, and logical indices", {
+  n <- 4
+  dat <- iglm.data(n_units = n, directed = FALSE)
+  smp <- sampler.iglm(n_simulation = 3, n_burn_in = 2)
+  sims <- simulate_iglm(dat ~ edges(), coef = -1, sampler = smp, only_stats = FALSE)
+  sample_list <- sims$samples
+
+  expect_s3_class(sample_list, "iglm.data.list")
+  expect_equal(length(sample_list), 3L)
+
+  # Verify lazy neighborhood storage: raw items do not have neighborhood populated
+  expect_equal(nrow(unclass(sample_list)[[1]]$neighborhood), 0L)
+  expect_equal(nrow(unclass(sample_list)[[2]]$neighborhood), 0L)
+
+  # Positive subsetting: preserves iglm.data.list and keeps elements unpopulated
+  sub_pos <- sample_list[1:2]
+  expect_s3_class(sub_pos, "iglm.data.list")
+  expect_equal(length(sub_pos), 2L)
+  expect_equal(nrow(unclass(sub_pos)[[1]]$neighborhood), 0L)
+  expect_equal(nrow(unclass(sub_pos)[[2]]$neighborhood), 0L)
+
+  # Negative subsetting
+  sub_neg <- sample_list[-1]
+  expect_s3_class(sub_neg, "iglm.data.list")
+  expect_equal(length(sub_neg), 2L)
+
+  # Logical subsetting
+  sub_log <- sample_list[c(TRUE, FALSE, TRUE)]
+  expect_s3_class(sub_log, "iglm.data.list")
+  expect_equal(length(sub_log), 2L)
+
+  # Empty subsetting
+  sub_empty <- sample_list[0]
+  expect_s3_class(sub_empty, "iglm.data.list")
+  expect_equal(length(sub_empty), 0L)
+
+  # Full subsetting via missing index
+  sub_all <- sample_list[]
+  expect_s3_class(sub_all, "iglm.data.list")
+  expect_equal(length(sub_all), 3L)
+
+  # Element extraction [[ attaches neighborhood ON DEMAND
+  elem2 <- sample_list[[2]]
+  expect_s3_class(elem2, "iglm.data")
+  expect_equal(elem2$n_units, n)
+  expect_gt(nrow(elem2$neighborhood), 0L)
+  # Unaccessed item 1 in sample_list remains unpopulated
+  expect_equal(nrow(unclass(sample_list)[[1]]$neighborhood), 0L)
+
+  # Out of bounds [[
+  expect_error(sample_list[[10]])
+  expect_error(sample_list[[c(1, 2)]])
+
+  # statistics() on empty iglm.data.list returns 0x0 matrix
+  stats_empty <- statistics(sub_empty ~ edges())
+  expect_equal(dim(stats_empty), c(0L, 0L))
+})
+
+test_that("iglm.data save and load errors format quotes properly", {
+  expect_error(
+    iglm.data(file = "non_existent_file.rds"),
+    regexp = "File 'non_existent_file.rds' does not exist.",
+    fixed = TRUE
+  )
+
+  dat <- iglm.data(n_units = 4, directed = FALSE)
+  expect_error(
+    dat$save(file = "invalid_extension.txt"),
+    regexp = "File extension must be '.rds'",
+    fixed = TRUE
+  )
+})
+
+
 
 

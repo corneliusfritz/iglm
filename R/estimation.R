@@ -75,16 +75,16 @@ control.iglm <- function(estimate_model = TRUE,
                          accelerated = TRUE,
                          exact = TRUE) {
   if (!var_method %in% c("Godambe", "Mean-value", "Hessian")) {
-    stop("var_method must be one of 'Godambe', 'Mean-value', or 'Hessian'")
+    stop("'var_method' must be one of 'Godambe', 'Mean-value', or 'Hessian'")
   }
   if (!is.numeric(max_it) || length(max_it) != 1 || is.na(max_it) || !is.finite(max_it) || max_it <= 0 || max_it %% 1 != 0) {
-    stop("`max_it` must be a positive integer.", call. = FALSE)
+    stop("'max_it' must be a positive integer.", call. = FALSE)
   }
   if (!is.numeric(tol) || length(tol) != 1 || is.na(tol) || !is.finite(tol) || tol <= 0) {
-    stop("`tol` must be a positive number.", call. = FALSE)
+    stop("'tol' must be a positive number.", call. = FALSE)
   }
   if (!is.numeric(offset_nonoverlap) || length(offset_nonoverlap) != 1 || is.na(offset_nonoverlap) || !is.finite(offset_nonoverlap)) {
-    stop("`offset_nonoverlap` must be a single numeric value.", call. = FALSE)
+    stop("'offset_nonoverlap' must be a single numeric value.", call. = FALSE)
   }
   if (var_method == "Mean-value") {
     updated_uncertainty <- TRUE
@@ -455,9 +455,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
         preprocessed$data_list <- preprocessed$data_list[-ind_droped]
         preprocessed$type_list <- preprocessed$type_list[-ind_droped]
       }
-      # names(res$coefficients2) = preprocessed$coef_names
       rownames(res$coefficients) <- preprocessed$coef_names
-      colnames(res$coefficients_path) <- c(rownames(res$coefficients_nondegrees))
+      colnames(res$coefficients_path) <- preprocessed$coef_names
 
 
       if (control$var) {
@@ -632,9 +631,6 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       attr_y_scale = data_object$scale_y
     )
 
-    x <- res$preprocess[[1]]
-    y <- names(res$preprocess)[[1]]
-    # browser()
     res$preprocess <- mapply(
       x = res$preprocess, y = names(res$preprocess),
       function(x, y) {
@@ -647,11 +643,6 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       }, SIMPLIFY = F
     )
   }
-  # browser()
-  # res$iglm.object <- iglm.object(formula=formula,
-  #                            coef = res$coefficients_nondegrees,
-  #                            coef_degrees = res$coefficients_degrees,
-  # sampler = sampler)
 
   res$call <- sys.calls()[[1]]
   return(res)

@@ -855,8 +855,6 @@ auto xyz_stat_interaction_edges_xy = CHANGESTAT {
       for (int k : connections_of_i) {
         if (k != unit_i) {
           res += object.y_attribute.get_val(k);
-        } else {
-          Rcout << "Here" << std::endl;
         }
       }
     } else {
@@ -867,8 +865,6 @@ auto xyz_stat_interaction_edges_xy = CHANGESTAT {
       for (int k : connections_of_i) {
         if (k != unit_i) {
           res += object.x_attribute.get_val(k);
-        } else {
-          Rcout << "Here" << std::endl;
         }
       }
     }

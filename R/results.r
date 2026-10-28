@@ -81,7 +81,7 @@ results.generator <- R6::R6Class("results",
     #'   side effect of storing the assessment results.
     set_model_assessment = function(res) {
       if (!inherits(res, "iglm_model_assessment")) {
-        stop("`res` must be of class `iglm_model_assessment`.", call. = FALSE)
+        stop("'res' must be of class 'iglm_model_assessment'.", call. = FALSE)
       }
       private$.model_assessment <- res
       invisible(self)
@@ -91,7 +91,7 @@ results.generator <- R6::R6Class("results",
     #' @param prediction An object containing the prediction results (is a list of class `iglm.prediction`.
     set_prediction = function(prediction) {
       if (!inherits(prediction, "iglm.prediction")) {
-        stop("`prediction` must be of class `iglm.prediction`.", call. = FALSE)
+        stop("'prediction' must be of class 'iglm.prediction'.", call. = FALSE)
       }
       private$.prediction <- prediction
     },
@@ -233,7 +233,7 @@ results.generator <- R6::R6Class("results",
       }
       if (!is.null(samples)) {
         if (!"iglm.data.list" %in% class(samples)) {
-          stop("`samples` must be of class `iglm.data.list`.", call. = FALSE)
+          stop("'samples' must be of class 'iglm.data.list'.", call. = FALSE)
         } else {
           if (length(private$.samples) == 0) {
             private$.samples <- samples
@@ -288,7 +288,7 @@ results.generator <- R6::R6Class("results",
       }
 
       if (!isTRUE(stats) && !isTRUE(trace) && !isTRUE(model_assessment)) {
-        stop("At least one of `stats`, `trace`, or `model_assessment` must be TRUE.", call. = FALSE)
+        stop("At least one of 'stats', 'trace', or 'model_assessment' must be TRUE.", call. = FALSE)
       }
       if (isTRUE(stats)) {
         if (length(private$.stats) == 0) {
@@ -505,7 +505,7 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("y_distribution", "y_dist")) {
             obs_y <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_y <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
-            is_normal <- (private$.samples[[1]]$family_y == "normal")
+            is_normal <- (family_y == "normal")
             x_pos <- if (is_normal) as.numeric(names(obs_y)) else seq_along(obs_y)
 
             if (add) {
@@ -530,7 +530,7 @@ results.generator <- R6::R6Class("results",
           } else if (i %in% c("x_distribution", "x_dist")) {
             obs_x <- private$.model_assessment$observed[[tmp_names[k]]]
             sim_x <- extract_assessment_matrix(private$.model_assessment$simulated, tmp_names[k])
-            is_normal <- (private$.samples[[1]]$family_x == "normal")
+            is_normal <- (family_x == "normal")
             x_pos <- if (is_normal) as.numeric(names(obs_x)) else seq_along(obs_x)
 
             if (add) {
@@ -597,7 +597,7 @@ results.generator <- R6::R6Class("results",
       } else {
         cat("Statistics from Simulations Not Available\n")
       }
-      if (!is.null(private$.samples)) {
+      if (length(private$.samples) > 0) {
         cat("Samples Available of class:", class(private$.samples), "\n")
       } else {
         cat("Samples Not Available\n")
@@ -608,47 +608,51 @@ results.generator <- R6::R6Class("results",
   active = list(
     #' @field coefficients_path (`matrix` or `NULL`) Read-only. The path of all estimated coefficients across iterations.
     coefficients_path = function(value) {
-      if (missing(value)) private$.coefficients_path else stop("`coefficients_path` is read-only.", call. = FALSE)
+      if (missing(value)) private$.coefficients_path else stop("'coefficients_path' is read-only.", call. = FALSE)
     },
     #' @field samples (`list` or `NULL`) Read-only. A list of simulated `iglm.data` objects (class `iglm.data.list`).
     samples = function(value) {
-      if (missing(value)) private$.samples else stop("`samples` is read-only.", call. = FALSE)
+      if (missing(value)) private$.samples else stop("'samples' is read-only.", call. = FALSE)
     },
     #' @field stats (`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` obect from `coda`.
     stats = function(value) {
-      if (missing(value)) private$.stats else stop("`stats` is read-only.", call. = FALSE)
+      if (missing(value)) private$.stats else stop("'stats' is read-only.", call. = FALSE)
     },
     #' @field var (`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-degrees coefficients.
     var = function(value) {
-      if (missing(value)) private$.var else stop("`var` is read-only.", call. = FALSE)
+      if (missing(value)) private$.var else stop("'var' is read-only.", call. = FALSE)
     },
     #' @field fisher_degrees (`matrix` or `NULL`) Read-only. Fisher information matrix for degrees coefficients.
     fisher_degrees = function(value) {
-      if (missing(value)) private$.fisher_degrees else stop("`fisher_degrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.fisher_degrees else stop("'fisher_degrees' is read-only.", call. = FALSE)
     },
     #' @field fisher_nondegrees (`matrix` or `NULL`) Read-only. Fisher information matrix for non-degrees coefficients.
     fisher_nondegrees = function(value) {
-      if (missing(value)) private$.fisher_nondegrees else stop("`fisher_nondegrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.fisher_nondegrees else stop("'fisher_nondegrees' is read-only.", call. = FALSE)
     },
     #' @field score_degrees (`numeric` or `NULL`) Read-only. Score vector for degrees coefficients.
     score_degrees = function(value) {
-      if (missing(value)) private$.score_degrees else stop("`score_degrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.score_degrees else stop("'score_degrees' is read-only.", call. = FALSE)
     },
     #' @field score_nondegrees (`numeric` or `NULL`) Read-only. Score vector for non-degrees coefficients.
     score_nondegrees = function(value) {
-      if (missing(value)) private$.score_nondegrees else stop("`score_nondegrees` is read-only.", call. = FALSE)
+      if (missing(value)) private$.score_nondegrees else stop("'score_nondegrees' is read-only.", call. = FALSE)
     },
     #' @field llh (`numeric` or `NULL`) Read-only. Vector of log-likelihood values recorded during estimation.
     llh = function(value) {
-      if (missing(value)) private$.llh else stop("`llh` is read-only.", call. = FALSE)
+      if (missing(value)) private$.llh else stop("'llh' is read-only.", call. = FALSE)
     },
     #' @field model_assessment (`list` or `NULL`) Read-only. Results from model assessment (goodness-of-fit).
     model_assessment = function(value) {
-      if (missing(value)) private$.model_assessment else stop("`model_assessment` is read-only.", call. = FALSE)
+      if (missing(value)) private$.model_assessment else stop("'model_assessment' is read-only.", call. = FALSE)
     },
     #' @field estimated (`logical`) Read-only. Flag indicating if estimation has been completed.
     estimated = function(value) {
-      if (missing(value)) private$.estimated else stop("`estimated` is read-only.", call. = FALSE)
+      if (missing(value)) private$.estimated else stop("'estimated' is read-only.", call. = FALSE)
+    },
+    #' @field prediction (`list` or `NULL`) Read-only. Results from prediction.
+    prediction = function(value) {
+      if (missing(value)) private$.prediction else stop("'prediction' is read-only.", call. = FALSE)
     }
   )
 )
@@ -680,8 +684,7 @@ results <- function(size_coef, size_coef_degrees, file = NULL) {
 }
 
 #' @importFrom grDevices hcl
-generate_colors <- function(n, chroma = 35, luminance = 85, seed = 123) {
-  if (!is.null(seed)) set.seed(seed)
+generate_colors <- function(n, chroma = 35, luminance = 85, seed = NULL) {
   hues <- seq(15, 375, length.out = n + 1)[1:n]
   # Construct hex codes using the HCL space
   colors <- hcl(h = hues, c = chroma, l = luminance)

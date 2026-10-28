@@ -109,12 +109,8 @@ simulate_iglm <- function(formula,
                           fix_z = NULL) {
   if (is.null(sampler)) {
     sampler <- sampler.iglm()
-    # if no specifications of the sampler are provided use the default one
-  }
-
-
-  if (!inherits(sampler, "sampler.iglm")) {
-    sampler <- sampler.iglm()
+  } else if (!inherits(sampler, "sampler.iglm")) {
+    stop("'sampler' must be a 'sampler.iglm' object created with 'sampler.iglm()'.", call. = FALSE)
   }
   # Search for all things in the environment of the formula
   # attr(formula, ".Environment")
@@ -210,6 +206,9 @@ simulate_iglm <- function(formula,
       fix_z = sim_fix_z,
       tnt = sampler$sampler_z$tnt
     )
+    if (!is.null(res$simulation_networks_z)) {
+      res$simulation_networks <- res$simulation_networks_z
+    }
   } else {
     if (display_progress) {
       cat("Starting with burn-in\n")

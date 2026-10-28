@@ -531,39 +531,39 @@ test_that("simulate_iglm validates fix_x and fix_z overrides", {
   # Invalid fix_x
   expect_error(
     simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_x = NA),
-    pattern = "'fix_x' must be a single non-missing logical value"
+    regexp = "'fix_x' must be a single non-missing logical value"
   )
   expect_error(
     simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_x = c(TRUE, FALSE)),
-    pattern = "'fix_x' must be a single non-missing logical value"
+    regexp = "'fix_x' must be a single non-missing logical value"
   )
   expect_error(
     simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_x = "TRUE"),
-    pattern = "'fix_x' must be a single non-missing logical value"
+    regexp = "'fix_x' must be a single non-missing logical value"
   )
 
   # Invalid fix_z
   expect_error(
     simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_z = NA),
-    pattern = "'fix_z' must be a single non-missing logical value"
+    regexp = "'fix_z' must be a single non-missing logical value"
   )
   expect_error(
     simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_z = c(TRUE, FALSE)),
-    pattern = "'fix_z' must be a single non-missing logical value"
+    regexp = "'fix_z' must be a single non-missing logical value"
   )
   expect_error(
     simulate_iglm(data_obj ~ edges(mode = "local") + attribute_y, coef = c(-1, 0.5), fix_z = "TRUE"),
-    pattern = "'fix_z' must be a single non-missing logical value"
+    regexp = "'fix_z' must be a single non-missing logical value"
   )
 
   # iglm.data rejects NA for fix_x and fix_z
   expect_error(
     iglm.data(neighborhood = neighborhood, directed = FALSE, fix_x = NA),
-    pattern = "'fix_x' must be a single logical value"
+    regexp = "'fix_x' must be a single logical value"
   )
   expect_error(
     iglm.data(neighborhood = neighborhood, directed = FALSE, fix_z = NA),
-    pattern = "'fix_z' must be a single logical value"
+    regexp = "'fix_z' must be a single logical value"
   )
 })
 
@@ -616,6 +616,24 @@ test_that("simulate_iglm throws an error when coef length does not match formula
     simulate_iglm(data_obj ~ edges(), coef = c(1, 2)),
     regexp = "Wrong number of coefficients for the wanted terms."
   )
+})
+
+test_that("simulation does not trigger partial match warnings", {
+  n_units <- 10
+  neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
+  xyz_obj <- iglm.data(neighborhood = neighborhood, directed = FALSE, family_x = "binomial", family_y = "binomial")
+
+  old_opt <- options(warnPartialMatchDollar = TRUE)
+  on.exit(options(old_opt), add = TRUE)
+
+  model_fit <- iglm(
+    formula = xyz_obj ~ edges(mode = "local"),
+    coef = 0.5,
+    sampler = sampler.iglm(n_burn_in = 1, n_simulation = 2, init_empty = FALSE),
+    control = control.iglm(accelerated = FALSE, max_it = 1, display_progress = FALSE)
+  )
+  expect_no_warning(model_fit$simulate(display_progress = FALSE))
+  expect_equal(length(model_fit$get_samples()), 2)
 })
 
 

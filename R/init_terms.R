@@ -45,7 +45,7 @@
 #'   \item \code{\link{cov_z-term}}, \code{\link{cov_z_in-term}}, \code{\link{cov_z_out-term}}
 #'   \item \code{\link{degrees-term}}
 #'   \item \code{\link{gwdegree-term}}, \code{\link{gwidegree-term}}, \code{\link{gwodegree-term}}
-#'   \item \code{\link{gwesp-term}}, \code{\link{gwdsp-term}}
+#'   \item \code{\link{gwesp-term}}, \code{\link{gwdsp-term}}, \code{\link{gwesp_symm-term}}, \code{\link{gwdsp_symm-term}}
 #'   \item \code{\link{transitive-term}}, \code{\link{nonisolates-term}}, \code{\link{isolates-term}}
 #' }
 #'
@@ -357,14 +357,25 @@ NULL
 
 InitIglmTerm.cov_z <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
+    mandatory = "data",
     expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
-    defaults = list(data = matrix(1), mode = "global", type = 1)
+    defaults = list(mode = "global", type = 1)
   )
+  if (!is.matrix(arglist$data)) {
+    stop(sprintf("Argument 'data' of term '%s' must be a matrix.", arglist$label), call. = FALSE)
+  }
+  if (!is.null(data_object$n_units)) {
+    if (nrow(arglist$data) != data_object$n_units || ncol(arglist$data) != data_object$n_units) {
+      stop(sprintf("Argument 'data' of term '%s' must be a %d x %d square matrix.", arglist$label, data_object$n_units, data_object$n_units), call. = FALSE)
+    }
+  } else if (nrow(arglist$data) != ncol(arglist$data)) {
+    stop(sprintf("Argument 'data' of term '%s' must be a square matrix.", arglist$label), call. = FALSE)
+  }
   res <- list(
     term_name = paste0("cov_z_", arglist$mode),
+    data = as.matrix(arglist$data),
     coef_name = arglist$label
   )
-  if (!all(arglist$data == 1) || length(arglist$data) != 1) res$data <- arglist$data
   if (arglist$type != 1) res$type <- arglist$type
   res
 }
@@ -382,15 +393,24 @@ NULL
 InitIglmTerm.cov_z_out <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
+    mandatory = "data",
     expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
-    defaults = list(data = matrix(1), mode = "global", type = 1)
+    defaults = list(mode = "global", type = 1)
   )
-  data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  if (is.matrix(arglist$data) && nrow(arglist$data) > 1 && ncol(arglist$data) > 1) {
+    stop(sprintf("Argument 'data' of term '%s' must be a vector or 1-row matrix.", arglist$label), call. = FALSE)
+  }
+  if (!is.null(data_object$n_units)) {
+    if (length(arglist$data) != data_object$n_units) {
+      stop(sprintf("Argument 'data' of term '%s' must have length %d (matching n_units).", arglist$label, data_object$n_units), call. = FALSE)
+    }
+  }
+  data <- matrix(as.numeric(arglist$data), nrow = 1)
   res <- list(
     term_name = paste0("cov_z_out_", arglist$mode),
+    data = data,
     coef_name = arglist$label
   )
-  if (!all(data == 1) || length(data) != 1) res$data <- data
   if (arglist$type != 1) res$type <- arglist$type
   res
 }
@@ -408,15 +428,24 @@ NULL
 InitIglmTerm.cov_z_in <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
+    mandatory = "data",
     expected = list(data = "matrix", mode = c("global", "local", "alocal"), type = "numeric"),
-    defaults = list(data = matrix(1), mode = "global", type = 1)
+    defaults = list(mode = "global", type = 1)
   )
-  data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  if (is.matrix(arglist$data) && nrow(arglist$data) > 1 && ncol(arglist$data) > 1) {
+    stop(sprintf("Argument 'data' of term '%s' must be a vector or 1-row matrix.", arglist$label), call. = FALSE)
+  }
+  if (!is.null(data_object$n_units)) {
+    if (length(arglist$data) != data_object$n_units) {
+      stop(sprintf("Argument 'data' of term '%s' must have length %d (matching n_units).", arglist$label, data_object$n_units), call. = FALSE)
+    }
+  }
+  data <- matrix(as.numeric(arglist$data), nrow = 1)
   res <- list(
     term_name = paste0("cov_z_in_", arglist$mode),
+    data = data,
     coef_name = arglist$label
   )
-  if (!all(data == 1) || length(data) != 1) res$data <- data
   if (arglist$type != 1) res$type <- arglist$type
   res
 }
@@ -429,15 +458,24 @@ NULL
 
 InitIglmTerm.cov_x <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
+    mandatory = "data",
     expected = list(data = "matrix", type = "numeric"),
-    defaults = list(data = matrix(1), type = 1)
+    defaults = list(type = 1)
   )
-  data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  if (is.matrix(arglist$data) && nrow(arglist$data) > 1 && ncol(arglist$data) > 1) {
+    stop(sprintf("Argument 'data' of term '%s' must be a vector or 1-row matrix.", arglist$label), call. = FALSE)
+  }
+  if (!is.null(data_object$n_units)) {
+    if (length(arglist$data) != data_object$n_units) {
+      stop(sprintf("Argument 'data' of term '%s' must have length %d (matching n_units).", arglist$label, data_object$n_units), call. = FALSE)
+    }
+  }
+  data <- matrix(as.numeric(arglist$data), nrow = 1)
   res <- list(
     term_name = "cov_x",
+    data = data,
     coef_name = arglist$label
   )
-  if (!all(data == 1) || length(data) != 1) res$data <- data
   if (arglist$type != 1) res$type <- arglist$type
   res
 }
@@ -450,15 +488,24 @@ NULL
 
 InitIglmTerm.cov_y <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
+    mandatory = "data",
     expected = list(data = "matrix", type = "numeric"),
-    defaults = list(data = matrix(1), type = 1)
+    defaults = list(type = 1)
   )
-  data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  if (is.matrix(arglist$data) && nrow(arglist$data) > 1 && ncol(arglist$data) > 1) {
+    stop(sprintf("Argument 'data' of term '%s' must be a vector or 1-row matrix.", arglist$label), call. = FALSE)
+  }
+  if (!is.null(data_object$n_units)) {
+    if (length(arglist$data) != data_object$n_units) {
+      stop(sprintf("Argument 'data' of term '%s' must have length %d (matching n_units).", arglist$label, data_object$n_units), call. = FALSE)
+    }
+  }
+  data <- matrix(as.numeric(arglist$data), nrow = 1)
   res <- list(
     term_name = "cov_y",
+    data = data,
     coef_name = arglist$label
   )
-  if (!all(data == 1) || length(data) != 1) res$data <- data
   if (arglist$type != 1) res$type <- arglist$type
   res
 }
@@ -812,10 +859,20 @@ InitIglmTerm.gwdsp <- function(data_object, arglist, ...) {
   )
 }
 
+#' @description \code{gwesp_symm(decay = 0, mode = "global")}: Geometrically Weighted Edgewise Shared Partner (Symmetric): Captures transitivity/closure in undirected networks. Alias for \code{gwesp(..., variant = "symm")}.
+#' @name gwesp_symm-term
+#' @rdname iglm.terms
+NULL
+
 InitIglmTerm.gwesp_symm <- function(data_object, arglist, ...) {
   arglist$variant <- "symm"
   InitIglmTerm.gwesp(data_object = data_object, arglist = arglist, ...)
 }
+
+#' @description \code{gwdsp_symm(decay = 0, mode = "global")}: Geometrically Weighted Dyadwise Shared Partner (Symmetric): Captures shared partner distribution in undirected networks. Alias for \code{gwdsp(..., variant = "symm")}.
+#' @name gwdsp_symm-term
+#' @rdname iglm.terms
+NULL
 
 InitIglmTerm.gwdsp_symm <- function(data_object, arglist, ...) {
   arglist$variant <- "symm"
@@ -898,15 +955,24 @@ NULL
 InitIglmTerm.spillover_yc_symm <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = FALSE,
+    mandatory = "data",
     expected = list(data = "matrix", mode = "local"),
-    defaults = list(data = matrix(1), mode = "local")
+    defaults = list(mode = "local")
   )
-  data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  if (is.matrix(arglist$data) && nrow(arglist$data) > 1 && ncol(arglist$data) > 1) {
+    stop(sprintf("Argument 'data' of term '%s' must be a vector or 1-row matrix.", arglist$label), call. = FALSE)
+  }
+  if (!is.null(data_object$n_units)) {
+    if (length(arglist$data) != data_object$n_units) {
+      stop(sprintf("Argument 'data' of term '%s' must have length %d (matching n_units).", arglist$label, data_object$n_units), call. = FALSE)
+    }
+  }
+  data <- matrix(as.numeric(arglist$data), nrow = 1)
   res <- list(
     term_name = "spillover_yc_symm",
+    data = data,
     coef_name = arglist$label
   )
-  if (!all(data == 1) || length(data) != 1) res$data <- data
   res
 }
 
@@ -934,15 +1000,24 @@ NULL
 InitIglmTerm.spillover_yc <- function(data_object, arglist, ...) {
   arglist <- check.IglmTerm(data_object, arglist,
     directed = TRUE,
+    mandatory = "data",
     expected = list(data = "matrix", mode = "local"),
-    defaults = list(data = matrix(1), mode = "local")
+    defaults = list(mode = "local")
   )
-  data <- if (is.matrix(arglist$data)) arglist$data else matrix(arglist$data, nrow = 1)
+  if (is.matrix(arglist$data) && nrow(arglist$data) > 1 && ncol(arglist$data) > 1) {
+    stop(sprintf("Argument 'data' of term '%s' must be a vector or 1-row matrix.", arglist$label), call. = FALSE)
+  }
+  if (!is.null(data_object$n_units)) {
+    if (length(arglist$data) != data_object$n_units) {
+      stop(sprintf("Argument 'data' of term '%s' must have length %d (matching n_units).", arglist$label, data_object$n_units), call. = FALSE)
+    }
+  }
+  data <- matrix(as.numeric(arglist$data), nrow = 1)
   res <- list(
     term_name = "spillover_yc",
+    data = data,
     coef_name = arglist$label
   )
-  if (!all(data == 1) || length(data) != 1) res$data <- data
   res
 }
 
