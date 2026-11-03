@@ -455,7 +455,8 @@ test_that("degree 0 units receive NA in coef_degrees and maintain degree 0 in si
   
   # Simulate from model: node 3 must strictly have degree 0 across all samples
   sim_res <- expect_no_error(m$simulate())
-  for (s in sim_res$samples) {
+  expect_gt(length(sim_res), 0)
+  for (s in sim_res) {
     expect_equal(s$degree()$degree_seq[3], 0)
   }
 })

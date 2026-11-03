@@ -424,3 +424,37 @@ test_that("model_assessment plot works even when samples have been removed", {
   dev.off()
 })
 
+test_that("model_assessment preserves attribute families and plots continuous envelopes when samples are removed", {
+  n_units <- 20
+  block <- matrix(nrow = 5, ncol = 5, data = 1)
+  neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units / 5, block, simplify = FALSE)))
+  xyz_obj <- iglm.data(
+    neighborhood = neighborhood, directed = FALSE,
+    family_x = "normal", family_y = "normal",
+    x_attribute = rnorm(n_units), y_attribute = rnorm(n_units)
+  )
+
+  model_fit <- iglm(
+    formula = xyz_obj ~ edges(mode = "local") + attribute_y + attribute_x,
+    coef = c(1, -1, -1),
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 3, init_empty = FALSE),
+    control = control.iglm(accelerated = FALSE, max_it = 2, display_progress = FALSE)
+  )
+  model_fit$simulate()
+  model_fit$set_target(model_fit$get_samples()[[1]])
+  model_fit$estimate()
+  res <- model_fit$assess(formula = ~ y_distribution + x_distribution, plot = FALSE)
+  expect_equal(res$family_x, "normal")
+  expect_equal(res$family_y, "normal")
+
+  # Remove samples
+  model_fit$results$remove_samples()
+  expect_equal(length(model_fit$results$samples), 0)
+
+  # Plotting assessment when samples are empty should retain normal family handling without error
+  pdf(NULL)
+  expect_no_error(model_fit$results$plot(model_assessment = TRUE))
+  dev.off()
+})
+
+

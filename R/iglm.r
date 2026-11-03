@@ -450,7 +450,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         names = names_tmp,
         include_mcmc = include_mcmc,
         name = private$.name,
-        sufficient_statistics = sufficient_statistics
+        sufficient_statistics = sufficient_statistics,
+        family_x = private$.iglm.data$family_x,
+        family_y = private$.iglm.data$family_y
       )
       class(res) <- "iglm_model_assessment"
       private$.results$set_model_assessment(res)
@@ -1338,4 +1340,3 @@ iglm <- function(formula = NULL, coef = NULL, coef_degrees = NULL, sampler = NUL
 summary.iglm.object <- function(object, ...) {
   object$summary(...)
 }
-

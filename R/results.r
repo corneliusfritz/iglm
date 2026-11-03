@@ -401,8 +401,20 @@ results.generator <- R6::R6Class("results",
         }
         tmp_names <- names(private$.model_assessment$observed)
         base_names <- private$.model_assessment$base_name
-        family_x <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_x)) private$.samples[[1]]$family_x else "binomial"
-        family_y <- if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_y)) private$.samples[[1]]$family_y else "binomial"
+        family_x <- if (!is.null(private$.model_assessment$family_x)) {
+          private$.model_assessment$family_x
+        } else if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_x)) {
+          private$.samples[[1]]$family_x
+        } else {
+          "binomial"
+        }
+        family_y <- if (!is.null(private$.model_assessment$family_y)) {
+          private$.model_assessment$family_y
+        } else if (length(private$.samples) > 0 && !is.null(private$.samples[[1]]$family_y)) {
+          private$.samples[[1]]$family_y
+        } else {
+          "binomial"
+        }
         k <- 0
         for (i in base_names) {
           k <- k + 1

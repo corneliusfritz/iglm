@@ -17,3 +17,7 @@ readme.Rmd
 ^data-raw$
 ^.*\.csv$
 ^.*\.png$
+^\.DS_Store$
+^.*\.DS_Store$
+^cran-comments\.md$
+^.*\.tar\.gz$
