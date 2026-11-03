@@ -636,6 +636,43 @@ test_that("simulation does not trigger partial match warnings", {
   expect_equal(length(model_fit$get_samples()), 2)
 })
 
+test_that("simulate_iglm validates coef_degrees when degrees are included", {
+  dat <- iglm.data(z_network = matrix(0, 3, 3), n_units = 3, directed = FALSE)
+  # Missing coef_degrees
+  expect_error(
+    simulate_iglm(dat ~ edges() + degrees, coef = 0),
+    regexp = "'coef_degrees' was not provided"
+  )
+  # Non-numeric coef_degrees
+  expect_error(
+    simulate_iglm(dat ~ edges() + degrees, coef = 0, coef_degrees = c("a", "b", "c")),
+    regexp = "'coef_degrees' must be a numeric vector"
+  )
+  # Wrong length
+  expect_error(
+    simulate_iglm(dat ~ edges() + degrees, coef = 0, coef_degrees = c(0, 0)),
+    regexp = "'coef_degrees' must have length 3"
+  )
+})
+
+test_that("simulate_iglm with -Inf in coef_degrees maintains degree 0 for that unit", {
+  dat <- iglm.data(z_network = matrix(0, 4, 4), n_units = 4, directed = FALSE)
+  # Unit 4 has degree coefficient -Inf
+  coef_deg <- c(0, 0, 0, -Inf)
+  sim_res <- simulate_iglm(
+    dat ~ edges() + degrees,
+    coef = 0.5,
+    coef_degrees = coef_deg,
+    only_stats = FALSE,
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 3, init_empty = FALSE)
+  )
+  expect_equal(length(sim_res$samples), 3)
+  for (s in sim_res$samples) {
+    expect_equal(s$degree()$degree_seq[4], 0)
+  }
+})
+
+
 
 
 

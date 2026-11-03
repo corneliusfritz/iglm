@@ -418,6 +418,61 @@ test_that("predict(variant = 'conditional') correctly uses sender degree coeffic
   expect_gt(p_1_3, p_2_3)
 })
 
+test_that("name active binding sets new name without recursion", {
+  dat <- iglm.data(z_network = matrix(0, 3, 3), n_units = 3)
+  m <- iglm(dat ~ edges(mode = "global"), coef = 0, control = control.iglm(max_it = 1, display_progress = FALSE))
+  expect_no_error(m$name <- "custom_model_name")
+  expect_equal(m$name, "custom_model_name")
+})
+
+test_that("predict(variant = 'marginal', type = 'z') produces distinct sender and receiver columns", {
+  dat <- iglm.data(z_network = matrix(c(0, 1, 0, 0, 0, 1, 1, 0, 0), 3, 3), n_units = 3, directed = TRUE)
+  m <- iglm(dat ~ edges(mode = "global"), coef = 0, sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2, init_empty = FALSE), control = control.iglm(max_it = 1, display_progress = FALSE))
+  m$results$update(estimated = TRUE)
+  pred <- m$predict(variant = "marginal", type = "z")
+  pz <- pred$z
+  expect_true(any(pz$sender != pz$receiver))
+  # Should have 3 * 3 = 9 dyads with sender and receiver covering all combinations
+  expect_equal(nrow(pz), 9)
+  expect_equal(pz$receiver, as.character(rep(1:3, each = 3)))
+})
+
+test_that("estimate() with return_samples = FALSE succeeds without crashing and leaves samples empty", {
+  dat <- iglm.data(z_network = matrix(0, 4, 4), n_units = 4, directed = FALSE)
+  m <- iglm(dat ~ edges(mode = "global"), control = control.iglm(max_it = 2, return_samples = FALSE, display_progress = FALSE))
+  expect_no_error(m$estimate())
+  expect_equal(length(m$results$samples), 0)
+})
+
+test_that("degree 0 units receive NA in coef_degrees and maintain degree 0 in simulation", {
+  # Isolated node 3
+  net <- matrix(0, 3, 3)
+  net[1, 2] <- net[2, 1] <- 1
+  dat <- iglm.data(z_network = net, n_units = 3, directed = FALSE)
+  m <- iglm(dat ~ edges(mode = "global") + degrees, control = control.iglm(max_it = 2, display_progress = FALSE), sampler = sampler.iglm(n_burn_in = 2, n_simulation = 3, init_empty = FALSE))
+  expect_no_error(m$estimate())
+  expect_true(is.na(m$coef_degrees[3]))
+  
+  # Simulate from model: node 3 must strictly have degree 0 across all samples
+  sim_res <- expect_no_error(m$simulate())
+  for (s in sim_res$samples) {
+    expect_equal(s$degree()$degree_seq[3], 0)
+  }
+})
+
+test_that("protected_terms only preserves edges_global, dropping constant edges_alocal", {
+  # Complete graph neighborhood: all pairs are local, so edges_alocal is constant 0
+  block <- matrix(1, 4, 4)
+  dat <- iglm.data(neighborhood = block, directed = FALSE)
+  m <- iglm(dat ~ edges(mode = "global") + edges(mode = "alocal") + degrees, control = control.iglm(max_it = 2, display_progress = FALSE))
+  m$estimate()
+  # edges_alocal has 0 variance and should be dropped, while edges_global is kept
+  cf_names <- rownames(as.matrix(m$coef))
+  expect_true(any(grepl("edges.*global", cf_names)))
+  expect_false(any(grepl("edges.*alocal", cf_names)))
+})
+
+
 
 
 

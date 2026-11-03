@@ -2593,6 +2593,9 @@ auto xyz_stat_isolates = CHANGESTAT {
 EFFECT_REGISTER("isolates", ::xyz_stat_isolates, "isolates", 1.0);
 
 auto xyz_stat_gwesp_local_ITP = CHANGESTAT {
+  if (!object.z_network.directed) {
+    Rcpp::stop("This statistic is only for directed networks");
+  }
   if (mode == "z") {
     double expo_min = (1 - exp(-data.at(0, 0)));
     double expo_pos = exp(data.at(0, 0));
@@ -2624,6 +2627,9 @@ EFFECT_REGISTER("gwesp_local_ITP", ::xyz_stat_gwesp_local_ITP,
                 "gwesp_local_ITP", 0.0);
 
 auto xyz_stat_gwesp_local_ISP = CHANGESTAT {
+  if (!object.z_network.directed) {
+    Rcpp::stop("This statistic is only for directed networks");
+  }
   if (mode == "z") {
     double expo_min = (1 - exp(-data.at(0, 0)));
     double expo_pos = exp(data.at(0, 0));
@@ -2997,16 +3003,26 @@ auto xyz_stat_gwdsp_local_symm = CHANGESTAT {
     for (int k : out_j) {
       if (unit_i == k)
         continue;
+      if (!object.get_val_overlap(unit_i, k))
+        continue;
       tmp_count = object.count_common_partners_nb(unit_i, k);
-      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count);
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0;
+      }
+      res += pow(expo_min, tmp_count);
     }
     // 2. Step:
     auto &out_i = object.adj_list_nb.at(unit_i);
     for (int k : out_i) {
       if (unit_j == k)
         continue;
+      if (!object.get_val_overlap(unit_j, k))
+        continue;
       tmp_count = object.count_common_partners_nb(k, unit_j);
-      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count);
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0;
+      }
+      res += pow(expo_min, tmp_count);
     }
     return (res);
   } else {
@@ -3133,16 +3149,26 @@ auto xyz_stat_gwdsp_ITP_local = CHANGESTAT {
     for (int k : out_j) {
       if (unit_i == k)
         continue;
+      if (!object.get_val_overlap(unit_i, k))
+        continue;
       tmp_count = object.count_common_partners_nb(unit_i, k, "OTP");
-      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count);
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0;
+      }
+      res += pow(expo_min, tmp_count);
     }
     // 2. Step:
     auto &in_i = object.adj_list_in_nb.at(unit_i);
     for (int k : in_i) {
       if (unit_j == k)
         continue;
+      if (!object.get_val_overlap(k, unit_j))
+        continue;
       tmp_count = object.count_common_partners_nb(k, unit_j, "OTP");
-      res += pow(expo_min, edge_exists ? (tmp_count - 1) : tmp_count);
+      if (edge_exists) {
+        tmp_count = (tmp_count > 0) ? (tmp_count - 1) : 0.0;
+      }
+      res += pow(expo_min, tmp_count);
     }
     return (res);
   } else {
@@ -3171,6 +3197,8 @@ auto xyz_stat_gwdsp_ISP_local = CHANGESTAT {
     auto &out_i = object.adj_list_nb.at(unit_i);
     for (int k : out_i) {
       if (unit_j == k)
+        continue;
+      if (!object.get_val_overlap(unit_j, k))
         continue;
       tmp_count = object.count_common_partners_nb(unit_j, k, "ISP");
       if (edge_exists) {
@@ -3204,6 +3232,8 @@ auto xyz_stat_gwdsp_OSP_local = CHANGESTAT {
     auto &in_j = object.adj_list_in_nb.at(unit_j);
     for (int k : in_j) {
       if (unit_i == k)
+        continue;
+      if (!object.get_val_overlap(unit_i, k))
         continue;
       tmp_count = object.count_common_partners_nb(unit_i, k, "OSP");
       if (edge_exists) {

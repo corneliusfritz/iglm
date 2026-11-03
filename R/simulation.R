@@ -166,8 +166,22 @@ simulate_iglm <- function(formula,
     stop("Wrong number of coefficients for the wanted terms.", call. = FALSE)
   }
 
-  if (is.null(coef_degrees)) {
-    coef_degrees <- numeric(0)
+  if (degrees) {
+    if (is.null(coef_degrees) || length(coef_degrees) == 0) {
+      stop("The formula includes 'degrees' terms, but 'coef_degrees' was not provided.", call. = FALSE)
+    }
+    if (!is.numeric(coef_degrees)) {
+      stop("'coef_degrees' must be a numeric vector.", call. = FALSE)
+    }
+    expected_len <- if (data_obj$directed) 2 * n_units else n_units
+    if (length(coef_degrees) != expected_len) {
+      stop(sprintf("'coef_degrees' must have length %d (got %d).", expected_len, length(coef_degrees)), call. = FALSE)
+    }
+    coef_degrees[is.na(coef_degrees)] <- -Inf
+  } else {
+    if (is.null(coef_degrees)) {
+      coef_degrees <- numeric(0)
+    }
   }
 
   if (!is_cluster_active(cluster)) {

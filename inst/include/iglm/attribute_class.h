@@ -38,10 +38,6 @@ public:
   
   bool check() const;
   
-  int get_sum() const {
-    return(attribute.size());
-  }
-  
   double get_val(int from) const {
     if(from < 1 || from > n_units) return 0.0;
     return(attribute(from-1)/scale);

@@ -352,15 +352,11 @@ iglm.data.neighborhood <- function(neighborhood, directed = NA, n_units = NA) {
     if (!is.na(directed) && !directed) {
       neighborhood <- pmax(neighborhood, t(neighborhood))
     }
-    # Enforce closed neighborhood: i in N_i
-    diag(neighborhood) <- 1
     neighborhood <- which(neighborhood > 0, arr.ind = TRUE)
   } else {
     if (!is.na(directed) && !directed) {
       neighborhood <- rbind(neighborhood, neighborhood[, c(2, 1)])
     }
-    # Enforce closed neighborhood: i in N_i
-    neighborhood <- rbind(neighborhood, cbind(seq_len(n_units), seq_len(n_units)))
     neighborhood <- neighborhood[!duplicated(neighborhood), , drop = FALSE]
   }
 

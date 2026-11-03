@@ -742,5 +742,26 @@ test_that("gwesp global ITP runs and calculates without error", {
   expect_false(is.nan(stat_itp))
 })
 
+test_that("gwdsp with decay = 0 does not produce +Inf or NaN on local networks", {
+  net <- matrix(c(
+    0, 1, 0, 0,
+    1, 0, 0, 0,
+    0, 0, 0, 1,
+    0, 0, 1, 0
+  ), 4, 4, byrow = TRUE)
+  nb <- matrix(c(
+    0, 1, 0, 0,
+    1, 0, 0, 0,
+    0, 0, 0, 1,
+    0, 0, 1, 0
+  ), 4, 4, byrow = TRUE)
+  d <- iglm.data(z_network = net, neighborhood = nb, directed = FALSE)
+  stat_dsp <- statistics(d ~ gwdsp(mode = "local", decay = 0))
+  expect_true(is.numeric(stat_dsp))
+  expect_false(is.infinite(stat_dsp))
+  expect_false(is.nan(stat_dsp))
+})
+
+
 
 

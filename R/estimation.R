@@ -284,7 +284,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
           }
           # browser()
           res_parallel <- parLapply(cl = sampler$cluster, X = tmp_split, fun = function(x, preprocessed,
-                                                                                        n_units, res, control, term_names) {
+                                                                                        n_units, res, control, term_names,
+                                                                                        data_object, sampler, nonoverlap_random) {
             xyz_approximate_variability(
               coef = res$coefficients_nondegrees,
               coef_degrees = res$coefficients_degrees,
@@ -320,7 +321,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
               attr_x_scale = data_object$scale_x,
               attr_y_scale = data_object$scale_y
             )
-          }, preprocessed = preprocessed, n_units = n_units, res = res, control = control, term_names = preprocessed$term_names)
+          }, preprocessed = preprocessed, n_units = n_units, res = res, control = control, term_names = preprocessed$term_names,
+             data_object = data_object, sampler = sampler, nonoverlap_random = nonoverlap_random)
 
 
           variability_simulations <- list()
@@ -388,6 +390,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
               )
             }
           )
+        } else {
+          res$simulations <- list()
         }
       }
 
@@ -517,13 +521,14 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
             simulation_z_networks = variability_simulations$simulation_z_networks
           )
         } else {
-          tmp_split <- split(1:(round(sampler$n_simulation / length(sampler$cluster)) * length(sampler$cluster)), seq_along(sampler$cluster))
+          tmp_split <- suppressWarnings(split(1:sampler$n_simulation, seq_along(sampler$cluster)))
           if (control$display_progress) {
             cat("Starting with parallel simulations")
           }
 
           res_parallel <- parLapply(cl = sampler$cluster, X = tmp_split, fun = function(x, preprocessed,
-                                                                                        n_units, res, control) {
+                                                                                        n_units, res, control,
+                                                                                        data_object, sampler, nonoverlap_random) {
             xyz_approximate_variability(
               coef = res$coefficients,
               coef_degrees = 0,
@@ -559,7 +564,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
               fix_x = data_object$fix_x,
               fix_z = data_object$fix_z
             )
-          }, preprocessed = preprocessed, n_units = n_units, res = res, control = control)
+          }, preprocessed = preprocessed, n_units = n_units, res = res, control = control,
+             data_object = data_object, sampler = sampler, nonoverlap_random = nonoverlap_random)
 
 
           variability_simulations <- list()
@@ -596,6 +602,8 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
               )
             }
           )
+        } else {
+          res$simulations <- list()
         }
         rownames(res$coefficients) <- preprocessed$coef_names
         if (control$var) {

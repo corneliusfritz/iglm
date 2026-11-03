@@ -732,6 +732,45 @@ test_that("iglm.data save and load errors format quotes properly", {
   )
 })
 
+test_that("iglm.data save and load preserves family_x and family_y", {
+  tmp_file <- tempfile(fileext = ".rds")
+  on.exit(unlink(tmp_file), add = TRUE)
+
+  dat <- iglm.data(
+    x_attribute = c(1, 2, 3),
+    y_attribute = c(0.5, 1.5, 2.5),
+    family_x = "poisson",
+    family_y = "normal",
+    directed = FALSE
+  )
+  dat$save(file = tmp_file)
+
+  dat_loaded <- iglm.data(file = tmp_file)
+  expect_equal(dat_loaded$family_x, "poisson")
+  expect_equal(dat_loaded$family_y, "normal")
+})
+
+test_that("iglm.data.neighborhood does not enforce closed neighborhood (no diagonal 1s added)", {
+  # Adjacency with 0 diagonal
+  nb_adj <- matrix(c(0, 1, 1, 0), nrow = 2, ncol = 2)
+  res_nb <- iglm.data.neighborhood(neighborhood = nb_adj, n_units = 2, directed = FALSE)
+  # Neighborhood should NOT contain self loops (1, 1) or (2, 2)
+  expect_false(any(res_nb$neighborhood[, 1] == res_nb$neighborhood[, 2]))
+
+  # Edgelist without self loops
+  nb_el <- matrix(c(1, 2, 2, 1), ncol = 2, byrow = TRUE)
+  res_nb2 <- iglm.data.neighborhood(neighborhood = nb_el, n_units = 2, directed = FALSE)
+  expect_false(any(res_nb2$neighborhood[, 1] == res_nb2$neighborhood[, 2]))
+})
+
+test_that("iglm.data$plot works and accepts extra ... arguments", {
+  dat <- iglm.data(z_network = matrix(c(0, 1, 0, 0), 2, 2), n_units = 2)
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
+  expect_no_error(dat$plot(main = "Test Plot"))
+})
+
+
 
 
 

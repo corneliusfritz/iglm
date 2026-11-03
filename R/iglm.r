@@ -791,7 +791,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
         # Update the internal results object
         if (private$.preprocess$includes_degrees) {
           private$.results$update(
-            samples = info$simulations,
+            samples = if (length(info$simulations) > 0) info$simulations else NULL,
             var = info$var,
             coefficients_path = info$coefficients_path,
             fisher_degrees = info$fisher_degrees,
@@ -804,7 +804,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           )
         } else {
           private$.results$update(
-            samples = info$simulations,
+            samples = if (length(info$simulations) > 0) info$simulations else NULL,
             var = info$var,
             coefficients_path = info$coefficients_path,
             fisher_nondegrees = info$fisher,
@@ -985,7 +985,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           network_obs[private$.iglm.data$z_network] <- 1
           res$z <- data.frame(
             sender = rownames(res_z)[row(res_z)],
-            receiver = colnames(res_z)[row(res_z)],
+            receiver = colnames(res_z)[col(res_z)],
             target = as.vector(network_obs),
             prediction = as.vector(res_z)
           )
@@ -1040,8 +1040,10 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           # debugonce(estimate_xyz)
           info <- self$estimate()
           # private$.control$offset_nonoverlap[]
-          lp <- info$res_z[, -c(1, 2, 3, 4), drop = FALSE] %*% private$.coef + private$.coef_degrees[info$res_z[, 2]] +
-            private$.coef_degrees[info$res_z[, 3] + private$.iglm.data$n_units * private$.iglm.data$directed] +
+          coef_deg <- if (private$.preprocess$includes_degrees) private$.coef_degrees else rep(0, private$.iglm.data$n_units * (1 + private$.iglm.data$directed))
+          coef_deg[is.na(coef_deg)] <- -Inf
+          lp <- info$res_z[, -c(1, 2, 3, 4), drop = FALSE] %*% private$.coef + coef_deg[info$res_z[, 2]] +
+            coef_deg[info$res_z[, 3] + private$.iglm.data$n_units * private$.iglm.data$directed] +
             private$.control$offset_nonoverlap * (1 - info$res_z[, 4])
           mu <- 1 / (1 + exp(-lp))
           res$z <- data.frame(cbind(
@@ -1185,7 +1187,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 
     #' @field name (`character`) The name of the model.
     name = function(value) {
-      if (missing(value)) private$.name else if (is.character(value)) self$name <- value else stop("'name' must be a character string.", call. = FALSE)
+      if (missing(value)) private$.name else if (is.character(value)) self$set_name(value) else stop("'name' must be a character string.", call. = FALSE)
     },
 
     #' @field sufficient_statistics (`numeric`) Read-only. A named vector of the observed network statistics corresponding to the model terms, calculated on the current `iglm.data` data.

@@ -244,8 +244,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         neighborhood <- data_loaded$neighborhood
         directed <- data_loaded$directed
         n_units <- data_loaded$n_units
-        type_x <- data_loaded$family_x
-        type_y <- data_loaded$family_y
+        family_x <- data_loaded$family_x
+        family_y <- data_loaded$family_y
         scale_x <- data_loaded$scale_x
         scale_y <- data_loaded$scale_y
         fix_x <- data_loaded$fix_x
@@ -2201,6 +2201,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
         edge.arrow.size = edge.arrow.size,
         add = add_mode,
         layout = coords,
+        ...
       )
 
       if (!is.null(color_attr) || !is.null(size_attr)) {
