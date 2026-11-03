@@ -603,8 +603,8 @@ iglm.object.generator <- R6::R6Class("iglm.object",
     #' @description
     #' Plot the estimation results, including coefficient convergence
     #' paths and model assessment diagnostics if available.
-    #' @param stats (logical) If `TRUE`, plot the observed vs. simulated
-    #'  statistics from model assessment. Default is `FALSE`.
+    #' @param stats (logical) If `TRUE`, plot the trace of simulated
+    #'  statistics. Default is `FALSE`.
     #' @param trace (logical) If `TRUE`, plot the coefficient convergence
     #'  paths. Default is `FALSE`.
     #' @param model_assessment (logical) If `TRUE`, plot diagnostics from the
@@ -985,6 +985,9 @@ iglm.object.generator <- R6::R6Class("iglm.object",
           rownames(res_z) <- colnames(res_z) <- paste0(1:private$.iglm.data$n_units)
           network_obs <- matrix(0, nrow = private$.iglm.data$n_units, ncol = private$.iglm.data$n_units)
           network_obs[private$.iglm.data$z_network] <- 1
+          if (!private$.iglm.data$directed) {
+            network_obs <- pmax(network_obs, t(network_obs))
+          }
           res$z <- data.frame(
             sender = rownames(res_z)[row(res_z)],
             receiver = colnames(res_z)[col(res_z)],
@@ -1208,7 +1211,7 @@ iglm.object.generator <- R6::R6Class("iglm.object",
 #' be used for studying spillover in connected populations and other network-mediated phenomena.
 #' It is based on a joint probability model for dependent
 #' responses (\eqn{Y}), connections \eqn{(Z)}, and predictors \eqn{(X)}.
-#' Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.object}}).
+#' Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.data}}).
 #'
 #' For details on available model terms and specifying model formulas, see \code{\link{iglm.terms}} (or \code{\link[=iglm.terms]{iglm-terms}}) and the \href{../doc/model-terms.html}{Model Terms vignette} (or run \code{vignette("model-terms", package = "iglm")}).
 #'

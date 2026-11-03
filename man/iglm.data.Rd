@@ -66,7 +66,7 @@ during estimation/simulation (fixed design in regression). Default is `FALSE`.}
 
 \item{fix_z}{(logical) If `TRUE`, the 'z' network is held fixed
 during estimation/simulation (fixed network design). Default is `FALSE`.
-Setting this to TRUE, allows practicioners to estimate autologistic unit attribute models,
+Setting this to TRUE, allows practitioners to estimate autologistic unit attribute models,
 which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).}
 
 \item{fix_z_alocal}{(logical) If `TRUE`, edges outside the overlap region
@@ -90,7 +90,7 @@ generated implying global dependence. If `FALSE`, no neighborhood is set.}
 An object of class `iglm.data` (and `R6`).
 }
 \description{
-Creates a `iglm.data` object, which stores network and attribute data.
+Creates an `iglm.data` object, which stores network and attribute data.
 This function acts as a user-friendly interface to the `iglm.data` R6 class generator.
 It handles data input, infers parameters like the number of units (`n_units`)
 and network directedness (`directed`) if not explicitly provided, processes

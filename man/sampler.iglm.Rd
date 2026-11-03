@@ -2,7 +2,7 @@
 % Please edit documentation in R/sampler.r
 \name{sampler.iglm}
 \alias{sampler.iglm}
-\title{Constructor for a iglm Sampler}
+\title{Constructor for an iglm Sampler}
 \usage{
 sampler.iglm(
   sampler_x = NULL,

@@ -78,11 +78,11 @@ copenhagen$deg(
 
     \item{\code{fix_x}}{(`logical`) Indicates if the `x_attribute` is fixed during estimation/simulation.}
 
-    \item{\code{fix_z}}{(`logical`) RIndicates if the `z_network` is fixed during estimation/simulation.}
+    \item{\code{fix_z}}{(`logical`) Indicates if the `z_network` is fixed during estimation/simulation.}
 
-    \item{\code{descriptives}}{(`list`)A list storing computed descriptive statistics for the network and attributes.}
+    \item{\code{descriptives}}{(`list`) A list storing computed descriptive statistics for the network and attributes.}
 
-    \item{\code{fix_z_alocal}}{(`logical`) Flag indicating whether nonoverlap edges are treated as random.}
+    \item{\code{fix_z_alocal}}{(`logical`) Flag indicating whether nonoverlap (alocal) edges are treated as fixed.}
   }
   \if{html}{\out{</div>}}
 }
@@ -198,7 +198,8 @@ for "normal" type). Default is 1.}
 during model estimation and simulation. Default is `FALSE`.}
       \item{\code{fix_z}}{Logical. If `TRUE`, the `z_network` is treated as fixed
 during model estimation and simulation. Default is `FALSE`.}
-      \item{\code{fix_z_alocal}}{Logical. If `TRUE` (default), alocal dyads in the neighborhood are fixed.}
+      \item{\code{fix_z_alocal}}{Logical. If `TRUE` (default), edges outside the overlap region
+(alocal dyads) are fixed.}
       \item{\code{return_neighborhood}}{Logical. If `TRUE` (default) and
 `neighborhood` is `NULL`, a full neighborhood (all dyads) is
 generated implying global dependence. If `FALSE`, no neighborhood is set.}

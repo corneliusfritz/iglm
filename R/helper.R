@@ -418,7 +418,7 @@ print.iglm.data.list <- function(x, ...) {
   # Header
   n_items <- length(x)
   cat(
-    "List of iglm.data object with", n_items,
+    "List of iglm.data objects with", n_items,
     if (n_items == 1L) "entry\n" else "entries\n"
   )
 

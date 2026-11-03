@@ -32,7 +32,7 @@ results.generator <- R6::R6Class("results",
     #'   coefficients in the model.
     #' @param size_coef_degrees (integer) The number of degrees coefficients
     #'   in the model (0 if none).
-    #' @param file (character or `NULL`) If provided, loads the sampler state from
+    #' @param file (character or `NULL`) If provided, loads the results state from
     #'  the specified .rds file instead of initializing from parameters.
     #' @return A new `results` object, initialized to hold results for a model
     #'   with the specified dimensions.
@@ -88,7 +88,7 @@ results.generator <- R6::R6Class("results",
     },
     #' @description
     #' Stores prediction results.
-    #' @param prediction An object containing the prediction results (is a list of class `iglm.prediction`.
+    #' @param prediction An object containing the prediction results (a list of class `iglm.prediction`).
     set_prediction = function(prediction) {
       if (!inherits(prediction, "iglm.prediction")) {
         stop("'prediction' must be of class 'iglm.prediction'.", call. = FALSE)
@@ -261,8 +261,8 @@ results.generator <- R6::R6Class("results",
     #'   \item The convergence paths for non-degrees coefficients.
     #' }
     #' Optionally, can also trigger plotting of model assessment results if available.
-    #' @param trace (logical) If `TRUE` (default), plot the trace plots of the estimation
-    #'   (log-likelihood and coefficient paths). Requires
+    #' @param trace (logical) If `TRUE`, plot the trace plots of the estimation
+    #'   (log-likelihood and coefficient paths). Default is `FALSE`. Requires
     #'   model to be estimated.
     #' @param model_assessment (logical) If `TRUE`, attempts to plot the results
     #'   stored in the `.model_assessment` field. Requires model assessment to
@@ -306,6 +306,7 @@ results.generator <- R6::R6Class("results",
 
         adj <- adjust_margin_for_yaxis(private$.llh)
         old_mar <- par(mar = c(par("mar")[1], adj$mar_left, par("mar")[3], par("mar")[4]))
+        on.exit(par(old_mar), add = TRUE)
         plot(private$.llh, type = "l", xlab = "Iteration", las = 1, ylab = "", bty = "l")
         title(ylab = "Log-likelihood", line = adj$line)
         par(old_mar)
@@ -626,7 +627,7 @@ results.generator <- R6::R6Class("results",
     samples = function(value) {
       if (missing(value)) private$.samples else stop("'samples' is read-only.", call. = FALSE)
     },
-    #' @field stats (`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` obect from `coda`.
+    #' @field stats (`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` object from `coda`.
     stats = function(value) {
       if (missing(value)) private$.stats else stop("'stats' is read-only.", call. = FALSE)
     },

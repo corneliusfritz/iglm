@@ -5,7 +5,7 @@
 
 ## Overview
 
-This vignette provides an introduction to the `iglm` package, which is
+This README provides an introduction to the `iglm` package, which is
 designed for estimating joint probability models that incorporate
 network structures. The package allows users to analyze how individual
 attributes and network connections jointly influence outcomes of
@@ -13,31 +13,22 @@ interest.
 
 ## Basic Usage
 
-To use the `iglm` package, you first need to load it into your R session
+To use the `iglm` package, you first need to load it into your R session.
 
 ``` r
 library(iglm)
 #> Loading required package: RcppProgress
 ```
 
-Next, you can create a `iglm` object by specifying the network structure
+Next, you can create an `iglm` object by specifying the network structure
 and the attributes of interest. Here is a simple example:
 
 ``` r
 n_units = 100
-
-attribute_info = rnorm(n_units)
-attribute_cov = diag(attribute_info)
-edge_cov = outer(attribute_info, attribute_info, FUN = function(x,y){abs(x-y)})
 set.seed(123)
-
-alpha = 0.3
-block <- matrix(nrow = 50, ncol = 50, data = 1)
-neighborhood <- as.matrix(Matrix::bdiag(replicate(n_units/50, block, simplify=FALSE)))
 
 overlapping_degree = 0.5
 neighborhood = matrix(nrow = n_units, ncol = n_units, data = 0)
-block <- matrix(nrow = 5, ncol = 5, data = 0)
 size_neighborhood <- 5
 size_overlap <-  ceiling(size_neighborhood*overlapping_degree)
 

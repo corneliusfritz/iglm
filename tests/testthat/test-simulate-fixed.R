@@ -672,6 +672,24 @@ test_that("simulate_iglm with -Inf in coef_degrees maintains degree 0 for that u
   }
 })
 
+test_that("simulate_iglm preserves fix_x and fix_z overrides in returned samples", {
+  dat <- iglm.data(z_network = matrix(0, 4, 4), n_units = 4, directed = FALSE, fix_x = FALSE, fix_z = FALSE)
+  sim_res <- simulate_iglm(
+    dat ~ edges(),
+    coef = 0.5,
+    fix_x = TRUE,
+    fix_z = TRUE,
+    only_stats = FALSE,
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2, init_empty = FALSE)
+  )
+  expect_equal(length(sim_res$samples), 2)
+  for (s in sim_res$samples) {
+    expect_true(s$fix_x)
+    expect_true(s$fix_z)
+  }
+})
+
+
 
 
 

@@ -56,7 +56,7 @@ It extends GLMs for independent responses to dependent responses and can
 be used for studying spillover in connected populations and other network-mediated phenomena.
 It is based on a joint probability model for dependent
 responses (\eqn{Y}), connections \eqn{(Z)}, and predictors \eqn{(X)}.
-Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.object}}).
+Some of these terms can be fixed depending on the application (see the \code{fix_x}, \code{fix_z}, and \code{fix_z_alocal} arguments in \code{\link{iglm.data}}).
 
 For details on available model terms and specifying model formulas, see \code{\link{iglm.terms}} (or \code{\link[=iglm.terms]{iglm-terms}}) and the \href{../doc/model-terms.html}{Model Terms vignette} (or run \code{vignette("model-terms", package = "iglm")}).
 }

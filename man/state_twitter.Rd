@@ -54,7 +54,7 @@ legislators in the filtered 10-state subset.
 data(state_twitter)
 }
 \description{
-This data object is data derived from the Twitter
+This data object contains data derived from Twitter
 (X) interactions between U.S. state legislators, which is a subset of the
 data analyzed in Fritz et al. (2025).
 The data is filtered to include only legislators from 10 states (NY, CA, TX,
@@ -69,11 +69,11 @@ Gopal, Kim, Nakka, Boehmke, Harden, Desmarais.
 The National Network of U.S. State Legislators on Twitter.
 Political Science Research & Methods, Forthcoming.
 
-Kim, Nakka, Gopal, Desmarais,Mancinelli, Harden, Ko, and Boehmke (2022).
+Kim, Nakka, Gopal, Desmarais, Mancinelli, Harden, Ko, and Boehmke (2022).
 Attention to the COVID-19 pandemic on Twitter: Partisan differences among
 U.S. state legislators. Legislative Studies Quarterly 47, 1023–1041.
 
-Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025).
+Fritz, C., Schweinberger, M., Bhadra, S., and D. R. Hunter (2025).
 A Regression Framework for Studying Relationships among Attributes under Network Interference.
 Journal of the American Statistical Association, to appear.
 }

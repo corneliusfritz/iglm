@@ -41,7 +41,7 @@ is_cluster_active <- function(clust) {
 #'   dyads not in the 'overlap' set. Default is `0`.
 #' @param var_method (string) Method for variance estimation. Options are "Mean-value" (default), "Godambe", and "Hessian".
 #'   The mean-value version is described in Section 3.3 of Fritz et al. (2025), the Godambe method is described in Schmid and Hunter (2023), and the "Hessian" option just assumes that the pseudo likelihood is the correct likelihood.
-#' @param exact (logical) If `TRUE`, the pseudo Fisher information is calculated exact for assessing the uncertainty of the estimates. Default is `FALSE`.
+#' @param exact (logical) If `TRUE` (default), the pseudo Fisher information is calculated exactly when assessing the uncertainty of the estimates.
 #' @param non_stop (logical) If `TRUE`, the estimation algorithm continues until
 #'   `max_it` iterations, ignoring the `tol` convergence criterion. Default is `FALSE`.
 #' @param tol (numeric) The tolerance level for convergence. The estimation stops
@@ -49,12 +49,11 @@ is_cluster_active <- function(clust) {
 #'   Default is `0.001`.
 #' @param max_it (integer) The maximum number of iterations for the estimation
 #'   algorithm. Default is `100`.
-#' @param return_y (logical). If \code{TRUE}, return the change statistics for the \code{y} attribute Default is \code{FALSE}.
-#' @param return_x (logical). If \code{TRUE}, return the change statistics for the \code{x} attribute Default is \code{FALSE}.
-#'   from samples. Default is `FALSE`. (Note: `return_samples=TRUE` likely implies this).
-#' @param accelerated (logical) If `TRUE` (default), an accelerated MM algorithm is used based on a Quasi Newton scheme described in the Supplemental Material of Fritz et al (2025).
+#' @param return_y (logical). If \code{TRUE}, return the change statistics for the \code{y} attribute. Default is \code{FALSE}.
+#' @param return_x (logical). If \code{TRUE}, return the change statistics for the \code{x} attribute. Default is \code{FALSE}.
+#' @param accelerated (logical) If `TRUE` (default), an accelerated MM algorithm is used based on a Quasi Newton scheme described in the Supplemental Material of Fritz et al. (2025).
 #' @references
-#' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+#' Fritz, C., Schweinberger, M., Bhadra, S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
 #'
 #' Schmid, C.S. and D. R. Hunter (2023). Computing Pseudolikelihood Estimators for Exponential-Family Random Graph Models. Journal of Data Science
 #'
@@ -216,7 +215,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
       }
       if (control$var) {
         if (sampler$n_simulation <= 1) {
-          stop("Variance estimation requested but sampler has less than 1 simulation. Variance cannot be estimated.")
+          stop("Variance estimation requested but sampler has fewer than 2 simulations. Variance cannot be estimated.")
         }
         if (control$display_progress) {
           cat("Starting with samples to estimate uncertainty \n")
@@ -278,7 +277,9 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
           }
           res$stats <- variability_simulations$stats
         } else {
-          tmp_split <- suppressWarnings(split(1:sampler$n_simulation, seq_along(sampler$cluster)))
+          n_workers <- min(sampler$n_simulation, length(sampler$cluster))
+          grouping <- rep(seq_len(n_workers), length.out = sampler$n_simulation)
+          tmp_split <- split(seq_len(sampler$n_simulation), grouping)
           if (control$display_progress) {
             cat("Starting with parallel simulations")
           }
@@ -465,7 +466,7 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
 
       if (control$var) {
         if (sampler$n_simulation <= 1) {
-          warning("Variance estimation requested but sampler has less than 1 simulation. Variance cannot be estimated.")
+          stop("Variance estimation requested but sampler has fewer than 2 simulations. Variance cannot be estimated.")
         }
         if (control$display_progress) {
           cat("Starting with samples to estimate uncertainty \n")
@@ -521,7 +522,9 @@ estimate_xyz <- function(formula, preprocessed, control = control.iglm(),
             simulation_z_networks = variability_simulations$simulation_z_networks
           )
         } else {
-          tmp_split <- suppressWarnings(split(1:sampler$n_simulation, seq_along(sampler$cluster)))
+          n_workers <- min(sampler$n_simulation, length(sampler$cluster))
+          grouping <- rep(seq_len(n_workers), length.out = sampler$n_simulation)
+          tmp_split <- split(seq_len(sampler$n_simulation), grouping)
           if (control$display_progress) {
             cat("Starting with parallel simulations")
           }

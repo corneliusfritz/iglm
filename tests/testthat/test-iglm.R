@@ -380,6 +380,30 @@ test_that("simulate() returns samples invisibly and supports parallel cluster fr
   expect_identical(sim_parallel, m_parallel$results$samples)
 })
 
+test_that("parallel simulation and estimation handle more workers than requested simulations without warning or Inf seed", {
+  skip_on_cran()
+  skip_if(nzchar(Sys.getenv("_R_CHECK_LIMIT_CORES_")), "CRAN limits cores to 2")
+  skip_if(parallel::detectCores() < 3, "At least 3 cores required")
+  dat <- iglm.data(z_network = matrix(c(0, 1, 1, 0), 2, 2), n_units = 2, directed = FALSE)
+  # 3 workers, but only 2 simulations
+  cl <- parallel::makeCluster(3)
+  on.exit(parallel::stopCluster(cl), add = TRUE)
+
+  sampler_obj <- sampler.iglm(n_burn_in = 2, n_simulation = 2, cluster = cl, init_empty = FALSE)
+  m <- iglm(
+    formula = dat ~ edges(mode = "global"),
+    coef = 0,
+    sampler = sampler_obj,
+    control = control.iglm(max_it = 2, display_progress = FALSE)
+  )
+
+  sims <- expect_no_warning(m$simulate(display_progress = FALSE))
+  expect_equal(length(sims), 2)
+
+  expect_no_warning(m$estimate())
+  expect_true(m$results$estimated)
+})
+
 test_that("predict(variant = 'marginal') automatically triggers simulation when samples are empty", {
   n_actor <- 4
   block <- matrix(1, n_actor, n_actor)
@@ -435,6 +459,18 @@ test_that("predict(variant = 'marginal', type = 'z') produces distinct sender an
   # Should have 3 * 3 = 9 dyads with sender and receiver covering all combinations
   expect_equal(nrow(pz), 9)
   expect_equal(pz$receiver, as.character(rep(1:3, each = 3)))
+})
+
+test_that("predict(variant = 'marginal', type = 'z') has symmetric target for undirected networks", {
+  dat <- iglm.data(z_network = matrix(c(1, 2), ncol = 2), n_units = 3, directed = FALSE)
+  m <- iglm(dat ~ edges(mode = "global"), coef = 0, sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2, init_empty = FALSE), control = control.iglm(max_it = 1, display_progress = FALSE))
+  m$results$update(estimated = TRUE)
+  pred <- m$predict(variant = "marginal", type = "z")
+  pz <- pred$z
+  t_1_2 <- pz$target[pz$sender == "1" & pz$receiver == "2"]
+  t_2_1 <- pz$target[pz$sender == "2" & pz$receiver == "1"]
+  expect_equal(t_1_2, 1)
+  expect_equal(t_2_1, 1)
 })
 
 test_that("estimate() with return_samples = FALSE succeeds without crashing and leaves samples empty", {

@@ -10,7 +10,7 @@ statistics(formula, canonical_names = FALSE)
 \item{formula}{A model `formula` object. The left-hand side should be the
 name of a \code{\link{iglm.data}} object available in the calling environment.
 Alternatively, the left-hand side can be a \code{iglm.data.list} object to compute statistics
-for multiple \code{\link{iglm.data}} objects at once (is, e.g., the normal outcome of all simulations).
+for multiple \code{\link{iglm.data}} objects at once (e.g., the output of \code{\link{simulate_iglm}}).
 See \code{\link{iglm.terms}} for details on specifying the right-hand side terms.}
 
 \item{canonical_names}{(logical) If `TRUE`, returns canonical term names without label substitution.
@@ -23,10 +23,10 @@ A named numeric vector (or matrix if a list of data objects is provided). Each e
   vector match the (optionally labeled) term names derived from the formula terms.
 }
 \description{
-Computes statistics.
+Computes observed sufficient statistics for the terms specified in a formula.
 }
 \examples{
-# Create a iglm.data object
+# Create an iglm.data object
 n_units <- 10
 neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 family_x <- "binomial"

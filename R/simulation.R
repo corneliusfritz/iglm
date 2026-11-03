@@ -267,8 +267,9 @@ simulate_iglm <- function(formula,
       z_network = res_burn_in$simulation_networks_z[[1]],
       n_units = n_units, return_adj_mat = FALSE
     )
-    # tmp_split = split(1:(round(sampler$n_simulation/length(cluster))*length(cluster)), 1:length(cluster))
-    tmp_split <- suppressWarnings(split(1:sampler$n_simulation, seq_along(cluster)))
+    n_workers <- min(sampler$n_simulation, length(cluster))
+    grouping <- rep(seq_len(n_workers), length.out = sampler$n_simulation)
+    tmp_split <- split(seq_len(sampler$n_simulation), grouping)
 
     if (display_progress) {
       cat("Starting with parallel simulations")
@@ -362,8 +363,8 @@ simulate_iglm <- function(formula,
         family_y = data_obj$family_y,
         scale_x = data_obj$scale_x,
         scale_y = data_obj$scale_y,
-        fix_x = data_obj$fix_x,
-        fix_z = data_obj$fix_z,
+        fix_x = sim_fix_x,
+        fix_z = sim_fix_z,
         fix_z_alocal = data_obj$fix_z_alocal,
         label_x = data_obj$label_x,
         label_y = data_obj$label_y,

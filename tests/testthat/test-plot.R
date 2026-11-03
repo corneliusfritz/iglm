@@ -457,4 +457,22 @@ test_that("model_assessment preserves attribute families and plots continuous en
   dev.off()
 })
 
+test_that("results$plot(trace = TRUE) restores par(mar) even if plot errors", {
+  dat <- iglm.data(z_network = matrix(c(0, 1, 1, 0), 2, 2), n_units = 2, directed = FALSE)
+  m <- iglm(
+    formula = dat ~ edges(mode = "global"),
+    coef = 0,
+    sampler = sampler.iglm(n_burn_in = 2, n_simulation = 2, init_empty = FALSE),
+    control = control.iglm(max_it = 2, display_progress = FALSE)
+  )
+  m$estimate()
+
+  pdf(NULL, width = 1, height = 1)
+  orig_mar <- par("mar")
+  expect_error(m$results$plot(trace = TRUE), "figure margins too large")
+  expect_equal(par("mar"), orig_mar)
+  dev.off()
+})
+
+
 

@@ -25,7 +25,7 @@ The function creates a directory with the name specified in \code{pkg_name}
 at the specified location.
 As an example for a possible statistic, the statistic counting mutual
 connections in the network is implemented.
-After defining all possible change-statistics in the c++ function (this has to include a change for
+After defining all possible change-statistics in the C++ function (this has to include a change for
 \code{z_ij} (network), \code{x_i} (attribute x), and \code{y_i} (attribute y) all toggling from 0 to 1),
 the function has to be registered using the \code{EFFECT_REGISTER} macro.
 After compiling the package,

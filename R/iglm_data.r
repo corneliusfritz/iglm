@@ -192,7 +192,8 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     #'   during model estimation and simulation. Default is `FALSE`.
     #' @param fix_z Logical. If `TRUE`, the `z_network` is treated as fixed
     #'  during model estimation and simulation. Default is `FALSE`.
-    #' @param fix_z_alocal Logical. If `TRUE` (default), alocal dyads in the neighborhood are fixed.
+    #' @param fix_z_alocal Logical. If `TRUE` (default), edges outside the overlap region
+    #'   (alocal dyads) are fixed.
     #' @param return_neighborhood Logical. If `TRUE` (default) and
     #'   `neighborhood` is `NULL`, a full neighborhood (all dyads) is
     #'   generated implying global dependence. If `FALSE`, no neighborhood is set.
@@ -2437,15 +2438,15 @@ iglm.data_generator <- R6::R6Class("iglm.data",
     fix_x = function(value) {
       if (missing(value)) private$.fix_x else self$set_fix_x(value)
     },
-    #' @field fix_z (`logical`) RIndicates if the `z_network` is fixed during estimation/simulation.
+    #' @field fix_z (`logical`) Indicates if the `z_network` is fixed during estimation/simulation.
     fix_z = function(value) {
       if (missing(value)) private$.fix_z else self$set_fix_z(value)
     },
-    #' @field descriptives (`list`)A list storing computed descriptive statistics for the network and attributes.
+    #' @field descriptives (`list`) A list storing computed descriptive statistics for the network and attributes.
     descriptives = function(value) {
       if (missing(value)) private$.descriptives else stop("'descriptives' is read-only.", call. = FALSE)
     },
-    #' @field fix_z_alocal (`logical`) Flag indicating whether nonoverlap edges are treated as random.
+    #' @field fix_z_alocal (`logical`) Flag indicating whether nonoverlap (alocal) edges are treated as fixed.
     fix_z_alocal = function(value) {
       if (missing(value)) private$.fix_z_alocal else self$set_fix_z_alocal(value)
     }
@@ -2455,7 +2456,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #' Constructor for the iglm.data R6 object
 #'
 #' @description
-#' Creates a `iglm.data` object, which stores network and attribute data.
+#' Creates an `iglm.data` object, which stores network and attribute data.
 #' This function acts as a user-friendly interface to the `iglm.data` R6 class generator.
 #' It handles data input, infers parameters like the number of units (`n_units`)
 #' and network directedness (`directed`) if not explicitly provided, processes
@@ -2491,7 +2492,7 @@ iglm.data_generator <- R6::R6Class("iglm.data",
 #'   during estimation/simulation (fixed design in regression). Default is `FALSE`.
 #' @param fix_z (logical) If `TRUE`, the 'z' network is held fixed
 #'   during estimation/simulation (fixed network design). Default is `FALSE`.
-#'   Setting this to TRUE, allows practicioners to estimate autologistic unit attribute models,
+#'   Setting this to TRUE, allows practitioners to estimate autologistic unit attribute models,
 #'   which were introduced in binary settings in Daraganova, G., & Robins, G. (2013).
 #' @param fix_z_alocal (logical) If `TRUE`, edges outside the overlap region
 #'   are fixed, else they are random (default).

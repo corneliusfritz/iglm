@@ -46,16 +46,15 @@ Default is `0.001`.}
 \item{max_it}{(integer) The maximum number of iterations for the estimation
 algorithm. Default is `100`.}
 
-\item{return_x}{(logical). If \code{TRUE}, return the change statistics for the \code{x} attribute Default is \code{FALSE}.
-from samples. Default is `FALSE`. (Note: `return_samples=TRUE` likely implies this).}
+\item{return_x}{(logical). If \code{TRUE}, return the change statistics for the \code{x} attribute. Default is \code{FALSE}.}
 
-\item{return_y}{(logical). If \code{TRUE}, return the change statistics for the \code{y} attribute Default is \code{FALSE}.}
+\item{return_y}{(logical). If \code{TRUE}, return the change statistics for the \code{y} attribute. Default is \code{FALSE}.}
 
 \item{return_z}{(logical). If \code{TRUE}, return the change statistics for the \code{z} network. Default is \code{FALSE}.}
 
-\item{accelerated}{(logical) If `TRUE` (default), an accelerated MM algorithm is used based on a Quasi Newton scheme described in the Supplemental Material of Fritz et al (2025).}
+\item{accelerated}{(logical) If `TRUE` (default), an accelerated MM algorithm is used based on a Quasi Newton scheme described in the Supplemental Material of Fritz et al. (2025).}
 
-\item{exact}{(logical) If `TRUE`, the pseudo Fisher information is calculated exact for assessing the uncertainty of the estimates. Default is `FALSE`.}
+\item{exact}{(logical) If `TRUE` (default), the pseudo Fisher information is calculated exactly when assessing the uncertainty of the estimates.}
 }
 \value{
 A list object of class `"control.iglm"` containing the specified
@@ -65,7 +64,7 @@ A list object of class `"control.iglm"` containing the specified
 Create a list of control parameters for the `iglm` estimation algorithm.
 }
 \references{
-Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
+Fritz, C., Schweinberger, M., Bhadra, S., and D. R. Hunter (2025). A Regression Framework for Studying Relationships among Attributes under Network Interference. Journal of the American Statistical Association, to appear.
 
 Schmid, C.S. and D. R. Hunter (2023). Computing Pseudolikelihood Estimators for Exponential-Family Random Graph Models. Journal of Data Science
 }

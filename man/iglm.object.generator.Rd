@@ -240,8 +240,8 @@ paths and model assessment diagnostics if available.
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{stats}}{(logical) If `TRUE`, plot the observed vs. simulated
-statistics from model assessment. Default is `FALSE`.}
+      \item{\code{stats}}{(logical) If `TRUE`, plot the trace of simulated
+statistics. Default is `FALSE`.}
       \item{\code{trace}}{(logical) If `TRUE`, plot the coefficient convergence
 paths. Default is `FALSE`.}
       \item{\code{model_assessment}}{(logical) If `TRUE`, plot diagnostics from the

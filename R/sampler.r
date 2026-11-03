@@ -177,6 +177,8 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #'   sampling for the z network (within the defined neighborhood/overlap).
     #'   If `NULL`, defaults from `sampler.net.attr()` are used.
     #' @param n_simulation (integer) The number of network/attribute configurations
+    #'   to simulate. Default is 100.
+    #' @param n_burn_in (integer) The number of initial burn-in iterations. Default is 10.
     #' @param init_empty (logical) If `FALSE` (default), the MCMC chain is
     #'   initialized from observed data. If `TRUE`, the MCMC chain is
     #'   initialized from an empty state (e.g., empty network, attributes at mean).
@@ -312,7 +314,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
       private$.validate()
     },
     #' @description
-    #' Sets the sampler configuration for the z attribute.
+    #' Sets the sampler configuration for the z network.
     #' @param sampler_z An object of class `sampler_net_attr`.
     #' @return None.
     set_z_sampler = function(sampler_z) {
@@ -367,15 +369,9 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
       )
     },
     #' @description
-    #' Save the object's complete state to a directory.
-    #' This will save the main sampler's settings to a file
-    #' named 'sampler.iglm_state.rds' within the specified
-    #' directory, and will also call the `save()` method for each
-    #' nested sampler (.x, .y, .z), saving them into the same
-    #' directory.
-    #' @param file (character) The file to a directory where the
-    #'   state files will be saved. The directory will be created
-    #'   if it does not exist.
+    #' Save the object's complete state to an .rds file.
+    #' @param file (character) The file path where the state
+    #'   will be saved in RDS format.
     #' @return The object itself, invisibly.
     save = function(file) {
       if (missing(file) || !is.character(file) || length(file) != 1) {
@@ -428,7 +424,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 )
 
 
-#' Constructor for a iglm Sampler
+#' Constructor for an iglm Sampler
 #'
 #' @description
 #' Creates an object of class `sampler.iglm` (and `R6`) which holds all
