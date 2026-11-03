@@ -112,7 +112,7 @@ jobs:
         if: runner.os == 'Windows' && matrix.config.r == '4.1'
         run: |
           mkdir -p ~/.R
-          echo 'CXX11 = $(CXX14)' >> ~/.R/Makevars.win
+          echo 'CXX11 = $(BINPREF)g++ -std=gnu++14' >> ~/.R/Makevars.win
           echo "R_MAKEVARS_USER=$(cygpath -w "$HOME/.R/Makevars.win")" >> "$GITHUB_ENV"
         shell: bash
 
