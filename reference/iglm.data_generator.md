@@ -46,18 +46,22 @@ connections (z_network).
 
   (\`logical\`) Indicates if the \`z_network\` is treated as directed.
 
+- `n_units`:
+
+  (\`integer\`) The total number of units (nodes) in the network.
+
 - `n_actor`:
 
-  (\`integer\`) The total number of actors (nodes) in the network.
+  (\`integer\`) Deprecated alias for \`n_units\`.
 
-- `type_x`:
+- `family_x`:
 
-  (\`character\`) The specified distribution type for the
+  (\`character\`) The specified distribution family for the
   \`x_attribute\`.
 
-- `type_y`:
+- `family_y`:
 
-  (\`character\`) The specified distribution type for the
+  (\`character\`) The specified distribution family for the
   \`y_attribute\`.
 
 - `scale_x`:
@@ -75,18 +79,18 @@ connections (z_network).
 
 - `fix_z`:
 
-  (\`logical\`) RIndicates if the \`z_network\` is fixed during
+  (\`logical\`) Indicates if the \`z_network\` is fixed during
   estimation/simulation.
 
 - `descriptives`:
 
-  (\`list\`)A list storing computed descriptive statistics for the
+  (\`list\`) A list storing computed descriptive statistics for the
   network and attributes.
 
 - `fix_z_alocal`:
 
-  (\`logical\`) Flag indicating whether nonoverlap edges are treated as
-  random.
+  (\`logical\`) Flag indicating whether nonoverlap (alocal) edges are
+  treated as fixed.
 
 ## Methods
 
@@ -96,9 +100,9 @@ connections (z_network).
 
 - [`iglm.data$set_z_network()`](#method-iglm.data-set_z_network)
 
-- [`iglm.data$set_type_x()`](#method-iglm.data-set_type_x)
+- [`iglm.data$set_family_x()`](#method-iglm.data-set_family_x)
 
-- [`iglm.data$set_type_y()`](#method-iglm.data-set_type_y)
+- [`iglm.data$set_family_y()`](#method-iglm.data-set_family_y)
 
 - [`iglm.data$set_scale_x()`](#method-iglm.data-set_scale_x)
 
@@ -160,6 +164,8 @@ connections (z_network).
 
 - [`iglm.data$geo()`](#method-iglm.data-geo)
 
+- [`iglm.data$geodist()`](#method-iglm.data-geodist)
+
 - [`iglm.data$geo_dist()`](#method-iglm.data-geo_dist)
 
 - [`iglm.data$edgewise_shared_partner_distribution()`](#method-iglm.data-edgewise_shared_partner_distribution)
@@ -173,6 +179,8 @@ connections (z_network).
 - [`iglm.data$deg()`](#method-iglm.data-deg)
 
 - [`iglm.data$deg_dist()`](#method-iglm.data-deg_dist)
+
+- [`iglm.data$degree_dist()`](#method-iglm.data-degree_dist)
 
 - [`iglm.data$plot()`](#method-iglm.data-plot)
 
@@ -195,9 +203,9 @@ and one network.
       z_network = NULL,
       neighborhood = NULL,
       directed = NA,
-      n_actor = NA,
-      type_x = "binomial",
-      type_y = "binomial",
+      n_units = NA,
+      family_x = "binomial",
+      family_y = "binomial",
       scale_x = 1,
       scale_y = 1,
       fix_x = FALSE,
@@ -207,7 +215,8 @@ and one network.
       file = NULL,
       label_x = "x",
       label_y = "y",
-      label_z = "z"
+      label_z = "z",
+      n_actor = NULL
     )
 
 #### Arguments
@@ -229,8 +238,8 @@ and one network.
 
   An optional matrix for the neighborhood representing local dependence.
   Can be a 2-column edgelist or a square adjacency matrix. A tie in
-  \`neighborhood\` between actor i and j indicates that j is in the
-  neighborhood of i, implying dependence between the respective actors.
+  \`neighborhood\` between unit i and j indicates that j is in the
+  neighborhood of i, implying dependence between the respective units.
 
 - `directed`:
 
@@ -238,21 +247,20 @@ and one network.
   (default), directedness is inferred from the symmetry of
   \`z_network\`.
 
-- `n_actor`:
+- `n_units`:
 
-  An integer for the number of actors in the system. If \`NA\`
-  (default), \`n_actor\` is inferred from the attributes or network
-  matrices.
+  An integer for the number of units in the system. If \`NA\` (default),
+  \`n_units\` is inferred from the attributes or network matrices.
 
-- `type_x`:
+- `family_x`:
 
-  Character string for the type of \`x_attribute\`. Must be one of
+  Character string for the family of \`x_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. Default is
   \`"binomial"\`.
 
-- `type_y`:
+- `family_y`:
 
-  Character string for the type of \`y_attribute\`. Must be one of
+  Character string for the family of \`y_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. Default is
   \`"binomial"\`.
 
@@ -278,8 +286,8 @@ and one network.
 
 - `fix_z_alocal`:
 
-  Logical. If \`TRUE\` (default), alocal dyads in the neighborhood are
-  fixed.
+  Logical. If \`TRUE\` (default), edges outside the overlap region
+  (alocal dyads) are fixed.
 
 - `return_neighborhood`:
 
@@ -307,6 +315,11 @@ and one network.
   Character string for the label/name of \`z_network\`. Default is
   \`"z"\`.
 
+- `n_actor`:
+
+  (Deprecated) An integer for the number of units. Please use `n_units`
+  instead.
+
 #### Returns
 
 A new \`iglm.data\` object.
@@ -331,37 +344,37 @@ Sets the \`z_network\` of the \`iglm.data\` object.
 
 ------------------------------------------------------------------------
 
-### `iglm.data$set_type_x()`
+### `iglm.data$set_family_x()`
 
-Sets the \`type_x\` of the \`iglm.data\` object.
+Sets the \`family_x\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data$set_type_x(type_x)
+    iglm.data$set_family_x(family_x)
 
 #### Arguments
 
-- `type_x`:
+- `family_x`:
 
-  A character string for the type of \`x_attribute\`. Must be one of
+  A character string for the family of \`x_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. @return The
   \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### `iglm.data$set_type_y()`
+### `iglm.data$set_family_y()`
 
-Sets the \`type_y\` of the \`iglm.data\` object.
+Sets the \`family_y\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data$set_type_y(type_y)
+    iglm.data$set_family_y(family_y)
 
 #### Arguments
 
-- `type_y`:
+- `family_y`:
 
-  A character string for the type of \`y_attribute\`. Must be one of
+  A character string for the family of \`y_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`.
 
 #### Returns
@@ -548,10 +561,10 @@ Sets the option whether alocal edges are fixed or not.
 ### `iglm.data$delete_isolates()`
 
 Deletes isolates from the \`z_network\` and updates the attributes and
-neighborhood accordingly. Isolates are actors that do not have any
-connections in the \`z_network\`. This method identifies such actors,
+neighborhood accordingly. Isolates are units that do not have any
+connections in the \`z_network\`. This method identifies such units,
 removes them from the attributes and neighborhood, and updates the
-\`z_network\` to reflect the new actor indices.
+\`z_network\` to reflect the new unit indices.
 
 #### Usage
 
@@ -686,8 +699,8 @@ Calculates the distribution of the \`x_attribute\`.
 
 - `prob`:
 
-  (logical) If \`TRUE\` (default), returns probabilities; if \`FALSE\`,
-  returns frequencies.
+  (logical) If \`TRUE\` (default), returns proportions; if \`FALSE\`,
+  returns counts.
 
 - `plot`:
 
@@ -751,8 +764,8 @@ Calculates the distribution of the \`y_attribute\`.
 
 - `prob`:
 
-  (logical) If \`TRUE\` (default), returns probabilities; if \`FALSE\`,
-  returns frequencies.
+  (logical) If \`TRUE\` (default), returns proportions; if \`FALSE\`,
+  returns counts.
 
 - `plot`:
 
@@ -805,7 +818,14 @@ matrix (e.g., \$A A^T\$ or \$A^T A\$).
 
 #### Usage
 
-    iglm.data$edgewise_shared_partner(type = "ALL", mode = "global")
+    iglm.data$edgewise_shared_partner(
+      type = "ALL",
+      mode = "global",
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL
+    )
 
 #### Arguments
 
@@ -824,6 +844,22 @@ matrix (e.g., \$A A^T\$ or \$A^T A\$).
   (character) Either \`"global"\` (default) to evaluate across all
   edges, or \`"local"\` to evaluate only edges with overlapping
   neighborhoods (from \`overlap\`).
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
 
 #### Returns
 
@@ -863,7 +899,14 @@ Calculates the matrix of dyadwise shared partners.
 
 #### Usage
 
-    iglm.data$dyadwise_shared_partner(type = "ALL", mode = "global")
+    iglm.data$dyadwise_shared_partner(
+      type = "ALL",
+      mode = "global",
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL
+    )
 
 #### Arguments
 
@@ -883,6 +926,22 @@ Calculates the matrix of dyadwise shared partners.
   dyads, or \`"local"\` to evaluate only dyads with overlapping
   neighborhoods.
 
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
+
 #### Returns
 
 A sparse matrix (\`dgCMatrix\`) of shared partner counts.
@@ -900,6 +959,10 @@ Calculates the geodesic distance distribution of the symmetrized
       value_range = NULL,
       prob = TRUE,
       plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
       mode = "global"
     )
 
@@ -919,6 +982,22 @@ Calculates the geodesic distance distribution of the symmetrized
 - `plot`:
 
   (logical) If \`TRUE\`, plots the distribution.
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
 
 - `mode`:
 
@@ -940,7 +1019,13 @@ Calculates the all-pairs geodesic distance matrix for the symmetrized
 
 #### Usage
 
-    iglm.data$geodesic_distances(mode = "global")
+    iglm.data$geodesic_distances(
+      mode = "global",
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL
+    )
 
 #### Arguments
 
@@ -949,6 +1034,22 @@ Calculates the all-pairs geodesic distance matrix for the symmetrized
   (character) Either \`"global"\` (default) to evaluate across all
   pairs, or \`"local"\` to evaluate only pairs with overlapping
   neighborhoods.
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
 
 #### Returns
 
@@ -963,7 +1064,14 @@ Short alias for \`edgewise_shared_partner\`.
 
 #### Usage
 
-    iglm.data$esp(type = "ALL", mode = "global")
+    iglm.data$esp(
+      type = "ALL",
+      mode = "global",
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL
+    )
 
 #### Arguments
 
@@ -974,6 +1082,22 @@ Short alias for \`edgewise_shared_partner\`.
 - `mode`:
 
   (character) \`"global"\` (default) or \`"local"\`.
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
 
 #### Returns
 
@@ -992,6 +1116,10 @@ Short alias for \`edgewise_shared_partner_distribution\`.
       value_range = NULL,
       prob = TRUE,
       plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
       mode = "global"
     )
 
@@ -1013,6 +1141,22 @@ Short alias for \`edgewise_shared_partner_distribution\`.
 
   (logical) If \`TRUE\`, plots the distribution.
 
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
+
 - `mode`:
 
   (character) \`"global"\` (default) or \`"local"\`.
@@ -1029,7 +1173,14 @@ Short alias for \`dyadwise_shared_partner\`.
 
 #### Usage
 
-    iglm.data$dsp(type = "ALL", mode = "global")
+    iglm.data$dsp(
+      type = "ALL",
+      mode = "global",
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL
+    )
 
 #### Arguments
 
@@ -1040,6 +1191,22 @@ Short alias for \`dyadwise_shared_partner\`.
 - `mode`:
 
   (character) \`"global"\` (default) or \`"local"\`.
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
 
 #### Returns
 
@@ -1058,6 +1225,10 @@ Short alias for \`dyadwise_shared_partner_distribution\`.
       value_range = NULL,
       prob = TRUE,
       plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
       mode = "global"
     )
 
@@ -1079,6 +1250,22 @@ Short alias for \`dyadwise_shared_partner_distribution\`.
 
   (logical) If \`TRUE\`, plots the distribution.
 
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
+
 - `mode`:
 
   (character) \`"global"\` (default) or \`"local"\`.
@@ -1095,13 +1282,71 @@ Short alias for \`geodesic_distances\`.
 
 #### Usage
 
-    iglm.data$geo(mode = "global")
+    iglm.data$geo(mode = "global", x_i = NULL, x_j = NULL, y_i = NULL, y_j = NULL)
 
 #### Arguments
 
 - `mode`:
 
   (character) \`"global"\` (default) or \`"local"\`.
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
+
+#### Returns
+
+A sparse matrix (\`dgCMatrix\`) of geodesic distances.
+
+------------------------------------------------------------------------
+
+### `iglm.data$geodist()`
+
+Short alias for \`geodesic_distances\`.
+
+#### Usage
+
+    iglm.data$geodist(
+      mode = "global",
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL
+    )
+
+#### Arguments
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
 
 #### Returns
 
@@ -1119,6 +1364,10 @@ Short alias for \`geodesic_distances_distribution\`.
       value_range = NULL,
       prob = TRUE,
       plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
       mode = "global"
     )
 
@@ -1135,6 +1384,22 @@ Short alias for \`geodesic_distances_distribution\`.
 - `plot`:
 
   (logical) If \`TRUE\`, plots the distribution.
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
 
 - `mode`:
 
@@ -1157,6 +1422,10 @@ Calculates the distribution of edgewise shared partners.
       value_range = NULL,
       prob = TRUE,
       plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
       mode = "global"
     )
 
@@ -1182,6 +1451,22 @@ Calculates the distribution of edgewise shared partners.
 
   (logical) If \`TRUE\`, plots the distribution.
 
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
+
 - `mode`:
 
   (character) Either \`"global"\` (default) to evaluate across all
@@ -1206,6 +1491,10 @@ Calculates the distribution of dyadwise shared partners.
       value_range = NULL,
       prob = TRUE,
       plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
       mode = "global"
     )
 
@@ -1230,6 +1519,22 @@ Calculates the distribution of dyadwise shared partners.
 - `plot`:
 
   (logical) If \`TRUE\`, plots the distribution.
+
+- `x_i`:
+
+  (optional) Sender attribute constraint.
+
+- `x_j`:
+
+  (optional) Receiver attribute constraint.
+
+- `y_i`:
+
+  (optional) Sender attribute constraint.
+
+- `y_j`:
+
+  (optional) Receiver attribute constraint.
 
 - `mode`:
 
@@ -1258,7 +1563,7 @@ cross-group spillover pathways.
   in the network.
 
 - `"local"`: Evaluates local degree distributions restricted strictly to
-  actor pairs that share an overlapping neighborhood (`overlap`).
+  unit pairs that share an overlapping neighborhood (`overlap`).
 
 #### Directionality and Bipartite Subgroups
 
@@ -1287,16 +1592,16 @@ dynamics:
 
 Attribute constraints (`x_i`, `x_j`, `y_i`, `y_j`) accept:
 
-- **Exact scalar values**: For binary attributes, matches actors with
+- **Exact scalar values**: For binary attributes, matches units with
   that exact value (e.g., `x_i = 1`).
 
 - **Continuous / Count shortcuts**: When an attribute is continuous
   (`"normal"`) or count (`"poisson"`), setting `1` internally selects
-  above-mean actors (\\x_i \> \bar{x}\\), and `0` selects
-  below-or-equal-to-mean actors (\\x_i \le \bar{x}\\). Any other numeric
-  value \\v\\ matches actors with exact value \\v\\.
+  above-mean units (\\x_i \> \bar{x}\\), and `0` selects
+  below-or-equal-to-mean units (\\x_i \le \bar{x}\\). Any other numeric
+  value \\v\\ matches units with exact value \\v\\.
 
-- **Discrete value sets**: Vectors such as `x_i = c(1, 2)` match actors
+- **Discrete value sets**: Vectors such as `x_i = c(1, 2)` match units
   with any value in that set.
 
 - **Filtering functions**: Custom functions (vectorized or scalar),
@@ -1349,22 +1654,22 @@ for the x-axis:
 - `x_i`:
 
   (optional) Exact value, vector, or filtering function for attribute
-  `x` of sender actor \\i\\.
+  `x` of sender unit \\i\\.
 
 - `x_j`:
 
   (optional) Exact value, vector, or filtering function for attribute
-  `x` of receiver actor \\j\\.
+  `x` of receiver unit \\j\\.
 
 - `y_i`:
 
   (optional) Exact value, vector, or filtering function for attribute
-  `y` of sender actor \\i\\.
+  `y` of sender unit \\i\\.
 
 - `y_j`:
 
   (optional) Exact value, vector, or filtering function for attribute
-  `y` of receiver actor \\j\\.
+  `y` of receiver unit \\j\\.
 
 - `mode`:
 
@@ -1377,25 +1682,19 @@ for the x-axis:
 If the network is directed or if bilateral constraints are provided, a
 list containing two `table` objects: `out_degree` and `in_degree`. If
 undirected without bilateral constraints, a single `table` object with
-the degree distribution.
+the `degree` distribution.
 
 #### Examples
 
     data(copenhagen)
 
-    # 1. Standard global degree distribution
-    copenhagen$degree_distribution(plot = FALSE)
+    # Overall degree distribution
+    copenhagen$degree_distribution(prob = FALSE, plot = FALSE)
 
-    # 2. Local degree distribution restricted to overlapping neighborhoods
-    copenhagen$degree_distribution(mode = "local", plot = FALSE)
-
-    # 3. Spillover degree using exact attribute values
-    copenhagen$deg_dist(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
-
-    # 4. Spillover degree using filtering functions
+    # Spillover degree distribution (female to male call connections)
     copenhagen$deg_dist(
-      x_i = function(x) x > mean(x),
-      y_j = function(y) y > mean(y),
+      x_i = 1, # Sender: female
+      x_j = 0, # Receiver: male
       mode = "local",
       plot = FALSE
     )
@@ -1406,7 +1705,7 @@ the degree distribution.
 
 Calculates the degree sequence(s) of the \`z_network\`.
 
-General function for calculating actor-level degree sequences across
+General function for calculating unit-level degree sequences across
 global topologies, local neighborhoods, attribute-defined subsets, or
 directional spillover pathways.
 
@@ -1425,22 +1724,22 @@ directional spillover pathways.
 - `x_i`:
 
   (optional) Exact value, vector, or filtering function for attribute
-  `x` of sender actor \\i\\.
+  `x` of sender unit \\i\\.
 
 - `x_j`:
 
   (optional) Exact value, vector, or filtering function for attribute
-  `x` of receiver actor \\j\\.
+  `x` of receiver unit \\j\\.
 
 - `y_i`:
 
   (optional) Exact value, vector, or filtering function for attribute
-  `y` of sender actor \\i\\.
+  `y` of sender unit \\i\\.
 
 - `y_j`:
 
   (optional) Exact value, vector, or filtering function for attribute
-  `y` of receiver actor \\j\\.
+  `y` of receiver unit \\j\\.
 
 - `mode`:
 
@@ -1448,9 +1747,10 @@ directional spillover pathways.
 
 #### Returns
 
-If the network is directed or if bilateral constraints are given, a list
-containing two numeric vectors: `out_degree_seq` and `in_degree_seq`. If
-undirected without bilateral constraints, a list containing the vector
+If the network is directed or if asymmetric/bipartite bilateral
+constraints are given, a list containing two numeric vectors:
+`out_degree_seq` and `in_degree_seq`. If undirected without constraints
+or with identical bilateral constraints, a list containing the vector
 `degree_seq`.
 
 #### Examples
@@ -1513,6 +1813,63 @@ attribute-constrained (spillover) degree distributions.
 #### Usage
 
     iglm.data$deg_dist(
+      value_range = NULL,
+      prob = TRUE,
+      plot = TRUE,
+      x_i = NULL,
+      x_j = NULL,
+      y_i = NULL,
+      y_j = NULL,
+      mode = "global"
+    )
+
+#### Arguments
+
+- `value_range`:
+
+  Optional range of degrees to tabulate.
+
+- `prob`:
+
+  (logical) If \`TRUE\`, returns proportions.
+
+- `plot`:
+
+  (logical) If \`TRUE\`, plots the distribution.
+
+- `x_i`:
+
+  Optional sender attribute constraint.
+
+- `x_j`:
+
+  Optional receiver attribute constraint.
+
+- `y_i`:
+
+  Optional sender attribute constraint.
+
+- `y_j`:
+
+  Optional receiver attribute constraint.
+
+- `mode`:
+
+  (character) \`"global"\` (default) or \`"local"\`.
+
+#### Returns
+
+Degree distribution table(s).
+
+------------------------------------------------------------------------
+
+### `iglm.data$degree_dist()`
+
+Alias for \`deg_dist\` / \`degree_distribution\`.
+
+#### Usage
+
+    iglm.data$degree_dist(
       value_range = NULL,
       prob = TRUE,
       plot = TRUE,
@@ -1721,19 +2078,13 @@ The objects of this class are cloneable with this method.
 
 data(copenhagen)
 
-# 1. Standard global degree distribution
-copenhagen$degree_distribution(plot = FALSE)
+# Overall degree distribution
+copenhagen$degree_distribution(prob = FALSE, plot = FALSE)
 
-# 2. Local degree distribution restricted to overlapping neighborhoods
-copenhagen$degree_distribution(mode = "local", plot = FALSE)
-
-# 3. Spillover degree using exact attribute values
-copenhagen$deg_dist(x_i = 1, y_j = 1, mode = "local", plot = FALSE)
-
-# 4. Spillover degree using filtering functions
+# Spillover degree distribution (female to male call connections)
 copenhagen$deg_dist(
-  x_i = function(x) x > mean(x),
-  y_j = function(y) y > mean(y),
+  x_i = 1, # Sender: female
+  x_j = 0, # Receiver: male
   mode = "local",
   plot = FALSE
 )

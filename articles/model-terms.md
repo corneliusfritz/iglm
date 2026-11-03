@@ -3,9 +3,9 @@
 ## Overview
 
 This vignette describes all model terms available in `iglm` (version
-1.2.6) for specifying the sufficient statistics of joint
-network-attribute models. Terms are passed on the right-hand side of the
-`formula` argument in
+1.3) for specifying the sufficient statistics of joint network-attribute
+models. Terms are passed on the right-hand side of the `formula`
+argument in
 [`iglm()`](https://corneliusfritz.github.io/iglm/reference/iglm.md) and
 govern how individual attributes and network connections jointly
 determine the log-linear probabilities of the model.

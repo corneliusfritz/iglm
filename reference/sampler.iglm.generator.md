@@ -123,11 +123,12 @@ provided, and validates inputs.
 
 - `n_simulation`:
 
-  (integer) The number of network/attribute configurations
+  (integer) The number of network/attribute configurations to simulate.
+  Default is 100.
 
 - `n_burn_in`:
 
-  (\`integer\`) The number of initial MCMC iterations to discard.
+  (integer) The number of initial burn-in iterations. Default is 10.
 
 - `init_empty`:
 
@@ -291,7 +292,7 @@ None.
 
 ### `sampler.iglm$set_z_sampler()`
 
-Sets the sampler configuration for the z attribute.
+Sets the sampler configuration for the z network.
 
 #### Usage
 
@@ -369,10 +370,7 @@ A list containing all information of the sampler.
 
 ### `sampler.iglm$save()`
 
-Save the object's complete state to a directory. This will save the main
-sampler's settings to a file named 'sampler.iglm_state.rds' within the
-specified directory, and will also call the \`save()\` method for each
-nested sampler (.x, .y, .z), saving them into the same directory.
+Save the object's complete state to an .rds file.
 
 #### Usage
 
@@ -382,8 +380,7 @@ nested sampler (.x, .y, .z), saving them into the same directory.
 
 - `file`:
 
-  (character) The file to a directory where the state files will be
-  saved. The directory will be created if it does not exist.
+  (character) The file path where the state will be saved in RDS format.
 
 #### Returns
 

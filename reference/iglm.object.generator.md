@@ -139,7 +139,8 @@ and control objects, calculating initial statistics, and validating.
       sampler = NULL,
       control = NULL,
       name = NULL,
-      file = NULL
+      file = NULL,
+      ...
     )
 
 #### Arguments
@@ -149,7 +150,7 @@ and control objects, calculating initial statistics, and validating.
   A model \`formula\` object. The left-hand side should be the name of a
   [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
   object available in the calling environment. See
-  [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+  [`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
   for details on specifying the right-hand side terms.
 
 - `coef`:
@@ -186,6 +187,11 @@ and control objects, calculating initial statistics, and validating.
 
   (character or \`NULL\`) If provided, loads the sampler state from the
   specified .rds file instead of initializing from parameters.
+
+- `...`:
+
+  Additional arguments. Unrecognized arguments will trigger informative
+  errors.
 
 #### Returns
 
@@ -234,7 +240,7 @@ parameters. Requires simulations to have been run first (via
 
 #### Usage
 
-    iglm.object$assess(formula, plot = TRUE)
+    iglm.object$assess(formula, plot = TRUE, ...)
 
 #### Arguments
 
@@ -251,6 +257,10 @@ parameters. Requires simulations to have been run first (via
 
   (logical) If \`TRUE\`, generates plots comparing observed and
   simulated statistics. Default is \`TRUE\`.
+
+- `...`:
+
+  Additional arguments passed to `plot`.
 
 #### Returns
 
@@ -345,8 +355,8 @@ model assessment diagnostics if available.
 
 - `stats`:
 
-  (logical) If \`TRUE\`, plot the observed vs. simulated statistics from
-  model assessment. Default is \`FALSE\`.
+  (logical) If \`TRUE\`, plot the trace of simulated statistics. Default
+  is \`FALSE\`.
 
 - `trace`:
 
@@ -616,7 +626,7 @@ coefficients \\\hat{\theta}\\:
 
 - For **Poisson** families: \\\mu = \exp(\eta)\\ (Exponential).
 
-- For **Gaussian** families: \\\mu = \eta\\ (Identity).
+- For **Normal** families: \\\mu = \eta\\ (Identity).
 
 For the network component `z`, the linear predictor includes dyadic
 covariates, degrees effects (sender/receiver variances), and structural
@@ -628,7 +638,7 @@ A list containing the requested predictions:
 
 - `x`, `y`:
 
-  A matrix or data frame where the first column is the actor ID and
+  A matrix or data frame where the first column is the unit ID and
   subsequent columns represent the predicted mean values.
 
 - `z`:

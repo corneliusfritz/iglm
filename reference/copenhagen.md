@@ -17,7 +17,7 @@ The `iglm.data` provides the following information:
 - z_network:
 
   A \\E \times 2\\ integer matrix representing the undirected friendship
-  network (\$Z\$).
+  network (\\Z\\).
 
 - x_attribute:
 
@@ -49,9 +49,9 @@ The following preprocessing steps were carried out:
   aggregated into sessions. A session break was defined by any temporal
   gap exceeding 10 minutes.
 
-- **Recursive Pruning:** A recursive filter removed actors with missing
-  gender information or isolated actors in either the friendship
-  (`z_network`) or proximity (`neighborhood`) networks,
+- **Recursive Pruning:** A recursive filter removed units with missing
+  gender information or isolated units in either the friendship
+  (`z_network`) or proximity (`neighborhood`) networks.
 
 ## References
 

@@ -1,6 +1,7 @@
 # Compute Statistics
 
-Computes statistics.
+Computes observed sufficient statistics for the terms specified in a
+formula.
 
 ## Usage
 
@@ -18,8 +19,10 @@ statistics(formula, canonical_names = FALSE)
   left-hand side can be a `iglm.data.list` object to compute statistics
   for multiple
   [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
-  objects at once (is, e.g., the normal outcome of all simulations). See
-  [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+  objects at once (e.g., the output of
+  [`simulate_iglm`](https://corneliusfritz.github.io/iglm/reference/simulate_iglm.md)).
+  See
+  [`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
   for details on specifying the right-hand side terms.
 
 - canonical_names:
@@ -37,21 +40,28 @@ data in the
 object. The names of the vector match the (optionally labeled) term
 names derived from the formula terms.
 
+## See also
+
+[`iglm`](https://corneliusfritz.github.io/iglm/reference/iglm.md),
+[`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md),
+[`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+
 ## Examples
 
 ``` r
-# Create a iglm.data object
-n_actor <- 10
-neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
-type_x <- "binomial"
-type_y <- "binomial"
-x_attr_data <- rbinom(n_actor, 1, 0.5)
-y_attr_data <- rbinom(n_actor, 1, 0.5)
-z_net_data <- matrix(0, nrow = n_actor, ncol = n_actor)
+# Create an iglm.data object
+n_units <- 10
+neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
+family_x <- "binomial"
+family_y <- "binomial"
+x_attr_data <- rbinom(n_units, 1, 0.5)
+y_attr_data <- rbinom(n_units, 1, 0.5)
+z_net_data <- matrix(0, nrow = n_units, ncol = n_units)
 object <- iglm.data(
   z_network = z_net_data, x_attribute = x_attr_data,
   y_attribute = y_attr_data, neighborhood = neighborhood,
-  directed = FALSE, type_x = type_x, type_y = type_y,
+  directed = FALSE, family_x = family_x, family_y = family_y,
+  n_units = n_units,
   label_x = "age", label_y = "income"
 )
 statistics(object ~ edges(mode = "local") + attribute_y + attribute_x)

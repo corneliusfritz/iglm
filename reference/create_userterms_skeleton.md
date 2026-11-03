@@ -30,7 +30,7 @@ create_userterms_skeleton(path = ".", pkg_name = "iglm.userterms")
 The function creates a directory with the name specified in `pkg_name`
 at the specified location. As an example for a possible statistic, the
 statistic counting mutual connections in the network is implemented.
-After defining all possible change-statistics in the c++ function (this
+After defining all possible change-statistics in the C++ function (this
 has to include a change for `z_ij` (network), `x_i` (attribute x), and
 `y_i` (attribute y) all toggling from 0 to 1), the function has to be
 registered using the `EFFECT_REGISTER` macro. After compiling the

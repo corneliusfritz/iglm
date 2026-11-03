@@ -22,7 +22,7 @@ bindings of the main \`iglm_object\`.
 - `stats`:
 
   (\`matrix\` or \`NULL\`) Read-only. Matrix of summary statistics for
-  simulated samples, which are an \`mcmc\` obect from \`coda\`.
+  simulated samples, which are an \`mcmc\` object from \`coda\`.
 
 - `var`:
 
@@ -63,6 +63,10 @@ bindings of the main \`iglm_object\`.
 
   (\`logical\`) Read-only. Flag indicating if estimation has been
   completed.
+
+- `prediction`:
+
+  (\`list\` or \`NULL\`) Read-only. Results from prediction.
 
 ## Methods
 
@@ -115,7 +119,7 @@ expected number of coefficients.
 
 - `file`:
 
-  (character or \`NULL\`) If provided, loads the sampler state from the
+  (character or \`NULL\`) If provided, loads the results state from the
   specified .rds file instead of initializing from parameters.
 
 #### Returns
@@ -160,8 +164,8 @@ Stores prediction results.
 
 - `prediction`:
 
-  An object containing the prediction results (is a list of class
-  \`iglm.prediction\`.
+  An object containing the prediction results (a list of class
+  \`iglm.prediction\`).
 
 ------------------------------------------------------------------------
 
@@ -352,9 +356,9 @@ available.
 
 - `trace`:
 
-  (logical) If \`TRUE\` (default), plot the trace plots of the
-  estimation (log-likelihood and coefficient paths). Requires model to
-  be estimated.
+  (logical) If \`TRUE\`, plot the trace plots of the estimation
+  (log-likelihood and coefficient paths). Default is \`FALSE\`. Requires
+  model to be estimated.
 
 - `stats`:
 

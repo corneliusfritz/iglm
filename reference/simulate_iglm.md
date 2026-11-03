@@ -26,7 +26,7 @@ simulate_iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+  [`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
   for details on specifying the right-hand side terms.
 
 - basis:
@@ -37,11 +37,11 @@ simulate_iglm(
   provided, the simulation starts from the state (`x_attribute`,
   `y_attribute`, `z_network`) defined in this object. The \`basis\`
   object must be consistent with the model data referenced in
-  \`formula\` (same number of actors, directedness, and attribute
-  types). All structural specifications (terms, neighborhood, overlap,
-  and fixed variable flags) are taken from the \`formula\` data object.
-  If \`NULL\` (default), the initial state is taken from the
-  \`iglm.data\` object referenced in the \`formula\`.
+  \`formula\` (same number of units, directedness, and attribute types).
+  All structural specifications (terms, neighborhood, overlap, and fixed
+  variable flags) are taken from the \`formula\` data object. If
+  \`NULL\` (default), the initial state is taken from the \`iglm.data\`
+  object referenced in the \`formula\`.
 
 - coef:
 
@@ -52,9 +52,9 @@ simulate_iglm(
 
   Numeric vector specifying the degrees coefficient values
   (expansiveness/attractiveness). This is required **only if** the
-  \`formula\` includes degrees terms. Its length must be \`n_actor\`
-  (for undirected networks) or \`2 \* n_actor\` (for directed networks),
-  where \`n_actor\` is determined from the \`iglm.data\` object in the
+  \`formula\` includes degrees terms. Its length must be \`n_units\`
+  (for undirected networks) or \`2 \* n_units\` (for directed networks),
+  where \`n_units\` is determined from the \`iglm.data\` object in the
   formula.
 
 - sampler:
@@ -177,6 +177,8 @@ The function stops with an error if:
 
 [`iglm`](https://corneliusfritz.github.io/iglm/reference/iglm.md) for
 creating the model object,
+[`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+for available model terms,
 [`sampler.iglm`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md)
 for creating the sampler object,
 [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)

@@ -1,11 +1,11 @@
 # Twitter (X) data list for U.S. state legislators (10-state subset)
 
-This data object is data derived from the Twitter (X) interactions
+This data object contains data derived from Twitter (X) interactions
 between U.S. state legislators, which is a subset of the data analyzed
-in Fritz et al. (2025).' The data is filtered to include only
-legislators from 10 states (NY, CA, TX, FL, IL, PA, OH, GA, NC, MI) and
-is further subset to the largest connected component based on mention or
-retweet activity.
+in Fritz et al. (2025). The data is filtered to include only legislators
+from 10 states (NY, CA, TX, FL, IL, PA, OH, GA, NC, MI) and is further
+subset to the largest connected component based on mention or retweet
+activity.
 
 This object contains the main
 [`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
@@ -32,8 +32,8 @@ legislators in the filtered 10-state subset.
     the legislator's party is 'Republican', `0` otherwise.
 
   - `y_attribute`: A Poisson numeric vector of length N. Represents the
-    count of hatespeech incidents (`actors_data$number_hatespeech`) for
-    each legislator.
+    count of hatespeech incidents (`legislator_data$number_hatespeech`)
+    for each legislator.
 
   - `z_network`: A directed edgelist (2-column matrix) of size
     `n_edges x 2`. A tie `(i, j)` exists if legislator `i` either
@@ -74,12 +74,12 @@ Gopal, Kim, Nakka, Boehmke, Harden, Desmarais. The National Network of
 U.S. State Legislators on Twitter. Political Science Research & Methods,
 Forthcoming.
 
-Kim, Nakka, Gopal, Desmarais,Mancinelli, Harden, Ko, and Boehmke (2022).
-Attention to the COVID-19 pandemic on Twitter: Partisan differences
-among U.S. state legislators. Legislative Studies Quarterly 47,
-1023–1041.
+Kim, Nakka, Gopal, Desmarais, Mancinelli, Harden, Ko, and Boehmke
+(2022). Attention to the COVID-19 pandemic on Twitter: Partisan
+differences among U.S. state legislators. Legislative Studies Quarterly
+47, 1023–1041.
 
-Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A
+Fritz, C., Schweinberger, M., Bhadra, S., and D. R. Hunter (2025). A
 Regression Framework for Studying Relationships among Attributes under
 Network Interference. Journal of the American Statistical Association,
 to appear.

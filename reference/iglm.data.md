@@ -1,13 +1,13 @@
 # Constructor for the iglm.data R6 object
 
-Creates a \`iglm.data\` object, which stores network and attribute data.
-This function acts as a user-friendly interface to the \`iglm.data\` R6
-class generator. It handles data input, infers parameters like the
-number of actors (\`n_actor\`) and network directedness (\`directed\`)
-if not explicitly provided, processes network data into a consistent
-edgelist format, calculates the overlap relation based on an optional
-neighborhood definition, and performs extensive validation of all
-inputs.
+Creates an \`iglm.data\` object, which stores network and attribute
+data. This function acts as a user-friendly interface to the
+\`iglm.data\` R6 class generator. It handles data input, infers
+parameters like the number of units (\`n_units\`) and network
+directedness (\`directed\`) if not explicitly provided, processes
+network data into a consistent edgelist format, calculates the overlap
+relation based on an optional neighborhood definition, and performs
+extensive validation of all inputs.
 
 ## Usage
 
@@ -18,9 +18,9 @@ iglm.data(
   z_network = NULL,
   neighborhood = NULL,
   directed = TRUE,
-  n_actor = NA,
-  type_x = "binomial",
-  type_y = "binomial",
+  n_units = NA,
+  family_x = "binomial",
+  family_y = "binomial",
   scale_x = 1,
   scale_y = 1,
   fix_x = FALSE,
@@ -30,7 +30,8 @@ iglm.data(
   file = NULL,
   label_x = "x",
   label_y = "y",
-  label_z = "z"
+  label_z = "z",
+  n_actor = NULL
 )
 ```
 
@@ -53,8 +54,8 @@ iglm.data(
 
   An optional matrix for the neighborhood representing local dependence.
   Can be a 2-column edgelist or a square adjacency matrix. A tie in
-  \`neighborhood\` between actor i and j indicates that j is in the
-  neighborhood of i, implying dependence between the respective actors.
+  \`neighborhood\` between unit i and j indicates that j is in the
+  neighborhood of i, implying dependence between the respective units.
 
 - directed:
 
@@ -62,21 +63,20 @@ iglm.data(
   (default), directedness is inferred from the symmetry of
   \`z_network\`.
 
-- n_actor:
+- n_units:
 
-  An integer for the number of actors in the system. If \`NA\`
-  (default), \`n_actor\` is inferred from the attributes or network
-  matrices.
+  An integer for the number of units in the system. If \`NA\` (default),
+  \`n_units\` is inferred from the attributes or network matrices.
 
-- type_x:
+- family_x:
 
-  Character string for the type of \`x_attribute\`. Must be one of
+  Character string for the family of \`x_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. Default is
   \`"binomial"\`.
 
-- type_y:
+- family_y:
 
-  Character string for the type of \`y_attribute\`. Must be one of
+  Character string for the family of \`y_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. Default is
   \`"binomial"\`.
 
@@ -100,8 +100,8 @@ iglm.data(
 
   (logical) If \`TRUE\`, the 'z' network is held fixed during
   estimation/simulation (fixed network design). Default is \`FALSE\`.
-  Setting this to TRUE, allows practicioners to estimate autologistic
-  actor attribute models, which were introduced in binary settings in
+  Setting this to TRUE, allows practitioners to estimate autologistic
+  unit attribute models, which were introduced in binary settings in
   Daraganova, G., & Robins, G. (2013).
 
 - fix_z_alocal:
@@ -135,6 +135,11 @@ iglm.data(
   Character string for the label/name of \`z_network\`. Default is
   \`"z"\`.
 
+- n_actor:
+
+  (Deprecated) An integer for the number of units. Please use `n_units`
+  instead.
+
 ## Value
 
 An object of class \`iglm.data\` (and \`R6\`).
@@ -161,7 +166,9 @@ state_twitter$iglm.data$degree_distribution(prob = FALSE, plot = TRUE)
 state_twitter$iglm.data$geodesic_distances_distribution(prob = FALSE, plot = TRUE)
 
 state_twitter$iglm.data$mean_x()
+#> [1] 0.3939394
 state_twitter$iglm.data$mean_y()
+#> [1] 0.4121212
 # }
 
 # Generate a small iglm data object either via adjacency matrix or edgelist
@@ -173,20 +180,22 @@ tmp_adjacency <- iglm.data(
     0, 1, 1, 0
   ), nrow = 4, byrow = TRUE),
   directed = FALSE,
-  n_actor = 4,
-  type_x = "binomial",
-  type_y = "binomial"
+  n_units = 4,
+  family_x = "binomial",
+  family_y = "binomial"
 )
 
 
 tmp_edgelist <- iglm.data(
   z_network = tmp_adjacency$z_network,
   directed = FALSE,
-  n_actor = 4,
-  type_x = "binomial",
-  type_y = "binomial"
+  n_units = 4,
+  family_x = "binomial",
+  family_y = "binomial"
 )
 
 tmp_edgelist$mean_z()
+#> [1] 0.6666667
 tmp_adjacency$mean_z()
+#> [1] 0.6666667
 ```

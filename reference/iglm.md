@@ -6,7 +6,19 @@ responses of connected units can be dependent. It extends GLMs for
 independent responses to dependent responses and can be used for
 studying spillover in connected populations and other network-mediated
 phenomena. It is based on a joint probability model for dependent
-responses (\\Y\\) and connections \\(Z)\\ conditional on predictors (X).
+responses (\\Y\\), connections \\(Z)\\, and predictors \\(X)\\. Some of
+these terms can be fixed depending on the application (see the `fix_x`,
+`fix_z`, and `fix_z_alocal` arguments in
+[`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)).
+
+For details on available model terms and specifying model formulas, see
+[`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+(or
+[`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md))
+and the [Model Terms
+vignette](https://corneliusfritz.github.io/iglm/doc/model-terms.md) (or
+run
+[`vignette("model-terms", package = "iglm")`](https://corneliusfritz.github.io/iglm/articles/model-terms.md)).
 
 ## Usage
 
@@ -18,7 +30,8 @@ iglm(
   sampler = NULL,
   control = NULL,
   name = NULL,
-  file = NULL
+  file = NULL,
+  ...
 )
 ```
 
@@ -28,7 +41,7 @@ iglm(
 
   A model \`formula\` object. The left-hand side should be the name of a
   \`iglm.data\` object available in the calling environment. See
-  [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+  [`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
   for details on specifying the right-hand side terms.
 
 - coef:
@@ -41,8 +54,8 @@ iglm(
 
   Optional numeric vector specifying the initial degrees coefficients.
   Required if \`formula\` includes degrees terms, otherwise should be
-  \`NULL\`. Length must match \`n_actor\` (for undirected) or \`2 \*
-  n_actor\` (for directed).
+  \`NULL\`. Length must match \`n_units\` (for undirected) or \`2 \*
+  n_units\` (for directed).
 
 - sampler:
 
@@ -68,6 +81,12 @@ iglm(
   saved `iglm.object` from disk (in RDS format). If provided, other
   arguments are ignored and the object is loaded from the file.
 
+- ...:
+
+  Additional arguments. Unrecognized arguments, particularly those from
+  standard `glm` (such as `data` and `family`), trigger informative
+  errors explaining differences in `iglm`.
+
 ## Value
 
 An object of class `iglm.object`.
@@ -83,7 +102,7 @@ user-specified features:
 
 - **\\\mathbf{g}\_i(x_i^\*, y_i^\*)= (g_i(x_i^\*, y_i^\*))\\**: A vector
   of unit-level functions (or "g-terms") that describe the relationship
-  between an individual actor \\i\\'s predictors (\\x_i\\) and their own
+  between an individual unit \\i\\'s predictors (\\x_i\\) and their own
   response (\\y_i\\).
 
 - **\\\mathbf{h}\_{i,j}(x_i^\*,x_j^\*, y_i^\*, y_j^\*, z)=
@@ -99,7 +118,7 @@ overlapping neighborhoods. This help page documents the various
 statistics available in 'iglm', corresponding to the \\g_i\\
 (attribute-level) and \\h\_{i,j}\\ (pair-level) components of the joint
 model. See
-[`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+[`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
 for details on specifying all model terms via the formula interface.
 
 ## References
@@ -122,25 +141,43 @@ Stewart, J.R. and M. Schweinberger (2025). Pseudo-Likelihood-Based
 M-Estimation of Random Graphs with Dependent Edges and Parameter Vectors
 of Increasing Dimension. The Annals of Statistics, to appear.
 
+## See also
+
+[`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+and the [Model Terms
+vignette](https://corneliusfritz.github.io/iglm/doc/model-terms.md) (or
+[`vignette("model-terms", package = "iglm")`](https://corneliusfritz.github.io/iglm/articles/model-terms.md))
+for model terms and sufficient statistics,
+[`iglm.data`](https://corneliusfritz.github.io/iglm/reference/iglm.data.md)
+for data structure and preparation,
+[`sampler.iglm`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md)
+for MCMC sampler configuration,
+[`control.iglm`](https://corneliusfritz.github.io/iglm/reference/control.iglm.md)
+for estimation control parameters,
+[`simulate_iglm`](https://corneliusfritz.github.io/iglm/reference/simulate_iglm.md)
+for simulation from an iglm model,
+[`statistics`](https://corneliusfritz.github.io/iglm/reference/statistics.md)
+for computing observed sufficient statistics.
+
 ## Examples
 
 ``` r
 # Example usage:
 # Create a iglm.data data object (example)
-n_actor <- 50
-neighborhood <- matrix(1, nrow = n_actor, ncol = n_actor)
+n_units <- 50
+neighborhood <- matrix(1, nrow = n_units, ncol = n_units)
 xyz_obj <- iglm.data(
   neighborhood = neighborhood, directed = FALSE,
-  type_x = "binomial", type_y = "binomial"
+  family_x = "binomial", family_y = "binomial"
 )
 # Define ground truth coefficients
 gt_coef <- c("edges_local" = 3, "attribute_y" = -1, "attribute_x" = -1)
-gt_coef_pop <- rnorm(n = n_actor, -2, 1)
+gt_coef_pop <- rnorm(n = n_units, -2, 1)
 # Define MCMC sampler
 sampler_new <- sampler.iglm(
   n_burn_in = 100, n_simulation = 10,
-  sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-  sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
+  sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+  sampler_y = sampler.net.attr(n_proposals = n_units * 10),
   sampler_z = sampler.net.attr(n_proposals = sum(neighborhood > 0) * 10),
   init_empty = FALSE
 )

@@ -4,7 +4,7 @@
 
 ## Overview
 
-This vignette provides an introduction to the `iglm` package, which is
+This README provides an introduction to the `iglm` package, which is
 designed for estimating joint probability models that incorporate
 network structures. The package allows users to analyze how individual
 attributes and network connections jointly influence outcomes of
@@ -12,7 +12,8 @@ interest.
 
 ## Basic Usage
 
-To use the `iglm` package, you first need to load it into your R session
+To use the `iglm` package, you first need to load it into your R
+session.
 
 ``` r
 
@@ -20,37 +21,28 @@ library(iglm)
 #> Loading required package: RcppProgress
 ```
 
-Next, you can create a `iglm` object by specifying the network structure
-and the attributes of interest. Here is a simple example:
+Next, you can create an `iglm` object by specifying the network
+structure and the attributes of interest. Here is a simple example:
 
 ``` r
 
-n_actors = 100
-
-attribute_info = rnorm(n_actors)
-attribute_cov = diag(attribute_info)
-edge_cov = outer(attribute_info, attribute_info, FUN = function(x,y){abs(x-y)})
+n_units = 100
 set.seed(123)
 
-alpha = 0.3
-block <- matrix(nrow = 50, ncol = 50, data = 1)
-neighborhood <- as.matrix(Matrix::bdiag(replicate(n_actors/50, block, simplify=FALSE)))
-
 overlapping_degree = 0.5
-neighborhood = matrix(nrow = n_actors, ncol = n_actors, data = 0)
-block <- matrix(nrow = 5, ncol = 5, data = 0)
+neighborhood = matrix(nrow = n_units, ncol = n_units, data = 0)
 size_neighborhood <- 5
 size_overlap <-  ceiling(size_neighborhood*overlapping_degree)
 
-end <- floor((n_actors-size_neighborhood)/size_overlap)
+end <- floor((n_units-size_neighborhood)/size_overlap)
 for(i in 0:end){
   neighborhood[(1+size_overlap*i):(size_neighborhood+size_overlap*i), (1+size_overlap*i):(size_neighborhood+size_overlap*i)] = 1
 }
-neighborhood[(n_actors-size_neighborhood+1):(n_actors), (n_actors-size_neighborhood+1):(n_actors)] = 1
+neighborhood[(n_units-size_neighborhood+1):(n_units), (n_units-size_neighborhood+1):(n_units)] = 1
 
-type_x <- "binomial"
-type_y <- "binomial"
-object = iglm.data(neighborhood = neighborhood, directed = F, type_x = type_x, type_y = type_y, n_actor = n_actors)
+family_x <- "binomial"
+family_y <- "binomial"
+object = iglm.data(neighborhood = neighborhood, directed = F, family_x = family_x, family_y = family_y, n_units = n_units)
 ```
 
 ## Model Specification
@@ -71,11 +63,11 @@ estimation and set all necessary parameters:
 # Parameters of edges(mode = "local"), attribute_y, and attribute_x
 gt_coef = c(3,-1,-1)
 # Parameters for degree effect
-gt_coef_degrees =  c(rnorm(n = n_actors, -2, 1))
+gt_coef_degrees =  c(rnorm(n = n_units, -2, 1))
 # Define the sampler
 sampler_tmp = sampler.iglm(n_burn_in = 100, n_simulation = 10,
-                               sampler_x = sampler.net.attr(n_proposals =  n_actors*10),
-                               sampler_y = sampler.net.attr(n_proposals =  n_actors*10),
+                               sampler_x = sampler.net.attr(n_proposals =  n_units*10),
+                               sampler_y = sampler.net.attr(n_proposals =  n_units*10),
                                sampler_z = sampler.net.attr(n_proposals = sum(neighborhood>0)*10),
                                init_empty = F)
 
@@ -166,7 +158,7 @@ Functions to simulate network and attribute outcomes from fitted models.
 Sampler configurations and classes for network and attribute variables.
 
 - [`sampler.iglm()`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.md)
-  : Constructor for a iglm Sampler
+  : Constructor for an iglm Sampler
 - [`sampler.iglm.generator`](https://corneliusfritz.github.io/iglm/reference/sampler.iglm.generator.md)
   : iglm Sampler Settings (R6 Class)
 - [`sampler.net.attr()`](https://corneliusfritz.github.io/iglm/reference/sampler.net.attr.md)
@@ -190,45 +182,48 @@ assessment.
 
 Utilities for defining custom terms and analyzing sufficient statistics.
 
-- [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`degrees-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`edges-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`mutual-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`cov_z-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`cov_z_out-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`cov_z_in-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`cov_x-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`cov_y-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`attribute_xy-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`attribute_yz-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`attribute_xz-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`inedges_y-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`outedges_y-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`inedges_x-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`outedges_x-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`attribute_x-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`attribute_y-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`edges_x_match-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`edges_y_match-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_yy_scaled-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_xx_scaled-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_yx_scaled-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_xy_scaled-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`gwesp-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`gwdsp-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`gwdegree-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`gwidegree-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`gwodegree-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_yc_symm-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_xy-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_yc-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_yx-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_yy-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`spillover_xx-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`transitive-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`nonisolates-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
-  [`isolates-term`](https://corneliusfritz.github.io/iglm/reference/iglm-terms.md)
+- [`iglm.terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`iglm-terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`iglm_terms`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`degrees-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`edges-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`mutual-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`cov_z-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`cov_z_out-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`cov_z_in-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`cov_x-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`cov_y-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`attribute_xy-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`attribute_yz-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`attribute_xz-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`inedges_y-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`outedges_y-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`inedges_x-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`outedges_x-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`attribute_x-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`attribute_y-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`edges_x_match-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`edges_y_match-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_yy_scaled-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_xx_scaled-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_yx_scaled-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_xy_scaled-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`gwesp-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`gwdsp-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`gwesp_symm-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`gwdsp_symm-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`gwdegree-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`gwidegree-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`gwodegree-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_yc_symm-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_xy-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_yc-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_yx-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_yy-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`spillover_xx-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`transitive-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`nonisolates-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
+  [`isolates-term`](https://corneliusfritz.github.io/iglm/reference/iglm.terms.md)
   : Model Specification for iglm Terms
 - [`create_userterms_skeleton()`](https://corneliusfritz.github.io/iglm/reference/create_userterms_skeleton.md)
   : Generate the Skeleton for an R Package to Implement Additional iglm

@@ -75,13 +75,12 @@ control.iglm(
 - return_x:
 
   (logical). If `TRUE`, return the change statistics for the `x`
-  attribute Default is `FALSE`. from samples. Default is \`FALSE\`.
-  (Note: \`return_samples=TRUE\` likely implies this).
+  attribute. Default is `FALSE`.
 
 - return_y:
 
   (logical). If `TRUE`, return the change statistics for the `y`
-  attribute Default is `FALSE`.
+  attribute. Default is `FALSE`.
 
 - return_z:
 
@@ -92,13 +91,12 @@ control.iglm(
 
   (logical) If \`TRUE\` (default), an accelerated MM algorithm is used
   based on a Quasi Newton scheme described in the Supplemental Material
-  of Fritz et al (2025).
+  of Fritz et al. (2025).
 
 - exact:
 
-  (logical) If \`TRUE\`, the pseudo Fisher information is calculated
-  exact for assessing the uncertainty of the estimates. Default is
-  \`FALSE\`.
+  (logical) If \`TRUE\` (default), the pseudo Fisher information is
+  calculated exactly when assessing the uncertainty of the estimates.
 
 ## Value
 
@@ -107,7 +105,7 @@ control parameters.
 
 ## References
 
-Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025). A
+Fritz, C., Schweinberger, M., Bhadra, S., and D. R. Hunter (2025). A
 Regression Framework for Studying Relationships among Attributes under
 Network Interference. Journal of the American Statistical Association,
 to appear.
