@@ -8,3 +8,8 @@ src/*.dll
 _pkgdown.yml
 /doc/
 /Meta/
+.DS_Store
+*.Rcheck/
+..Rcheck/
+*.tar.gz
+

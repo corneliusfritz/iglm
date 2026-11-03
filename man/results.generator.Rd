@@ -18,7 +18,7 @@ bindings of the main `iglm_object`.
 
     \item{\code{samples}}{(`list` or `NULL`) Read-only. A list of simulated `iglm.data` objects (class `iglm.data.list`).}
 
-    \item{\code{stats}}{(`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` obect from `coda`.}
+    \item{\code{stats}}{(`matrix` or `NULL`) Read-only. Matrix of summary statistics for simulated samples, which are an `mcmc` object from `coda`.}
 
     \item{\code{var}}{(`matrix` or `NULL`) Read-only. Estimated variance-covariance matrix for non-degrees coefficients.}
 
@@ -35,6 +35,8 @@ bindings of the main `iglm_object`.
     \item{\code{model_assessment}}{(`list` or `NULL`) Read-only. Results from model assessment (goodness-of-fit).}
 
     \item{\code{estimated}}{(`logical`) Read-only. Flag indicating if estimation has been completed.}
+
+    \item{\code{prediction}}{(`list` or `NULL`) Read-only. Results from prediction.}
   }
   \if{html}{\out{</div>}}
 }
@@ -73,7 +75,7 @@ expected number of coefficients.
 coefficients in the model.}
       \item{\code{size_coef_degrees}}{(integer) The number of degrees coefficients
 in the model (0 if none).}
-      \item{\code{file}}{(character or `NULL`) If provided, loads the sampler state from
+      \item{\code{file}}{(character or `NULL`) If provided, loads the results state from
 the specified .rds file instead of initializing from parameters.}
     }
     \if{html}{\out{</div>}}
@@ -122,7 +124,7 @@ have the class `iglm_model_assessment`.}
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{prediction}}{An object containing the prediction results (is a list of class `iglm.prediction`.}
+      \item{\code{prediction}}{An object containing the prediction results (a list of class `iglm.prediction`).}
     }
     \if{html}{\out{</div>}}
   }
@@ -292,8 +294,8 @@ Optionally, can also trigger plotting of model assessment results if available.
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{trace}}{(logical) If `TRUE` (default), plot the trace plots of the estimation
-(log-likelihood and coefficient paths). Requires
+      \item{\code{trace}}{(logical) If `TRUE`, plot the trace plots of the estimation
+(log-likelihood and coefficient paths). Default is `FALSE`. Requires
 model to be estimated.}
       \item{\code{stats}}{(logical) If `TRUE`, plots the normalized statistics from simulations.
 Default is `FALSE`.}

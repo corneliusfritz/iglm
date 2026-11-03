@@ -57,7 +57,7 @@ reference:
   - title: Model Specification & Custom Terms
     desc: Utilities for defining custom terms and analyzing sufficient statistics.
     contents:
-      - iglm-terms
+      - iglm.terms
       - create_userterms_skeleton
 
   - title: Datasets

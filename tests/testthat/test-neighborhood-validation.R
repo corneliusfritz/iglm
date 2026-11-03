@@ -13,5 +13,5 @@ test_that("iglm.data.neighborhood validation works", {
   
   # Invalid type
   expect_error(iglm.data.neighborhood("not a matrix"), 
-               "`neighborhood` must be a matrix or data frame")
+               "'neighborhood' must be a matrix or data frame")
 })

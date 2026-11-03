@@ -34,18 +34,18 @@ connections (z_network).
 
   (\`logical\`) Indicates if the \`z_network\` is treated as directed.
 
-- `n_actor`:
+- `n_units`:
 
   (\`integer\`) The total number of actors (nodes) in the network.
 
-- `type_x`:
+- `family_x`:
 
-  (\`character\`) The specified distribution type for the
+  (\`character\`) The specified distribution family for the
   \`x_attribute\`.
 
-- `type_y`:
+- `family_y`:
 
-  (\`character\`) The specified distribution type for the
+  (\`character\`) The specified distribution family for the
   \`y_attribute\`.
 
 - `scale_x`:
@@ -84,9 +84,9 @@ connections (z_network).
 
 - [`iglm.data_generator$set_z_network()`](#method-iglm.data-set_z_network)
 
-- [`iglm.data_generator$set_type_x()`](#method-iglm.data-set_type_x)
+- [`iglm.data_generator$set_family_x()`](#method-iglm.data-set_family_x)
 
-- [`iglm.data_generator$set_type_y()`](#method-iglm.data-set_type_y)
+- [`iglm.data_generator$set_family_y()`](#method-iglm.data-set_family_y)
 
 - [`iglm.data_generator$set_scale_x()`](#method-iglm.data-set_scale_x)
 
@@ -159,9 +159,9 @@ and one network.
       z_network = NULL,
       neighborhood = NULL,
       directed = NA,
-      n_actor = NA,
-      type_x = "binomial",
-      type_y = "binomial",
+      n_units = NA,
+      family_x = "binomial",
+      family_y = "binomial",
       scale_x = 1,
       scale_y = 1,
       fix_x = FALSE,
@@ -199,21 +199,21 @@ and one network.
   (default), directedness is inferred from the symmetry of
   \`z_network\`.
 
-- `n_actor`:
+- `n_units`:
 
   An integer for the number of actors in the system. If \`NA\`
-  (default), \`n_actor\` is inferred from the attributes or network
+  (default), \`n_units\` is inferred from the attributes or network
   matrices.
 
-- `type_x`:
+- `family_x`:
 
-  Character string for the type of \`x_attribute\`. Must be one of
+  Character string for the family of \`x_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. Default is
   \`"binomial"\`.
 
-- `type_y`:
+- `family_y`:
 
-  Character string for the type of \`y_attribute\`. Must be one of
+  Character string for the family of \`y_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. Default is
   \`"binomial"\`.
 
@@ -277,37 +277,37 @@ Sets the \`z_network\` of the \`iglm.data\` object.
 
 ------------------------------------------------------------------------
 
-### Method `set_type_x()`
+### Method `set_family_x()`
 
-Sets the \`type_x\` of the \`iglm.data\` object.
+Sets the \`family_x\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_type_x(type_x)
+    iglm.data_generator$set_family_x(family_x)
 
 #### Arguments
 
-- `type_x`:
+- `family_x`:
 
-  A character string for the type of \`x_attribute\`. Must be one of
+  A character string for the family of \`x_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`. @return The
   \`iglm.data\` object itself (\`self\`), invisibly.
 
 ------------------------------------------------------------------------
 
-### Method `set_type_y()`
+### Method `set_family_y()`
 
-Sets the \`type_y\` of the \`iglm.data\` object.
+Sets the \`family_y\` of the \`iglm.data\` object.
 
 #### Usage
 
-    iglm.data_generator$set_type_y(type_y)
+    iglm.data_generator$set_family_y(family_y)
 
 #### Arguments
 
-- `type_y`:
+- `family_y`:
 
-  A character string for the type of \`y_attribute\`. Must be one of
+  A character string for the family of \`y_attribute\`. Must be one of
   \`"binomial"\`, \`"poisson"\`, or \`"normal"\`.
 
 #### Returns

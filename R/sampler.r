@@ -82,11 +82,11 @@ sampler.net.attr.generator <- R6::R6Class("sampler.net.attr",
   active = list(
     #' @field n_proposals (`integer`) Read-only. Number of MCMC proposals per step.
     n_proposals = function(value) {
-      if (missing(value)) private$.n_proposals else stop("`n_proposals` is read-only.", call. = FALSE)
+      if (missing(value)) private$.n_proposals else stop("'n_proposals' is read-only.", call. = FALSE)
     },
     #' @field tnt (`logical`) Read-only. Whether TNT sampling is used.
     tnt = function(value) {
-      if (missing(value)) private$.tnt else stop("`tnt` is read-only.", call. = FALSE)
+      if (missing(value)) private$.tnt else stop("'tnt' is read-only.", call. = FALSE)
     }
   )
 )
@@ -141,26 +141,26 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
       # Check if cluster is valid
       if (!is.null(private$.cluster)) {
         if (!inherits(private$.cluster, "cluster")) {
-          stop("`cluster` must be a valid cluster object from the 'parallel' package.", call. = FALSE)
+          stop("'cluster' must be a valid cluster object from the 'parallel' package.", call. = FALSE)
         }
       }
       if (private$.n_simulation < 0) {
-        stop("`n_simulation` must be a non-negative integer.", call. = FALSE)
+        stop("'n_simulation' must be a non-negative integer.", call. = FALSE)
       }
       if (private$.n_burn_in < 0) {
-        stop("`n_burn_in` must be a non-negative integer.", call. = FALSE)
+        stop("'n_burn_in' must be a non-negative integer.", call. = FALSE)
       }
       if (!is.logical(private$.init_empty)) {
-        stop("`init_empty` must be a logical value (TRUE or FALSE).", call. = FALSE)
+        stop("'init_empty' must be a logical value (TRUE or FALSE).", call. = FALSE)
       }
       if (!inherits(private$.sampler_x, "sampler.net.attr")) {
-        stop("`sampler_x` must be created with `sampler.net.attr()`.", call. = FALSE)
+        stop("'sampler_x' must be created with 'sampler.net.attr()'.", call. = FALSE)
       }
       if (!inherits(private$.sampler_y, "sampler.net.attr")) {
-        stop("`sampler_y` must be created with `sampler.net.attr()`.", call. = FALSE)
+        stop("'sampler_y' must be created with 'sampler.net.attr()'.", call. = FALSE)
       }
       if (!inherits(private$.sampler_z, "sampler.net.attr")) {
-        stop("`sampler_z` must be created with `sampler.net.attr()`.", call. = FALSE)
+        stop("'sampler_z' must be created with 'sampler.net.attr()'.", call. = FALSE)
       }
     }
   ),
@@ -177,6 +177,8 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #'   sampling for the z network (within the defined neighborhood/overlap).
     #'   If `NULL`, defaults from `sampler.net.attr()` are used.
     #' @param n_simulation (integer) The number of network/attribute configurations
+    #'   to simulate. Default is 100.
+    #' @param n_burn_in (integer) The number of initial burn-in iterations. Default is 10.
     #' @param init_empty (logical) If `FALSE` (default), the MCMC chain is
     #'   initialized from observed data. If `TRUE`, the MCMC chain is
     #'   initialized from an empty state (e.g., empty network, attributes at mean).
@@ -212,7 +214,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
         # Validate sub-samplers
         sub_samplers <- list(private$.sampler_x, private$.sampler_y, private$.sampler_z)
         if (!all(sapply(sub_samplers, inherits, "sampler.net.attr"))) {
-          stop("Component samplers (sampler_x, _y, _z) must be created with `sampler.net.attr()`.")
+          stop("Component samplers (sampler_x, _y, _z) must be created with 'sampler.net.attr()'.")
         }
       } else {
         if (!file.exists(file)) {
@@ -284,7 +286,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #' @return None.
     set_init_empty = function(init_empty) {
       if (!is.logical(init_empty)) {
-        stop("`init_empty` must be a logical value (TRUE or FALSE).", call. = FALSE)
+        stop("'init_empty' must be a logical value (TRUE or FALSE).", call. = FALSE)
       }
       private$.init_empty <- init_empty
       private$.validate()
@@ -294,8 +296,8 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #' @param sampler_x An object of class `sampler_net_attr`.
     #' @return None.
     set_x_sampler = function(sampler_x) {
-      if (!inherits(sampler_x, "sampler_net_attr")) {
-        stop("`sampler_x` must be created with `sampler.net.attr()`.", call. = FALSE)
+      if (!inherits(sampler_x, "sampler.net.attr")) {
+        stop("'sampler_x' must be created with 'sampler.net.attr()'.", call. = FALSE)
       }
       private$.sampler_x <- sampler_x
       private$.validate()
@@ -305,19 +307,19 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     #' @param sampler_y An object of class `sampler_net_attr`.
     #' @return None.
     set_y_sampler = function(sampler_y) {
-      if (!inherits(sampler_y, "sampler_net_attr")) {
-        stop("`sampler_y` must be created with `sampler.net.attr()`.", call. = FALSE)
+      if (!inherits(sampler_y, "sampler.net.attr")) {
+        stop("'sampler_y' must be created with 'sampler.net.attr()'.", call. = FALSE)
       }
       private$.sampler_y <- sampler_y
       private$.validate()
     },
     #' @description
-    #' Sets the sampler configuration for the z attribute.
+    #' Sets the sampler configuration for the z network.
     #' @param sampler_z An object of class `sampler_net_attr`.
     #' @return None.
     set_z_sampler = function(sampler_z) {
-      if (!inherits(sampler_z, "sampler_net_attr")) {
-        stop("`sampler_z` must be created with `sampler.net.attr()`.", call. = FALSE)
+      if (!inherits(sampler_z, "sampler.net.attr")) {
+        stop("'sampler_z' must be created with 'sampler.net.attr()'.", call. = FALSE)
       }
       private$.sampler_z <- sampler_z
       private$.validate()
@@ -367,15 +369,9 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
       )
     },
     #' @description
-    #' Save the object's complete state to a directory.
-    #' This will save the main sampler's settings to a file
-    #' named 'sampler.iglm_state.rds' within the specified
-    #' directory, and will also call the `save()` method for each
-    #' nested sampler (.x, .y, .z), saving them into the same
-    #' directory.
-    #' @param file (character) The file to a directory where the
-    #'   state files will be saved. The directory will be created
-    #'   if it does not exist.
+    #' Save the object's complete state to an .rds file.
+    #' @param file (character) The file path where the state
+    #'   will be saved in RDS format.
     #' @return The object itself, invisibly.
     save = function(file) {
       if (missing(file) || !is.character(file) || length(file) != 1) {
@@ -406,19 +402,19 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
     },
     #' @field n_simulation (`integer`) The number of configurations to simulate.
     n_simulation = function(value) {
-      if (missing(value)) private$.n_simulation else if (is.numeric(value)) self$set_n_simulation(value) else stop("`n_simulation` must be numeric.", call. = FALSE)
+      if (missing(value)) private$.n_simulation else if (is.numeric(value)) self$set_n_simulation(value) else stop("'n_simulation' must be numeric.", call. = FALSE)
     },
     #' @field n_burn_in (`integer`) The number of initial MCMC iterations to discard.
     n_burn_in = function(value) {
-      if (missing(value)) private$.n_burn_in else if (is.numeric(value)) self$set_n_burn_in(value) else stop("`n_burn_in` must be numeric.", call. = FALSE)
+      if (missing(value)) private$.n_burn_in else if (is.numeric(value)) self$set_n_burn_in(value) else stop("'n_burn_in' must be numeric.", call. = FALSE)
     },
     #' @field init_empty (`logical`) Whether to initialize simulations from an empty state.
     init_empty = function(value) {
-      if (missing(value)) private$.init_empty else if (is.logical(value)) self$set_init_empty(value) else stop("`init_empty` must be logical", call. = FALSE)
+      if (missing(value)) private$.init_empty else if (is.logical(value)) self$set_init_empty(value) else stop("'init_empty' must be logical.", call. = FALSE)
     },
     #' @field seed (`integer`) Read-only. The random seed used for sampling.
     seed = function(value) {
-      if (missing(value)) private$.seed else stop("`seed` is read-only. Use `set_seed()` to change it.", call. = FALSE)
+      if (missing(value)) private$.seed else stop("'seed' is read-only. Use 'set_seed()' to change it.", call. = FALSE)
     },
     #' @field cluster (`cluster` object or `NULL`) The parallel cluster object being used, or `NULL`.
     cluster = function(value) {
@@ -428,7 +424,7 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 )
 
 
-#' Constructor for a iglm Sampler
+#' Constructor for an iglm Sampler
 #'
 #' @description
 #' Creates an object of class `sampler.iglm` (and `R6`) which holds all
@@ -466,13 +462,13 @@ sampler.iglm.generator <- R6::R6Class("sampler.iglm",
 #' @export
 #' @seealso `sampler.net.attr`, `iglm`, `control.iglm`
 #' @examples
-#' n_actor <- 50
+#' n_units <- 50
 #' sampler_new <- sampler.iglm(
 #'   n_burn_in = 100, n_simulation = 10,
 #'   seed = 42,
-#'   sampler_x = sampler.net.attr(n_proposals = n_actor * 10),
-#'   sampler_y = sampler.net.attr(n_proposals = n_actor * 10),
-#'   sampler_z = sampler.net.attr(n_proposals = n_actor^2, tnt = TRUE),
+#'   sampler_x = sampler.net.attr(n_proposals = n_units * 10),
+#'   sampler_y = sampler.net.attr(n_proposals = n_units * 10),
+#'   sampler_z = sampler.net.attr(n_proposals = n_units^2, tnt = TRUE),
 #'   init_empty = FALSE
 #' )
 #' sampler_new

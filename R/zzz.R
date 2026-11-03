@@ -53,7 +53,7 @@ add_alpha <- function(color_code, alpha_level) {
 #' at the specified location.
 #' As an example for a possible statistic, the statistic counting mutual
 #' connections in the network is implemented.
-#' After defining all possible change-statistics in the c++ function (this has to include a change for
+#' After defining all possible change-statistics in the C++ function (this has to include a change for
 #' \code{z_ij} (network), \code{x_i} (attribute x), and \code{y_i} (attribute y) all toggling from 0 to 1),
 #' the function has to be registered using the \code{EFFECT_REGISTER} macro.
 #' After compiling the package,
@@ -149,14 +149,14 @@ create_userterms_skeleton <- function(path = ".", pkg_name = "iglm.userterms") {
     "#include \"iglm/xyz_class.h\"",
     "",
     "double xyz_stat_my_mutual(const XYZ_class &object,",
-    "                          const int &actor_i,",
-    "                          const int &actor_j,",
+    "                          const int &unit_i,",
+    "                          const int &unit_j,",
     "                          const arma::mat &data,",
     "                          const double &type,",
     "                          const std::string &mode,",
     "                          const bool &is_full_neighborhood){",
     "  if(mode == \"z\"){",
-    "    return(object.z_network.get_val(actor_j, actor_i));",
+    "    return(object.z_network.get_val(unit_j, unit_i));",
     "  }",
     "  return(0);",
     "};",

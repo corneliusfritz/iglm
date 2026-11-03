@@ -1,9 +1,9 @@
 #' Twitter (X) data list for U.S. state legislators (10-state subset)
 #'
 #' @description
-#' This data object is data derived from the Twitter
+#' This data object contains data derived from Twitter
 #' (X) interactions between U.S. state legislators, which is a subset of the
-#' data analyzed in Fritz et al. (2025).'
+#' data analyzed in Fritz et al. (2025).
 #' The data is filtered to include only legislators from 10 states (NY, CA, TX,
 #' FL, IL, PA, OH, GA, NC, MI) and is further subset to the largest
 #' connected component based on mention or retweet activity.
@@ -28,7 +28,7 @@
 #'         \code{0} otherwise.
 #'       \item \code{y_attribute}: A Poisson numeric vector of length N.
 #'         Represents the count of hatespeech incidents
-#'         (\code{actors_data$number_hatespeech}) for each legislator.
+#'         (\code{legislator_data$number_hatespeech}) for each legislator.
 #'       \item \code{z_network}: A directed edgelist (2-column matrix) of
 #'         size \code{n_edges x 2}. A tie \code{(i, j)} exists if legislator
 #'         \code{i} either mentioned or retweeted legislator \code{j}.
@@ -65,11 +65,11 @@
 #' The National Network of U.S. State Legislators on Twitter.
 #' Political Science Research & Methods, Forthcoming.
 #'
-#' Kim, Nakka, Gopal, Desmarais,Mancinelli, Harden, Ko, and Boehmke (2022).
+#' Kim, Nakka, Gopal, Desmarais, Mancinelli, Harden, Ko, and Boehmke (2022).
 #' Attention to the COVID-19 pandemic on Twitter: Partisan differences among
 #' U.S. state legislators. Legislative Studies Quarterly 47, 1023–1041.
 #'
-#' Fritz, C., Schweinberger, M. , Bhadra S., and D. R. Hunter (2025).
+#' Fritz, C., Schweinberger, M., Bhadra, S., and D. R. Hunter (2025).
 #' A Regression Framework for Studying Relationships among Attributes under Network Interference.
 #' Journal of the American Statistical Association, to appear.
 #'
@@ -94,7 +94,7 @@ NULL
 #' @format The \code{iglm.data} provides the following information:
 #' \describe{
 #'   \item{z_network}{A \eqn{E \times 2} integer matrix representing the
-#'     undirected friendship network ($Z$).}
+#'     undirected friendship network (\eqn{Z}).}
 #'   \item{x_attribute}{A logical/binomial vector of length \eqn{N} indicating
 #'     gender (1 for female, 0 for male).}
 #'   \item{y_attribute}{A numeric vector of length \eqn{N} representing the
@@ -114,9 +114,9 @@ NULL
 #'   \item \bold{Temporal Aggregation:} Proximity data (Bluetooth scans)
 #'     were aggregated into sessions. A session break was defined by any
 #'     temporal gap exceeding 10 minutes.
-#'   \item \bold{Recursive Pruning:} A recursive filter removed actors with missing
-#'     gender information or isolated actors in either the
-#'     friendship (\code{z_network}) or proximity (\code{neighborhood}) networks,
+#'   \item \bold{Recursive Pruning:} A recursive filter removed units with missing
+#'     gender information or isolated units in either the
+#'     friendship (\code{z_network}) or proximity (\code{neighborhood}) networks.
 #' }
 #'
 #' @references
